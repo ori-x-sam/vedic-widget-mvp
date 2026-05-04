@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Vedic Daily — MVP Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ---------- Page shell ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #0a0a0a; color: #eaeaea; font-family: 'Inter', -apple-system, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+body { padding: 60px 40px 120px; }
+.deck { max-width: 1400px; margin: 0 auto; }
+header.page-head { margin-bottom: 80px; }
+header.page-head h1 { font-size: 40px; font-weight: 600; letter-spacing: -0.02em; }
+header.page-head p { color: #777; margin-top: 10px; font-size: 15px; max-width: 640px; line-height: 1.5; }
+.section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #666; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 14px; }
+.section-title { font-size: 24px; font-weight: 500; margin-bottom: 40px; letter-spacing: -0.01em; }
+.section-note { color: #666; font-size: 13px; margin-top: 20px; max-width: 380px; line-height: 1.5; }
+section.deck-section { margin-bottom: 120px; }
+.row { display: flex; gap: 60px; align-items: flex-start; flex-wrap: wrap; }
+.row-note { flex: 1 1 260px; max-width: 340px; }
+
+/* ---------- iPhone frame ---------- */
+.iphone {
+  width: 390px; height: 844px;
+  background: #000;
+  border-radius: 54px;
+  padding: 12px;
+  box-shadow: 0 0 0 2px #1a1a1a, 0 30px 80px rgba(0,0,0,0.5), 0 0 0 12px #111;
+  position: relative;
+  flex-shrink: 0;
+}
+.iphone-screen {
+  width: 100%; height: 100%;
+  border-radius: 42px;
+  overflow: hidden;
+  background: #000;
+  position: relative;
+  display: flex; flex-direction: column;
+}
+.dynamic-island {
+  position: absolute;
+  top: 11px; left: 50%; transform: translateX(-50%);
+  width: 126px; height: 37px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 100;
+}
+.status-bar {
+  padding: 18px 28px 0;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 15px; font-weight: 600; color: #fff;
+  z-index: 10;
+  flex-shrink: 0;
+}
+.status-icons { display: flex; gap: 6px; align-items: center; color: #fff; }
+.status-icons svg { width: 17px; height: 12px; }
+.status-battery { width: 24px; height: 11px; border: 1px solid #fff; border-radius: 3px; position: relative; }
+.status-battery::after { content: ""; position: absolute; right: -3px; top: 3px; width: 2px; height: 5px; background: #fff; border-radius: 0 2px 2px 0; }
+.status-battery::before { content: ""; position: absolute; top: 1px; left: 1px; width: 19px; height: 7px; background: #fff; border-radius: 1px; }
+
+/* ---------- App content area ---------- */
+.app-content { flex: 1; overflow: hidden; padding: 10px 0 0; display: flex; flex-direction: column; }
+
+/* ---------- Onboarding styles ---------- */
+.ob-progress { padding: 24px 32px 0; display: flex; gap: 6px; }
+.ob-progress .bar { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.2); }
+.ob-progress .bar.done { background: #fff; }
+.ob-body { flex: 1; padding: 48px 32px 36px; display: flex; flex-direction: column; }
+.ob-back { color: rgba(255,255,255,0.6); font-size: 15px; font-weight: 500; background: none; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; padding: 0; margin-bottom: 28px; }
+.ob-back svg { width: 14px; height: 14px; }
+.ob-title { font-size: 28px; font-weight: 600; letter-spacing: -0.015em; color: #fff; line-height: 1.2; }
+.ob-sub { color: rgba(255,255,255,0.5); font-size: 16px; margin-top: 10px; line-height: 1.4; }
+.ob-field {
+  margin-top: 32px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: #fff;
+  font-size: 22px; font-weight: 500;
+  border: none; outline: none; width: 100%;
+  font-family: inherit;
+}
+.ob-field::placeholder { color: rgba(255,255,255,0.3); }
+.ob-primary {
+  margin-top: auto;
+  background: #fff;
+  color: #000;
+  font-size: 17px; font-weight: 600;
+  padding: 16px;
+  border-radius: 14px;
+  border: none; cursor: pointer;
+  width: 100%;
+  font-family: inherit;
+  transition: transform 0.08s ease;
+}
+.ob-primary:active { transform: scale(0.98); }
+.ob-primary.disabled { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); cursor: default; }
+
+/* ---------- Wheel date/time picker ---------- */
+.wheel-picker {
+  margin-top: 28px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 16px;
+  padding: 14px 0;
+  height: 200px;
+  display: flex; gap: 0;
+  justify-content: center;
+  position: relative; overflow: hidden;
+}
+.wheel-picker::before {
+  content: ""; position: absolute; left: 12px; right: 12px; top: 50%;
+  height: 36px; transform: translateY(-50%);
+  background: rgba(255,255,255,0.06); border-radius: 8px;
+  pointer-events: none;
+}
+.wheel-col { width: 30%; height: 100%; overflow: hidden; position: relative; text-align: center; }
+.wheel-col .value-list { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); }
+.wheel-col .v { height: 36px; line-height: 36px; font-size: 22px; color: rgba(255,255,255,0.25); }
+.wheel-col .v.focus { color: #fff; font-weight: 500; }
+.wheel-col .v.near { color: rgba(255,255,255,0.55); }
+
+/* ---------- Toggle row ---------- */
+.toggle-row {
+  margin-top: 28px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 15px;
+  color: rgba(255,255,255,0.75);
+}
+.toggle {
+  width: 51px; height: 31px;
+  background: rgba(120,120,128,0.32);
+  border-radius: 16px;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.toggle::after {
+  content: ""; position: absolute; top: 2px; left: 2px;
+  width: 27px; height: 27px; background: #fff; border-radius: 50%;
+  transition: left 0.2s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+.toggle.on { background: #34C759; }
+.toggle.on::after { left: 22px; }
+
+/* ---------- Location search ---------- */
+.search-field {
+  margin-top: 28px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex; gap: 10px; align-items: center;
+}
+.search-field svg { width: 16px; height: 16px; color: rgba(255,255,255,0.4); }
+.search-field input { background: none; border: none; outline: none; color: #fff; font-size: 16px; flex: 1; font-family: inherit; }
+.search-field input::placeholder { color: rgba(255,255,255,0.3); }
+.results-list {
+  margin-top: 16px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.result-row {
+  padding: 14px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+}
+.result-row:last-child { border-bottom: none; }
+.result-row .place-main { font-size: 15px; font-weight: 500; color: #fff; }
+.result-row .place-sub  { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+.result-row.selected .check { color: #fff; }
+.check { color: transparent; font-size: 14px; }
+
+/* ---------- Instructions ---------- */
+.instructions { margin-top: 28px; background: rgba(255,255,255,0.06); border-radius: 16px; overflow: hidden; }
+.inst-row { display: flex; gap: 14px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); align-items: flex-start; }
+.inst-row:last-child { border-bottom: none; }
+.inst-num { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.5); width: 20px; }
+.inst-text { font-size: 14px; color: rgba(255,255,255,0.75); line-height: 1.5; flex: 1; }
+
+/* ---------- Today view ---------- */
+.today-scroll { flex: 1; overflow-y: auto; padding: 16px 24px 40px; }
+.today-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 24px; }
+.today-date { font-size: 13px; color: rgba(255,255,255,0.5); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; }
+.today-gear { color: rgba(255,255,255,0.6); background: none; border: none; cursor: pointer; }
+.today-gear svg { width: 22px; height: 22px; }
+.toggle-segment {
+  display: flex;
+  background: rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 32px;
+}
+.toggle-segment button {
+  flex: 1; background: none; border: none; color: rgba(255,255,255,0.5);
+  padding: 8px; font-size: 13px; font-weight: 500;
+  border-radius: 8px; cursor: pointer; font-family: inherit;
+  transition: all 0.15s;
+}
+.toggle-segment button.active { background: rgba(255,255,255,0.12); color: #fff; }
+.today-headline { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; color: #fff; }
+.today-modifier { font-size: 17px; color: rgba(255,255,255,0.55); margin-top: 12px; line-height: 1.4; }
+.today-attrs { display: flex; gap: 24px; margin-top: 28px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,0.08); }
+.attr { display: flex; flex-direction: column; gap: 4px; }
+.attr-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.1em; }
+.attr-value { font-size: 18px; color: #fff; font-weight: 500; }
+.color-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 8px; vertical-align: -1px; box-shadow: 0 0 0 1px rgba(255,255,255,0.18); }
+.time-windows { margin-top: 28px; display: flex; flex-direction: column; gap: 12px; }
+.time-window {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 12px;
+  border-left: 3px solid;
+}
+.time-window.avoid { border-left-color: #ff6b5a; }
+.time-window.best  { border-left-color: #4ade80; }
+.time-window .tw-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.time-window.avoid .tw-dot { background: #ff6b5a; }
+.time-window.best  .tw-dot { background: #4ade80; }
+.time-window .tw-stack { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.time-window .tw-label { font-size: 13px; font-weight: 600; }
+.time-window.avoid .tw-label { color: #ff9c8e; }
+.time-window.best  .tw-label { color: #86efac; }
+.time-window .tw-sub { font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.35; }
+.time-window .tw-range { font-size: 13px; color: rgba(255,255,255,0.8); margin-left: auto; font-variant-numeric: tabular-nums; white-space: nowrap; padding-top: 2px; }
+.today-detail { margin-top: 28px; font-size: 15px; line-height: 1.65; color: rgba(255,255,255,0.75); }
+
+/* ---------- Widgets on home screen ---------- */
+.homescreen {
+  width: 100%; height: 100%;
+  background:
+    radial-gradient(ellipse at top left, rgba(88, 62, 150, 0.4), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(200, 100, 80, 0.35), transparent 60%),
+    linear-gradient(180deg, #1a1533 0%, #2e1a2e 100%);
+  padding: 60px 16px 0;
+  display: flex; flex-direction: column;
+}
+.homescreen-date { text-align: center; color: #fff; font-size: 18px; font-weight: 500; margin-top: 8px; margin-bottom: 6px; }
+.homescreen-time { text-align: center; color: #fff; font-size: 72px; font-weight: 200; letter-spacing: -0.04em; line-height: 0.95; margin-bottom: 30px; }
+.widget-grid { display: grid; gap: 16px; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 80px; }
+.widget { background: #0a0a0a; border-radius: 22px; padding: 16px; color: #fff; position: relative; overflow: hidden; }
+
+/* Small (2×2) */
+.widget.sm { grid-column: span 2; grid-row: span 2; }
+.widget.sm .w-head { font-size: 15px; font-weight: 600; line-height: 1.2; letter-spacing: -0.01em; }
+.widget.sm .w-status { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+.widget.sm .w-status-dot { width: 8px; height: 8px; border-radius: 50%; }
+.widget.sm .w-status-dot.good { background: #4ade80; }
+.widget.sm .w-status-label { font-size: 11px; color: rgba(255,255,255,0.6); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; }
+.widget.sm .w-foot { position: absolute; bottom: 14px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: flex-end; }
+.widget.sm .w-n { font-size: 10px; color: rgba(255,255,255,0.35); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; }
+.widget.sm .w-colour-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+.widget.sm .w-swatch { width: 11px; height: 11px; border-radius: 3px; box-shadow: 0 0 0 1px rgba(255,255,255,0.18); }
+.widget.sm .w-colour-name { font-size: 11px; color: rgba(255,255,255,0.6); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ---------- Scrubber (medium + large widgets) ---------- */
+.scrub-container {
+  position: relative;
+  margin-top: 10px;
+  height: 54px;
+  user-select: none;
+  touch-action: none;
+}
+.scrub-track {
+  position: absolute; inset: 0;
+  cursor: grab;
+}
+.scrub-track:active { cursor: grabbing; }
+.scrub-arc {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.scrub-arc .base { fill: none; stroke: rgba(255,255,255,0.12); stroke-width: 1.5; stroke-linecap: round; }
+.scrub-arc .avoid-seg { fill: none; stroke: #ff6b5a; stroke-width: 2.2; stroke-linecap: round; opacity: 0.9; }
+.scrub-arc .best-seg  { fill: none; stroke: #4ade80; stroke-width: 2.2; stroke-linecap: round; opacity: 0.9; }
+.scrub-end-label {
+  position: absolute; top: 42px;
+  font-size: 9px; font-family: 'JetBrains Mono', monospace;
+  color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em;
+}
+.scrub-end-label.left  { left: 0; }
+.scrub-end-label.right { right: 0; }
+/* ----- Scrubber icon that morphs through time-of-day -----
+   States: moon → dawn → gentle sun → harsh sun → dusk → moon.
+   All states share the same 22px disc geometry so the position on the
+   arc is visually continuous; only the fill and glow swap.
+   Transitions are smooth so dragging feels fluid. */
+.scrub-icon {
+  position: absolute;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  overflow: visible;
+  transition:
+    background 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+  border: 2px solid rgba(255,255,255,0.18);
+  box-sizing: border-box;
+}
+/* Inner core dot */
+.scrub-icon::after {
+  content: "";
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  transition: background 0.35s ease, width 0.35s ease, height 0.35s ease, box-shadow 0.35s ease;
+}
+/* Moon-phase occluder — shown only in moon state */
+.scrub-icon::before {
+  content: "";
+  position: absolute; inset: 1px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.35s ease, transform 0.35s ease;
+  pointer-events: none;
+}
+
+/* Gentle sun (default — morning / afternoon) */
+.scrub-icon {
+  background: radial-gradient(circle at 35% 35%, #fff 0%, #ffd98a 55%, #f7b945 100%);
+  box-shadow: 0 0 0 4px rgba(255,215,140,0.12), 0 0 14px rgba(255,195,80,0.28), 0 2px 8px rgba(0,0,0,0.4);
+}
+.scrub-icon::after {
+  background: radial-gradient(circle at 35% 35%, #fff, #f9c45b 70%);
+}
+
+/* Harsh sun (midday) — brighter core, wider corona */
+.scrub-icon.harsh {
+  background: radial-gradient(circle at 35% 35%, #fff 0%, #fff4c2 45%, #ffd34d 100%);
+  box-shadow:
+    0 0 0 5px rgba(255,240,160,0.18),
+    0 0 22px rgba(255,225,120,0.55),
+    0 0 38px rgba(255,210,80,0.25),
+    0 2px 8px rgba(0,0,0,0.4);
+  border-color: rgba(255,250,200,0.35);
+}
+.scrub-icon.harsh::after {
+  width: 11px; height: 11px;
+  background: radial-gradient(circle at 35% 35%, #fff, #ffe07a 70%);
+  box-shadow: 0 0 6px rgba(255,255,200,0.9);
+}
+
+/* Dawn — soft pink-peach */
+.scrub-icon.dawn {
+  background: radial-gradient(circle at 35% 35%, #fff 0%, #ffd0b8 55%, #ff9170 100%);
+  box-shadow: 0 0 0 4px rgba(255,160,130,0.14), 0 0 12px rgba(255,120,100,0.3), 0 2px 8px rgba(0,0,0,0.4);
+}
+.scrub-icon.dawn::after {
+  background: radial-gradient(circle at 35% 35%, #fff, #ff9170 70%);
+}
+
+/* Dusk — deep orange */
+.scrub-icon.dusk {
+  background: radial-gradient(circle at 35% 35%, #fff 0%, #ffb890 50%, #ff7a50 100%);
+  box-shadow: 0 0 0 4px rgba(255,120,80,0.14), 0 0 12px rgba(255,100,70,0.3), 0 2px 8px rgba(0,0,0,0.4);
+}
+.scrub-icon.dusk::after {
+  background: radial-gradient(circle at 35% 35%, #fff, #ff7a50 70%);
+}
+
+/* Moon (night) — cream disc with a dark crescent on the right */
+.scrub-icon.moon {
+  background: radial-gradient(circle at 38% 38%, #f6efd6 0%, #dcd1a8 65%, #b8ac7f 100%);
+  box-shadow: 0 0 0 3px rgba(220,215,255,0.10), 0 0 14px rgba(200,210,255,0.22), 0 2px 8px rgba(0,0,0,0.4);
+  border-color: rgba(255,255,255,0.10);
+}
+.scrub-icon.moon::after {
+  /* hide the sun core when moon is active */
+  width: 0; height: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.scrub-icon.moon::before {
+  /* Dark crescent — offset circle creates the phase shadow */
+  background: #0e0e12;
+  transform: translateX(45%);
+}
+/* The scrub time now lives in the card's header row (.today-scrub-time)
+   — fixed position, always readable, never clipped by the arc geometry.
+   The old floating .scrub-time-label is retained for legacy mounts but
+   hidden by default. */
+.scrub-time-label { display: none; }
+.scrub-tint {
+  position: absolute; inset: 0;
+  border-radius: 22px;
+  pointer-events: none;
+  transition: background 0.25s ease;
+  z-index: 0;
+}
+.widget.md, .widget.lg { position: relative; isolation: isolate; }
+.widget.md .w-inner, .widget.lg .w-inner { position: relative; z-index: 1; }
+
+/* ---------- Static arc (widget — visual only, no drag) ---------- */
+.static-arc {
+  position: relative;
+  margin-top: 10px;
+  height: 52px;
+  pointer-events: none;
+}
+.static-arc.lg { height: 58px; }
+.static-arc .scrub-arc {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  overflow: visible;
+}
+.static-arc-icon {
+  position: absolute;
+  width: 18px; height: 18px;
+  background: radial-gradient(circle at 35% 35%, #fff, #f9c45b 70%);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.16), 0 2px 6px rgba(0,0,0,0.35);
+}
+.static-arc-now {
+  position: absolute;
+  font-size: 10px; font-family: 'JetBrains Mono', monospace;
+  color: #fff; text-transform: uppercase; letter-spacing: 0.05em;
+  transform: translate(-50%, -100%);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  padding: 2px 6px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 5px;
+}
+.static-arc .scrub-end-label { top: auto; bottom: -2px; }
+
+/* ---------- Today-view scrubber (interactive) ---------- */
+.today-scrubber {
+  margin-top: 22px;
+  padding: 14px 16px 18px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: background 0.3s;
+}
+.today-scrub-label {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 8px;
+}
+.today-scrub-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: rgba(255,255,255,0.6);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.today-scrub-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+}
+.today-scrub-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.32);
+  text-align: center;
+}
+.scrub-container.today { height: 66px; }
+.scrub-container.today .scrub-icon { width: 26px; height: 26px; }
+.scrub-container.today .scrub-icon::after { width: 10px; height: 10px; }
+.scrub-container.today .scrub-end-label { top: 48px; }
+
+/* ---------- Moon phase glyph ----------
+   Two-circle technique: white disc + dark occluder offset by `--phase`.
+   --phase: -1 = new, 0 = full, +1 = new (other side). Waxing crescent ≈ -0.7.
+   In SwiftUI this becomes `Image(systemName: "moonphase.<phase>")`. */
+.moon {
+  --size: 14px;
+  --phase: -0.4;
+  width: var(--size); height: var(--size);
+  position: relative;
+  border-radius: 50%;
+  background: #f3edd9;
+  box-shadow: 0 0 6px rgba(255,248,220,0.25);
+  display: inline-block;
+  vertical-align: -2px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.moon::after {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  background: #0a0a0a;
+  transform: translateX(calc(var(--phase) * 100%));
+}
+.moon.lg  { --size: 22px; }
+.moon.xs  { --size: 10px; }
+
+/* ---------- Widget tint (subtle day-color wash) ---------- */
+.widget {
+  position: relative;
+  isolation: isolate;
+}
+.w-tint {
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.08;
+  background: var(--tint, #FFD54A);
+  z-index: 0;
+}
+.widget > *:not(.w-tint) { position: relative; z-index: 1; }
+
+/* ---------- Pattern streak ---------- */
+.pattern-streak {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 14px;
+  padding: 5px 10px 5px 8px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+  font-size: 11px; color: rgba(255,255,255,0.7);
+  font-family: 'Inter', sans-serif;
+}
+.pattern-streak .streak-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600; color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Week ribbon (7-day avoid-window strip) ---------- */
+.week-ribbon {
+  margin-top: 30px;
+  padding: 14px 16px 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+}
+.week-ribbon-label {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 10px;
+}
+.week-ribbon-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: rgba(255,255,255,0.6);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.week-ribbon-hint {
+  font-size: 11px; color: rgba(255,255,255,0.35);
+}
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.week-day {
+  display: flex; flex-direction: column; align-items: stretch;
+  gap: 4px;
+  padding: 8px 4px 6px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  text-align: center;
+}
+.week-day.today { background: rgba(255,255,255,0.09); outline: 1px solid rgba(255,255,255,0.14); }
+.week-day-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.week-day-num {
+  font-size: 14px; font-weight: 600; color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.week-day-bar {
+  margin-top: 3px;
+  height: 3px; border-radius: 2px;
+  position: relative;
+  background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+.week-day-bar .avoid-mark {
+  position: absolute; top: 0; bottom: 0;
+  background: #ff6b5a;
+  opacity: 0.9;
+}
+.week-day-bar .best-mark {
+  position: absolute; top: 0; bottom: 0;
+  background: #4ade80;
+  opacity: 0.9;
+}
+.week-ribbon-note {
+  margin-top: 10px;
+  font-size: 11px; color: rgba(255,255,255,0.4);
+  line-height: 1.45;
+}
+
+/* ---------- Today-view moon + tomorrow preview ---------- */
+.today-moon-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 18px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  font-size: 12px; color: rgba(255,255,255,0.6);
+  font-family: 'Inter', sans-serif;
+  width: 100%;
+  transition: background 0.15s;
+}
+.today-moon-row:hover { background: rgba(255,255,255,0.07); }
+.today-moon-row .moon { --size: 16px; }
+.today-moon-row .tw-info { margin-top: 0; }
+.tomorrow-copy { display: none; }
+.tomorrow-copy.active { display: block; }
+body.show-tomorrow .today-only { display: none; }
+body.show-tomorrow .today-copy { display: none; }
+
+/* ---------- Explainer triggers (tappable attrs + windows) ----------
+   :where() drops specificity to 0 so the base .attr / .time-window styles
+   (backgrounds, paddings, layouts) still win — we only strip native
+   <button> defaults, not the component styling. */
+:where(button.explainer-trigger) {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+button.explainer-trigger {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.08s ease;
+}
+button.explainer-trigger:active { transform: scale(0.985); }
+
+/* Info badge on time-window cards (clearer tap affordance than "WHY?") */
+.tw-info {
+  width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.55);
+  font-family: 'Georgia', serif;
+  font-size: 11px; font-style: italic; font-weight: 600;
+  margin-left: 8px; margin-top: 2px;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+button.explainer-trigger:hover .tw-info {
+  background: rgba(255,255,255,0.14); color: #fff;
+}
+.why-hint {
+  display: inline-block;
+  margin-left: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  font-weight: 400;
+}
+button.explainer-trigger:hover .why-hint { color: rgba(255,255,255,0.7); }
+
+/* ---------- Explainer modal ---------- */
+.explainer-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+  animation: expl-fade 0.18s ease-out;
+}
+.explainer-overlay.open { display: flex; }
+@keyframes expl-fade { from { opacity: 0; } to { opacity: 1; } }
+.explainer-card {
+  max-width: 380px;
+  width: 100%;
+  background: #141414;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 22px 22px 20px;
+  color: #fff;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  animation: expl-pop 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes expl-pop {
+  from { transform: translateY(8px) scale(0.98); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
+}
+.explainer-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 12px;
+}
+.explainer-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+.explainer-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.45);
+}
+.explainer-title {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+  line-height: 1.25;
+}
+.explainer-body {
+  font-size: 14px;
+  line-height: 1.55;
+  color: rgba(255,255,255,0.78);
+}
+.explainer-body p + p { margin-top: 10px; }
+.explainer-close {
+  margin-top: 18px;
+  width: 100%;
+  padding: 11px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.explainer-close:hover { background: rgba(255,255,255,0.12); }
+
+/* ---------- Clarified status labels ---------- */
+.status-sub {
+  font-size: 10px; color: rgba(255,255,255,0.5);
+  font-family: 'Inter', sans-serif; text-transform: none; letter-spacing: 0;
+  font-weight: 400;
+}
+.w-windows-clarified { display: flex; flex-direction: column; gap: 10px; }
+.w-windows-clarified > div { display: flex; align-items: flex-start; gap: 10px; font-variant-numeric: tabular-nums; }
+.w-windows-clarified .label-stack { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.w-windows-clarified .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.w-windows-clarified .dot.avoid { background: #ff6b5a; }
+.w-windows-clarified .dot.best  { background: #4ade80; }
+.w-windows-clarified .win-title { font-size: 11px; font-weight: 600; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; }
+.w-windows-clarified .avoid-c .win-title { color: #ff9c8e; }
+.w-windows-clarified .best-c  .win-title { color: #86efac; }
+.w-windows-clarified .win-sub { font-size: 11px; color: rgba(255,255,255,0.6); }
+.w-windows-clarified .win-range { font-size: 11px; color: rgba(255,255,255,0.85); margin-left: auto; flex-shrink: 0; padding-top: 1px; }
+
+/* Medium (4×2) */
+.widget.md { grid-column: span 4; grid-row: span 2; }
+.widget.md .w-inner { display: flex; flex-direction: column; height: 100%; }
+.widget.md .w-head { font-size: 17px; font-weight: 600; line-height: 1.25; letter-spacing: -0.01em; }
+.widget.md .w-row { display: flex; gap: 20px; margin-top: 10px; }
+.widget.md .w-attr { font-size: 12px; color: rgba(255,255,255,0.65); }
+.widget.md .w-attr strong { color: #fff; font-weight: 500; }
+.widget.md .w-avoid { margin-top: auto; display: flex; align-items: center; gap: 8px; }
+.widget.md .w-avoid-dot { width: 7px; height: 7px; border-radius: 50%; background: #ff6b5a; }
+.widget.md .w-avoid-text { font-size: 11px; color: rgba(255,255,255,0.7); font-variant-numeric: tabular-nums; }
+.widget.md .w-avoid-label { font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; font-size: 9px; color: #ff9c8e; }
+
+/* Large (4×4) */
+.widget.lg { grid-column: span 4; grid-row: span 4; padding: 20px; }
+.widget.lg .w-inner { display: flex; flex-direction: column; height: 100%; gap: 12px; }
+.widget.lg .w-head { font-size: 20px; font-weight: 600; line-height: 1.2; letter-spacing: -0.015em; }
+.widget.lg .w-detail { font-size: 12.5px; color: rgba(255,255,255,0.72); line-height: 1.5; }
+.widget.lg .w-divider { height: 1px; background: rgba(255,255,255,0.08); }
+.widget.lg .w-attrs-row { display: flex; gap: 20px; }
+.widget.lg .w-windows { display: flex; flex-direction: column; gap: 6px; font-size: 11px; font-variant-numeric: tabular-nums; }
+.widget.lg .w-windows > div { display: flex; align-items: center; gap: 8px; }
+.widget.lg .w-dot-red { width: 6px; height: 6px; border-radius: 50%; background: #ff6b5a; flex-shrink: 0; }
+.widget.lg .w-dot-grn { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+.widget.lg .w-win-label { font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.08em; font-size: 9px; flex-shrink: 0; min-width: 42px; }
+.widget.lg .w-win-red { color: #ff9c8e; }
+.widget.lg .w-win-grn { color: #86efac; }
+.widget.lg .w-win-range { color: rgba(255,255,255,0.7); }
+
+.dock-row { margin-top: auto; margin-bottom: 24px; height: 70px; background: rgba(255,255,255,0.18); backdrop-filter: blur(40px); border-radius: 28px; margin-left: 16px; margin-right: 16px; }
+
+/* ---------- Settings ---------- */
+.settings-scroll { flex: 1; overflow-y: auto; padding: 10px 20px 40px; }
+.settings-head { padding: 14px 4px 20px; display: flex; justify-content: space-between; align-items: center; }
+.settings-title { font-size: 22px; font-weight: 600; }
+.settings-close { color: rgba(255,255,255,0.6); font-size: 17px; background: none; border: none; cursor: pointer; font-family: inherit; }
+.settings-group { background: rgba(255,255,255,0.06); border-radius: 14px; overflow: hidden; margin-bottom: 20px; }
+.settings-group-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 16px 8px; }
+.settings-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.settings-row:last-child { border-bottom: none; }
+.settings-row .row-label { font-size: 15px; color: #fff; }
+.settings-row .row-value { font-size: 15px; color: rgba(255,255,255,0.5); display: flex; align-items: center; gap: 6px; }
+.settings-row .row-value svg { width: 12px; height: 12px; }
+.disabled-row .row-label { color: rgba(255,255,255,0.35); }
+.disabled-row .row-value { color: rgba(255,255,255,0.25); font-style: italic; }
+.credits { text-align: center; color: rgba(255,255,255,0.3); font-size: 12px; margin-top: 40px; line-height: 1.6; }
+
+/* ---------- Nav controls ---------- */
+.nav-controls { display: flex; gap: 10px; margin-top: 28px; }
+.nav-btn {
+  padding: 10px 18px; border-radius: 10px; border: 1px solid #333;
+  background: #161616; color: #ddd; font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: inherit;
+  transition: all 0.12s;
+}
+.nav-btn:hover { background: #222; border-color: #444; }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.nav-btn.primary { background: #fff; color: #000; border-color: #fff; }
+.step-indicator { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #666; margin-left: auto; padding: 10px 0; }
+
+/* ---------- Step visibility ---------- */
+.step { display: none; flex: 1; flex-direction: column; }
+.step.active { display: flex; }
+
+/* ---------- Misc ---------- */
+a { color: inherit; }
+.legend { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 12px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="deck">
+
+<header class="page-head">
+  <h1>Vedic Daily — MVP Preview</h1>
+  <p>Design preview for the iOS app. Widget is the product; the app is onboarding + a Today view that the widget deep-links into. Everything plain English, no Sanskrit in output, high contrast, typography-only.</p>
+</header>
+
+<!-- =========================================================
+     1. ONBOARDING FLOW
+     ========================================================= -->
+<section class="deck-section" id="sec-onboarding">
+  <div class="section-label">01 · Onboarding</div>
+  <h2 class="section-title">Fresh install → widget in under 60 seconds</h2>
+
+  <div class="row">
+    <div class="iphone">
+      <div class="iphone-screen">
+        <div class="dynamic-island"></div>
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <!-- signal -->
+            <svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+            <!-- wifi -->
+            <svg viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.8c2.6 0 5 .9 6.8 2.5l1.5-1.7C14.7 1.5 11.7.3 8.5.3S2.3 1.5.2 3.6l1.5 1.7c1.8-1.6 4.2-2.5 6.8-2.5zm0 3.5c1.6 0 3.1.5 4.3 1.4l1.5-1.7c-1.6-1.2-3.6-1.9-5.8-1.9s-4.2.7-5.8 1.9l1.5 1.7c1.2-.9 2.7-1.4 4.3-1.4zm0 3.5c.8 0 1.6.3 2.1.8l1.5-1.7c-1-.8-2.3-1.3-3.6-1.3s-2.6.5-3.6 1.3l1.5 1.7c.6-.5 1.3-.8 2.1-.8z"/></svg>
+            <div class="status-battery"></div>
+          </div>
+        </div>
+
+        <div class="app-content">
+          <div class="ob-progress">
+            <div class="bar" id="pb0"></div>
+            <div class="bar" id="pb1"></div>
+            <div class="bar" id="pb2"></div>
+            <div class="bar" id="pb3"></div>
+            <div class="bar" id="pb4"></div>
+          </div>
+
+          <!-- STEP 0: NAME -->
+          <div class="step active" id="step0">
+            <div class="ob-body">
+              <div class="ob-title">What should we call you?</div>
+              <div class="ob-sub">Just your first name is fine.</div>
+              <input class="ob-field" type="text" id="nameInput" placeholder="Your name" />
+              <button class="ob-primary" onclick="nextStep()">Continue</button>
+            </div>
+          </div>
+
+          <!-- STEP 1: BIRTH DATE -->
+          <div class="step" id="step1">
+            <div class="ob-body">
+              <button class="ob-back" onclick="prevStep()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,2 4,7 9,12"/></svg>Back</button>
+              <div class="ob-title">When were you born?</div>
+              <div class="ob-sub">Date only — we'll ask for time next.</div>
+              <div class="wheel-picker">
+                <div class="wheel-col">
+                  <div class="value-list">
+                    <div class="v">March</div>
+                    <div class="v near">April</div>
+                    <div class="v focus">May</div>
+                    <div class="v near">June</div>
+                    <div class="v">July</div>
+                  </div>
+                </div>
+                <div class="wheel-col">
+                  <div class="value-list">
+                    <div class="v">12</div>
+                    <div class="v near">13</div>
+                    <div class="v focus">14</div>
+                    <div class="v near">15</div>
+                    <div class="v">16</div>
+                  </div>
+                </div>
+                <div class="wheel-col">
+                  <div class="value-list">
+                    <div class="v">1992</div>
+                    <div class="v near">1993</div>
+                    <div class="v focus">1994</div>
+                    <div class="v near">1995</div>
+                    <div class="v">1996</div>
+                  </div>
+                </div>
+              </div>
+              <div style="flex:1"></div>
+              <button class="ob-primary" onclick="nextStep()">Continue</button>
+            </div>
+          </div>
+
+          <!-- STEP 2: BIRTH TIME -->
+          <div class="step" id="step2">
+            <div class="ob-body">
+              <button class="ob-back" onclick="prevStep()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,2 4,7 9,12"/></svg>Back</button>
+              <div class="ob-title">What time were you born?</div>
+              <div class="ob-sub">Check your birth certificate if you're unsure.</div>
+              <div class="toggle-row">
+                <span>I don't know my birth time</span>
+                <div class="toggle" id="timeToggle" onclick="toggleBirthTime()"></div>
+              </div>
+              <div class="wheel-picker" id="timeWheel">
+                <div class="wheel-col">
+                  <div class="value-list">
+                    <div class="v">6</div>
+                    <div class="v near">7</div>
+                    <div class="v focus">8</div>
+                    <div class="v near">9</div>
+                    <div class="v">10</div>
+                  </div>
+                </div>
+                <div class="wheel-col">
+                  <div class="value-list">
+                    <div class="v">13</div>
+                    <div class="v near">14</div>
+                    <div class="v focus">15</div>
+                    <div class="v near">16</div>
+                    <div class="v">17</div>
+                  </div>
+                </div>
+                <div class="wheel-col">
+                  <div class="value-list">
+                    <div class="v"></div>
+                    <div class="v focus">AM</div>
+                    <div class="v near">PM</div>
+                    <div class="v"></div>
+                  </div>
+                </div>
+              </div>
+              <div style="flex:1"></div>
+              <button class="ob-primary" onclick="nextStep()">Continue</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: BIRTH LOCATION -->
+          <div class="step" id="step3">
+            <div class="ob-body">
+              <button class="ob-back" onclick="prevStep()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,2 4,7 9,12"/></svg>Back</button>
+              <div class="ob-title">Where were you born?</div>
+              <div class="ob-sub">Type a city name to search.</div>
+              <div class="search-field">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="7" cy="7" r="5"/><line x1="11" y1="11" x2="14" y2="14"/></svg>
+                <input type="text" id="cityInput" placeholder="City, Country" value="Mumbai" />
+              </div>
+              <div class="results-list">
+                <div class="result-row selected">
+                  <div>
+                    <div class="place-main">Mumbai</div>
+                    <div class="place-sub">Maharashtra, India</div>
+                  </div>
+                  <div class="check">✓</div>
+                </div>
+                <div class="result-row">
+                  <div>
+                    <div class="place-main">Mumbai Central</div>
+                    <div class="place-sub">Maharashtra, India</div>
+                  </div>
+                  <div class="check"></div>
+                </div>
+                <div class="result-row">
+                  <div>
+                    <div class="place-main">Navi Mumbai</div>
+                    <div class="place-sub">Maharashtra, India</div>
+                  </div>
+                  <div class="check"></div>
+                </div>
+              </div>
+              <div style="flex:1"></div>
+              <button class="ob-primary" onclick="nextStep()">Continue</button>
+            </div>
+          </div>
+
+          <!-- STEP 4: ADD WIDGET -->
+          <div class="step" id="step4">
+            <div class="ob-body">
+              <button class="ob-back" onclick="prevStep()"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,2 4,7 9,12"/></svg>Back</button>
+              <div class="ob-title">One last step.</div>
+              <div class="ob-sub">Add the widget to your Home Screen to get your guidance at a glance.</div>
+              <div class="instructions">
+                <div class="inst-row"><div class="inst-num">1</div><div class="inst-text">Long-press any empty area on your Home Screen until icons jiggle.</div></div>
+                <div class="inst-row"><div class="inst-num">2</div><div class="inst-text">Tap the + button in the top-left corner.</div></div>
+                <div class="inst-row"><div class="inst-num">3</div><div class="inst-text">Search for "Vedic" and select this app.</div></div>
+                <div class="inst-row"><div class="inst-num">4</div><div class="inst-text">Choose your preferred size and tap Add Widget.</div></div>
+              </div>
+              <div style="flex:1"></div>
+              <button class="ob-primary" onclick="goToToday()">Go to Today</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="row-note">
+      <div class="section-label">Interactive</div>
+      <div style="font-size: 15px; line-height: 1.6; color: #aaa;">
+        Click <strong style="color:#fff">Continue</strong> or <strong style="color:#fff">Back</strong> inside the phone to step through.<br><br>
+        Five screens, persisted progress, resumable on app kill. No account, no backend, no premium — everything lives locally in SwiftData.
+      </div>
+      <div class="nav-controls">
+        <button class="nav-btn" onclick="prevStep()" id="prevBtn">← Prev</button>
+        <button class="nav-btn primary" onclick="nextStep()" id="nextBtn">Next →</button>
+        <div class="step-indicator" id="stepIndicator">01 / 05</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     2. WIDGETS ON HOME SCREEN
+     ========================================================= -->
+<section class="deck-section" id="sec-widgets">
+  <div class="section-label">02 · Widgets</div>
+  <h2 class="section-title">The product. Three sizes, same content, typography only.</h2>
+
+  <div class="row">
+    <div class="iphone">
+      <div class="iphone-screen">
+        <div class="dynamic-island"></div>
+        <div class="homescreen">
+          <div class="homescreen-date">Friday, April 18</div>
+          <div class="homescreen-time">9:41</div>
+          <div class="widget-grid">
+
+            <!-- Small widget -->
+            <div class="widget sm" style="--tint:#FFD54A">
+              <div class="w-tint"></div>
+              <div class="w-head">Steady day.<br>Good for finishing things.</div>
+              <div class="w-status">
+                <div class="w-status-dot good"></div>
+                <div class="w-status-label">Good to act</div>
+              </div>
+              <div class="w-colour-row">
+                <div class="w-swatch" style="background:#FFD54A"></div>
+                <div class="w-colour-name">Yellow</div>
+              </div>
+              <div class="w-foot">
+                <div class="w-n">Vedic</div>
+                <span class="moon xs" style="--phase:-0.35" title="Waxing crescent"></span>
+              </div>
+            </div>
+
+            <!-- Medium widget (static — visual only, no interaction) -->
+            <div class="widget md" style="--tint:#FFD54A">
+              <div class="w-tint"></div>
+              <div class="w-inner">
+                <div class="w-head">Steady day.<br>Good for finishing things.
+                  <span class="moon" style="--phase:-0.35; margin-left:6px;" title="Waxing crescent"></span>
+                </div>
+                <div class="w-row">
+                  <div class="w-attr">Wear: <strong><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:#FFD54A;box-shadow:0 0 0 1px rgba(255,255,255,0.18);margin-right:5px;vertical-align:-1px;"></span>Yellow</strong></div>
+                  <div class="w-attr">Eat: <strong>Rice</strong></div>
+                </div>
+                <div class="static-arc" data-static-min="581">
+                  <svg class="scrub-arc" viewBox="0 0 300 54" preserveAspectRatio="none">
+                    <path class="base"       d="M 6 42 Q 150 -14 294 42"></path>
+                    <path class="avoid-seg"  d="" data-seg="avoid"></path>
+                    <path class="best-seg"   d="" data-seg="best"></path>
+                  </svg>
+                  <div class="static-arc-icon" data-icon></div>
+                  <div class="scrub-end-label left">12a</div>
+                  <div class="scrub-end-label right">12p</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Large widget (static — visual only, no interaction) -->
+            <div class="widget lg" style="--tint:#FFD54A">
+              <div class="w-tint"></div>
+              <div class="w-inner">
+                <div class="w-head">Steady day. Good for finishing things.
+                  <span class="moon lg" style="--phase:-0.35; margin-left:8px; vertical-align:-4px;" title="Waxing crescent"></span>
+                </div>
+                <div class="w-detail">Today rewards care, precision, and patience more than speed. Work requiring attention to detail benefits most. A good day to wrap up loose ends.</div>
+                <div class="w-divider"></div>
+                <div class="w-attrs-row">
+                  <div class="w-attr" style="font-size:12px;color:rgba(255,255,255,0.7)"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.4);">Wear</span><br><span style="font-weight:500;color:#fff;font-size:14px;"><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:#FFD54A;box-shadow:0 0 0 1px rgba(255,255,255,0.18);margin-right:6px;vertical-align:-1px;"></span>Yellow</span></div>
+                  <div class="w-attr" style="font-size:12px;color:rgba(255,255,255,0.7)"><span style="font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.4);">Eat</span><br><span style="font-weight:500;color:#fff;font-size:14px;">Rice</span></div>
+                </div>
+                <div class="w-divider"></div>
+                <div class="w-windows-clarified">
+                  <div class="avoid-c">
+                    <div class="dot avoid"></div>
+                    <div class="label-stack">
+                      <div class="win-title">Hold off on decisions</div>
+                      <div class="win-sub">Skip commitments, sign-offs, launches.</div>
+                    </div>
+                    <div class="win-range">1:30 – 3:00 pm</div>
+                  </div>
+                  <div class="best-c">
+                    <div class="dot best"></div>
+                    <div class="label-stack">
+                      <div class="win-title">Push for what matters</div>
+                      <div class="win-sub">Start the thing, send the ask, ship it.</div>
+                    </div>
+                    <div class="win-range">12:08 – 12:56 pm</div>
+                  </div>
+                </div>
+                <div class="static-arc lg" data-static-min="581" style="margin-top:auto;height:62px;">
+                  <svg class="scrub-arc" viewBox="0 0 300 54" preserveAspectRatio="none">
+                    <path class="base"       d="M 6 42 Q 150 -14 294 42"></path>
+                    <path class="avoid-seg"  d="" data-seg="avoid"></path>
+                    <path class="best-seg"   d="" data-seg="best"></path>
+                  </svg>
+                  <div class="static-arc-icon" data-icon></div>
+                  <div class="scrub-end-label left">12a</div>
+                  <div class="scrub-end-label right">12p</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div class="dock-row"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row-note">
+      <div class="section-label">Widget Sizes</div>
+      <div style="font-size: 15px; line-height: 1.6; color: #aaa;">
+        <strong style="color:#fff">Small</strong>: headline + a green/red dot showing whether the current hour is inside rahu kalam.<br><br>
+        <strong style="color:#fff">Medium</strong>: + wear/eat attributes + avoid window.<br><br>
+        <strong style="color:#fff">Large</strong>: + 2–3 sentence expansion + best window (abhijit muhurta).<br><br>
+        <span style="color:#666">Tap anywhere → deep-links to Today.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     3. TODAY VIEW
+     ========================================================= -->
+<section class="deck-section" id="sec-today">
+  <div class="section-label">03 · Today</div>
+  <h2 class="section-title">What they land on after tapping the widget.</h2>
+
+  <div class="row">
+    <div class="iphone">
+      <div class="iphone-screen">
+        <div class="dynamic-island"></div>
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+            <svg viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.8c2.6 0 5 .9 6.8 2.5l1.5-1.7C14.7 1.5 11.7.3 8.5.3S2.3 1.5.2 3.6l1.5 1.7c1.8-1.6 4.2-2.5 6.8-2.5zm0 3.5c1.6 0 3.1.5 4.3 1.4l1.5-1.7c-1.6-1.2-3.6-1.9-5.8-1.9s-4.2.7-5.8 1.9l1.5 1.7c1.2-.9 2.7-1.4 4.3-1.4zm0 3.5c.8 0 1.6.3 2.1.8l1.5-1.7c-1-.8-2.3-1.3-3.6-1.3s-2.6.5-3.6 1.3l1.5 1.7c.6-.5 1.3-.8 2.1-.8z"/></svg>
+            <div class="status-battery"></div>
+          </div>
+        </div>
+        <div class="app-content">
+          <div class="today-scroll">
+            <div class="today-head">
+              <div class="today-date">Friday · Apr 18</div>
+              <button class="today-gear"><svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="3"/><path d="M11 1.5v3M11 17.5v3M1.5 11h3M17.5 11h3M4.2 4.2l2.1 2.1M15.7 15.7l2.1 2.1M4.2 17.8l2.1-2.1M15.7 6.3l2.1-2.1"/></svg></button>
+            </div>
+
+            <div class="toggle-segment" id="todayToggle">
+              <button class="active" data-day="today">Today</button>
+              <button data-day="tomorrow">Tomorrow</button>
+            </div>
+
+            <!-- Today copy -->
+            <div class="today-copy" data-copy="today">
+              <div class="today-headline" id="todayHeadline">Steady day. Good for finishing things.</div>
+              <div class="today-modifier" id="todayModifier">Lighter day — mental work over physical grind.</div>
+              <div class="pattern-streak" id="patternStreak">
+                <span class="streak-num">3rd</span> day in a row favouring finish-work.
+              </div>
+              <button class="today-moon-row explainer-trigger" data-explain="moon" aria-label="Moon phase explainer">
+                <span class="moon" style="--phase:-0.35"></span>
+                <span>Waxing crescent · moon building toward fullness in 4 days</span>
+                <span class="tw-info" aria-hidden="true" style="margin-left:auto;">i</span>
+              </button>
+            </div>
+
+            <!-- Tomorrow copy (hidden unless toggle active) -->
+            <div class="tomorrow-copy" data-copy="tomorrow">
+              <div class="today-headline">Restless energy. Don't force outcomes.</div>
+              <div class="today-modifier">Movement pays off — start journeys, not arguments.</div>
+              <div class="pattern-streak">
+                <span class="streak-num">4th</span> day in a row favouring finish-work.
+              </div>
+              <button class="today-moon-row explainer-trigger" data-explain="moon-tomorrow" aria-label="Tomorrow's moon phase explainer">
+                <span class="moon" style="--phase:-0.2"></span>
+                <span>First quarter · moon building toward fullness in 3 days</span>
+                <span class="tw-info" aria-hidden="true" style="margin-left:auto;">i</span>
+              </button>
+            </div>
+
+            <!-- Interactive scrubber (Today view only) -->
+            <div class="today-scrubber today-only" id="todayScrubWrap">
+              <div class="today-scrub-label">
+                <span class="today-scrub-title">See the day</span>
+                <span class="today-scrub-time" data-time>9:41 AM</span>
+              </div>
+              <div class="scrub-container today" data-scrub="today">
+                <svg class="scrub-arc" viewBox="0 0 300 54" preserveAspectRatio="none">
+                  <path class="base"       d="M 6 42 Q 150 -14 294 42"></path>
+                  <path class="avoid-seg"  d="" data-seg="avoid"></path>
+                  <path class="best-seg"   d="" data-seg="best"></path>
+                </svg>
+                <div class="scrub-track" data-track></div>
+                <div class="scrub-end-label left">12a</div>
+                <div class="scrub-end-label mid" style="left:50%;transform:translateX(-50%);">12p</div>
+                <div class="scrub-end-label right">12a</div>
+                <div class="scrub-icon" data-icon></div>
+              </div>
+              <div class="today-scrub-hint">Drag the sun to scrub through the day.</div>
+            </div>
+
+            <div class="today-attrs today-only">
+              <button class="attr explainer-trigger" data-explain="color" aria-label="Why yellow">
+                <div class="attr-label">Wear <span class="why-hint">Why?</span></div>
+                <div class="attr-value"><span class="color-swatch" style="background:#FFD54A"></span>Yellow</div>
+              </button>
+              <button class="attr explainer-trigger" data-explain="food" aria-label="Why rice">
+                <div class="attr-label">Eat <span class="why-hint">Why?</span></div>
+                <div class="attr-value">Rice</div>
+              </button>
+            </div>
+
+            <div class="time-windows">
+              <button class="time-window avoid explainer-trigger" data-explain="avoid" aria-label="Why hold off on decisions">
+                <div class="tw-dot"></div>
+                <div class="tw-stack">
+                  <div class="tw-label">Hold off on decisions</div>
+                  <div class="tw-sub">Avoid commitments, sign-offs, launches during this window.</div>
+                </div>
+                <div class="tw-range">1:30 – 3:00 pm</div>
+                <div class="tw-info" aria-hidden="true">i</div>
+              </button>
+              <button class="time-window best explainer-trigger" data-explain="best" aria-label="Why push for what matters">
+                <div class="tw-dot"></div>
+                <div class="tw-stack">
+                  <div class="tw-label">Push for what matters</div>
+                  <div class="tw-sub">Start the thing, send the ask, ship it.</div>
+                </div>
+                <div class="tw-range">12:08 – 12:56 pm</div>
+                <div class="tw-info" aria-hidden="true">i</div>
+              </button>
+            </div>
+
+            <div class="today-detail today-only" id="todayDetail">
+              Today rewards care, precision, and patience more than speed. Work that requires attention to detail benefits most. A good day to wrap up loose ends and take stock before the week closes out.
+            </div>
+
+            <!-- 7-day avoid/best ribbon — lets user plan the week at a glance -->
+            <div class="week-ribbon" id="weekRibbon">
+              <div class="week-ribbon-label">
+                <span class="week-ribbon-title">The week ahead</span>
+                <span class="week-ribbon-hint">Red = hold off · green = push</span>
+              </div>
+              <div class="week-grid" id="weekGrid"></div>
+              <div class="week-ribbon-note">Darker bars = longer or more active windows. Thursday is the clearest day this week.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row-note">
+      <div class="section-label">Voice Check</div>
+      <div style="font-size: 15px; line-height: 1.6; color: #aaa;">
+        No Sanskrit, no "the cosmos aligns", no horoscope-column tone. Direct advice a friend would give.<br><br>
+        The <strong style="color:#fff">Tomorrow</strong> toggle gives a reason to open the app the night before — the only reason, really. Otherwise the widget is enough.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     4. SETTINGS
+     ========================================================= -->
+<section class="deck-section" id="sec-settings">
+  <div class="section-label">04 · Settings</div>
+  <h2 class="section-title">Almost nothing here. Intentionally.</h2>
+
+  <div class="row">
+    <div class="iphone">
+      <div class="iphone-screen">
+        <div class="dynamic-island"></div>
+        <div class="status-bar">
+          <span>9:41</span>
+          <div class="status-icons">
+            <svg viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+            <svg viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.8c2.6 0 5 .9 6.8 2.5l1.5-1.7C14.7 1.5 11.7.3 8.5.3S2.3 1.5.2 3.6l1.5 1.7c1.8-1.6 4.2-2.5 6.8-2.5zm0 3.5c1.6 0 3.1.5 4.3 1.4l1.5-1.7c-1.6-1.2-3.6-1.9-5.8-1.9s-4.2.7-5.8 1.9l1.5 1.7c1.2-.9 2.7-1.4 4.3-1.4zm0 3.5c.8 0 1.6.3 2.1.8l1.5-1.7c-1-.8-2.3-1.3-3.6-1.3s-2.6.5-3.6 1.3l1.5 1.7c.6-.5 1.3-.8 2.1-.8z"/></svg>
+            <div class="status-battery"></div>
+          </div>
+        </div>
+        <div class="app-content">
+          <div class="settings-scroll">
+            <div class="settings-head">
+              <div class="settings-title">Settings</div>
+              <button class="settings-close">Done</button>
+            </div>
+
+            <div class="settings-group-label">Profile</div>
+            <div class="settings-group">
+              <div class="settings-row">
+                <span class="row-label">Name</span>
+                <span class="row-value">Priya ›</span>
+              </div>
+              <div class="settings-row">
+                <span class="row-label">Birth date</span>
+                <span class="row-value">14 May 1994 ›</span>
+              </div>
+              <div class="settings-row">
+                <span class="row-label">Birth time</span>
+                <span class="row-value">8:15 AM ›</span>
+              </div>
+              <div class="settings-row">
+                <span class="row-label">Birth location</span>
+                <span class="row-value">Mumbai, IN ›</span>
+              </div>
+            </div>
+
+            <div class="settings-group-label">Notifications</div>
+            <div class="settings-group">
+              <div class="settings-row disabled-row">
+                <span class="row-label">Daily reminders</span>
+                <span class="row-value">Coming soon</span>
+              </div>
+            </div>
+
+            <div class="settings-group-label">About</div>
+            <div class="settings-group">
+              <div class="settings-row"><span class="row-label">Version</span><span class="row-value">1.0.0</span></div>
+              <div class="settings-row"><span class="row-label">Ephemeris data</span><span class="row-value">Swiss Ephemeris ›</span></div>
+              <div class="settings-row"><span class="row-label">Credits</span><span class="row-value">›</span></div>
+            </div>
+
+            <div class="credits">Built with Swiss Ephemeris.<br>All calculations on-device. Zero backend.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row-note">
+      <div class="section-label">Scope</div>
+      <div style="font-size: 15px; line-height: 1.6; color: #aaa;">
+        Settings is intentionally skeletal in v1. No account, no cloud sync, no paywall, no notifications yet — all deferred.<br><br>
+        If you find yourself wanting more here, that's a signal to stop and question whether the widget is actually enough.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     Footer
+     ========================================================= -->
+<footer style="margin-top: 80px; padding-top: 40px; border-top: 1px solid #222; color: #555; font-size: 12px; line-height: 1.6;">
+  <div style="font-family: 'JetBrains Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase;">Preview · HTML mockup of Swift/SwiftUI implementation</div>
+  <div style="margin-top: 8px;">Real app = Swift + WidgetKit + SwiftData. This is a design preview to verify look &amp; feel before writing more Swift.</div>
+</footer>
+
+</div>
+
+<script>
+let currentStep = 0;
+const totalSteps = 5;
+
+function renderStep() {
+  document.querySelectorAll('.step').forEach((el, i) => {
+    el.classList.toggle('active', i === currentStep);
+  });
+  for (let i = 0; i < totalSteps; i++) {
+    document.getElementById('pb' + i).classList.toggle('done', i <= currentStep);
+  }
+  document.getElementById('stepIndicator').textContent =
+    String(currentStep + 1).padStart(2,'0') + ' / 0' + totalSteps;
+  document.getElementById('prevBtn').disabled = currentStep === 0;
+}
+
+function nextStep() {
+  if (currentStep < totalSteps - 1) {
+    currentStep++;
+    renderStep();
+  } else {
+    goToToday();
+  }
+}
+
+function prevStep() {
+  if (currentStep > 0) {
+    currentStep--;
+    renderStep();
+  }
+}
+
+function goToToday() {
+  document.getElementById('sec-today').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function toggleBirthTime() {
+  const t = document.getElementById('timeToggle');
+  const wheel = document.getElementById('timeWheel');
+  t.classList.toggle('on');
+  wheel.style.opacity = t.classList.contains('on') ? '0.3' : '1';
+  wheel.style.pointerEvents = t.classList.contains('on') ? 'none' : 'auto';
+}
+
+renderStep();
+
+/* ====================================================
+   TIME ARC
+   t ∈ [0,1] maps 12:00 am → 11:59 pm along a curved arc.
+   Arc: quadratic bezier  M 6 42  Q 150 -14  294 42  (in 300×54 vbox)
+
+   Widgets (small/medium/large) use static-arc: visual only,
+   position derived from current hour. No interaction.
+
+   Today view uses scrub-container: draggable.
+   On iOS the widget won't have this either — iOS 17 widgets
+   only support Button/Toggle via AppIntent, no drag gesture.
+   ==================================================== */
+
+// Minutes windows (out of 1440)
+const AVOID_START = 13 * 60 + 30;   // 1:30 pm
+const AVOID_END   = 15 * 60;        // 3:00 pm
+const BEST_START  = 12 * 60 + 8;    // 12:08 pm
+const BEST_END    = 12 * 60 + 56;   // 12:56 pm
+
+function bezierPoint(t) {
+  // Quadratic bezier P0=(6,42), P1=(150,-14), P2=(294,42)
+  const x = (1-t)*(1-t)*6 + 2*(1-t)*t*150 + t*t*294;
+  const y = (1-t)*(1-t)*42 + 2*(1-t)*t*(-14) + t*t*42;
+  return { x, y };
+}
+
+// Build path segment along the bezier between t0..t1 by sampling.
+function segmentPath(t0, t1) {
+  if (t1 <= t0) return "";
+  const STEPS = 24;
+  let d = "";
+  for (let i = 0; i <= STEPS; i++) {
+    const t = t0 + (t1 - t0) * (i / STEPS);
+    const p = bezierPoint(t);
+    d += (i === 0 ? "M " : "L ") + p.x.toFixed(2) + " " + p.y.toFixed(2) + " ";
+  }
+  return d.trim();
+}
+
+function minutesToLabel(min) {
+  const h24 = Math.floor(min / 60);
+  const m = Math.floor(min % 60);
+  const ampm = h24 < 12 ? "am" : "pm";
+  let h12 = h24 % 12; if (h12 === 0) h12 = 12;
+  return h12 + ":" + String(m).padStart(2,"0") + " " + ampm;
+}
+
+function classifyTime(min) {
+  if (min >= AVOID_START && min < AVOID_END) return "avoid";
+  if (min >= BEST_START  && min < BEST_END ) return "best";
+  return "neutral";
+}
+
+function toneForMinute(min) {
+  // Legacy 4-state tone — still used by the static widget arc.
+  if (min < 5*60)  return "night";
+  if (min < 7*60)  return "dawn";
+  if (min < 17*60) return "day";
+  if (min < 19*60) return "dusk";
+  return "night";
+}
+
+/* Richer 5-state classifier for the scrubber icon morph:
+   moon → dawn → gentle sun → harsh sun → gentle sun → dusk → moon. */
+function iconModeForMinute(min) {
+  const h = min / 60;
+  if (h < 5.5  || h >= 20.5) return "moon";
+  if (h < 6.75 || h >= 19)   return "dawn";   // 19–20.5 reuses dawn palette for dusk-shade
+  if (h >= 11  && h <  15)   return "harsh";
+  if (h >= 17.5 && h < 19)   return "dusk";
+  return "gentle";
+}
+
+// Tint gradient per hour (subtle wash over the widget)
+function tintForMinute(min) {
+  if (min < 5*60) {
+    return "linear-gradient(180deg, rgba(40,48,92,0.55), rgba(20,22,48,0.35))";
+  } else if (min < 7*60) {
+    return "linear-gradient(180deg, rgba(255,140,96,0.28), rgba(120,60,90,0.22))";
+  } else if (min < 11*60) {
+    return "linear-gradient(180deg, rgba(255,200,120,0.22), rgba(180,130,80,0.14))";
+  } else if (min < 15*60) {
+    return "linear-gradient(180deg, rgba(255,220,140,0.18), rgba(200,160,90,0.10))";
+  } else if (min < 17*60) {
+    return "linear-gradient(180deg, rgba(255,180,110,0.22), rgba(180,100,80,0.14))";
+  } else if (min < 19*60) {
+    return "linear-gradient(180deg, rgba(255,130,90,0.30), rgba(120,50,80,0.24))";
+  } else {
+    return "linear-gradient(180deg, rgba(40,48,92,0.55), rgba(20,22,48,0.35))";
+  }
+}
+
+// Headline / detail swaps as user scrubs
+function headlineForMinute(min) {
+  const k = classifyTime(min);
+  if (k === "avoid") {
+    return {
+      head: "Hold off.<br>Don't commit right now.",
+      lgHead: "Hold off. Don't commit right now.",
+      detail: "This window rewards patience. Skip sign-offs, launches, and big asks. Come back in an hour — the rest of the day is workable."
+    };
+  }
+  if (k === "best") {
+    return {
+      head: "Push now.<br>This is your window.",
+      lgHead: "Push now. This is your window.",
+      detail: "The steadiest stretch of the day for decisions and starts. Send the message you've been sitting on. Ship the thing. Don't overthink."
+    };
+  }
+  // neutral — shift by time of day
+  if (min < 5*60) {
+    return {
+      head: "Rest.<br>Nothing worth doing yet.",
+      lgHead: "Rest. Nothing worth doing yet.",
+      detail: "Night hours aren't for decisions. If you can sleep, sleep. If you can't, read — don't reply."
+    };
+  }
+  if (min < 10*60) {
+    return {
+      head: "Steady start.<br>Ease into the day.",
+      lgHead: "Steady start. Ease into the day.",
+      detail: "Morning favours quiet work over meetings. Clear the easy stuff first, then take on something that needs focus."
+    };
+  }
+  if (min < 17*60) {
+    return {
+      head: "Steady day.<br>Good for finishing things.",
+      lgHead: "Steady day. Good for finishing things.",
+      detail: "Today rewards care, precision, and patience more than speed. Work requiring attention to detail benefits most. A good day to wrap up loose ends."
+    };
+  }
+  if (min < 20*60) {
+    return {
+      head: "Wind down.<br>Close loops, don't open them.",
+      lgHead: "Wind down. Close loops, don't open them.",
+      detail: "Evening is for finishing, not starting. Reply to the last few messages and then stop — whatever you begin now, you'll second-guess tomorrow."
+    };
+  }
+  return {
+    head: "Rest.<br>The day is done.",
+    lgHead: "Rest. The day is done.",
+    detail: "Late night isn't a planning window. Anything that seems urgent right now will look different in the morning."
+  };
+}
+
+/* ---------- Static arc (widgets — no interaction) ---------- */
+function setupStaticArc(container) {
+  const icon  = container.querySelector("[data-icon]");
+  const nowL  = container.querySelector("[data-now]");
+  const avoidSeg = container.querySelector('[data-seg="avoid"]');
+  const bestSeg  = container.querySelector('[data-seg="best"]');
+
+  if (avoidSeg) avoidSeg.setAttribute("d", segmentPath(AVOID_START/1440, AVOID_END/1440));
+  if (bestSeg)  bestSeg.setAttribute("d",  segmentPath(BEST_START/1440,  BEST_END/1440));
+
+  const minAttr = parseInt(container.getAttribute("data-static-min"), 10);
+  const min = Number.isFinite(minAttr) ? minAttr : (9*60 + 41);
+  const t = min / 1440;
+
+  function render() {
+    const rect = container.getBoundingClientRect();
+    const W = rect.width, H = rect.height - 18; // leave room for bottom labels
+    const p = bezierPoint(t);
+    const px = (p.x / 300) * W;
+    const py = (p.y / 54) * H;
+
+    if (icon) {
+      icon.style.left = (px - (icon.offsetWidth/2)) + "px";
+      icon.style.top  = (py - (icon.offsetHeight/2)) + "px";
+      // icon tone
+      icon.classList.remove("night","dawn","dusk");
+      const tone = toneForMinute(min);
+      if (tone !== "day") {
+        // Apply tone via background directly since static-arc-icon doesn't use ::after
+        if (tone === "night") icon.style.background = "radial-gradient(circle at 35% 35%, #e4e7f5, #8a93b5 70%)";
+        else if (tone === "dawn") icon.style.background = "radial-gradient(circle at 35% 35%, #fff, #ff9170 70%)";
+        else if (tone === "dusk") icon.style.background = "radial-gradient(circle at 35% 35%, #fff, #ff7a50 70%)";
+      }
+    }
+    if (nowL) {
+      nowL.textContent = "Now · " + minutesToLabel(min);
+      nowL.style.left = px + "px";
+      // translate(-50%,-100%) means `top` = label's bottom edge.
+      // Clear the static icon (18px) plus a little breathing room.
+      nowL.style.top  = Math.max(12, py - 18/2 - 6) + "px";
+    }
+  }
+
+  window.addEventListener("resize", render);
+  requestAnimationFrame(render);
+}
+
+/* ---------- Interactive scrubber (Today view only) ---------- */
+function setupScrubber(container) {
+  const track = container.querySelector("[data-track]");
+  const icon  = container.querySelector("[data-icon]");
+  // Time label now lives in the card header (outside the scrub container),
+  // not floating on the arc. Look in the parent for it.
+  const timeL = container.parentElement?.querySelector("[data-time]") || container.querySelector("[data-time]");
+  const avoidSeg = container.querySelector('[data-seg="avoid"]');
+  const bestSeg  = container.querySelector('[data-seg="best"]');
+
+  if (avoidSeg) avoidSeg.setAttribute("d", segmentPath(AVOID_START/1440, AVOID_END/1440));
+  if (bestSeg)  bestSeg.setAttribute("d",  segmentPath(BEST_START/1440,  BEST_END/1440));
+
+  let t = (9*60 + 41) / 1440;
+
+  const headlineEl = document.getElementById("todayHeadline");
+  const modifierEl = document.getElementById("todayModifier");
+  const detailEl   = document.getElementById("todayDetail");
+  const wrap       = document.getElementById("todayScrubWrap");
+
+  // Snapshot original "Now" copy so we can revert when user returns near the current hour
+  const NOW_MIN = (9*60 + 41);
+  const originalHeadline = headlineEl ? headlineEl.textContent : "";
+  const originalModifier = modifierEl ? modifierEl.textContent : "";
+  const originalDetail   = detailEl ? detailEl.textContent : "";
+
+  function render(t) {
+    const rect = track.getBoundingClientRect();
+    const W = rect.width, H = rect.height;
+    const p = bezierPoint(t);
+    const px = (p.x / 300) * W;
+    const py = (p.y / 54) * H;
+
+    const iconSize = icon.offsetWidth || 26;
+    icon.style.left = (px - iconSize/2) + "px";
+    icon.style.top  = (py - iconSize/2) + "px";
+
+    const min = Math.round(t * 1440);
+    // Time label is in the fixed header slot — no positioning math needed.
+    if (timeL) timeL.textContent = minutesToLabel(min).toUpperCase();
+
+    // Morph icon state: moon / dawn / gentle / harsh / dusk
+    icon.classList.remove("moon","dawn","harsh","dusk","night");
+    const mode = iconModeForMinute(min);
+    if (mode !== "gentle") icon.classList.add(mode);
+
+    // Background tint on the scrubber card
+    if (wrap) wrap.style.background = tintForMinute(min);
+
+    // Swap copy — but keep original when close to "now" (±5 min)
+    if (Math.abs(min - NOW_MIN) < 5) {
+      if (headlineEl) headlineEl.textContent = originalHeadline;
+      if (modifierEl) modifierEl.textContent = originalModifier;
+      if (detailEl)   detailEl.textContent   = originalDetail;
+    } else {
+      const copy = headlineForMinute(min);
+      if (headlineEl) headlineEl.textContent = copy.lgHead;
+      if (modifierEl) modifierEl.textContent = modifierForMinute(min);
+      if (detailEl)   detailEl.textContent   = copy.detail;
+    }
+  }
+
+  function updateFromClientX(clientX) {
+    const rect = track.getBoundingClientRect();
+    let nt = (clientX - rect.left) / rect.width;
+    nt = Math.max(0, Math.min(0.9999, nt));
+    t = nt;
+    render(t);
+  }
+
+  let dragging = false;
+  track.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    track.setPointerCapture(e.pointerId);
+    updateFromClientX(e.clientX);
+  });
+  track.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    updateFromClientX(e.clientX);
+  });
+  track.addEventListener("pointerup", (e) => {
+    dragging = false;
+    try { track.releasePointerCapture(e.pointerId); } catch(_) {}
+  });
+  track.addEventListener("pointercancel", () => { dragging = false; });
+
+  window.addEventListener("resize", () => render(t));
+  requestAnimationFrame(() => render(t));
+}
+
+function modifierForMinute(min) {
+  const k = classifyTime(min);
+  if (k === "avoid") return "Short window — don't force decisions through it.";
+  if (k === "best")  return "Your clearest stretch of the day.";
+  if (min < 5*60)   return "Late — nothing to do but rest.";
+  if (min < 10*60)  return "Fresh energy — use it on what needs focus.";
+  if (min < 17*60)  return "Lighter day — mental work over physical grind.";
+  if (min < 20*60)  return "Light dimming — wrap things up, don't start new ones.";
+  return "Wind-down hours — stop, don't plan.";
+}
+
+// Wire up every static arc (widgets) + the single Today-view scrubber
+document.querySelectorAll(".static-arc").forEach(setupStaticArc);
+document.querySelectorAll(".scrub-container").forEach(setupScrubber);
+
+/* ---------- Today / Tomorrow toggle ---------- */
+(function initDayToggle() {
+  const toggle = document.getElementById("todayToggle");
+  if (!toggle) return;
+  const tomorrowCopy = document.querySelector('.tomorrow-copy');
+
+  // Time-window ranges that differ between today and tomorrow
+  const DAY_WINDOWS = {
+    today:    { avoid: "1:30 – 3:00 pm",  best: "12:08 – 12:56 pm" },
+    tomorrow: { avoid: "10:30 – 12:00 pm", best: "12:07 – 12:55 pm" },
+  };
+  const avoidRange = document.querySelector('button[data-explain="avoid"] .tw-range');
+  const bestRange  = document.querySelector('button[data-explain="best"]  .tw-range');
+
+  toggle.querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      toggle.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const day = btn.getAttribute("data-day");
+      if (day === "tomorrow") {
+        document.body.classList.add("show-tomorrow");
+        tomorrowCopy?.classList.add("active");
+      } else {
+        document.body.classList.remove("show-tomorrow");
+        tomorrowCopy?.classList.remove("active");
+      }
+      if (avoidRange) avoidRange.textContent = DAY_WINDOWS[day].avoid;
+      if (bestRange)  bestRange.textContent  = DAY_WINDOWS[day].best;
+    });
+  });
+})();
+
+/* ---------- Week ribbon ----------
+   Example data: for each of the next 7 days, avoidWindow and bestWindow
+   expressed as minute-of-day ranges. In Swift these come from
+   PanchangaCalculator called for each date. */
+(function initWeekRibbon() {
+  const grid = document.getElementById("weekGrid");
+  if (!grid) return;
+  // Mock data — 7 days starting today (Fri).
+  const week = [
+    { name: "Fri", num: 18, today: true,  avoid: [810, 900], best: [728, 776] },
+    { name: "Sat", num: 19, today: false, avoid: [540, 630], best: [720, 768] },
+    { name: "Sun", num: 20, today: false, avoid: [960,1050], best: [722, 770] },
+    { name: "Mon", num: 21, today: false, avoid: [450, 540], best: [718, 766] },
+    { name: "Tue", num: 22, today: false, avoid: [870, 960], best: [716, 764] },
+    { name: "Wed", num: 23, today: false, avoid: [660, 750], best: [714, 762] },
+    { name: "Thu", num: 24, today: false, avoid: [990,1080], best: [712, 760] },
+  ];
+  grid.innerHTML = week.map(d => {
+    const aStart = (d.avoid[0] / 1440 * 100).toFixed(1);
+    const aWidth = ((d.avoid[1] - d.avoid[0]) / 1440 * 100).toFixed(1);
+    const bStart = (d.best[0]  / 1440 * 100).toFixed(1);
+    const bWidth = ((d.best[1]  - d.best[0])  / 1440 * 100).toFixed(1);
+    return `
+      <div class="week-day${d.today ? ' today' : ''}">
+        <div class="week-day-name">${d.name}</div>
+        <div class="week-day-num">${d.num}</div>
+        <div class="week-day-bar">
+          <div class="avoid-mark" style="left:${aStart}%;width:${aWidth}%"></div>
+          <div class="best-mark"  style="left:${bStart}%;width:${bWidth}%"></div>
+        </div>
+      </div>`;
+  }).join("");
+})();
+
+/* ---------- Explainer popovers ----------
+   Content here is keyed off the *same* values the GuidanceEngine emits:
+     color   — from NakshatraContent (one-word wear color)
+     food    — from NakshatraContent (one-word food)
+     avoid   — rahu kalam window (time range)
+     best    — abhijit muhurta window (time range)
+   In Swift these strings live in VedicCore/Interpretation/ExplainerContent.swift.
+   This preview uses today's example values (Yellow / Rice / 1:30–3:00 pm / 12:08–12:56 pm).
+*/
+const EXPLAINERS = {
+  color: {
+    eyebrow: "WHY YELLOW",
+    title: "Wear something yellow today.",
+    icon: "🟡",
+    iconBg: "#FFD54A",
+    body: [
+      "Today's tone is steady and attentive. Yellow amplifies that — clarity, warmth, a little brightness without being loud.",
+      "It doesn't have to be a whole outfit. A shirt, socks, a scarf, even your phone wallpaper counts. The point is a small deliberate signal to yourself that today's mood is focused and warm.",
+      "If you can't do yellow, gold or cream work in the same direction."
+    ]
+  },
+  food: {
+    eyebrow: "WHY RICE",
+    title: "Eat rice today.",
+    icon: "🍚",
+    iconBg: "#F5EBD5",
+    body: [
+      "Rice is cooling and grounding — a match for a day that rewards patience over rush. It settles the nervous system and pairs well with the kind of detail work this day favours.",
+      "Any preparation works: plain rice, a rice bowl, sushi, risotto, biryani. The suggestion is the ingredient, not the cuisine.",
+      "Skip if you're avoiding carbs — this is a nudge, not a prescription."
+    ]
+  },
+  avoid: {
+    eyebrow: "HOLD OFF WINDOW",
+    title: "Don't commit between 1:30 – 3:00 pm.",
+    icon: "⏸",
+    iconBg: "rgba(255,107,90,0.18)",
+    body: [
+      "This 90-minute stretch is the day's avoid window. It's not about bad luck — it's about pattern. Decisions made here tend to get re-opened. Messages sent now tend to get misread.",
+      "Things to skip: sending the big email, signing anything, launching, making a final call on a hire or a purchase, starting a confrontation.",
+      "Things that are fine: routine work, research, email triage, eating, exercise, rest. The window only penalises commitments — not existence."
+    ]
+  },
+  best: {
+    eyebrow: "BEST WINDOW",
+    title: "Push between 12:08 – 12:56 pm.",
+    icon: "▶",
+    iconBg: "rgba(74,222,128,0.18)",
+    body: [
+      "These 48 minutes are the cleanest stretch of the day. Attention is sharpest, intention lands clearest.",
+      "Use it for the one thing you've been avoiding: send the message, ship the thing, make the call, ask for what you want. Start, don't finish — this window rewards initiating cleanly.",
+      "If you only use one window a day, use this one."
+    ]
+  },
+  moon: {
+    eyebrow: "WAXING CRESCENT",
+    title: "The moon is building. So is your momentum.",
+    icon: "🌒",
+    iconBg: "rgba(220,215,180,0.22)",
+    body: [
+      "Each month the moon grows from nothing to full, then empties again. You're in the growing half — the stretch where things you start tend to gather force rather than fizzle.",
+      "Good for: starting a habit, pitching an idea, asking for something, beginning a project you want others to get behind.",
+      "Less good for: quitting, cutting back, letting go. Those land better on the waning half of the month (roughly two weeks from now).",
+      "Fullness is in 4 days. Whatever you begin now will feel most visible around then."
+    ]
+  },
+  "moon-tomorrow": {
+    eyebrow: "FIRST QUARTER",
+    title: "Momentum meets friction.",
+    icon: "🌓",
+    iconBg: "rgba(220,215,180,0.22)",
+    body: [
+      "At first quarter the moon is half-lit — halfway between new and full. The energy is decisive but often bumpy. Obstacles show up right around now to test whatever you started earlier in the cycle.",
+      "Good for: pushing through resistance, making a call that's been pending, doing the hard part of a project.",
+      "Less good for: starting something brand new, avoiding conflict. The tension is generative today — don't dodge it.",
+      "Full moon in 3 days."
+    ]
+  }
+};
+
+(function initExplainer() {
+  // Create modal overlay once, reuse for all triggers
+  const overlay = document.createElement("div");
+  overlay.className = "explainer-overlay";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.innerHTML = `
+    <div class="explainer-card" role="document">
+      <div class="explainer-head">
+        <div class="explainer-icon" data-expl-icon></div>
+        <div class="explainer-eyebrow" data-expl-eyebrow></div>
+      </div>
+      <div class="explainer-title" data-expl-title></div>
+      <div class="explainer-body" data-expl-body></div>
+      <button class="explainer-close" type="button">Got it</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const iconEl    = overlay.querySelector("[data-expl-icon]");
+  const eyebrowEl = overlay.querySelector("[data-expl-eyebrow]");
+  const titleEl   = overlay.querySelector("[data-expl-title]");
+  const bodyEl    = overlay.querySelector("[data-expl-body]");
+  const closeBtn  = overlay.querySelector(".explainer-close");
+
+  function open(key) {
+    const e = EXPLAINERS[key];
+    if (!e) return;
+    iconEl.textContent = e.icon;
+    iconEl.style.background = e.iconBg;
+    eyebrowEl.textContent = e.eyebrow;
+    titleEl.textContent = e.title;
+    bodyEl.innerHTML = e.body.map(p => `<p>${p}</p>`).join("");
+    overlay.classList.add("open");
+  }
+  function close() { overlay.classList.remove("open"); }
+
+  overlay.addEventListener("click", (ev) => { if (ev.target === overlay) close(); });
+  closeBtn.addEventListener("click", close);
+  document.addEventListener("keydown", (ev) => { if (ev.key === "Escape") close(); });
+
+  document.querySelectorAll(".explainer-trigger").forEach((btn) => {
+    btn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      open(btn.getAttribute("data-explain"));
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

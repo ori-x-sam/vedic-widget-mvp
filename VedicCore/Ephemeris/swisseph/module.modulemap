@@ -1,0 +1,4 @@
+module SwissEphemeris [system] {
+    header "swephexp.h"
+    export *
+}
