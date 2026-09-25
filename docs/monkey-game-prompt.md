@@ -1,6 +1,6 @@
 # Prompt: "Banana Jig" — a 1930s rubber-hose run-and-gun boss demo for mobile (landscape)
 
-Paste everything below the line into a fresh Claude Code session (an empty repo is best). Run it on **Sonnet 5** to stay inside the budget (see section 11). Start a **new session for each milestone**: Claude reads `PROGRESS.md` to pick up where it left off, and a fresh session keeps the context small, which is the biggest cost saver.
+Paste everything below the line into a fresh Claude Code session (an empty repo is best). Run the plumbing milestones on **Sonnet 5** and every milestone the player sees or feels on **Opus 5.5** (section 11 says which is which; switch with `/model` at the start of each session). Start a **new session for each milestone**: Claude reads `PROGRESS.md` to pick up where it left off, and a fresh session keeps the context small, which is the biggest cost saver.
 
 ---
 
@@ -144,36 +144,40 @@ The train is the level select, and riding it is part of the game. It uses the sa
 - The whole loop (station → ride → fight → results → station) can be played with touch controls alone, and the progress is still there after a page reload.
 - A `README.md` explains how to run it, deploy it (e.g. GitHub Pages / Netlify drop) and tune the boss.
 
-## 11. Milestones and budget (hard limit: $30 total, aim for $25 or less)
+## 11. Milestones and budget (hard limit: $30 total)
+
+**Cut from the start, not later:** the ride back after the fight (use an iris wipe to the station), the button-layout editor, and the storybook page-curl effect (use a plain fade). Everything else in this document stays in.
 
 Build in these milestones. At the end of each one:
-1. update `PROGRESS.md` (what's done, what's next, known issues);
+1. update `PROGRESS.md` (what's done, what's next, known issues, and any tuning values the next session should know);
 2. commit and push;
-3. **stop and tell me the milestone is done**, so I can check the cost and start a fresh session for the next one.
+3. **stop and tell me the milestone is done**, so I can check the cost and start a fresh session.
 
-| # | Milestone | Budget guide |
-|---|---|---|
-| 1 | Project skeleton, scaling/orientation, touch controls, and player feel (run, jump, dash, shoot, parry) on a blank stage | ~$3 |
-| 2 | Madame Tusk's 3 phases with placeholder shapes, player HP, death and retry | ~$4 |
-| 3 | Art pass: Bongo, Madame Tusk, the Big Top background, VFX and juice | ~$5 |
-| 4 | Station and map, the train ride and HUD, save data, the Lucky Peel charm | ~$4 |
-| 5 | Film post-processing, all music and SFX | ~$4 |
-| 6 | Title, story, results, settings, the final Playwright playthrough and performance pass, the README | ~$3 |
+The **Sonnet 5** milestones build systems and use placeholder shapes. The **Opus 5.5** milestones own everything the player sees, hears and feels. When an Opus milestone starts, it may rewrite anything from earlier milestones that affects feel or look.
 
-That totals about $23, leaving about $7 in reserve. The figures are rough guides, not measurements.
+| # | Model | Milestone | Budget guide |
+|---|---|---|---|
+| 1 | Sonnet 5 | Skeleton, scaling/orientation, input plumbing, every scene wired up with placeholders (title → story → station/map → train ride → fight → results), save data, the train ride's throttle/comfort/coin logic, the Lucky Peel charm | ~$4 |
+| 2 | Sonnet 5 | Madame Tusk's 3-phase state machine and attacks as data, player HP, death/retry, results, and the debug overlay, all with placeholder shapes | ~$4 |
+| 3 | **Opus 5.5** | **Game feel:** player movement, jump arcs, dash, parry, hit-stop, screen shake, and boss telegraph timing tuned until it feels great | ~$6 |
+| 4 | **Opus 5.5** | **Art pass:** Bongo, Madame Tusk, the seals, the Big Top, the station, and the train ride's parallax, train and passengers, all with rubber-hose animation, squash and stretch, and VFX | ~$9 |
+| 5 | **Opus 5.5** | **Film look and audio:** the grain/weave/scratch shader, the ragtime score, SFX, and the title cards and transitions | ~$4 |
+| 6 | **Opus 5.5** | **Final polish:** a playthrough in a mobile-landscape viewport, fixes for everything that looks or feels off, the performance pass, the README | ~$3 |
+
+That totals about $30. These are rough estimates, not measurements. There is almost no reserve, so the checkpoint below matters.
+
+**Checkpoint after milestone 4:** if the total spend is over **$22**, run milestone 5 on Sonnet 5 instead. The shader and synth code are well-understood; the art and feel are where Opus matters most.
 
 **Rules for keeping costs down:**
 - Write each module in one go. Use targeted edits after that, and don't re-read a file you just wrote.
 - Don't spawn sub-agents. Don't add test frameworks beyond Playwright smoke checks.
-- Screenshots cost a lot of tokens. Take at most **4 per milestone**, at 1280×720 or smaller.
+- Screenshots cost a lot of tokens. Take at most **4 per milestone**, at 1280×720 or smaller. In milestones 4 and 6, spend them where they catch the most problems.
 - Don't paste large build logs back in full. Read only the errors.
 - If a milestone is clearly running over its guide, finish the core of it, write down what was skipped in `PROGRESS.md`, and stop.
 
-**Cut these first, in this order, if the budget gets tight:**
-1. the ride back after the fight;
-2. the storybook page-curl effect (use a plain fade);
-3. the button-layout editor;
-4. phase 3's spotlight hazard;
-5. the Lucky Peel charm.
+**If more cuts are needed, cut in this order:**
+1. phase 3's spotlight hazard;
+2. the Lucky Peel charm;
+3. the seal minions in phase 2.
 
 **Never cut:** game feel, the three boss phases, the train ride to Big Top Isle, the rubber-hose art style or the film look.
