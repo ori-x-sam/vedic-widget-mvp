@@ -99,7 +99,7 @@ export class GameView {
     for (let i = 0; i < 3; i++) {
       const pv = this.puppets.make("slummonkey");
       pv.setOrder(390);
-      pv.tint(...this.tokens.color("--cyber"), 0.75);
+      pv.tint(...this.tokens.color("--cyber"), 1);
       pv.root.visible = false;
       this.scene.add(pv.root);
       this.ghosts.push({ pv, t: 99, x: 0, y: 0, facing: 1 });
@@ -169,7 +169,11 @@ export class GameView {
   private bake(src: THREE.Texture, w: number, h: number, tileX: boolean, tileY: boolean): THREE.Texture {
     const hit = this.baked.get(src);
     if (hit) return hit;
-    const rt = new THREE.WebGLRenderTarget(w, h, { depthBuffer: false, generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter, magFilter: THREE.LinearFilter });
+    const rt = new THREE.WebGLRenderTarget(w, h, {
+      depthBuffer: false, generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter, magFilter: THREE.LinearFilter,
+      // wrap must be set at construction for render targets (it's baked into the GL texture's sampler state)
+      wrapS: tileX ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping, wrapT: tileY ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping,
+    });
     if (tileX) src.wrapS = THREE.RepeatWrapping;
     if (tileY) src.wrapT = THREE.RepeatWrapping;
     src.needsUpdate = true;
@@ -184,8 +188,6 @@ export class GameView {
     this.renderer.render(sc, this.postCam);
     this.renderer.setRenderTarget(prev);
     mat.dispose();
-    rt.texture.wrapS = tileX ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping;
-    rt.texture.wrapT = tileY ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping;
     this.baked.set(src, rt.texture);
     return rt.texture;
   }
@@ -343,11 +345,11 @@ export class GameView {
     if (p.invulnT > 0) this.player.tint(...this.tokens.color("--sky"), 0.3 + Math.sin(t * 20) * 0.2); else this.player.tint(1, 1, 1, 0);
     for (const g of this.ghosts) {
       g.t += realDt;
-      g.pv.root.visible = g.t < 0.4;
+      g.pv.root.visible = g.t < 0.25;
       if (!g.pv.root.visible) continue;
-      const jit = Math.floor(g.t * 30) % 2 ? 8 : -8;
+      const jit = (Math.floor(g.t * 30) % 2 ? 14 : -14) * (1 - g.t / 0.25);
       g.pv.root.position.set(g.x + jit, g.y, 0);
-      g.pv.update({ pose: "run", poseT: 0, t: 0, facing: g.facing, aim: 0, speed: 0, vy: 0, wobble: 0, scale: 1, squash: 0, alpha: 0.6 * (1 - g.t / 0.4), flash: 0, parry: 0, flipY: false, rot: 0, grounded: true }, this.tk);
+      g.pv.update({ pose: "run", poseT: 0, t: 0, facing: g.facing, aim: 0, speed: 0, vy: 0, wobble: 0, scale: 1, squash: 0, alpha: 0.75 * (1 - g.t / 0.25), flash: 0, parry: 0, flipY: false, rot: 0, grounded: true }, this.tk);
     }
 
     // ── lights: additive pools of stage light, glows behind the player and bullets ──

@@ -103,5 +103,5 @@ stage "shmup" {
   layer "stages/shmup/clouds-far" depth=3.2 y=330 scale=0.9 tile=#true
   layer "stages/shmup/hills" depth=2 y=-180 scale=1 tile=#true
   layer "stages/shmup/clouds-far" depth=1.6 y=90 scale=0.6 tile=#true
-  layer "stages/shmup/clouds-near" depth=0.8 y=-120 scale=0.8 tile=#true dim=1 blur=1
+  layer "stages/shmup/clouds-near" depth=0.8 y=430 scale=0.7 tile=#true dim=1 blur=1
 }

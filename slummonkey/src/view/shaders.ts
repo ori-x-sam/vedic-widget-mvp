@@ -262,7 +262,8 @@ export function paperMaterial(t: Tokens, map: THREE.Texture, haze: number, desat
       uniform sampler2D map; uniform float uHaze, uDesat, uDim, uBlur, uTime; uniform vec3 uHazeColor, uTint; uniform vec2 uRepeat, uOffset;
       varying vec2 vUv;
       void main(){
-        vec4 c = texture2D(map, fract(vUv * uRepeat + uOffset), uBlur);
+        // no fract(): the texture repeats via its wrap mode, so mip selection stays continuous (no seams)
+        vec4 c = texture2D(map, vUv * uRepeat + uOffset, uBlur);
         if (c.a < 0.01) discard;
         vec3 rgb = c.rgb * uTint;
         float l = dot(rgb, vec3(0.299, 0.587, 0.114));
