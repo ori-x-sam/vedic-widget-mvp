@@ -4,7 +4,7 @@ import * as THREE from "three";
 import type { PuppetDef, PartDef } from "../core/content";
 import type { Tokens } from "../core/tokens";
 import { heldTime } from "../core/clock";
-import { characterMaterial } from "./shaders";
+import { characterMaterial, partShadowMaterial } from "./shaders";
 import type { TextureBank, Raster } from "./textures";
 
 export interface PuppetState {
@@ -96,7 +96,7 @@ export const ANIMS: Record<string, AnimFn> = {
   pulse: (s, t) => ({ sx: 1 + Math.sin(t * TAU * 2) * 0.05, sy: 1 + Math.sin(t * TAU * 2) * 0.05 }),
 };
 
-interface PartNode { def: PartDef; pivot: THREE.Object3D; mesh: THREE.Mesh; mat: THREE.ShaderMaterial }
+interface PartNode { def: PartDef; pivot: THREE.Object3D; mesh: THREE.Mesh; mat: THREE.ShaderMaterial; shadow: THREE.Mesh; smat: THREE.ShaderMaterial }
 
 export class PuppetFactory {
   rasters = new Map<string, Raster>();
@@ -135,13 +135,19 @@ export class PuppetView {
       const h = part.size * def.scale, w = h * (r?.aspect ?? 1);
       const geo = new THREE.PlaneGeometry(w, h);
       geo.translate((0.5 - part.px) * w, (part.py - 0.5) * h, 0);
-      const mat = characterMaterial(f.tokens, r?.tex ?? new THREE.Texture());
+      const mat = characterMaterial(f.tokens, r?.tex ?? new THREE.Texture(), new THREE.Vector2(1 / (r?.w ?? 256), 1 / (r?.h ?? 256)));
       const mesh = new THREE.Mesh(geo, mat);
       mesh.renderOrder = part.z;
+      // cutout contact shadow: the same silhouette, offset down-right, multiplied onto what's behind
+      const smat = partShadowMaterial(f.tokens, r?.tex ?? new THREE.Texture());
+      const shadow = new THREE.Mesh(geo, smat);
+      const so = f.tokens.num("--part-shadow-offset", 4);
+      shadow.position.set(so, -so * 1.2, 0);
       const pivot = new THREE.Object3D();
       pivot.position.set(part.x * def.scale, part.y * def.scale, 0);
+      pivot.add(shadow);
       pivot.add(mesh);
-      const node = { def: part, pivot, mesh, mat };
+      const node = { def: part, pivot, mesh, mat, shadow, smat };
       byId.set(part.id, node);
       this.parts.push(node);
       if (!part.parent) {
@@ -170,7 +176,7 @@ export class PuppetView {
   }
 
   /** Base z-order offset so several puppets sort correctly. */
-  setOrder(base: number) { for (const n of this.parts) n.mesh.renderOrder = base + n.def.z; }
+  setOrder(base: number) { for (const n of this.parts) { n.mesh.renderOrder = base + n.def.z * 2 + 1; n.shadow.renderOrder = base + n.def.z * 2; } }
 
   update(s: PuppetState, tokens: { fps: number; squashK: number; smearSpeed: number }) {
     const tq = heldTime(s.t, tokens.fps); // body animation on twos
@@ -182,7 +188,10 @@ export class PuppetView {
     const smearK = fast ? 1.22 : 1;
     this.body.scale.set(facing * s.scale * (1 - sq * 0.5) * smearK, flip * s.scale * (1 + sq) / Math.sqrt(smearK), 1);
     this.body.position.y = this.cy * s.scale;
-    this.body.rotation.z = s.rot;
+    // line of action: lean back into anticipation, forward into the attack (on twos)
+    const LEAN: Record<string, number> = { windup: -0.1, "stomp-up": -0.12, "beam-charge": -0.08, charge: 0.14, spray: 0.06, stomp: 0.05, drumroll: -0.05, juggle: -0.04, run: 0.07, kick: 0.1, hurt: -0.15 };
+    const lean = (LEAN[s.pose] ?? 0) * (s.pose === "run" ? 1 : Math.min(1, s.poseT * 8));
+    this.body.rotation.z = s.rot - lean * facing;
     this.smear.visible = fast;
     if (fast) {
       this.smear.scale.set(Math.sign(s.speed) * this.width * 0.9 * s.scale, this.height * s.scale, 1);
@@ -197,6 +206,8 @@ export class PuppetView {
       n.pivot.scale.set(o.sx ?? 1, o.sy ?? 1, 1);
       n.pivot.visible = !o.hide;
       const u = n.mat.uniforms;
+      u.uFlipX.value = facing * (s.flipY ? -1 : 1);
+      n.smat.uniforms.uAlpha.value = s.alpha;
       u.uAlpha.value = s.alpha;
       u.uFlash.value = s.flash;
       u.uParry.value = s.parry;
@@ -209,6 +220,6 @@ export class PuppetView {
   }
 
   dispose() {
-    for (const n of this.parts) { n.mesh.geometry.dispose(); n.mat.dispose(); }
+    for (const n of this.parts) { n.mesh.geometry.dispose(); n.mat.dispose(); n.smat.dispose(); }
   }
 }

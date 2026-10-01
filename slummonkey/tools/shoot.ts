@@ -54,6 +54,7 @@ const SHOTS = [
   ["level=mela&seed=3&bot=0.8&god", "mela", 9],
   ["level=rickshaw-sky&seed=3&bot=0.8&god", "shmup", 8],
   ["overworld", "overworld", 3],
+  ["level=mela&seed=5&bot=0.95&god", "mela-b", 5],
   ["story=intro", "story-intro", 2],
 ] as const;
 

@@ -39,6 +39,7 @@ boss "dolly" name="Do-Tukdi Dolly" title="The Girl Who Saws Herself in Half" hp=
         parry-every 4
         loop {
           hover 18 1.4 dur=1.2
+          windup 0.35 pose="windup"
           volley 3 24 520 "knife"
           wait 0.9
           juggle 3 "club" 1.2 speed=520

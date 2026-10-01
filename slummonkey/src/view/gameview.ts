@@ -18,7 +18,7 @@ export const SPRITES = [
   "marigold", "star", "beam", "moon-beam", "prop-shot", "cash", "kite-shot", "water-beam",
   // fx
   "puff", "confetti", "confetti-b", "sparkle", "spark", "coin-fx", "shard", "petal", "pop-ring", "bubble", "footprint", "shadow",
-  "warn-mark", "warn-line", "spotlight", "token", "sheet", "rotor-disc",
+  "warn-mark", "warn-line", "spotlight", "token", "sheet", "rotor-disc", "glow", "cone", "muzzle",
 ].map((s) => `sprites/${s}`).concat(["parts/dolly/mirror-frame"]);
 
 interface EntView { pv: PuppetView; puppet: string; refl?: PuppetView; lastX: number }
@@ -38,6 +38,7 @@ export class GameView {
   bullets!: SpriteBatch;
   under!: SpriteBatch; // decals, shadows, warn marks (below actors)
   over!: SpriteBatch;  // particles (above actors)
+  lights!: SpriteBatch; // additive stage lighting + glows (between the painted stage and the actors)
   particles: Particles;
   private views = new Map<number, EntView>();
   private player!: PuppetView;
@@ -58,7 +59,7 @@ export class GameView {
   stageId = "";
   renderScale = 1;
   private frameTimes: number[] = [];
-  private tk: { fps: number; squashK: number; smearSpeed: number; floorFrac: number; shadowA: number; shakeScale: number; shakeDecay: number; hitFlash: number; tracking: number; trackingDecay: number };
+  private tk: { fps: number; squashK: number; smearSpeed: number; floorFrac: number; shadowA: number; shakeScale: number; shakeDecay: number; playerGlow: number; hitFlash: number; tracking: number; trackingDecay: number };
 
   constructor(public canvas: HTMLCanvasElement, public tokens: Tokens, public content: Content, svgs: Record<string, string>) {
     THREE.ColorManagement.enabled = false;
@@ -78,7 +79,7 @@ export class GameView {
     this.tk = {
       fps: tokens.num("--anim-fps", 12), squashK: tokens.num("--squash-k", 1), smearSpeed: tokens.num("--smear-speed", 900),
       floorFrac: tokens.num("--floor-frac", 0.27), shadowA: tokens.num("--shadow-alpha", 0.28), shakeScale: tokens.num("--shake-scale", 1),
-      shakeDecay: tokens.num("--shake-decay", 10), hitFlash: tokens.num("--hit-flash-amount", 0.35), tracking: tokens.num("--tracking", 0.6), trackingDecay: tokens.num("--tracking-decay", 3),
+      shakeDecay: tokens.num("--shake-decay", 10), playerGlow: tokens.num("--player-glow", 0.28), hitFlash: tokens.num("--hit-flash-amount", 0.35), tracking: tokens.num("--tracking", 0.6), trackingDecay: tokens.num("--tracking-decay", 3),
     };
   }
 
@@ -87,7 +88,8 @@ export class GameView {
     this.bullets = new SpriteBatch(this.atlas, spriteBatchMaterial(this.tokens, this.atlas.tex), 1200, 600);
     this.under = new SpriteBatch(this.atlas, spriteBatchMaterial(this.tokens, this.atlas.tex), 600, 50);
     this.over = new SpriteBatch(this.atlas, spriteBatchMaterial(this.tokens, this.atlas.tex), 1000, 700);
-    this.scene.add(this.under.mesh, this.bullets.mesh, this.over.mesh);
+    this.lights = new SpriteBatch(this.atlas, spriteBatchMaterial(this.tokens, this.atlas.tex, true), 300, 30);
+    this.scene.add(this.lights.mesh, this.under.mesh, this.bullets.mesh, this.over.mesh);
     await this.puppets.preload();
     for (const s of stageIds) await this.preloadStage(s);
     this.player = this.puppets.make("slummonkey");
@@ -143,8 +145,12 @@ export class GameView {
       const w = h * r.aspect;
       if (l.tile) { r.tex.wrapS = THREE.RepeatWrapping; r.tex.needsUpdate = true; }
       if (l.tiley) { r.tex.wrapT = THREE.RepeatWrapping; r.tex.needsUpdate = true; }
-      const haze = l.depth > 1 ? Math.min(0.6, (l.depth - 1) * this.tokens.num("--haze", 0.2)) : 0;
-      const mat = paperMaterial(this.tokens, r.tex, haze);
+      const far = Math.max(0, l.depth - 1);
+      const haze = Math.min(0.6, far * this.tokens.num("--haze", 0.2));
+      const desat = Math.min(0.6, far * this.tokens.num("--bg-desat", 0.4));
+      const dim = l.dim >= 0 ? l.dim : l.depth < 1 ? this.tokens.num("--fg-dim", 0.7) : 1;
+      const blur = l.blur >= 0 ? l.blur : l.depth > 1 ? Math.min(2.5, far * this.tokens.num("--bg-blur", 1.6)) : l.depth < 1 ? this.tokens.num("--fg-blur", 1.2) : 0;
+      const mat = paperMaterial(this.tokens, r.tex, haze, desat, dim, blur);
       const meshW = l.tile ? 3200 : w;
       const meshH = l.tiley ? 2400 : h;
       const mesh = new THREE.Mesh(new THREE.PlaneGeometry(meshW, meshH), mat);
@@ -181,9 +187,11 @@ export class GameView {
       case "boss-hit": this.tracking = Math.max(this.tracking, 0.25); break;
       case "tracking": this.tracking = Math.max(this.tracking, e.n ?? 0.4); break;
       case "decal": this.decals.push({ x: e.x, y: e.y, t: 0, s: e.s ?? "powder", scale: e.n ?? 1 }); if (this.decals.length > 80) this.decals.shift(); break;
-      case "warn": case "sheet": case "spotlight": case "mirror": case "drumroll":
-        this.fx.push({ kind: e.type === "warn" ? "warn-" + (e.s ?? "mark") : e.type + (e.s ? "-" + e.s : ""), x: e.x, y: e.y, t: 0, dur: e.n ?? 1, n: e.n ?? 1, id: e.id ?? 0, s: e.s ?? "" });
+      case "warn": case "sheet": case "spotlight": case "mirror": case "drumroll": {
+        const seg = e.type === "warn" && e.s?.startsWith("seg:");
+        this.fx.push({ kind: seg ? "warn-seg" : e.type === "warn" ? "warn-" + (e.s ?? "mark") : e.type + (e.s ? "-" + e.s : ""), x: e.x, y: e.y, t: 0, dur: e.n ?? 1, n: e.n ?? 1, id: e.id ?? 0, s: e.s ?? "" });
         break;
+      }
       case "parry": this.particles.emit("parry", e.x, e.y, 8); this.flash = 0.25; break;
       case "player-hurt": this.particles.emit("ink", e.x, e.y, 10); this.particles.emit("spark", e.x, e.y, 6); break;
       case "blink": {
@@ -199,7 +207,8 @@ export class GameView {
       case "land": if ((e.n ?? 0) > 0.4) this.particles.emit("dust", e.x, e.y, 5); break;
       case "pickup": this.particles.emit("sparkle", e.x, e.y, 5); break;
       case "knockout": this.flash = 0.6; this.shake = 25; this.tracking = 1; this.particles.emit("confetti", e.x, e.y, 80); this.particles.emit("coin", e.x, e.y, 30); break;
-      case "ex": this.particles.emit("sparkle", e.x, e.y, 6); break;
+      case "ex": this.particles.emit("sparkle", e.x, e.y, 6); this.fx.push({ kind: "muzzle", x: e.x, y: e.y, t: 0, dur: 0.12, n: 2, id: 0, s: "" }); break;
+      case "shoot": if (Math.random() < 0.6) this.fx.push({ kind: "muzzle", x: e.x, y: e.y, t: 0, dur: 0.05, n: 1, id: 0, s: "" }); break;
       case "super": this.flash = 0.35; this.shake = 12; break;
       case "topple": this.particles.emit("smoke", e.x, e.y + 100, 20); break;
       case "bg": void this.setStage(e.s ?? this.stageId); break;
@@ -283,8 +292,8 @@ export class GameView {
         if (!v.refl) { v.refl = this.puppets.make(e.puppet); v.refl.setOrder(40); v.refl.tint(...this.tokens.color("--sky"), 0.35); this.scene.add(v.refl.root); }
         v.refl.root.visible = !e.hidden;
         v.refl.root.position.set(x, w.floor - 6, 0);
-        v.refl.update({ ...st, alpha: 0.4 * st.alpha }, this.tk);
-        v.refl.root.scale.y = -0.6;
+        v.refl.update({ ...st, alpha: 0.45 * st.alpha }, this.tk);
+        v.refl.root.scale.y = -0.28;
       } else if (v.refl) { v.refl.root.visible = false; }
     }
     for (const [id, v] of this.views) if (!seen.has(id)) { this.scene.remove(v.pv.root); v.pv.dispose(); if (v.refl) { this.scene.remove(v.refl.root); v.refl.dispose(); } this.views.delete(id); }
@@ -295,11 +304,11 @@ export class GameView {
     if (this.player.def.id !== want && this.content.puppets[want]) { this.scene.remove(this.player.root); this.player = this.puppets.make(want); this.player.setOrder(400); this.scene.add(this.player.root); }
     const px = p.px + (p.x - p.px) * alpha, py = p.py + (p.y - p.py) * alpha;
     this.player.root.position.set(px, py, 0);
-    const flicker = p.iframes > 0 && Math.floor(t * 16) % 2 === 0;
+    const flicker = p.iframes > 0 && Math.floor(t * 12) % 2 === 0;
     const localAim = Math.atan2(p.aimY, p.aimX * p.facing);
     this.player.update({
       pose: p.pose, poseT: p.poseT, t, facing: p.facing, aim: localAim, speed: p.vx, vy: p.vy, wobble: 0, scale: 1,
-      squash: p.grounded ? 0 : Math.max(-0.15, Math.min(0.15, p.vy / 5000)), alpha: p.blinkT > 0 ? 0.25 : flicker ? 0.35 : 1, flash: p.hurtT > 0.25 ? 1 : 0,
+      squash: p.grounded ? 0 : Math.max(-0.15, Math.min(0.15, p.vy / 5000)), alpha: p.blinkT > 0 ? 0.3 : 1, flash: p.hurtT > 0.25 ? 1 : flicker ? 0.55 : 0,
       parry: 0, flipY: false, rot: p.pose === "spin" ? -t * 18 * p.facing : 0, grounded: p.grounded,
     }, this.tk);
     if (p.invulnT > 0) this.player.tint(...this.tokens.color("--sky"), 0.3 + Math.sin(t * 20) * 0.2); else this.player.tint(1, 1, 1, 0);
@@ -311,6 +320,19 @@ export class GameView {
       g.pv.root.position.set(g.x + jit, g.y, 0);
       g.pv.update({ pose: "run", poseT: 0, t: 0, facing: g.facing, aim: 0, speed: 0, vy: 0, wobble: 0, scale: 1, squash: 0, alpha: 0.6 * (1 - g.t / 0.4), flash: 0, parry: 0, flipY: false, rot: 0, grounded: true }, this.tk);
     }
+
+    // ── lights: additive pools of stage light, glows behind the player and bullets ──
+    const lb = this.lights;
+    lb.begin();
+    const st = this.content.stages[this.stageId];
+    const flick = 1 + Math.sin(t * 7.3) * 0.03 + Math.sin(t * 13.1) * 0.02;
+    for (const L of st?.lights ?? []) {
+      const lx = L.x + camX * (1 - 1 / L.depth), ly = L.y + camY * (1 - 1 / L.depth);
+      lb.add(L.kind === "cone" ? "cone" : L.kind === "pool" ? "glow" : "glow", lx, ly, L.h, (L.angle * Math.PI) / 180, L.alpha * flick, false, this.tokens.color(L.color), L.w);
+    }
+    if (!p.dead) lb.add("glow", px, py + 55, 190, 0, this.tk.playerGlow, false, this.tokens.color("--rim-color"), 190);
+    for (const q of w.projs.live) if (!q.hostile && q.len === 0) lb.add("glow", q.x, q.y, q.r * 5, 0, 0.35, false, this.tokens.color("--cyber"));
+    lb.end();
 
     // ── under layer: shadows, decals, telegraphs ──
     const ub = this.under;
@@ -338,6 +360,11 @@ export class GameView {
       else if (f.kind === "warn-line-x") ub.add("warn-line", f.x, w.camY + 280, 600, 0, blink * 0.7, false, undefined, 50);
       else if (f.kind === "warn-line-y") ub.add("warn-line", w.camX, f.y, 50, 0, blink * 0.7, false, undefined, this.viewW);
       else if (f.kind === "warn-beam") ub.add("warn-line", f.x + Math.cos((f.n * Math.PI) / 180) * 900, f.y + Math.sin((f.n * Math.PI) / 180) * 900, 10, (f.n * Math.PI) / 180, blink, false, undefined, 1800);
+      else if (f.kind === "warn-seg") {
+        const [x2, y2] = f.s.slice(4).split(",").map(Number);
+        const len = Math.hypot(x2 - f.x, y2 - f.y);
+        ub.add("warn-line", (f.x + x2) / 2, (f.y + y2) / 2, 14, Math.atan2(y2 - f.y, x2 - f.x), blink * Math.min(1, (f.dur - f.t) * 2), false, undefined, len);
+      }
       else if (f.kind === "warn-graph") ub.add("warn-line", w.camX, w.floor + 300, 520, 0, blink * 0.35, false, [0.2, 1, 0.5], this.viewW);
     }
     ub.end();
@@ -355,7 +382,9 @@ export class GameView {
       const sprite = q.parryable ? "marigold" : q.def.sprite;
       const rot = q.def.spin ? Math.floor(q.rot * 4) / 4 : q.vx || q.vy ? Math.atan2(q.vy, q.vx) * (q.def.sprite === "shockwave" || q.def.sprite === "bomb" || q.def.sprite === "laddoo" ? 0 : 1) : 0;
       const sz = q.r * 2.6 * (q.def.sprite === "shockwave" ? 1.6 : 1);
-      bb.add(sprite, x, y + (q.ground ? sz * 0.3 : 0), sz, q.parryable ? t * 3 : rot, 1, q.parryable);
+      const spd = Math.hypot(q.vx, q.vy);
+      const smear = !q.def.spin && !q.parryable && spd > 700 ? 1 + Math.min(0.8, (spd - 700) / 1200) : 1;
+      bb.add(sprite, x, y + (q.ground ? sz * 0.3 : 0), sz / Math.sqrt(smear), q.parryable ? t * 3 : rot, 1, q.parryable, undefined, sz * (this.atlas.aspect[sprite] ?? 1) * smear);
     }
     bb.end();
 
@@ -373,6 +402,7 @@ export class GameView {
         const a = drop ? 1 : 1 - k;
         ob.add("sheet", f.x, y + 160, 340, Math.sin(f.t * 12) * 0.05, a, false, undefined, 380);
       }
+      if (f.kind === "muzzle") ob.add("muzzle", f.x + p.aimX * 16, f.y + p.aimY * 16, 30 * f.n, Math.atan2(p.aimY, p.aimX), 1 - f.t / f.dur);
       if (f.kind === "mirror-flash" || f.kind === "mirror-spawn") ob.add("sparkle", f.x, f.y + 120, 200, t * 2, 1 - f.t / f.dur);
       if (f.kind === "drumroll") {
         const k = f.t / f.dur;
@@ -393,9 +423,11 @@ export class GameView {
     pu.uFlash.value = this.flash * 0.5;
     this.renderer.setRenderTarget(this.rt);
     this.renderer.render(this.scene, this.camera);
+    this.sceneCalls = this.renderer.info.render.calls;
     this.renderer.setRenderTarget(null);
     this.renderer.render(this.postScene, this.postCam);
   }
+  sceneCalls = 0;
 
   /** Render any scene through the same film/VHS post stack (overworld uses this). */
   composite(scene: THREE.Scene, camera: THREE.Camera, realDt: number) {

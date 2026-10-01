@@ -98,6 +98,7 @@ boss "teen-tigada" name="Teen Tigada" title="Lattu, Pattu & Sattu" hp=1000 w=150
       spray 1.2 60 "card" rate=9 speed=430 from="hat" burst=3 pause=0.35
       wait 0.6
       summon "pigeon" 2 from="hat" gap=0.5
+      windup 0.4 pose="juggle"
       volley 5 50 420 "card" from="hat"
       wait 1.0
       pick {

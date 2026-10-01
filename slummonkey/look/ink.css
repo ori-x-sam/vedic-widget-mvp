@@ -18,3 +18,20 @@
   --texture-scale: 2;         /* SVG rasterization scale */
   --shadow-alpha: 0.28;       /* contact shadow under characters */
 }
+/* volume (round 1 of the visual gauntlet) */
+:root {
+  --shade-amount: 0.55;       /* strength of the auto two-tone cel shadow */
+  --shade-soft: 0.06;         /* softness of the shadow terminator */
+  --bevel: 10;                /* how far in from a part's edge the volume rolls off (texels) */
+  --ink-weight: 1.8;          /* how much lines thicken on the shadow side (texels) */
+  --char-grain: 0.10;         /* paper grain on characters */
+  --line-boil: 0.7;           /* 12fps line wobble */
+  --part-shadow: 0.30;        /* contact shadow each cutout part casts */
+  --part-shadow-offset: 4;
+}
+:root { --player-glow: 0.30; /* soft light behind SlumMonkey so the player is always the easiest thing to find */ }
+:root {
+  --silhouette: 3.2;          /* extra outer ink around every cutout part (texels) */
+  --bevel: 22;
+  --shade-amount: 0.6;
+}

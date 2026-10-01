@@ -5,7 +5,7 @@
   --brush-noise: 0.0035;      /* UV wobble of painted layers */
   --pigment-edge: 0.35;       /* watercolor edge darkening */
   --wash: 0.12;               /* random wash blotches */
-  --haze: 0.22;               /* far layers fade toward the sky */
+  --haze: 0.30;               /* far layers fade toward the sky */
   --haze-color: var(--sky-warm);
   --bulb-glow: 0.9;
   --tube-flicker: 0.12;
@@ -19,4 +19,15 @@
   --sky-shmup-top: #4aa0d8;   --sky-shmup-bottom: #ffc98a;
   --sky-island-top: #7fc8e0;  --sky-island-bottom: #bfe6dc;
   --water-sheen: 0.35;
+}
+:root {
+  --bg-desat: 0.55;           /* far layers lose saturation with depth so actors pop */
+  --fg-dim: 0.62;             /* foreground silhouettes (crowd, bushes) go darker */
+}
+:root {
+  --bg-blur: 1.4;             /* depth-of-field: far layers sample blurrier mips */
+  --fg-blur: 1.6;             /* foreground silhouettes are soft, out of focus */
+  --pigment-edge: 0.55;
+  --wash: 0.16;
+  --paper-grain: 0.13;
 }

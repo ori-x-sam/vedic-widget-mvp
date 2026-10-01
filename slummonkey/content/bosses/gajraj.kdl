@@ -60,9 +60,11 @@ boss "gajraj" name="Gayab Gajraj" title="The Vanishing Elephant" hp=1100 w=300 h
     wait 1
     loop {
       zip 760 dur=3.2
+      windup 0.35
       volley 3 34 430 "coin" from="mid"
       wait 0.5
       hop 180 2
+      windup 0.4
       ring 10 330 "coin"
       wait 0.7
     }

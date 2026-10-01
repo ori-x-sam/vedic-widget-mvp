@@ -41,8 +41,9 @@ export interface ThemeDef { id: string; bpm: number; root: number; scale: number
 export interface OwNode { id: string; x: number; y: number; level: string; label: string; requires: string; kind: string }
 export interface OwNpc { id: string; x: number; y: number; puppet: string; lines: string[] }
 export interface OverworldDef { map: string[]; start: [number, number]; nodes: OwNode[]; npcs: OwNpc[]; props: { kind: string; x: number; y: number; s: number }[]; size: [number, number] }
-export interface StageLayer { art: string; depth: number; x: number; y: number; tile: boolean; tiley: boolean; scale: number; tint: string }
-export interface StageDef { id: string; layers: StageLayer[]; floor: number; ceiling: number; width: number }
+export interface StageLayer { art: string; depth: number; x: number; y: number; tile: boolean; tiley: boolean; dim: number; blur: number; scale: number; tint: string }
+export interface StageLight { kind: string; x: number; y: number; w: number; h: number; angle: number; color: string; alpha: number; depth: number }
+export interface StageDef { id: string; layers: StageLayer[]; lights: StageLight[]; floor: number; ceiling: number; width: number }
 
 export interface Content {
   player: Record<string, number>;
@@ -218,9 +219,13 @@ function loadNode(c: Content, n: KdlNode, file: string) {
     case "stage":
       c.stages[id] = {
         id, floor: propNum(n, "floor", -250), ceiling: propNum(n, "ceiling", 360), width: propNum(n, "width", 1280),
+        lights: childrenNamed(n, "light").map((l) => ({
+          kind: argStr(l, 0, "glow"), x: propNum(l, "x", 0), y: propNum(l, "y", 0), w: propNum(l, "w", 300), h: propNum(l, "h", 300),
+          angle: propNum(l, "angle", 0), color: propStr(l, "color", "--marigold"), alpha: propNum(l, "alpha", 0.3), depth: propNum(l, "depth", 1),
+        })),
         layers: childrenNamed(n, "layer").map((l) => ({
           art: argStr(l, 0, ""), depth: propNum(l, "depth", 1), x: propNum(l, "x", 0), y: propNum(l, "y", 0), tile: propBool(l, "tile", false),
-          scale: propNum(l, "scale", 1), tint: propStr(l, "tint", ""), tiley: propBool(l, "tiley", false),
+          scale: propNum(l, "scale", 1), tint: propStr(l, "tint", ""), tiley: propBool(l, "tiley", false), dim: propNum(l, "dim", -1), blur: propNum(l, "blur", -1),
         })),
       };
       return;

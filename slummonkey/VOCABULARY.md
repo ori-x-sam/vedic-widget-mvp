@@ -74,9 +74,9 @@ Units: px, px/s, seconds, degrees. x/y accept `player`, `me`, `left`, `right`, `
 | `ground-mark` | `x [dur=s] [block=#true]` | Paint a target circle on the floor where something will land. | — |
 | `pose` | `name` | Set my animation pose (see look/ and art/ for the frames). | — |
 | `shake` | `amount [dur=s]` | Shake the camera. | 1 script |
-| `spotlight` | `[dur=s]` | Swing a stage spotlight onto me. | 1 script |
+| `spotlight` | `[dur=s]` | Swing a stage spotlight onto me (a tell that I'm about to act). | 1 script |
 | `warn-line` | `axis:x\|y pos [dur=s] [block=#true]` | Draw a danger stripe across the stage at a column or row. | — |
-| `windup` | `dur:s [pose=name]` | Hold an anticipation pose (squash down) before an attack. | 8 scripts |
+| `windup` | `dur:s [pose=name]` | Hold an anticipation pose (squash down) before an attack. | 11 scripts |
 
 ## State & illusions
 

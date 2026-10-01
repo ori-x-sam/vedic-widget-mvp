@@ -10,9 +10,9 @@ export class Hud {
   constructor(parent: HTMLElement) {
     this.el = document.createElement("div");
     this.el.className = "layer";
-    this.el.innerHTML = `<div class="hud"><div class="hp-card">HP. 3</div><div class="cards"></div><div class="weapon-tag"></div></div><div class="coins-tag"></div>`;
+    this.el.innerHTML = `<div class="hud"><div class="hp-phone"><div class="cells"></div><div class="nub"></div></div><div class="cards"></div><div class="weapon-tag"></div></div><div class="coins-tag"></div>`;
     parent.appendChild(this.el);
-    this.hp = this.el.querySelector(".hp-card")!;
+    this.hp = this.el.querySelector(".hp-phone")!;
     this.cards = this.el.querySelector(".cards")!;
     this.weapon = this.el.querySelector(".weapon-tag")!;
     this.coins = this.el.querySelector(".coins-tag")!;
@@ -23,12 +23,14 @@ export class Hud {
     const key = `${p.hp}|${p.cards.toFixed(2)}|${weaponName}|${w.coins}`;
     if (key !== this.last) {
       this.last = key;
-      this.hp.textContent = p.hp > 0 ? `HP. ${p.hp}` : "DEAD";
+      // HP is a phone battery: one cell per hit point, cracked screen when it's the last one
+      this.hp.querySelector(".cells")!.innerHTML = Array.from({ length: p.maxHp }, (_, i) => `<i class="${i < p.hp ? "on" : ""}"></i>`).join("");
       this.hp.classList.toggle("low", p.hp === 1);
+      this.hp.classList.toggle("dead", p.hp <= 0);
       let html = "";
       for (let i = 0; i < p.maxCards; i++) {
         const fill = Math.max(0, Math.min(1, p.cards - i));
-        html += `<div class="card ${fill >= 1 ? "full" : ""}" style="--r:${(i % 2 ? 3 : -3)}deg"><div class="fill" style="height:${fill * 100}%"></div></div>`;
+        html += `<div class="card ${fill >= 1 ? "full" : ""}" style="--r:${(i - 2) * 7}deg"><div class="fill" style="height:${fill * 100}%"></div></div>`;
       }
       this.cards.innerHTML = html;
       this.cards.classList.toggle("super", p.cards >= p.maxCards);

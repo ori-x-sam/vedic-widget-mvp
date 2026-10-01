@@ -142,12 +142,23 @@ word("zip", "move", "speed:px/s [dur=s]", "Pinball around the stage, bouncing of
   const a = deg(w.range(25, 55));
   const dir = w.player.x < me.x ? -1 : 1;
   let vx = Math.cos(a) * sp * dir, vy = Math.abs(Math.sin(a) * sp);
+  const top = w.ceiling - me.h * me.scale;
+  const hw0 = me.w * me.scale * 0.5;
   if (warn > 0) {
+    // preview the whole pinball path (every bounce) so it can be read and dodged
+    let px = me.x, py = me.y, pvx = vx, pvy = vy, sx = px, sy = py;
+    for (let t = 0; t < d; t += 1 / 30) {
+      px += pvx / 30; py += pvy / 30;
+      let b = false;
+      if (px < w.left + hw0) { px = w.left + hw0; pvx = Math.abs(pvx); b = true; }
+      if (px > w.right - hw0) { px = w.right - hw0; pvx = -Math.abs(pvx); b = true; }
+      if (py < w.floor) { py = w.floor; pvy = Math.abs(pvy); b = true; }
+      if (py > top) { py = top; pvy = -Math.abs(pvy); b = true; }
+      if (b || t + 1 / 30 >= d) { w.emit("warn", sx, sy + me.h * me.scale * 0.5, `seg:${px.toFixed(0)},${(py + me.h * me.scale * 0.5).toFixed(0)}`, warn + Math.min(t, 1.2)); sx = px; sy = py; }
+    }
     me.pose = "windup";
-    w.emit("warn", me.x, me.y + 20, "beam", warn, Math.round((Math.atan2(vy, vx) * 180) / Math.PI));
     for (let t = 0; t < warn; t += w.dt) { me.squash = -0.3 * (t / warn); yield; }
   }
-  const top = w.ceiling - me.h * me.scale;
   me.pose = "zip";
   w.mark(me, "zip");
   for (let t = 0; t < d; t += w.dt) {
@@ -529,8 +540,9 @@ word("ground-mark", "telegraph", "x [dur=s] [block=#true]", "Paint a target circ
   me.vars.markX = x;
   if (pbool(c, "block", true)) yield* wait(w, d);
 });
-word("spotlight", "telegraph", "[dur=s]", "Swing a stage spotlight onto me.", function* (w, me, c) {
+word("spotlight", "telegraph", "[dur=s]", "Swing a stage spotlight onto me (a tell that I'm about to act).", function* (w, me, c) {
   w.emit("spotlight", me.x, me.y, "", pnum(c, "dur", num(c, 0, 1)), me.id);
+  w.emit("telegraph", me.x, me.y, "spotlight", pnum(c, "dur", num(c, 0, 1)), me.id);
 });
 word("pose", "telegraph", "name", "Set my animation pose (see look/ and art/ for the frames).", function* (_w, me, c) {
   me.pose = str(c, 0, "idle");

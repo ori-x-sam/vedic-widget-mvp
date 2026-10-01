@@ -22,6 +22,7 @@ boss "raj" name="Jadugar Raj" title="The Great Rug-Pull" hp=1700 w=160 h=380 x=3
     parry-every 5
     loop {
       spotlight 1
+      windup 0.45 pose="spray"
       spray 1.2 80 "card" rate=10 speed=450 from="front" burst=4 pause=0.3
       wait 0.6
       windup 0.4 pose="juggle"

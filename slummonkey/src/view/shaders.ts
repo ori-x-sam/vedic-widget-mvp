@@ -12,19 +12,28 @@ float vnoise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.0-2.0*f);
 float fbm(vec2 p){ float a=0.5, s=0.0; for(int i=0;i<4;i++){ s+=a*vnoise(p); p*=2.03; a*=0.5; } return s; }
 `;
 
-/** Cutout-puppet part: texture + cel rim light + cel shade + hit flash + parry pulse. */
-export function characterMaterial(t: Tokens, map: THREE.Texture): THREE.ShaderMaterial {
+/** Cutout-puppet part: auto two-tone cel shading from the part's silhouette, a lit rim, ink lines that
+ *  thicken on the shadow side, 12fps line boil, paper grain, hit flash and the parry pulse. */
+export function characterMaterial(t: Tokens, map: THREE.Texture, texel = new THREE.Vector2(1 / 256, 1 / 256)): THREE.ShaderMaterial {
   const dir = t.vec("--rim-dir", [-0.6, 0.8]);
   return new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
     uniforms: {
       map: { value: map },
+      uTexel: { value: texel },
+      uLight: { value: new THREE.Vector2(dir[0], dir[1]).normalize() },
       uRimColor: { value: col(t, "--rim-color") },
       uRim: { value: t.num("--rim-amount", 0.5) },
-      uRimOff: { value: new THREE.Vector2(dir[0], dir[1]).normalize().multiplyScalar(t.num("--rim-offset", 0.01)) },
       uShadeColor: { value: col(t, "--shade-color") },
-      uShade: { value: t.num("--shade-amount", 0.2) },
+      uShade: { value: t.num("--shade-amount", 0.35) },
+      uShadeSoft: { value: t.num("--shade-soft", 0.08) },
+      uBevel: { value: t.num("--bevel", 9) },
+      uInkBias: { value: t.num("--ink-weight", 1.6) },
+      uOutline: { value: t.num("--silhouette", 3) },
+      uInk: { value: col(t, "--ink") },
+      uGrain: { value: t.num("--char-grain", 0.12) },
+      uBoil: { value: t.num("--line-boil", 0.6) },
       uFlash: { value: 0 },
       uFlashColor: { value: col(t, "--hit-flash") },
       uAlpha: { value: 1 },
@@ -32,26 +41,69 @@ export function characterMaterial(t: Tokens, map: THREE.Texture): THREE.ShaderMa
       uParryColor: { value: col(t, "--parry") },
       uTint: { value: new THREE.Vector4(1, 1, 1, 0) },
       uTime: { value: 0 },
+      uFlipX: { value: 1 },
     },
     vertexShader: /* glsl */ `
       varying vec2 vUv;
       void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
     fragmentShader: /* glsl */ `
-      uniform sampler2D map; uniform vec3 uRimColor; uniform float uRim; uniform vec2 uRimOff;
-      uniform vec3 uShadeColor; uniform float uShade; uniform float uFlash; uniform vec3 uFlashColor;
-      uniform float uAlpha; uniform float uParry; uniform vec3 uParryColor; uniform vec4 uTint; uniform float uTime;
+      uniform sampler2D map; uniform vec2 uTexel; uniform vec2 uLight;
+      uniform vec3 uRimColor; uniform float uRim; uniform vec3 uShadeColor; uniform float uShade; uniform float uShadeSoft; uniform float uBevel;
+      uniform float uInkBias; uniform vec3 uInk; uniform float uGrain; uniform float uBoil; uniform float uOutline;
+      uniform float uFlash; uniform vec3 uFlashColor; uniform float uAlpha; uniform float uParry; uniform vec3 uParryColor;
+      uniform vec4 uTint; uniform float uTime; uniform float uFlipX;
       varying vec2 vUv;
+      ${NOISE}
+      float A(vec2 uv){ return texture2D(map, uv).a; }
       void main(){
-        vec4 c = texture2D(map, vUv);
-        if (c.a < 0.02) discard;
-        // cel rim: light comes from uRimOff direction; where the texture ends toward the light, add rim
-        float toward = texture2D(map, vUv + uRimOff).a;
-        float away = texture2D(map, vUv - uRimOff * 1.4).a;
+        // line boil: the drawing shifts a hair every held frame (12fps), like re-inked cels
+        float f = floor(uTime * 12.0);
+        vec2 uv = vUv + (vec2(vnoise(vUv * 9.0 + f * 1.7), vnoise(vUv * 9.0 + f * 2.3 + 5.0)) - 0.5) * uTexel * 2.2 * uBoil;
+        vec4 c = texture2D(map, uv);
+        // light in texture space (art is mirrored when facing left)
+        vec2 L = normalize(vec2(uLight.x * uFlipX, uLight.y));
+        vec2 o = uTexel * uBevel;
+        // ink weight: pull dark line pixels toward the shadow side so lines are thicker underneath
+        vec4 cs = texture2D(map, uv + L * uTexel * uInkBias);
+        float lumS = dot(cs.rgb, vec3(0.299, 0.587, 0.114));
         float lum = dot(c.rgb, vec3(0.299, 0.587, 0.114));
-        float notInk = smoothstep(0.12, 0.25, lum);
+        float isInkS = step(lumS, 0.16) * step(0.5, cs.a);
+        float outer = 0.0;
+        if (c.a < 0.5 && uOutline > 0.0) {
+          for (int k = 0; k < 8; k++) { float a = float(k) * 0.7853982; outer = max(outer, A(uv + vec2(cos(a), sin(a)) * uTexel * uOutline)); }
+        }
+        if (c.a < 0.02 && isInkS < 0.5 && outer < 0.5) discard;
+        if (c.a < 0.5 && outer >= 0.5) { gl_FragColor = vec4(uInk, uAlpha * smoothstep(0.5, 0.8, outer)); return; }
+        if (isInkS > 0.5) { c = vec4(cs.rgb, max(c.a, cs.a)); lum = lumS; }
+        float notInk = smoothstep(0.13, 0.24, lum);
+        // fake normal from a blurred "fill field": alpha masked by ink, so every sub-shape bounded by
+        // an ink line (ear, blanket, sleeve...) gets its own pillowy volume, not just the part outline
+        vec2 g = vec2(0.0);
+        for (int k = 0; k < 8; k++) {
+          float a = float(k) * 0.7853982;
+          vec2 d = vec2(cos(a), sin(a));
+          for (int r = 1; r <= 3; r++) {
+            vec2 suv = uv + d * o * (float(r) / 3.0);
+            vec4 sc = texture2D(map, suv);
+            float fill = sc.a * smoothstep(0.12, 0.22, dot(sc.rgb, vec3(0.299, 0.587, 0.114)));
+            g += d * fill / float(r);
+          }
+        }
+        g.y = -g.y;
+        vec2 n = -g;
+        float gl = length(g);
+        float ndl = dot(normalize(n + 1e-4), L) * clamp(gl * 0.55, 0.0, 1.0);
+        float shadow = smoothstep(uShadeSoft, -uShadeSoft, ndl + 0.02);           // crisp two-tone terminator
+        float rim = smoothstep(0.30, 0.7, ndl) * smoothstep(0.4, 1.6, gl);         // thin lit edge
+        float core = smoothstep(0.6, 2.2, gl);                                      // darker toward sub-shape edges
         vec3 rgb = c.rgb;
-        rgb = mix(rgb, uRimColor, (1.0 - toward) * uRim * notInk);
-        rgb = mix(rgb, rgb * uShadeColor * 2.2, (1.0 - away) * uShade * notInk);
+        rgb = mix(rgb, rgb * mix(vec3(1.0), uShadeColor * 2.4, 0.85), (shadow * uShade + core * 0.12) * notInk);
+        rgb = mix(rgb, uRimColor, rim * uRim * notInk);
+        // ink: warm and not pure black
+        rgb = mix(uInk, rgb, notInk);
+        // paper grain anchored to the screen so it doesn't swim with the part
+        float gr = fbm(gl_FragCoord.xy * 0.35) - 0.5;
+        rgb *= 1.0 + gr * uGrain * notInk;
         rgb = mix(rgb, uTint.rgb, uTint.a * notInk);
         float pulse = 0.5 + 0.5 * sin(uTime * 6.2831 * 1.0);
         rgb = mix(rgb, uParryColor, uParry * (0.45 + 0.25 * pulse) * notInk);
@@ -59,6 +111,19 @@ export function characterMaterial(t: Tokens, map: THREE.Texture): THREE.ShaderMa
         gl_FragColor = vec4(rgb, c.a * uAlpha);
         #include <colorspace_fragment>
       }`,
+  });
+}
+
+/** A part's soft contact shadow cast onto whatever is behind it (ambient occlusion where parts overlap). */
+export function partShadowMaterial(t: Tokens, map: THREE.Texture): THREE.ShaderMaterial {
+  return new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    uniforms: { map: { value: map }, uColor: { value: col(t, "--shade-color") }, uAmount: { value: t.num("--part-shadow", 0.28) }, uAlpha: { value: 1 } },
+    vertexShader: /* glsl */ `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    fragmentShader: /* glsl */ `
+      uniform sampler2D map; uniform vec3 uColor; uniform float uAmount; uniform float uAlpha; varying vec2 vUv;
+      void main(){ float a = texture2D(map, vUv).a; if (a < 0.02) discard; gl_FragColor = vec4(uColor * 0.5, a * uAmount * uAlpha); }`,
   });
 }
 
@@ -111,7 +176,7 @@ export function spriteBatchMaterial(t: Tokens, atlas: THREE.Texture, additive = 
 }
 
 /** Painted background layer: watercolor paper grain, brush wobble, pigment edges, distance haze. */
-export function paperMaterial(t: Tokens, map: THREE.Texture, haze: number): THREE.ShaderMaterial {
+export function paperMaterial(t: Tokens, map: THREE.Texture, haze: number, desat = 0, dim = 1, blur = 0): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
@@ -123,6 +188,10 @@ export function paperMaterial(t: Tokens, map: THREE.Texture, haze: number): THRE
       uEdge: { value: t.num("--pigment-edge", 0.3) },
       uWash: { value: t.num("--wash", 0.1) },
       uHaze: { value: haze },
+      uDesat: { value: desat },
+      uBlur: { value: blur },
+      uTexSize: { value: new THREE.Vector2((map.image as HTMLCanvasElement)?.width ?? 1024, (map.image as HTMLCanvasElement)?.height ?? 1024) },
+      uDim: { value: dim },
       uHazeColor: { value: col(t, "--haze-color") },
       uRepeat: { value: new THREE.Vector2(1, 1) },
       uOffset: { value: new THREE.Vector2(0, 0) },
@@ -133,7 +202,7 @@ export function paperMaterial(t: Tokens, map: THREE.Texture, haze: number): THRE
       varying vec2 vUv; varying vec2 vWorld;
       void main(){ vUv = uv; vec4 w = modelMatrix * vec4(position, 1.0); vWorld = w.xy; gl_Position = projectionMatrix * viewMatrix * w; }`,
     fragmentShader: /* glsl */ `
-      uniform sampler2D map; uniform float uGrain, uScale, uBrush, uEdge, uWash, uHaze, uTime, uSeed;
+      uniform sampler2D map; uniform float uGrain, uScale, uBrush, uEdge, uWash, uHaze, uTime, uSeed, uDesat, uDim, uBlur; uniform vec2 uTexSize;
       uniform vec3 uHazeColor; uniform vec2 uRepeat, uOffset;
       varying vec2 vUv; varying vec2 vWorld;
       ${NOISE}
@@ -141,23 +210,37 @@ export function paperMaterial(t: Tokens, map: THREE.Texture, haze: number): THRE
         vec2 uv = vUv * uRepeat + uOffset;
         vec2 wob = vec2(fbm(vWorld * 0.02 + uSeed), fbm(vWorld * 0.02 + uSeed + 7.0)) - 0.5;
         vec2 suv = uv + wob * uBrush;
-        vec4 c = texture2D(map, fract(suv));
+        vec4 c = texture2D(map, fract(suv), uBlur);
         if (c.a < 0.01) discard;
-        // pigment pooling at shape edges (watercolor dark rim)
-        float e = 0.0;
-        vec2 px = vec2(0.0025, 0.0025);
-        e += abs(texture2D(map, fract(suv + vec2(px.x, 0.0))).a - c.a);
-        e += abs(texture2D(map, fract(suv + vec2(0.0, px.y))).a - c.a);
-        float lumNb = dot(texture2D(map, fract(suv + px * 1.5)).rgb, vec3(0.333));
+        // gouache/watercolour: pigment pools against ink lines and shape edges; fills lift toward the light
+        vec2 px = vec2(1.0) / uTexSize;
+        float near = 0.0, lit = 0.0;
+        for (int k = 0; k < 8; k++) {
+          float a = float(k) * 0.7853982;
+          vec2 d = vec2(cos(a), sin(a));
+          vec4 s1 = texture2D(map, fract(suv + d * px * 7.0), uBlur);
+          vec4 s2 = texture2D(map, fract(suv + d * px * 16.0), uBlur + 1.0);
+          float i1 = step(dot(s1.rgb, vec3(0.333)), 0.2) * s1.a + (1.0 - s1.a);
+          float i2 = step(dot(s2.rgb, vec3(0.333)), 0.2) * s2.a + (1.0 - s2.a);
+          near += i1 * 0.09 + i2 * 0.035;
+          lit += dot(d, vec2(-0.6, 0.8)) * (i2 - i1);
+        }
         float lum = dot(c.rgb, vec3(0.333));
-        float edge = clamp(abs(lum - lumNb) * 3.0 + e, 0.0, 1.0);
-        vec3 rgb = c.rgb * (1.0 - edge * uEdge * 0.5);
+        float isInk = step(lum, 0.2);
+        vec3 rgb = c.rgb;
+        rgb *= 1.0 - clamp(near, 0.0, 1.0) * uEdge * (1.0 - isInk);
+        rgb *= 1.0 + clamp(-lit * 0.12, -0.12, 0.12) * (1.0 - isInk);
         // wash blotches + paper grain
         float wash = fbm(vWorld * 0.004 + uSeed * 3.0);
         rgb *= 1.0 - (wash - 0.5) * uWash * 2.0;
+        float bloom = smoothstep(0.62, 0.7, fbm(vWorld * 0.011 + uSeed)) * (1.0 - isInk);
+        rgb = mix(rgb, rgb * 0.86, bloom * uWash * 2.5);                       // wet-edge blooms
         float grain = fbm(vWorld * uScale * 0.12) * 0.6 + hash(floor(vWorld * 0.9)) * 0.4;
         rgb *= 1.0 - (grain - 0.5) * uGrain * 2.0;
+        float l2 = dot(rgb, vec3(0.299, 0.587, 0.114));
+        rgb = mix(rgb, vec3(l2), uDesat);
         rgb = mix(rgb, uHazeColor, uHaze);
+        rgb *= uDim;
         gl_FragColor = vec4(rgb, c.a);
         #include <colorspace_fragment>
       }`,
@@ -259,7 +342,7 @@ export function postMaterial(t: Tokens, tex: THREE.Texture): THREE.ShaderMateria
           uv.x += (hash(vec2(floor(uv.y * 160.0), ft)) - 0.5) * 0.04 * inBand * uTracking;
           uv.x += sin(uv.y * 80.0 + uTime * 40.0) * 0.002 * uTracking;
         }
-        vec2 dir = (uv - 0.5);
+        vec2 dir = (uv - 0.5) * smoothstep(0.15, 0.75, length(uv - 0.5) * 1.4); // fringing only toward the edges
         float ch = uChroma * (1.0 + uTracking * 4.0);
         vec3 c;
         c.r = texture2D(tDiffuse, uv + dir * ch).r;
@@ -286,8 +369,14 @@ export function postMaterial(t: Tokens, tex: THREE.Texture): THREE.ShaderMateria
         float g = hash(vUv * uRes * 0.5 + ft * 13.1) - 0.5;
         c += g * uGrain;
         // dust specks and an occasional vertical scratch
-        float dust = step(0.9985 - uDust * 0.001, hash(floor(vUv * uRes / 3.0) + ft));
-        c = mix(c, vec3(0.1, 0.05, 0.04), dust * 0.6);
+        // a handful of dust specks per frame (not a grid)
+        float dust = 0.0;
+        for (int k = 0; k < 4; k++) {
+          vec2 dp = vec2(hash(vec2(ft, float(k) * 3.1)), hash(vec2(float(k) * 7.7, ft)));
+          float r = (1.5 + 2.5 * hash(vec2(ft, float(k)))) / uRes.y;
+          dust += smoothstep(r, r * 0.4, length((vUv - dp) * vec2(uRes.x / uRes.y, 1.0))) * step(0.5, hash(vec2(ft * 1.3, float(k))));
+        }
+        c = mix(c, vec3(0.12, 0.06, 0.05), clamp(dust, 0.0, 1.0) * 0.7 * uDust);
         float sx = hash(vec2(floor(uTime * 2.0), 4.0));
         float scratch = smoothstep(0.0012, 0.0, abs(vUv.x - sx)) * step(0.6, hash(vec2(floor(uTime * 2.0), 5.0))) * uDust;
         c = mix(c, vec3(1.0, 0.96, 0.88), scratch * 0.5);
