@@ -1,0 +1,33 @@
+{
+  "name": "slummonkey",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --project unit",
+    "test:stories": "vitest run --project stories",
+    "catalog": "tsx tools/catalog.ts",
+    "balance": "tsx tools/balance-bot.ts",
+    "shots": "tsx tools/shoot.ts",
+    "storybook": "storybook dev -p 6006 --no-open",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@fontsource/bangers": "^5.3.0",
+    "@fontsource/kalam": "^5.3.0",
+    "@fontsource/yatra-one": "^5.3.0",
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "@types/three": "^0.186.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.3"
+  }
+}

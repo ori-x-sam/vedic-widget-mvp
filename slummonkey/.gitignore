@@ -1,0 +1,7 @@
+node_modules
+dist
+storybook-static
+reference/*.png
+reference/*.jpg
+shots/
+.vitest-attachments
