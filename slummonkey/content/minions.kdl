@@ -1,13 +1,61 @@
 // Mela + sky minions. Each is a puppet plus a few words.
-puppet "kettle" { part "k" svg="parts/minions/kettle" size=80 x=0 y=0 px=0.5 py=0.98 anim="bob" }
-puppet "balloon" { part "b" svg="parts/minions/balloon" size=100 x=0 y=0 px=0.5 py=0.98 anim="float" }
-puppet "anar" { part "a" svg="parts/minions/anar" size=74 x=0 y=0 px=0.5 py=0.98 anim="breathe" }
-puppet "parrot" { part "p" svg="parts/minions/parrot" size=60 x=0 y=0 px=0.5 py=0.6 anim="float" }
-puppet "kite" { part "k" svg="parts/minions/kite" size=90 x=0 y=0 px=0.5 py=0.6 anim="sway" }
-puppet "gubbara" { part "g" svg="parts/minions/gubbara" size=300 x=0 y=0 px=0.5 py=0.98 anim="float" }
-puppet "rickshaw" {
-  part "body" svg="parts/minions/rickshaw" size=128 x=0 y=0 px=0.45 py=0.85 z=1 anim="bank"
-  part "prop" svg="parts/minions/propeller" size=24 x=8 y=132 px=0.5 py=0.5 z=2 anim="prop"
+puppet "kettle" {
+  part "k" shape="ball" dim="62 50 56" detail=1 y=0 off="0 30 0" color="--steel" anim="bob"
+  part "lid" shape="dome" dim="40 18 40" off="0 54 0" color="--steel-dark" parent="k"
+  part "knob" shape="ball" dim="10" off="0 66 0" color="--ink" parent="k"
+  part "spout" shape="cyl" dim="10 40 10" taper=0.6 off="40 42 0" rot="0 0 -55" color="--steel" parent="k"
+  part "handle" shape="torus" dim="34 34 34" taper=0.14 off="-30 40 0" color="--ink" parent="k"
+  part "eye" shape="box" dim="3 8 4" off="30 34 9" color="--ink" parent="k"
+  part "eye-2" shape="box" dim="3 8 4" off="30 34 -9" color="--ink" parent="k"
+  part "brow" shape="box" dim="3 3 14" off="31 41 9" rot="25 0 0" color="--ink" parent="k"
+  part "steam" shape="ball" dim="14" off="58 66 0" color="--white" emissive=0.3 parent="k"
+}
+puppet "balloon" {
+  part "b" shape="ball" dim="64 74 64" detail=1 y=0 off="0 64 0" color="--rani" anim="float"
+  part "knot" shape="cone" dim="12 10 12" off="0 24 0" color="--rani" parent="b"
+  part "string" shape="cyl" dim="2 26 2" off="0 8 0" color="--ink" parent="b"
+  part "eye" shape="box" dim="3 9 4" off="30 72 10" color="--ink" parent="b"
+  part "eye-2" shape="box" dim="3 9 4" off="30 72 -10" color="--ink" parent="b"
+  part "shine" shape="ball" dim="10 16 6" off="14 84 24" color="--white" emissive=0.5 parent="b"
+}
+puppet "anar" {
+  part "a" shape="cone" dim="56 64 56" detail=7 y=0 off="0 32 0" color="--vermilion" anim="breathe"
+  part "band" shape="cyl" dim="50 10 50" taper=0.8 detail=7 off="0 26 0" color="--marigold" parent="a"
+  part "fuse" shape="cyl" dim="4 14 4" off="0 70 0" color="--ink" parent="a"
+  part "spark" shape="gem" dim="16" off="0 80 0" color="--marigold" emissive=0.8 parent="a" anim="spin-y"
+  part "eye" shape="box" dim="3 7 4" off="16 34 12" color="--ink" parent="a"
+}
+puppet "parrot" {
+  part "p" shape="ball" dim="46 32 30" y=0 color="--leaf" anim="float"
+  part "head" shape="ball" dim="26 26 24" off="22 14 0" color="--leaf" parent="p"
+  part "beak" shape="cone" dim="12 16 10" off="38 8 0" rot="0 0 -110" color="--vermilion" parent="p"
+  part "eye" shape="box" dim="3 5 3" off="30 20 9" color="--ink" parent="p"
+  part "ring" shape="torus" dim="24 24 24" taper=0.15 off="16 4 0" rot="0 90 0" color="--rani" parent="p"
+  part "tail" shape="box" dim="40 4 12" off="-36 -2 0" rot="0 0 10" color="--teal" parent="p"
+  part "wing" shape="box" dim="30 4 34" y=8 pz=14 off="-4 0 16" color="--leaf-dark" anim="flutter" parent="p"
+  part "wing-2" shape="box" dim="30 4 34" y=8 pz=-14 off="-4 0 -16" color="--leaf-dark" anim="flutter" tags="b" parent="p"
+}
+puppet "kite" {
+  part "k" shape="gem" dim="70 80 6" y=0 color="--rani" anim="sway"
+  part "k2" shape="gem" dim="40 46 7" color="--marigold" parent="k"
+  part "spar" shape="box" dim="2 80 8" color="--wood-dark" parent="k"
+  part "tail" shape="box" dim="4 60 4" off="0 -66 0" rot="0 0 10" color="--ink" parent="k"
+  part "bow" shape="gem" dim="14 10 4" off="4 -80 0" color="--teal" parent="k"
+}
+// Gubbara Guru: a sage in saffron hanging from a bunch of giant balloons.
+puppet "gubbara" {
+  part "g" shape="none" y=0 anim="float"
+  part "b1" shape="ball" dim="110 120 110" detail=1 off="0 230 0" color="--rani" parent="g"
+  part "b2" shape="ball" dim="90 100 90" detail=1 off="-80 190 20" color="--marigold" parent="g"
+  part "b3" shape="ball" dim="90 100 90" detail=1 off="80 196 -10" color="--teal" parent="g"
+  part "b4" shape="ball" dim="80 90 80" detail=1 off="-30 290 -40" color="--vermilion" parent="g"
+  part "b5" shape="ball" dim="80 90 80" detail=1 off="50 280 40" color="--peacock" parent="g"
+  part "strings" shape="cone" dim="80 110 30" detail=4 off="0 120 0" rot="180 0 0" color="--white" parent="g"
+  part "robe" shape="cone" dim="70 80 60" detail=7 off="0 30 0" color="--saffron" parent="g"
+  part "head" shape="ball" dim="38 40 36" off="4 84 0" color="--skin-2" parent="g"
+  part "beard" shape="cone" dim="30 36 26" detail=6 off="12 62 0" rot="180 0 0" color="--white" parent="g"
+  part "tilak" shape="box" dim="2 12 4" off="22 96 0" color="--vermilion" parent="g"
+  part "eye" shape="box" dim="3 4 8" off="20 88 8" color="--ink" parent="g"
 }
 
 minion "kettle" hp=10 w=70 h=75 gravity=2400 {
@@ -29,7 +77,7 @@ minion "anar" hp=8 w=60 h=70 gravity=2400 {
 minion "parrot" hp=6 w=70 h=50 {
   par {
     fly-path "sine" dur=8 amp=60 speed=200
-    loop { wait 1.1; windup 0.3; shoot "card" 380 }
+    loop { wait 1.6; windup 0.4; shoot "card" 360 }
   }
 }
 minion "kite" hp=10 w=70 h=80 {
@@ -45,12 +93,14 @@ minion "gubbara" hp=320 w=220 h=330 {
   move-to 330 120 dur=2
   parry-every 4
   loop {
-    spiral 3 1.8 rate=6 speed=260 "pellet"
-    wait 0.8
-    homing 2 "pigeon" turn=70 speed=250
-    wait 1
+    windup 0.5
+    spiral 3 1.6 rate=5 speed=240 "pellet"
+    wait 1.2
+    homing 1 "pigeon" turn=60 speed=240
+    wait 1.2
     hover 40 2 dur=2
-    volley 5 50 380 "kite" from="mid"
-    wait 1
+    windup 0.5
+    volley 3 40 360 "kite" from="mid"
+    wait 1.4
   }
 }

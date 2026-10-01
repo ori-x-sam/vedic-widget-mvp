@@ -1,15 +1,5 @@
-/* Stage paint: watercolor paper, brush noise, parallax haze, per-stage sky colors and lights. */
+/* Stage skies: top and bottom of the sky gradient per stage (also tints the fill light and fog). */
 :root {
-  --paper-grain: 0.10;        /* paper texture strength on backgrounds */
-  --paper-scale: 3.2;
-  --brush-noise: 0.0035;      /* UV wobble of painted layers */
-  --pigment-edge: 0.35;       /* watercolor edge darkening */
-  --wash: 0.12;               /* random wash blotches */
-  --haze: 0.30;               /* far layers fade toward the sky */
-  --haze-color: var(--sky-warm);
-  --bulb-glow: 0.9;
-  --tube-flicker: 0.12;
-
   --sky-gajraj-top: #ffcf8a;  --sky-gajraj-bottom: #f37e5b;
   --sky-tigada-top: #7ed0c8;  --sky-tigada-bottom: #f6d38a;
   --sky-dolly-top: #c86fb5;   --sky-dolly-bottom: #ffb38a;
@@ -18,19 +8,4 @@
   --sky-mela-top: #8ad0e6;    --sky-mela-bottom: #ffe2a8;
   --sky-shmup-top: #4aa0d8;   --sky-shmup-bottom: #ffc98a;
   --sky-island-top: #7fc8e0;  --sky-island-bottom: #bfe6dc;
-  --water-sheen: 0.35;
 }
-:root {
-  --bg-desat: 0.55;           /* far layers lose saturation with depth so actors pop */
-  --fg-dim: 0.62;             /* foreground silhouettes (crowd, bushes) go darker */
-}
-:root {
-  --bg-blur: 1.4;             /* depth-of-field: far layers sample blurrier mips */
-  --fg-blur: 1.6;             /* foreground silhouettes are soft, out of focus */
-  --pigment-edge: 0.55;
-  --wash: 0.16;
-  --paper-grain: 0.13;
-}
-:root { --bg-ink: 0.3; /* backgrounds keep only 30% of their ink: hard lines are for things you play against */ }
-:root { --fg-blur: 0.8; --bg-blur: 1.0; }
-:root { --bg-ink: 0.12; }

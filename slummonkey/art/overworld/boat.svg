@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140">
-  <path d="M10 90 L 190 90 C 170 130, 40 130, 10 90Z" fill="var(--vermilion)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="M100 90 V10" stroke="var(--ink)" stroke-width="7"/>
-  <path d="M104 14 C 150 30, 160 70, 160 84 L 104 84Z" fill="var(--paper)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="M30 100 L 170 100" stroke="var(--marigold)" stroke-width="6"/>
-</svg>

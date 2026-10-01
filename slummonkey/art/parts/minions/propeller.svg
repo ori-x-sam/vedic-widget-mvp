@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40">
-  <ellipse cx="100" cy="20" rx="96" ry="14" fill="var(--white)" fill-opacity="0.35" stroke="var(--ink)" stroke-width="3" stroke-dasharray="16 8"/>
-  <path d="M10 20 C 50 10, 150 30, 190 20" fill="none" stroke="var(--wood)" stroke-width="10" stroke-linecap="round"/>
-  <circle cx="100" cy="20" r="9" fill="var(--steel)" stroke="var(--ink)" stroke-width="4"/>
-</svg>

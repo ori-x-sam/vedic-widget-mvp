@@ -1,222 +1,180 @@
-// Renders a rules World with three.js: painted parallax stage, cutout puppets, instanced bullets,
-// particles, telegraph FX, water, and the VHS/film post stack. Reads world state; never mutates it.
+// Renders a rules World as a clean low-poly 3D diorama: the game plays on the z=0 plane, the camera looks
+// at it slightly from above, sets are built from content/stages.kdl props, characters are flat-shaded
+// models from the puppet blocks, bullets/particles/telegraphs are instanced shapes. No post filters.
+// Reads world state; never mutates it.
 import * as THREE from "three";
 import type { Content, StageDef } from "../core/content";
-import type { Tokens } from "../core/tokens";
+import type { Tokens, RGB } from "../core/tokens";
 import type { World } from "../rules/world";
 import type { Ent, WorldEvent } from "../rules/types";
-import { TextureBank, Atlas } from "./textures";
-import { PuppetFactory, PuppetView, PuppetState } from "./puppet";
-import { SpriteBatch } from "./batch";
+import { MaterialBank, Model, ModelFactory, PuppetState } from "./model";
+import { Instancer, ShapeKey } from "./instancer";
+import { StageBuilder } from "./stage3d";
 import { Particles } from "./particles";
-import { paperMaterial, paperBakeMaterial, postMaterial, skyMaterial, spriteBatchMaterial, waterMaterial } from "./shaders";
 
-export const SPRITES = [
-  // projectiles
-  "pellet", "coin", "enemy-coin", "player-coin", "mirchi", "kabootar", "laddoo", "big-coin", "mirchi-bomb", "big-kabootar", "big-laddoo",
-  "airdrop-crate", "shockwave", "bomb", "knife", "club", "card", "rabbit-shot", "pigeon", "water-drop", "candle-red", "candle-green",
-  "marigold", "star", "beam", "moon-beam", "prop-shot", "cash", "kite-shot", "water-beam",
-  // fx
-  "puff", "confetti", "confetti-b", "sparkle", "spark", "coin-fx", "shard", "petal", "pop-ring", "bubble", "footprint", "shadow",
-  "warn-mark", "warn-line", "spotlight", "token", "sheet", "rotor-disc", "glow", "cone", "muzzle", "impact",
-].map((s) => `sprites/${s}`).concat(["parts/dolly/mirror-frame"]);
-
-interface EntView { pv: PuppetView; puppet: string; refl?: PuppetView; lastX: number }
+interface EntView { m: Model; puppet: string; refl?: Model }
 interface Fx { kind: string; x: number; y: number; t: number; dur: number; n: number; id: number; s: string }
+interface Look { shape: ShapeKey; color: string; s: number }
+
+/** How each projectile sprite looks as a low-poly shape (color tokens from look/palette.css). */
+const LOOKS: Record<string, Look> = {
+  "player-coin": { shape: "coin", color: "--cyber", s: 2.1 }, mirchi: { shape: "cone", color: "--chilli", s: 2 }, kabootar: { shape: "bird", color: "--white", s: 2.4 },
+  laddoo: { shape: "ball", color: "--marigold", s: 1.6 }, "big-coin": { shape: "coin", color: "--cyber", s: 1.7 }, "mirchi-bomb": { shape: "ball", color: "--chilli", s: 1.6 },
+  "big-kabootar": { shape: "bird", color: "--white", s: 2.4 }, "big-laddoo": { shape: "ball", color: "--marigold", s: 1.6 }, "moon-beam": { shape: "ball", color: "--cyber", s: 1.4 },
+  "airdrop-crate": { shape: "box", color: "--wood", s: 1.4 }, pellet: { shape: "ball", color: "--saffron", s: 1.5 }, "enemy-coin": { shape: "coin", color: "--gold", s: 1.6 },
+  shockwave: { shape: "dome", color: "--marigold", s: 1.6 }, bomb: { shape: "ball", color: "--ink", s: 1.6 }, beam: { shape: "box", color: "--vermilion", s: 1 },
+  knife: { shape: "cone", color: "--steel", s: 2.2 }, club: { shape: "box", color: "--teal", s: 1.8 }, card: { shape: "box", color: "--white", s: 1.6 },
+  "rabbit-shot": { shape: "ball", color: "--white", s: 1.6 }, pigeon: { shape: "bird", color: "--steel", s: 2.6 }, "water-drop": { shape: "ball", color: "--water", s: 1.6 },
+  "candle-red": { shape: "box", color: "--candle-red", s: 1.5 }, "candle-green": { shape: "box", color: "--candle-green", s: 1.5 }, star: { shape: "gem", color: "--marigold", s: 1.8 },
+  "prop-shot": { shape: "gem", color: "--steel", s: 1.8 }, cash: { shape: "box", color: "--neon-green", s: 1.6 }, "kite-shot": { shape: "gem", color: "--rani", s: 1.8 },
+  marigold: { shape: "gem", color: "--parry", s: 1.8 }, "water-beam": { shape: "box", color: "--water", s: 1 },
+};
+
+const SHOT_SHAPES: ShapeKey[] = ["ball", "coin", "cone", "bird", "box", "gem", "dome"];
+const PARTICLE_SHAPES: ShapeKey[] = ["ball", "box", "gem", "coin", "tetra"];
+const FX_SHAPES: ShapeKey[] = ["ring", "disc", "plane"];
 
 export class GameView {
   renderer: THREE.WebGLRenderer;
   scene = new THREE.Scene();
-  camera = new THREE.OrthographicCamera(-640, 640, 360, -360, -100, 100);
-  rt: THREE.WebGLRenderTarget;
-  postScene = new THREE.Scene();
-  postCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-  post: THREE.ShaderMaterial;
-  bank: TextureBank;
-  puppets: PuppetFactory;
-  atlas!: Atlas;
-  bullets!: SpriteBatch;
-  under!: SpriteBatch; // decals, shadows, warn marks (below actors)
-  over!: SpriteBatch;  // particles (above actors)
-  lights!: SpriteBatch; // additive stage lighting + glows (between the painted stage and the actors)
+  camera = new THREE.PerspectiveCamera(30, 16 / 9, 50, 12000);
+  mats: MaterialBank;
+  puppets: ModelFactory;
+  stage: StageBuilder;
+  shots: Instancer;
+  parts: Instancer;
+  fxi: Instancer;
   particles: Particles;
+  private hemi: THREE.HemisphereLight;
+  private sun: THREE.DirectionalLight;
+  private skyMat: THREE.ShaderMaterial;
   private views = new Map<number, EntView>();
-  private player!: PuppetView;
-  private ghosts: { pv: PuppetView; t: number; x: number; y: number; facing: number }[] = [];
-  private stageGroup = new THREE.Group();
-  private fgGroup = new THREE.Group();
-  private layers: { mesh: THREE.Mesh; mat: THREE.ShaderMaterial; depth: number; y: number; tile: string; tiley: boolean; w: number; h: number; x: number }[] = [];
-  private sky: THREE.Mesh | null = null;
+  private player!: Model;
+  private ghosts: { m: Model; t: number; x: number; y: number; facing: number }[] = [];
   private water: THREE.Mesh;
+  private sheet: THREE.Mesh;
+  private mirrors: THREE.Group[] = [];
   private decals: { x: number; y: number; t: number; s: string; scale: number }[] = [];
   private fx: Fx[] = [];
   private shake = 0;
-  private lastImpact = 0;
-  private tracking = 0;
   private flash = 0;
   private camShakeX = 0; private camShakeY = 0;
+  private col: Record<string, THREE.Color> = {};
   t = 0;
   viewW = 1280; viewH = 720;
   stageId = "";
   renderScale = 1;
+  sceneCalls = 0;
   private frameTimes: number[] = [];
-  private tk: { fps: number; squashK: number; smearSpeed: number; floorFrac: number; shadowA: number; shakeScale: number; shakeDecay: number; playerGlow: number; hitFlash: number; tracking: number; trackingDecay: number };
+  private tk: { floorFrac: number; shakeScale: number; shakeDecay: number; hitFlash: number; pitch: number };
 
-  constructor(public canvas: HTMLCanvasElement, public tokens: Tokens, public content: Content, svgs: Record<string, string>) {
+  constructor(public canvas: HTMLCanvasElement, public tokens: Tokens, public content: Content, _svgs?: Record<string, string>) {
     THREE.ColorManagement.enabled = false;
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: "high-performance" });
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance" });
     this.renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, tokens.num("--dpr-max", 2)));
-    this.rt = new THREE.WebGLRenderTarget(4, 4, { samples: 0, depthBuffer: false });
-    this.post = postMaterial(tokens, this.rt.texture);
-    this.postScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.post));
-    this.bank = new TextureBank(tokens, svgs);
-    this.puppets = new PuppetFactory(tokens, this.bank, content.puppets);
+    this.renderer.shadowMap.enabled = tokens.num("--shadows", 1) > 0;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
+    this.mats = new MaterialBank(tokens);
+    this.puppets = new ModelFactory(this.mats, content.puppets);
+    this.stage = new StageBuilder(this.mats);
     this.particles = new Particles(tokens);
-    this.water = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), waterMaterial(tokens));
-    this.water.renderOrder = 900;
-    this.water.visible = false;
-    this.scene.add(this.stageGroup, this.fgGroup, this.water);
     this.tk = {
-      fps: tokens.num("--anim-fps", 12), squashK: tokens.num("--squash-k", 1), smearSpeed: tokens.num("--smear-speed", 900),
-      floorFrac: tokens.num("--floor-frac", 0.27), shadowA: tokens.num("--shadow-alpha", 0.28), shakeScale: tokens.num("--shake-scale", 1),
-      shakeDecay: tokens.num("--shake-decay", 10), playerGlow: tokens.num("--player-glow", 0.28), hitFlash: tokens.num("--hit-flash-amount", 0.35), tracking: tokens.num("--tracking", 0.6), trackingDecay: tokens.num("--tracking-decay", 3),
+      floorFrac: tokens.num("--floor-frac", 0.27), shakeScale: tokens.num("--shake-scale", 1), shakeDecay: tokens.num("--shake-decay", 10),
+      hitFlash: tokens.num("--hit-flash-amount", 0.6), pitch: tokens.num("--camera-pitch", 7),
     };
+    this.camera.fov = tokens.num("--camera-fov", 30);
+
+    // sky: a gradient on a huge back-facing sphere that follows the camera
+    this.skyMat = new THREE.ShaderMaterial({
+      uniforms: { uTop: { value: new THREE.Color() }, uBottom: { value: new THREE.Color() } },
+      vertexShader: "varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.); }",
+      fragmentShader: "uniform vec3 uTop; uniform vec3 uBottom; varying vec3 vP; void main(){ float k = smoothstep(-0.1, 0.35, vP.y); gl_FragColor = vec4(mix(uBottom, uTop, k), 1.); }",
+      side: THREE.BackSide, depthWrite: false, fog: false,
+    });
+    const sky = new THREE.Mesh(new THREE.SphereGeometry(10000, 16, 12), this.skyMat);
+    sky.renderOrder = -1000; sky.frustumCulled = false;
+    sky.onBeforeRender = () => sky.position.copy(this.camera.position);
+    this.scene.add(sky);
+
+    this.hemi = new THREE.HemisphereLight(0xffffff, 0x664433, 1.0);
+    this.sun = new THREE.DirectionalLight(0xffffff, 1.6);
+    this.sun.castShadow = true;
+    const sz = tokens.num("--shadow-map", 1024);
+    this.sun.shadow.mapSize.set(sz, sz);
+    const sc = this.sun.shadow.camera;
+    sc.left = -1200; sc.right = 1200; sc.top = 1000; sc.bottom = -700; sc.near = 10; sc.far = 5000;
+    this.sun.shadow.bias = -0.0006;
+    this.sun.shadow.normalBias = 1.5;
+    this.sun.shadow.radius = 3;
+    this.scene.add(this.hemi, this.sun, this.sun.target, this.stage.group);
+
+    this.shots = new Instancer(SHOT_SHAPES, 700, "glow", 0.55);
+    this.parts = new Instancer(PARTICLE_SHAPES, 900, "glow", 0.3);
+    this.fxi = new Instancer(FX_SHAPES, 160, "fx");
+    this.scene.add(this.shots.group, this.parts.group, this.fxi.group);
+
+    this.water = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial({ color: this.mats.color("--water"), transparent: true, opacity: 0.72, flatShading: true, depthWrite: false }));
+    this.water.renderOrder = 900; this.water.visible = false;
+    this.sheet = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), this.mats.lit("--velvet", 0.05));
+    this.sheet.castShadow = true; this.sheet.visible = false;
+    this.scene.add(this.water, this.sheet);
   }
 
-  async load(stageIds: string[] = []) {
-    this.atlas = await this.bank.atlas(SPRITES, 128);
-    this.bullets = new SpriteBatch(this.atlas, spriteBatchMaterial(this.tokens, this.atlas.tex), 1200, 600);
-    this.under = new SpriteBatch(this.atlas, spriteBatchMaterial(this.tokens, this.atlas.tex), 600, 50);
-    this.over = new SpriteBatch(this.atlas, spriteBatchMaterial(this.tokens, this.atlas.tex), 1000, 700);
-    this.lights = new SpriteBatch(this.atlas, spriteBatchMaterial(this.tokens, this.atlas.tex, true), 300, 30);
-    this.scene.add(this.lights.mesh, this.under.mesh, this.bullets.mesh, this.over.mesh);
-    await this.puppets.preload();
-    for (const s of stageIds) await this.preloadStage(s);
+  private c(token: string): THREE.Color { return this.col[token] ??= this.mats.color(token); }
+
+  async load(_stageIds: string[] = []) {
     this.player = this.puppets.make("slummonkey");
-    this.player.setOrder(400);
     this.scene.add(this.player.root);
     for (let i = 0; i < 3; i++) {
-      const pv = this.puppets.make("slummonkey");
-      pv.setOrder(390);
-      pv.tint(...this.tokens.color("--cyber"), 1);
-      pv.root.visible = false;
-      this.scene.add(pv.root);
-      this.ghosts.push({ pv, t: 99, x: 0, y: 0, facing: 1 });
+      const m = this.puppets.make("slummonkey", false);
+      m.tint(...this.tokens.color("--cyber"), 0.85);
+      m.root.visible = false;
+      this.scene.add(m.root);
+      this.ghosts.push({ m, t: 99, x: 0, y: 0, facing: 1 });
     }
   }
 
-  private async preloadStage(id: string) {
-    const st = this.content.stages[id];
-    if (!st) return;
-    await Promise.all(st.layers.filter((l) => !l.art.startsWith("sky:")).map((l) => this.bank.get(l.art, this.layerHeight(l.art, l.scale), 1)));
-  }
-
-  private layerHeight(art: string, scale: number) {
-    const svg = this.bank.svgs[this.bank.norm(art)] ?? "";
-    const m = /viewBox\s*=\s*"[\d.\s-]+\s([\d.]+)"/.exec(svg);
-    return (m ? parseFloat(m[1]) : 720) * scale;
-  }
-
-  /** Build the painted stage (sky + parallax layers + foreground). */
-  private stageToken = 0;
+  /** Build the stage set (sky colors, lights, fog, props). */
   async setStage(id: string) {
     if (this.stageId === id) return;
     this.stageId = id;
-    const token = ++this.stageToken;
     const st: StageDef | undefined = this.content.stages[id];
     if (!st) return;
-    // rasterize first, then swap in one go (a later setStage wins the race)
-    await this.preloadStage(id);
-    if (token !== this.stageToken) return;
-    for (const l of this.layers) { this.stageGroup.remove(l.mesh); this.fgGroup.remove(l.mesh); l.mat.dispose(); }
-    this.layers = [];
-    if (this.sky) { this.scene.remove(this.sky); this.sky = null; }
-    let order = 0;
-    for (const l of st.layers.slice().sort((a, b) => b.depth - a.depth)) {
-      if (l.art.startsWith("sky:")) {
-        const name = l.art.slice(4);
-        const m = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), skyMaterial(this.tokens, `--sky-${name}-top`, `--sky-${name}-bottom`));
-        m.frustumCulled = false; m.renderOrder = -1000;
-        this.sky = m; this.scene.add(m);
-        continue;
-      }
-      const h = this.layerHeight(l.art, l.scale);
-      const r = await this.bank.get(l.art, h, 1);
-      const w = h * r.aspect;
-      const baked = this.bake(r.tex, r.w, r.h, l.tile, l.tiley);
-      const far = Math.max(0, l.depth - 1);
-      const haze = Math.min(0.6, far * this.tokens.num("--haze", 0.2));
-      const desat = Math.min(0.6, far * this.tokens.num("--bg-desat", 0.4));
-      const dim = l.dim >= 0 ? l.dim : l.depth < 1 ? this.tokens.num("--fg-dim", 0.7) : 1;
-      const blur = l.blur >= 0 ? l.blur : l.depth > 1 ? Math.min(2.5, far * this.tokens.num("--bg-blur", 1.6)) : l.depth < 1 ? this.tokens.num("--fg-blur", 1.2) : 0;
-      const mat = paperMaterial(this.tokens, baked, haze, desat, dim, blur);
-      if (l.tint) mat.uniforms.uTint.value.setRGB(...this.tokens.color(l.tint));
-      const meshW = l.tile ? 3200 : w;
-      const meshH = l.tiley ? 2400 : h;
-      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(meshW, meshH), mat);
-      mesh.frustumCulled = false;
-      mat.uniforms.uRepeat.value.set(l.tile ? meshW / w : 1, l.tiley ? meshH / h : 1);
-      mesh.renderOrder = l.depth < 1 ? 800 + order : -500 + order;
-      order++;
-      (l.depth < 1 ? this.fgGroup : this.stageGroup).add(mesh);
-      this.layers.push({ mesh, mat, depth: l.depth, y: l.y, tile: l.tile ? "x" : "", tiley: l.tiley, w, h, x: l.x });
-    }
-  }
-
-  private baked = new Map<THREE.Texture, THREE.Texture>();
-  /** Paint a layer once (watercolour/gouache pass in texture space) and keep the result with mipmaps. */
-  private bake(src: THREE.Texture, w: number, h: number, tileX: boolean, tileY: boolean): THREE.Texture {
-    const hit = this.baked.get(src);
-    if (hit) return hit;
-    const rt = new THREE.WebGLRenderTarget(w, h, {
-      depthBuffer: false, generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter, magFilter: THREE.LinearFilter,
-      // wrap must be set at construction for render targets (it's baked into the GL texture's sampler state)
-      wrapS: tileX ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping, wrapT: tileY ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping,
-    });
-    if (tileX) src.wrapS = THREE.RepeatWrapping;
-    if (tileY) src.wrapT = THREE.RepeatWrapping;
-    src.needsUpdate = true;
-    // noise in the bake uses texture-space coords; integer periods keep tiles seamless at the wrap
-    const mat = paperBakeMaterial(this.tokens, src, w, h, new THREE.Vector2(tileX ? 1 : 0, tileY ? 1 : 0));
-    const sc = new THREE.Scene();
-    sc.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat));
-    const prev = this.renderer.getRenderTarget();
-    this.renderer.setRenderTarget(rt);
-    this.renderer.setClearColor(0x000000, 0);
-    this.renderer.clear();
-    this.renderer.render(sc, this.postCam);
-    this.renderer.setRenderTarget(prev);
-    mat.dispose();
-    this.baked.set(src, rt.texture);
-    return rt.texture;
+    this.stage.build(st);
+    this.skyMat.uniforms.uTop.value.copy(this.c(st.sky[0]));
+    this.skyMat.uniforms.uBottom.value.copy(this.c(st.sky[1]));
+    this.scene.fog = new THREE.Fog(this.c(st.fog || st.sky[1]), this.tokens.num("--fog-near", 2600), this.tokens.num("--fog-far", 7000));
+    this.hemi.color.copy(this.c(st.sky[0])).lerp(new THREE.Color(1, 1, 1), 0.6);
+    this.hemi.groundColor.copy(this.c(st.ground)).multiplyScalar(0.7);
+    this.hemi.intensity = this.tokens.num("--ambient", 1.2) * st.ambient;
+    this.sun.intensity = this.tokens.num("--sun", 1.5) * st.sun;
+    this.sun.color.setRGB(1, 0.96, 0.88);
   }
 
   resize(w: number, h: number) {
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, this.tokens.num("--dpr-max", 2)) * this.renderScale);
     this.renderer.setSize(w, h, false);
-    const dpr = this.renderer.getPixelRatio() * this.renderScale;
-    this.rt.setSize(Math.max(1, Math.floor(w * dpr)), Math.max(1, Math.floor(h * dpr)));
-    this.post.uniforms.uRes.value.set(w * dpr, h * dpr);
     const aspect = w / Math.max(1, h);
     const zoom = this.tokens.num("--camera-zoom", 1);
     this.viewH = Math.max(this.tokens.num("--view-h", 720), 1300 / aspect) / zoom;
     this.viewW = this.viewH * aspect;
+    this.camera.aspect = aspect;
+    this.camera.updateProjectionMatrix();
   }
 
-  /** World x/y -> CSS pixel coordinates (for DOM bubbles). */
+  /** World x/y (on the play plane) -> CSS pixel coordinates (for DOM bubbles). */
+  private v3 = new THREE.Vector3();
   project(x: number, y: number, w: number, h: number): [number, number] {
-    const c = this.camera;
-    return [((x - (c.position.x + c.left)) / (c.right - c.left)) * w, (1 - (y - (c.position.y + c.bottom)) / (c.top - c.bottom)) * h];
+    const v = this.v3.set(x, y, 0).project(this.camera);
+    return [(v.x * 0.5 + 0.5) * w, (0.5 - v.y * 0.5) * h];
   }
 
   onEvent(e: WorldEvent) {
     switch (e.type) {
       case "particles": this.particles.emit(e.s ?? "dust", e.x, e.y, e.n ?? 4); break;
-      case "shake": this.shake = Math.min(30, this.shake + (e.n ?? 6)); break;
-      case "boss-hit":
-        if (this.t - this.lastImpact > 0.11) { this.lastImpact = this.t; this.fx.push({ kind: "impact", x: e.x + (Math.random() - 0.5) * 40, y: e.y + (Math.random() - 0.5) * 60, t: 0, dur: 0.12, n: 1, id: 0, s: "" }); }
-        break;
-      case "tracking": this.tracking = Math.max(this.tracking, e.n ?? 0.4); break;
+      case "shake": this.shake = Math.min(26, this.shake + (e.n ?? 6)); break;
+      case "boss-hit": if (Math.random() < 0.35) this.particles.emit("spark", e.x + (Math.random() - 0.5) * 40, e.y + (Math.random() - 0.5) * 60, 1); break;
       case "decal": this.decals.push({ x: e.x, y: e.y, t: 0, s: e.s ?? "powder", scale: e.n ?? 1 }); if (this.decals.length > 80) this.decals.shift(); break;
       case "warn": case "sheet": case "spotlight": case "mirror": case "drumroll": {
         const seg = e.type === "warn" && e.s?.startsWith("seg:");
@@ -226,256 +184,232 @@ export class GameView {
       case "parry": this.particles.emit("parry", e.x, e.y, 8); this.flash = 0.25; break;
       case "player-hurt": this.particles.emit("ink", e.x, e.y, 10); this.particles.emit("spark", e.x, e.y, 6); break;
       case "blink": {
-        const g = this.ghosts.find((q) => q.t > 0.4) ?? this.ghosts[0];
+        const g = this.ghosts.find((q) => q.t > 0.3) ?? this.ghosts[0];
         g.t = 0; g.x = e.x; g.y = e.y; g.facing = e.n ?? 1;
-        const [tx, ty] = (e.s ?? "0,0").split(",").map(Number);
-        this.particles.emit("cyber", e.x, e.y, 10);
-        this.particles.emit("cyber", tx, ty, 8);
-        this.tracking = Math.max(this.tracking, 0.12);
+        this.particles.emit("cyber", e.x, e.y, 8);
         break;
       }
       case "jump": if (e.s === "2") this.particles.emit("smoke", e.x, e.y, 3); break;
       case "land": if ((e.n ?? 0) > 0.4) this.particles.emit("dust", e.x, e.y, 5); break;
       case "pickup": this.particles.emit("sparkle", e.x, e.y, 5); break;
-      case "knockout": this.flash = 0.6; this.shake = 25; this.tracking = 1; this.particles.emit("confetti", e.x, e.y, 80); this.particles.emit("coin", e.x, e.y, 30); break;
-      case "ex": this.particles.emit("sparkle", e.x, e.y, 6); this.fx.push({ kind: "muzzle", x: e.x, y: e.y, t: 0, dur: 0.12, n: 2, id: 0, s: "" }); break;
-      case "shoot": if (Math.random() < 0.6) this.fx.push({ kind: "muzzle", x: e.x, y: e.y, t: 0, dur: 0.05, n: 1, id: 0, s: "" }); break;
+      case "knockout": this.flash = 0.5; this.shake = 22; this.particles.emit("confetti", e.x, e.y, 80); this.particles.emit("coin", e.x, e.y, 30); break;
+      case "ex": this.particles.emit("sparkle", e.x, e.y, 6); break;
       case "super": this.flash = 0.35; this.shake = 12; break;
       case "topple": this.particles.emit("smoke", e.x, e.y + 100, 20); break;
       case "bg": void this.setStage(e.s ?? this.stageId); break;
     }
   }
 
+  private state(e: { pose: string; poseT: number; facing: number }, o: Partial<PuppetState>): PuppetState {
+    return { pose: e.pose, poseT: e.poseT, t: this.t, facing: e.facing, aim: 0, speed: 0, vy: 0, wobble: 0, scale: 1, squash: 0, alpha: 1, flash: 0, parry: 0, flipY: false, rot: 0, grounded: true, ...o };
+  }
+
   render(w: World, alpha: number, realDt: number) {
     this.t += realDt;
     const t = this.t;
     this.adaptResolution(realDt);
-    // ── camera ──
+
+    // ── camera: perspective, looking at the play plane from a little above ──
     this.shake = Math.max(0, this.shake - this.tk.shakeDecay * realDt * Math.max(1, this.shake * 0.3));
     if (Math.floor(t * 30) !== Math.floor((t - realDt) * 30)) {
       this.camShakeX = (Math.random() - 0.5) * this.shake * this.tk.shakeScale;
       this.camShakeY = (Math.random() - 0.5) * this.shake * this.tk.shakeScale;
     }
     const camX = w.camX, camY = w.camY;
-    const c = this.camera;
-    c.left = -this.viewW / 2; c.right = this.viewW / 2; c.top = this.viewH / 2; c.bottom = -this.viewH / 2;
-    c.position.set(camX + this.camShakeX, camY + this.viewH * (0.5 - this.tk.floorFrac) + this.camShakeY, 10);
-    c.updateProjectionMatrix();
-    c.updateMatrixWorld();
+    const fov = (this.camera.fov * Math.PI) / 180;
+    const dist = this.viewH / 2 / Math.tan(fov / 2);
+    const pitch = (this.tk.pitch * Math.PI) / 180;
+    const tx = camX + this.camShakeX, ty = camY + this.viewH * (0.5 - this.tk.floorFrac) + this.camShakeY;
+    this.camera.position.set(tx, ty + Math.sin(pitch) * dist, Math.cos(pitch) * dist);
+    this.camera.lookAt(tx, ty, 0);
+    this.camera.updateMatrixWorld();
+    this.sun.position.set(camX - 500, camY + 1600, 1300);
+    this.sun.target.position.set(camX, camY, 0);
 
-    // ── stage layers (parallax) ──
-    if (this.sky) { const m = this.sky.material as THREE.ShaderMaterial; m.uniforms.uTime.value = t; m.uniforms.uCam.value.set(camX, camY); }
-    for (const l of this.layers) {
-      const par = 1 - 1 / l.depth;
-      l.mat.uniforms.uTime.value = t;
-      if (l.tiley) {
-        // vertical tiling (sky climbs): the quad follows the camera, the texture scrolls
-        l.mesh.position.set(l.tile ? camX : l.x + camX * par, camY + this.viewH * (0.5 - this.tk.floorFrac), 0);
-        l.mat.uniforms.uOffset.value.set(l.tile ? ((camX / l.depth) % l.w) / l.w : 0, ((camY / l.depth) % l.h) / l.h);
-      } else if (l.tile) {
-        l.mesh.position.set(camX, l.y + camY * par + l.h / 2, 0);
-        l.mat.uniforms.uOffset.value.set(((camX / l.depth) % l.w) / l.w, 0);
-      } else {
-        l.mesh.position.set(l.x + camX * par, l.y + camY * par + l.h / 2, 0);
-      }
-    }
+    this.stage.update(camX, camY, t, this.viewW / 2);
 
     // ── water ──
     if (w.water > w.floor - 40) {
       this.water.visible = true;
-      const top = w.water + 12;
-      const bottom = camY - 400;
-      this.water.scale.set(this.viewW + 200, top - bottom, 1);
-      this.water.position.set(camX, (top + bottom) / 2, 0);
-      (this.water.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
+      const top = w.water + 12, bottom = camY - 600;
+      this.water.scale.set(this.viewW * 2 + 400, top - bottom, 900);
+      this.water.position.set(camX, (top + bottom) / 2 + Math.sin(t * 2) * 3, -150);
       if (Math.random() < 0.2) this.particles.emit("bubble", camX + (Math.random() - 0.5) * this.viewW, top - 40, 1);
     } else this.water.visible = false;
 
     // ── entities ──
     const seen = new Set<number>();
-    let order = 100;
     for (const e of w.all) {
       if (e.kind === "director") continue;
       seen.add(e.id);
       let v = this.views.get(e.id);
       if (!v || v.puppet !== e.puppet) {
-        if (v) { this.scene.remove(v.pv.root); v.pv.dispose(); if (v.refl) { this.scene.remove(v.refl.root); v.refl.dispose(); } }
-        const pv = this.puppets.make(e.puppet);
-        this.scene.add(pv.root);
-        v = { pv, puppet: e.puppet, lastX: e.x };
+        if (v) this.drop(v);
+        const m = this.puppets.make(e.puppet);
+        this.scene.add(m.root);
+        v = { m, puppet: e.puppet };
         this.views.set(e.id, v);
       }
-      const base = e.kind === "platform" || e.kind === "pot" ? 60 : e.kind === "boss" ? 200 : e.kind === "part" ? 220 : e.kind === "rider" ? 320 : e.kind === "hazard" ? 150 : 250;
-      v.pv.setOrder(base + (order++ % 50) * 2);
       const x = e.px + (e.x - e.px) * alpha, y = e.py + (e.y - e.py) * alpha;
       const fade = !e.alive ? Math.max(0, 1 - e.deadT * 2) : e.kind === "part" && e.hp <= 0 ? Math.max(0.35, 1 - e.deadT) : 1;
-      v.pv.root.visible = !e.hidden && fade > 0;
-      v.pv.root.position.set(x, y + (e.kind === "platform" ? -12 : 0), 0);
-      const speed = (e.x - e.px) / w.dt;
-      const st: PuppetState = {
-        pose: e.pose, poseT: e.poseT, t: t + e.id * 0.37, facing: e.facing, aim: 0, speed, vy: (e.y - e.py) / w.dt,
-        wobble: e.wobble, scale: e.scale, squash: e.squash, alpha: e.alpha * fade, flash: e.hitFlash > 0 ? this.tk.hitFlash : 0,
-        parry: e.parryable && !(e.vars.parryCd > 0) ? 1 : 0, flipY: e.flipY, rot: e.rot, grounded: true,
-      };
-      v.pv.update(st, this.tk);
-      // reflection (mirror maze: only the real one has one)
+      v.m.root.visible = !e.hidden && fade > 0;
+      v.m.root.position.set(x, y, 0);
+      if (e.kind === "platform") v.m.root.scale.set(e.w / 100, 1, 1); // platform models are authored 100 wide
+      // invisible bosses keep a faint shimmer so you can still read them
+      const a = e.alpha * fade;
+      const st = this.state(e, {
+        t: t + e.id * 0.37, speed: (e.x - e.px) / w.dt, vy: (e.y - e.py) / w.dt, wobble: e.wobble, scale: e.scale, squash: e.squash,
+        alpha: e.kind === "boss" && a < 0.2 && !e.hidden ? 0.16 + Math.sin(t * 6) * 0.04 : a,
+        flash: e.hitFlash > 0 ? this.tk.hitFlash : 0, parry: e.parryable && !(e.vars.parryCd > 0) ? 1 : 0, flipY: e.flipY, rot: e.rot,
+      });
+      v.m.update(st, realDt);
+      // mirror maze: only the real one has a reflection in the mirror behind her
       if (e.reflect) {
-        if (!v.refl) { v.refl = this.puppets.make(e.puppet); v.refl.setOrder(40); v.refl.tint(...this.tokens.color("--sky"), 0.35); this.scene.add(v.refl.root); }
+        if (!v.refl) { v.refl = this.puppets.make(e.puppet, false); v.refl.tint(...this.tokens.color("--sky"), 0.4); this.scene.add(v.refl.root); }
         v.refl.root.visible = !e.hidden;
-        v.refl.root.position.set(x, w.floor - 6, 0);
-        v.refl.update({ ...st, alpha: 0.45 * st.alpha }, this.tk);
-        v.refl.root.scale.y = -0.28;
-      } else if (v.refl) { v.refl.root.visible = false; }
+        v.refl.root.position.set(x, y, -300);
+        v.refl.update({ ...st, facing: -st.facing, alpha: 0.6 * st.alpha }, realDt);
+      } else if (v.refl) v.refl.root.visible = false;
     }
-    for (const [id, v] of this.views) if (!seen.has(id)) { this.scene.remove(v.pv.root); v.pv.dispose(); if (v.refl) { this.scene.remove(v.refl.root); v.refl.dispose(); } this.views.delete(id); }
+    for (const [id, v] of this.views) if (!seen.has(id)) { this.drop(v); this.views.delete(id); }
+
+    // mirror frames behind dolly + decoys
+    const mirrorFor = w.all.filter((e) => (e.kind === "decoy" || e.reflect) && e.alive && !e.hidden);
+    while (this.mirrors.length < mirrorFor.length) { const g = this.mirrorFrame(); this.mirrors.push(g); this.scene.add(g); }
+    this.mirrors.forEach((g, i) => { const e = mirrorFor[i]; g.visible = !!e; if (e) g.position.set(e.x, w.floor, -150); });
 
     // ── player ──
     const p = w.player;
     const want = p.flying ? "rickshaw" : "slummonkey";
-    if (this.player.def.id !== want && this.content.puppets[want]) { this.scene.remove(this.player.root); this.player = this.puppets.make(want); this.player.setOrder(400); this.scene.add(this.player.root); }
+    if (this.player.def.id !== want && this.content.puppets[want]) { this.scene.remove(this.player.root); this.player.dispose(); this.player = this.puppets.make(want); this.scene.add(this.player.root); }
     const px = p.px + (p.x - p.px) * alpha, py = p.py + (p.y - p.py) * alpha;
     this.player.root.position.set(px, py, 0);
+    this.player.root.visible = true;
     const flicker = p.iframes > 0 && Math.floor(t * 12) % 2 === 0;
-    const localAim = Math.atan2(p.aimY, p.aimX * p.facing);
-    this.player.update({
-      pose: p.pose, poseT: p.poseT, t, facing: p.facing, aim: localAim, speed: p.vx, vy: p.vy, wobble: 0, scale: 1,
-      squash: p.grounded ? 0 : Math.max(-0.15, Math.min(0.15, p.vy / 5000)), alpha: p.blinkT > 0 ? 0.3 : 1, flash: p.hurtT > 0.25 ? 1 : flicker ? 0.35 : 0,
-      parry: 0, flipY: false, rot: p.pose === "spin" ? -t * 18 * p.facing : 0, grounded: p.grounded,
-    }, this.tk);
-    if (p.invulnT > 0) this.player.tint(...this.tokens.color("--sky"), 0.3 + Math.sin(t * 20) * 0.2); else this.player.tint(1, 1, 1, 0);
+    this.player.update(this.state(p, {
+      aim: Math.atan2(p.aimY, Math.abs(p.aimX) < 1e-3 ? 1e-3 : p.aimX * p.facing), speed: p.vx, vy: p.vy,
+      squash: p.grounded ? 0 : Math.max(-0.12, Math.min(0.12, p.vy / 6000)), alpha: 1, flash: p.hurtT > 0.25 ? 1 : flicker ? 0.45 : 0,
+      rot: p.pose === "spin" ? -t * 16 * p.facing : 0, grounded: p.grounded,
+    }), realDt);
+    if (p.invulnT > 0) this.player.tint(...this.tokens.color("--sky"), 0.3 + Math.sin(t * 20) * 0.2); else this.player.tint(0, 0, 0, 0);
     for (const g of this.ghosts) {
       g.t += realDt;
-      g.pv.root.visible = g.t < 0.25;
-      if (!g.pv.root.visible) continue;
-      const jit = (Math.floor(g.t * 30) % 2 ? 14 : -14) * (1 - g.t / 0.25);
-      g.pv.root.position.set(g.x + jit, g.y, 0);
-      g.pv.update({ pose: "run", poseT: 0, t: 0, facing: g.facing, aim: 0, speed: 0, vy: 0, wobble: 0, scale: 1, squash: 0, alpha: 0.75 * (1 - g.t / 0.25), flash: 0, parry: 0, flipY: false, rot: 0, grounded: true }, this.tk);
+      g.m.root.visible = g.t < 0.22;
+      if (!g.m.root.visible) continue;
+      g.m.root.position.set(g.x, g.y, -10);
+      g.m.update(this.state({ pose: "dash", poseT: 0, facing: g.facing }, { alpha: 0.55 * (1 - g.t / 0.22) }), 0);
     }
 
-    // ── lights: additive pools of stage light, glows behind the player and bullets ──
-    const lb = this.lights;
-    lb.begin();
-    const st = this.content.stages[this.stageId];
-    const flick = 1 + Math.sin(t * 7.3) * 0.03 + Math.sin(t * 13.1) * 0.02;
-    for (const L of st?.lights ?? []) {
-      const lx = L.x + camX * (1 - 1 / L.depth), ly = L.y + camY * (1 - 1 / L.depth);
-      lb.add(L.kind === "cone" ? "cone" : L.kind === "pool" ? "glow" : "glow", lx, ly, L.h, (L.angle * Math.PI) / 180, L.alpha * flick, false, this.tokens.color(L.color), L.w);
+    // ── floor marks + telegraphs: flat red rings/bars, the sheet, spotlights ──
+    const fb = this.fxi;
+    fb.begin();
+    const red = this.c("--vermilion"), white = this.c("--white"), ink = this.c("--ink");
+    if (!p.flying) {
+      // landing marker: a soft ring under the player that shrinks with height (platforming readability)
+      const gy = w.groundUnder(px, py + 1, py - 2000);
+      if (py - gy > 30) { const k = Math.max(0.35, 1 - (py - gy) / 700); fb.add("ring", px, gy + 1.5, 0, 70 * k, 1, 40 * k, 0, 0, 0, white); }
     }
-    if (!p.dead) {
-      lb.add("glow", px, py + 55, 190, 0, this.tk.playerGlow, false, this.tokens.color("--rim-color"), 190);
-      if (!p.flying && w.camY === 0) lb.add("cone", px, w.floor + 300, 620, 0, this.tk.playerGlow * 0.6, false, this.tokens.color("--rim-color"), 300); // follow-spot
-    }
-    for (const q of w.projs.live) if (!q.hostile && q.len === 0) lb.add("glow", q.x, q.y, q.r * 5, 0, 0.3, false, this.tokens.color("--shot-glow"));
-    lb.end();
-
-    // ── under layer: shadows, decals, telegraphs ──
-    const ub = this.under;
-    ub.begin();
-    if (!p.flying) ub.add("shadow", px, w.groundUnder(px, py + 1, py - 2000) + 2, 18, 0, this.tk.shadowA * Math.max(0.3, 1 - (py - w.floor) / 600), false, undefined, 80);
-    for (const e of w.all) {
-      if (e.hidden || e.kind === "platform" || e.kind === "director" || e.kind === "target" || e.y > w.floor + 400) continue;
-      if (e.alpha < 0.1 && !e.keepVisible) continue;
-      const sw = e.w * e.scale * 1.05;
-      ub.add("shadow", e.x, w.floor + 2, sw * 0.18, 0, this.tk.shadowA * e.alpha * Math.max(0.2, 1 - (e.y - w.floor) / 500), false, undefined, sw);
-    }
-    for (const e of w.all) if ((e.kind === "decoy" || e.reflect) && e.alive && !e.hidden) ub.add("mirror-frame", e.x, w.floor + 170, 340, 0, 0.95, false, undefined, 220);
     for (let i = this.decals.length - 1; i >= 0; i--) {
       const d = this.decals[i];
       d.t += realDt;
       if (d.t > 5) { this.decals.splice(i, 1); continue; }
-      ub.add("footprint", d.x, d.y + 3, 26 * d.scale + 10, 0, Math.min(1, (5 - d.t) / 1.5), false, undefined, 70 * d.scale + 26);
+      const s = (60 * d.scale + 20) * Math.min(1, (5 - d.t) / 1.5);
+      fb.add("disc", d.x, d.y + 2, 0, s, 1, s * 0.6, 0, 0, 0, white);
     }
+    let sheetOn = false;
     for (let i = this.fx.length - 1; i >= 0; i--) {
       const f = this.fx[i];
       f.t += realDt;
       if (f.t > f.dur + 0.2) { this.fx.splice(i, 1); continue; }
-      const blink = Math.floor(f.t * 10) % 2 ? 1 : 0.55;
-      if (f.kind === "warn-mark") ub.add("warn-mark", f.x, f.y + 4, 40, 0, blink, false, undefined, 150 * Math.min(1, f.t / 0.15));
-      else if (f.kind === "warn-line-x") ub.add("warn-line", f.x, w.camY + 280, 600, 0, blink * 0.7, false, undefined, 50);
-      else if (f.kind === "warn-line-y") ub.add("warn-line", w.camX, f.y, 50, 0, blink * 0.7, false, undefined, this.viewW);
-      else if (f.kind === "warn-beam") ub.add("warn-line", f.x + Math.cos((f.n * Math.PI) / 180) * 900, f.y + Math.sin((f.n * Math.PI) / 180) * 900, 10, (f.n * Math.PI) / 180, blink, false, undefined, 1800);
+      const blink = Math.floor(f.t * 10) % 2 ? 1 : 0.6;
+      const grow = Math.min(1, f.t / 0.15);
+      if (f.kind === "warn-mark") { fb.add("ring", f.x, f.y + 3, 0, 170 * grow, 1, 120 * grow, 0, 0, 0, red); fb.add("disc", f.x, f.y + 2, 0, 130 * grow * blink, 1, 90 * grow * blink, 0, 0, 0, red); }
+      else if (f.kind === "warn-line-x") fb.add("plane", f.x, w.camY + 280, 0, 50, 600, 1, 0, 0, 0, blink > 0.8 ? red : white);
+      else if (f.kind === "warn-line-y") fb.add("plane", w.camX, f.y, 0, this.viewW, 40, 1, 0, 0, 0, blink > 0.8 ? red : white);
+      else if (f.kind === "warn-beam") { const a = (f.n * Math.PI) / 180; fb.add("plane", f.x + Math.cos(a) * 900, f.y + Math.sin(a) * 900, 0, 1800, 12, 1, 0, 0, a, red); }
       else if (f.kind === "warn-seg") {
         const [x2, y2] = f.s.slice(4).split(",").map(Number);
         const len = Math.hypot(x2 - f.x, y2 - f.y);
-        ub.add("warn-line", (f.x + x2) / 2, (f.y + y2) / 2, 14, Math.atan2(y2 - f.y, x2 - f.x), blink * Math.min(1, (f.dur - f.t) * 2), false, undefined, len);
+        fb.add("plane", (f.x + x2) / 2, (f.y + y2) / 2, 0, len, 14, 1, 0, 0, Math.atan2(y2 - f.y, x2 - f.x), red);
       }
-      else if (f.kind === "warn-graph") ub.add("warn-line", w.camX, w.floor + 300, 520, 0, blink * 0.35, false, [0.2, 1, 0.5], this.viewW);
+      else if (f.kind === "warn-graph") fb.add("plane", w.camX, w.floor + 300, -2, this.viewW, 520, 1, 0, 0, 0, this.c("--candle-green"));
+      else if (f.kind === "spotlight") { const e = w.ent(f.id); fb.add("disc", e?.x ?? f.x, w.floor + 2, 0, 300, 1, 160, 0, 0, 0, this.c("--marigold")); }
+      else if (f.kind === "sheet-drop" || f.kind === "sheet-lift") {
+        const k = Math.min(1, f.t / 0.5), drop = f.kind === "sheet-drop";
+        const yb = drop ? w.floor + 600 - k * 600 : w.floor + k * 700;
+        sheetOn = drop || k < 1;
+        this.sheet.position.set(f.x, yb + 180, 30);
+        this.sheet.scale.set(380, 360, 30);
+        this.sheet.rotation.z = Math.sin(f.t * 12) * 0.04;
+      }
+      else if (f.kind === "drumroll" && Math.floor(t * 12) % 2 === 0) this.particles.emit("sparkle", f.x + Math.sin(t * 9) * 80, f.y + 200 + Math.cos(t * 7) * 60, 1);
+      else if ((f.kind === "mirror-flash" || f.kind === "mirror-spawn") && f.t < realDt * 1.5) this.particles.emit("glass", f.x, f.y + 120, 8);
     }
-    ub.end();
+    this.sheet.visible = sheetOn;
+    void ink;
+    fb.end();
 
-    // ── bullets (one draw call) ──
-    const bb = this.bullets;
-    bb.begin();
+    // ── bullets: instanced glowing shapes ──
+    const sb = this.shots;
+    sb.begin();
+    const pink = this.c("--parry");
     for (const q of w.projs.live) {
       const x = q.px + (q.x - q.px) * alpha, y = q.py + (q.y - q.py) * alpha;
+      const look = LOOKS[q.parryable ? "marigold" : q.def.sprite] ?? LOOKS.pellet;
+      const col = q.parryable ? pink : this.c(look.color);
       if (q.len > 0) {
         const wob = 1 + Math.sin(t * 50) * 0.08;
-        bb.add(q.def.sprite, x + Math.cos(q.angle) * q.len / 2, y + Math.sin(q.angle) * q.len / 2, q.r * 2 * wob, q.angle, 1, false, undefined, q.len);
+        sb.add("box", x + Math.cos(q.angle) * q.len / 2, y + Math.sin(q.angle) * q.len / 2, 0, q.len, q.r * 2 * wob, q.r * 2 * wob, 0, 0, q.angle, col);
         continue;
       }
-      const sprite = q.parryable ? "marigold" : q.def.sprite;
-      const rot = q.def.spin ? Math.floor(q.rot * 4) / 4 : q.vx || q.vy ? Math.atan2(q.vy, q.vx) * (q.def.sprite === "shockwave" || q.def.sprite === "bomb" || q.def.sprite === "laddoo" ? 0 : 1) : 0;
-      const sz = q.r * 2.6 * (q.def.sprite === "shockwave" ? 1.6 : 1);
-      const spd = Math.hypot(q.vx, q.vy);
-      const smear = !q.def.spin && !q.parryable && spd > 700 ? 1 + Math.min(0.8, (spd - 700) / 1200) : 1;
-      bb.add(sprite, x, y + (q.ground ? sz * 0.3 : 0), sz / Math.sqrt(smear), q.parryable ? t * 3 : rot, 1, q.parryable, undefined, sz * (this.atlas.aspect[sprite] ?? 1) * smear);
+      const sz = q.r * look.s * (q.def.scale ?? 1);
+      const dir = q.vx || q.vy ? Math.atan2(q.vy, q.vx) : 0;
+      if (q.parryable) { const pu = 1 + Math.sin(t * 12) * 0.12; sb.add("gem", x, y, 0, sz * pu, sz * pu, sz * pu, t * 2, t * 3, 0, col); continue; }
+      switch (look.shape) {
+        case "coin": sb.add("coin", x, y, 0, sz, sz, sz, 0, q.rot * 2 + t * 6, 0, col); break;
+        case "cone": case "bird": sb.add(look.shape, x, y, 0, sz, sz * 0.5, sz * 0.6, 0, 0, dir, col); break;
+        case "box": sb.add("box", x, y, 0, sz, sz * 0.7, sz * 0.3, t * 3, 0, q.rot, col); break;
+        case "dome": sb.add("dome", x, y - q.r, 0, sz * 1.4, sz, sz, 0, 0, 0, col); break;
+        default: sb.add(look.shape, x, y, 0, sz, sz, sz, q.rot, q.rot * 0.7, 0, col);
+      }
     }
-    bb.end();
+    sb.end();
 
-    // ── over layer: particles + spotlights + sheet/mirror flashes + rotor ──
+    // ── particles ──
     this.particles.step(realDt);
-    const ob = this.over;
-    ob.begin();
-    for (const f of this.fx) {
-      const e = w.ent(f.id);
-      if (f.kind === "spotlight") ob.add("spotlight", e?.x ?? f.x, w.floor + 330, 700, 0, 0.35 * Math.min(1, (f.dur - f.t) * 3), false, undefined, 380);
-      if (f.kind === "sheet-drop" || f.kind === "sheet-lift") {
-        const k = Math.min(1, f.t / 0.5);
-        const drop = f.kind === "sheet-drop";
-        const y = drop ? w.floor + 600 - k * 600 : w.floor + k * 700;
-        const a = drop ? 1 : 1 - k;
-        ob.add("sheet", f.x, y + 160, 340, Math.sin(f.t * 12) * 0.05, a, false, undefined, 380);
-      }
-      if (f.kind === "impact") { const fr = Math.floor(f.t * 24); ob.add("impact", f.x, f.y, fr === 0 ? 34 : 52, fr * 0.6, fr > 1 ? 0.6 : 1); }
-      if (f.kind === "muzzle") ob.add("muzzle", f.x + p.aimX * 16, f.y + p.aimY * 16, 30 * f.n, Math.atan2(p.aimY, p.aimX), 1 - f.t / f.dur);
-      if (f.kind === "mirror-flash" || f.kind === "mirror-spawn") ob.add("sparkle", f.x, f.y + 120, 200, t * 2, 1 - f.t / f.dur);
-      if (f.kind === "drumroll") {
-        const k = f.t / f.dur;
-        if (Math.floor(t * 12) % 2 === 0) ob.add("sparkle", f.x + Math.sin(t * 9) * 80, f.y + 200 + Math.cos(t * 7) * 60, 30 + k * 20, t * 4, 0.8);
-      }
-    }
-    this.particles.draw(ob, t);
-    ob.end();
-    this.bullets.mesh.material instanceof THREE.ShaderMaterial && (this.bullets.mesh.material.uniforms.uTime.value = t);
-    (this.over.mesh.material as THREE.ShaderMaterial).uniforms.uTime.value = t;
+    this.parts.begin();
+    this.particles.draw(this.parts, this.tokens.color("--parry") as RGB);
+    this.parts.end();
 
-    // ── post ──
-    this.tracking = Math.max(0, this.tracking - realDt * this.tk.trackingDecay * 0.5);
+    // hit/parry flash: a brief exposure kick on the lights instead of a post filter
     this.flash = Math.max(0, this.flash - realDt * 3);
-    const pu = this.post.uniforms;
-    pu.uTime.value = t;
-    pu.uTracking.value = this.tracking * this.tk.tracking * 4;
-    pu.uFlash.value = this.flash * 0.5;
-    this.renderer.setRenderTarget(this.rt);
+    const st = this.content.stages[this.stageId];
+    this.hemi.intensity = this.tokens.num("--ambient", 1.2) * (st?.ambient ?? 1) * (1 + this.flash);
     this.renderer.render(this.scene, this.camera);
     this.sceneCalls = this.renderer.info.render.calls;
-    this.renderer.setRenderTarget(null);
-    this.renderer.render(this.postScene, this.postCam);
   }
-  sceneCalls = 0;
 
-  /** Render any scene through the same film/VHS post stack (overworld uses this). */
+  private mirrorFrame() {
+    const g = new THREE.Group();
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(250, 400, 16), this.mats.shared("--gold", 0.08));
+    frame.position.y = 200;
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(220, 370, 4), new THREE.MeshLambertMaterial({ color: this.c("--sky"), transparent: true, opacity: 0.35, depthWrite: false, flatShading: true }));
+    glass.position.set(0, 200, 10);
+    glass.renderOrder = 800;
+    g.add(frame, glass);
+    return g;
+  }
+
+  private drop(v: EntView) {
+    this.scene.remove(v.m.root); v.m.dispose();
+    if (v.refl) { this.scene.remove(v.refl.root); v.refl.dispose(); }
+  }
+
+  /** Render any scene with the same renderer (the island uses this). */
   composite(scene: THREE.Scene, camera: THREE.Camera, realDt: number) {
     this.t += realDt;
-    this.tracking = Math.max(0, this.tracking - realDt * this.tk.trackingDecay * 0.5);
-    const pu = this.post.uniforms;
-    pu.uTime.value = this.t;
-    pu.uTracking.value = this.tracking * this.tk.tracking * 4;
-    pu.uFlash.value = 0;
-    this.renderer.setRenderTarget(this.rt);
+    this.adaptResolution(realDt);
     this.renderer.render(scene, camera);
-    this.renderer.setRenderTarget(null);
-    this.renderer.render(this.postScene, this.postCam);
   }
 
   /** Dynamic resolution: drop render scale if frames run long, recover when smooth. */
@@ -493,19 +427,20 @@ export class GameView {
   // ── introspection for stories/tests: what is actually on screen ──
   get decalCount() { return this.decals.length; }
   get particleCount() { return this.particles.count; }
-  get bulletCount() { return this.bullets.n; }
+  get bulletCount() { return this.shots.total; }
   get playerPuppetId() { return this.player.def.id; }
-  playerPartVisible(id: string) { const n = this.player.parts.find((p) => p.def.id === id); return !!n && n.pivot.visible && this.player.root.visible; }
-  ghostVisible() { return this.ghosts.some((g) => g.pv.root.visible); }
-  entityVisible(id: number) { const v = this.views.get(id); return !!v && v.pv.root.visible; }
+  playerPartVisible(id: string) { const n = this.player.part(id); return !!n && n.pivot.visible && this.player.root.visible; }
+  ghostVisible() { return this.ghosts.some((g) => g.m.root.visible); }
+  entityVisible(id: number) { const v = this.views.get(id); return !!v && v.m.root.visible; }
   entityPuppet(id: number) { return this.views.get(id)?.puppet ?? ""; }
   reflectionVisible(id: number) { const v = this.views.get(id); return !!v?.refl && v.refl.root.visible; }
-  get stageLayerCount() { return this.layers.length; }
+  get stageLayerCount() { return this.stage.count; }
 
   clearWorld() {
-    for (const [, v] of this.views) { this.scene.remove(v.pv.root); v.pv.dispose(); if (v.refl) this.scene.remove(v.refl.root); }
+    for (const [, v] of this.views) this.drop(v);
     this.views.clear();
     this.decals = []; this.fx = [];
+    this.sheet.visible = false;
   }
 
   dispose() { this.renderer.dispose(); }

@@ -54,7 +54,7 @@ export class App {
     this.audio.setVolumes(s.music, s.sfx);
     this.audio.setMuted(s.muted);
     this.haptics.enabled = s.haptics;
-    this.merger.autoFire = s.autofire;
+    this.merger.autoFire = false; // the blaster aims and fires by itself now
     this.touch?.showSafeZones(s.showSafe);
   }
 
@@ -137,7 +137,7 @@ export class App {
         <button class="btn alt" data-a="settings">Settings</button>
         ${this.isTouch ? `<button class="btn alt" data-a="layout">Controls</button>` : ""}
       </div>
-      ${this.isTouch ? `<div class="hint">Best in landscape · portrait works too</div>` : `<div class="hint">Keyboard: arrows move · Z jump · X shoot · C parry · Shift blink · V EX · Ctrl aim-lock · Tab swap</div>`}`, "screen comic-bg-sun");
+      ${this.isTouch ? `<div class="hint">Best in landscape · portrait works too</div>` : `<div class="hint">Keyboard: ← → move · Z jump (again near pink = parry) · Shift dash · V special · aiming and firing are automatic</div>`}`, "screen comic-bg-sun");
     this.audio.playTheme("title");
     d.querySelector('[data-a="play"]')!.addEventListener("click", () => {
       this.tryFullscreen();
@@ -169,7 +169,7 @@ export class App {
     this.clearScreen();
     if (!this.overworld) {
       const rules = new Overworld(this.b.content.overworld);
-      const view = new OverworldView(this.view.renderer, this.b.tokens, this.b.content, this.view.bank, this.view.puppets);
+      const view = new OverworldView(this.view.renderer, this.b.tokens, this.b.content, null, this.view.puppets);
       view.gameView = this.view;
       await view.load();
       view.resize(this.root.clientWidth, this.gameH || this.root.clientHeight);
@@ -323,7 +323,6 @@ export class App {
       <label class="stat">Music <input type="range" min="0" max="1" step="0.05" value="${s.music}" data-k="music"></label><br>
       <label class="stat">SFX <input type="range" min="0" max="1" step="0.05" value="${s.sfx}" data-k="sfx"></label><br>
       <label class="stat"><input type="checkbox" data-k="haptics" ${s.haptics ? "checked" : ""}> Haptics</label><br>
-      <label class="stat"><input type="checkbox" data-k="autofire" ${s.autofire ? "checked" : ""}> Auto-fire (hold SHOOT to pause firing)</label><br>
       <label class="stat"><input type="checkbox" data-k="showSafe" ${s.showSafe ? "checked" : ""}> Show thumb safe zones</label><br>
       <label class="stat"><input type="checkbox" data-k="muted" ${s.muted ? "checked" : ""}> Mute</label>
       <div class="row" style="margin-top:10px"><button class="btn alt" data-a="reset">Reset save</button><button class="btn" data-a="back">Done</button></div></div>`);

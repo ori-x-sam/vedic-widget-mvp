@@ -1,107 +1,137 @@
-// Painted stages. Layers are art/stages/*.svg. depth >1 = far (parallax, hazed), <1 = foreground.
-// y = bottom edge of the layer in world px (floor = 0). sky:<name> uses --sky-<name>-top/bottom from look/stages.css.
-stage "gajraj" {
-  light "cone" x=-420 y=10 w=440 h=600 angle=-14 color="--sky" alpha=0.16
-  light "cone" x=380 y=10 w=520 h=620 angle=10 color="--marigold" alpha=0.22
-  light "pool" x=-400 y=0 w=520 h=90 color="--sky" alpha=0.30
-  light "pool" x=380 y=0 w=640 h=110 color="--marigold" alpha=0.38
-  light "glow" x=0 y=-150 w=1800 h=160 color="--saffron" alpha=0.18
-  layer "sky:gajraj" depth=100
-  layer "stages/gajraj/backdrop" depth=1.6 y=-40 scale=0.9
-  layer "stages/theatre/tinstars" depth=1.3 y=330 scale=0.8 tile=#true
-  layer "stages/theatre/tubelights" depth=1.15 y=470 scale=0.9 tile=#true
-  layer "stages/theatre/garland" depth=1.05 y=430 scale=0.9 tile=#true
-  layer "stages/theatre/deck" depth=1 y=-212 scale=1 tile=#true
-  layer "stages/theatre/curtain-left" depth=0.97 x=-760 y=-40 scale=0.8
-  layer "stages/theatre/curtain-right" depth=0.97 x=760 y=-40 scale=0.8
-  layer "stages/theatre/valance" depth=0.96 y=520 scale=1 tile=#true
-  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true
+// Low-poly stages: each prop line is one set piece (src/view/stage3d.ts has one small function per kind).
+// The game plays on the z=0 plane with the floor at y=0. z<0 is behind the action, z>0 in front of it.
+// every=N repeats the piece every N px along x (every-y= along y) and wraps it around the camera forever.
+// sky-top/sky-bottom default to --sky-<id>-top/bottom in look/stages.css. ambient/sun scale the lights.
+//   kinds: deck ground backdrop curtain valance arch footlights crowd garland bunting star tube spot sun
+//          palace palm tree bush hill rock fort lantern mirror poster chart cloud stall ferris tent pillar plain
+
+stage "gajraj" ground="--wood" {
+  prop "deck"
+  prop "sun" x=380 y=520 z=-3200 s=2.2 color="--marigold" color2="--saffron"
+  prop "hill" x=-1600 y=-80 z=-2600 w=1800 h=520 color="--clay"
+  prop "hill" x=1500 y=-80 z=-2700 w=2000 h=600 color="--clay-dark"
+  prop "palace" x=0 y=0 z=-1500 s=1.25 color="--paper" color2="--saffron"
+  prop "palm" x=-820 y=0 z=-700
+  prop "palm" x=-1250 y=0 z=-1100 s=1.2
+  prop "palm" x=860 y=0 z=-650
+  prop "palm" x=1300 y=0 z=-1000 s=1.3
+  prop "garland" x=-330 y=470 z=-260 w=720 h=80
+  prop "garland" x=390 y=470 z=-260 w=720 h=80 color2="--rani"
+  prop "spot" x=-520 y=900 z=-120 rot=-18 w=200 h=1150 color="--sky-warm"
+  prop "spot" x=560 y=900 z=-120 rot=18 w=230 h=1150 color="--marigold"
+  prop "curtain" x=-800 y=0 z=-30 w=380 h=1000
+  prop "curtain" x=800 y=0 z=-30 w=380 h=1000
+  prop "valance" y=520 z=-40 w=3200
+  prop "footlights" y=0 z=96 w=2600
+  prop "crowd" y=-135 z=260 w=3000 n=1 color="--indigo"
 }
 
-stage "tigada" {
-  light "cone" x=-420 y=10 w=440 h=600 angle=-14 color="--sky" alpha=0.16
-  light "cone" x=380 y=10 w=520 h=620 angle=10 color="--marigold" alpha=0.22
-  light "pool" x=-400 y=0 w=520 h=90 color="--sky" alpha=0.30
-  light "pool" x=380 y=0 w=640 h=110 color="--marigold" alpha=0.38
-  light "glow" x=0 y=-150 w=1800 h=160 color="--saffron" alpha=0.18
-  layer "sky:tigada" depth=100
-  layer "stages/tigada/backdrop" depth=1.6 y=-40 scale=0.9
-  layer "stages/theatre/tinstars" depth=1.3 y=330 scale=0.8 tile=#true
-  layer "stages/theatre/tubelights" depth=1.15 y=470 scale=0.9 tile=#true
-  layer "stages/theatre/deck-sand" depth=1 y=-212 scale=1 tile=#true
-  layer "stages/theatre/curtain-left" depth=0.97 x=-760 y=-40 scale=0.8
-  layer "stages/theatre/curtain-right" depth=0.97 x=760 y=-40 scale=0.8
-  layer "stages/theatre/valance" depth=0.96 y=520 scale=1 tile=#true
-  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true tint="--peacock"
+stage "tigada" ground="--paper-dark" {
+  prop "deck" color="--clay" color2="--clay-dark"
+  prop "sun" x=-420 y=560 z=-3200 s=2.4 color="--white" color2="--turmeric"
+  prop "hill" x=-1100 y=-120 z=-1900 w=1800 h=420 color="--turmeric"
+  prop "hill" x=900 y=-140 z=-1700 w=1600 h=360 color="--paper-dark"
+  prop "hill" x=0 y=-160 z=-2600 w=2600 h=520 color="--gold"
+  prop "fort" x=300 y=0 z=-1300 w=1500 color="--clay" color2="--clay-dark"
+  prop "palm" x=-760 y=0 z=-600
+  prop "palm" x=900 y=0 z=-800 s=1.2
+  prop "rock" x=-480 y=0 z=-420
+  prop "lantern" x=-420 y=420 z=-200 color="--saffron"
+  prop "lantern" x=0 y=450 z=-260 color="--teal"
+  prop "lantern" x=440 y=420 z=-200 color="--saffron"
+  prop "spot" x=-520 y=900 z=-120 rot=-18 w=200 h=1150 color="--sky"
+  prop "spot" x=560 y=900 z=-120 rot=18 w=230 h=1150 color="--white"
+  prop "curtain" x=-800 y=0 z=-30 w=380 h=1000 color="--peacock" color2="--indigo"
+  prop "curtain" x=800 y=0 z=-30 w=380 h=1000 color="--peacock" color2="--indigo"
+  prop "valance" y=520 z=-40 w=3200 color="--peacock"
+  prop "footlights" y=0 z=96 w=2600
+  prop "crowd" y=-135 z=260 w=3000 n=1 color="--peacock"
 }
 
-stage "dolly" {
-  light "cone" x=-420 y=10 w=440 h=600 angle=-14 color="--sky" alpha=0.16
-  light "cone" x=380 y=10 w=520 h=620 angle=10 color="--marigold" alpha=0.22
-  light "pool" x=-400 y=0 w=520 h=90 color="--sky" alpha=0.30
-  light "pool" x=380 y=0 w=640 h=110 color="--marigold" alpha=0.38
-  light "glow" x=0 y=-150 w=1800 h=160 color="--saffron" alpha=0.18
-  layer "sky:dolly" depth=100
-  layer "stages/dolly/backdrop" depth=1.6 y=-40 scale=0.9
-  layer "stages/theatre/tubelights" depth=1.15 y=470 scale=0.9 tile=#true
-  layer "stages/theatre/garland" depth=1.05 y=430 scale=0.9 tile=#true
-  layer "stages/theatre/deck-dolly" depth=1 y=-212 scale=1 tile=#true
-  layer "stages/theatre/curtain-left" depth=0.97 x=-760 y=-40 scale=0.8
-  layer "stages/theatre/curtain-right" depth=0.97 x=760 y=-40 scale=0.8
-  layer "stages/theatre/valance" depth=0.96 y=520 scale=1 tile=#true
-  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true tint="--magenta"
+stage "dolly" ground="--rani" {
+  prop "deck" color="--velvet-light" color2="--velvet-dark"
+  prop "backdrop" x=0 y=0 z=-1400 w=5000 h=1600 color="--magenta"
+  prop "mirror" x=-900 y=0 z=-1000 w=200 h=460
+  prop "mirror" x=-450 y=0 z=-1100 w=200 h=460 color2="--dolly-b"
+  prop "mirror" x=0 y=0 z=-1150 w=240 h=520
+  prop "mirror" x=450 y=0 z=-1100 w=200 h=460 color2="--dolly-b"
+  prop "mirror" x=900 y=0 z=-1000 w=200 h=460
+  prop "star" x=-600 y=560 z=-500 color="--white"
+  prop "star" x=-200 y=620 z=-700
+  prop "star" x=250 y=580 z=-600 color="--white"
+  prop "star" x=650 y=600 z=-500
+  prop "garland" x=0 y=480 z=-300 w=1300 h=110 color="--dolly-b" color2="--white"
+  prop "spot" x=-520 y=900 z=-120 rot=-18 w=200 h=1150 color="--pinky"
+  prop "spot" x=560 y=900 z=-120 rot=18 w=230 h=1150 color="--dolly-b"
+  prop "curtain" x=-800 y=0 z=-30 w=380 h=1000
+  prop "curtain" x=800 y=0 z=-30 w=380 h=1000
+  prop "valance" y=520 z=-40 w=3200
+  prop "footlights" y=0 z=96 w=2600 color="--white"
+  prop "crowd" y=-135 z=260 w=3000 n=1 color="--magenta"
 }
 
-stage "raj" {
-  light "cone" x=-420 y=10 w=440 h=600 angle=-14 color="--sky" alpha=0.16
-  light "cone" x=380 y=10 w=520 h=620 angle=10 color="--marigold" alpha=0.22
-  light "pool" x=-400 y=0 w=520 h=90 color="--sky" alpha=0.30
-  light "pool" x=380 y=0 w=640 h=110 color="--marigold" alpha=0.38
-  light "glow" x=0 y=-150 w=1800 h=160 color="--saffron" alpha=0.18
-  layer "sky:raj" depth=100
-  layer "stages/raj/backdrop" depth=1.6 y=-40 scale=0.9
-  layer "stages/theatre/tinstars" depth=1.3 y=330 scale=0.8 tile=#true
-  layer "stages/theatre/tubelights" depth=1.15 y=470 scale=0.9 tile=#true
-  layer "stages/theatre/garland" depth=1.05 y=430 scale=0.9 tile=#true
-  layer "stages/theatre/deck" depth=1 y=-212 scale=1 tile=#true
-  layer "stages/theatre/curtain-left" depth=0.97 x=-760 y=-40 scale=0.8
-  layer "stages/theatre/curtain-right" depth=0.97 x=760 y=-40 scale=0.8
-  layer "stages/theatre/valance" depth=0.96 y=520 scale=1 tile=#true
-  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true
+stage "raj" ground="--raj-coat" ambient=1.05 {
+  prop "deck" color="--raj-coat-light" color2="--midnight"
+  prop "backdrop" x=0 y=0 z=-1600 w=5200 h=1800 color="--midnight"
+  prop "chart" x=0 y=0 z=-1300 w=2200 n=16
+  prop "poster" x=-1050 y=120 z=-1100 w=300 h=420 color="--rani" color2="--marigold"
+  prop "poster" x=1050 y=120 z=-1100 w=300 h=420 color="--teal" color2="--saffron"
+  prop "pillar" x=-700 y=0 z=-700 h=700 color="--raj-coat-light" color2="--gold"
+  prop "pillar" x=700 y=0 z=-700 h=700 color="--raj-coat-light" color2="--gold"
+  prop "star" x=-450 y=600 z=-500
+  prop "star" x=-120 y=640 z=-700
+  prop "star" x=220 y=610 z=-650
+  prop "star" x=520 y=600 z=-500
+  prop "spot" x=-520 y=900 z=-120 rot=-18 w=200 h=1150 color="--cyber"
+  prop "spot" x=560 y=900 z=-120 rot=18 w=230 h=1150 color="--marigold"
+  prop "curtain" x=-800 y=0 z=-30 w=380 h=1000 color="--raj-coat-light" color2="--raj-coat"
+  prop "curtain" x=800 y=0 z=-30 w=380 h=1000 color="--raj-coat-light" color2="--raj-coat"
+  prop "valance" y=520 z=-40 w=3200 color="--raj-coat-light"
+  prop "footlights" y=0 z=96 w=2600
+  prop "crowd" y=-135 z=260 w=3000 n=1 color="--raj-coat"
 }
 
-stage "raj-climb" {
-  layer "sky:climb" depth=100
-  layer "stages/raj/clouds" depth=2.2 scale=1 tile=#true tiley=#true
-  layer "stages/raj/clouds" depth=1.3 scale=0.7 tile=#true tiley=#true
-  layer "stages/theatre/deck" depth=1 y=-212 scale=1 tile=#true
+stage "raj-climb" ground="--white" sky-top="--sky-climb-top" sky-bottom="--sky-climb-bottom" {
+  prop "deck" color="--raj-coat-light" color2="--midnight"
+  prop "cloud" x=-500 y=200 z=-900 s=1.4 every=1100 every-y=700
+  prop "cloud" x=0 y=500 z=-1700 s=2 every=1500 every-y=900
+  prop "cloud" x=300 y=0 z=-450 s=0.9 every=1300 every-y=800
+  prop "star" x=-450 y=600 z=-600 every=900 every-y=1100
 }
 
-stage "raj-reveal" {
-  light "glow" x=380 y=200 w=900 h=700 color="--candle-red" alpha=0.25
-  light "glow" x=-300 y=100 w=700 h=500 color="--candle-green" alpha=0.12
-  layer "sky:raj" depth=100
-  layer "stages/raj/reveal" depth=1.5 y=-60 scale=0.95
-  layer "stages/theatre/deck-reveal" depth=1 y=-212 scale=1 tile=#true
-  layer "stages/theatre/curtain-left" depth=0.97 x=-760 y=-40 scale=0.8
-  layer "stages/theatre/curtain-right" depth=0.97 x=760 y=-40 scale=0.8
-  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true tint="--candle-red"
+stage "raj-reveal" ground="--midnight" ambient=0.75 sun=0.8 sky-top="--sky-raj-top" sky-bottom="--candle-red" {
+  prop "deck" color="--midnight" color2="--velvet-dark"
+  prop "chart" x=0 y=-200 z=-1500 w=3200 n=20
+  prop "chart" x=-500 y=-100 z=-2300 w=2600 n=14
+  prop "spot" x=-520 y=900 z=-120 rot=-18 w=200 h=1150 color="--candle-red"
+  prop "spot" x=560 y=900 z=-120 rot=18 w=230 h=1150 color="--candle-green"
+  prop "curtain" x=-800 y=0 z=-30 w=380 h=1000
+  prop "curtain" x=800 y=0 z=-30 w=380 h=1000
+  prop "footlights" y=0 z=96 w=2600 color="--candle-red"
+  prop "crowd" y=-135 z=260 w=3000 n=1 color="--velvet-dark"
 }
 
-stage "mela" {
-  light "glow" x=0 y=420 w=2400 h=600 color="--sky-warm" alpha=0.25 depth=1.2
-  layer "sky:mela" depth=100
-  layer "stages/mela/far" depth=2.2 y=-20 scale=0.9 tile=#true
-  layer "stages/mela/stalls2" depth=1.7 y=-10 scale=0.75 tile=#true
-  layer "stages/mela/stalls" depth=1.35 y=-30 scale=0.9 tile=#true
-  layer "stages/mela/ground" depth=1 y=-212 scale=1 tile=#true
-  layer "stages/mela/bushes" depth=0.8 y=-270 scale=0.9 tile=#true
+stage "mela" ground="--leaf" {
+  prop "ground" color="--leaf" color2="--leaf-dark" w=3100 every=3000
+  prop "hill" x=0 y=-150 z=-3200 w=2200 h=700 color="--leaf" every=1900
+  prop "hill" x=700 y=-150 z=-2600 w=1600 h=500 color="--leaf-dark" every=1700
+  prop "ferris" x=600 y=0 z=-1500 s=1.3 every=3600 color="--rani"
+  prop "tent" x=-200 y=0 z=-1100 s=1.1 every=1300
+  prop "tree" x=200 y=0 z=-700 every=900
+  prop "stall" x=0 y=0 z=-380 every=640
+  prop "bunting" x=320 y=430 z=-240 w=640 h=50 every=640
+  prop "lantern" x=0 y=470 z=-120 every=640 color="--marigold"
+  prop "bush" x=100 y=-50 z=210 every=430
 }
 
-stage "shmup" {
-  layer "sky:shmup" depth=100
-  layer "stages/shmup/clouds-far" depth=3.2 y=330 scale=0.9 tile=#true
-  layer "stages/shmup/hills" depth=2 y=-180 scale=1 tile=#true
-  layer "stages/shmup/clouds-far" depth=1.6 y=90 scale=0.6 tile=#true
-  layer "stages/shmup/clouds-near" depth=0.8 y=430 scale=0.7 tile=#true dim=1 blur=1
+stage "shmup" ground="--leaf" {
+  prop "plain" y=-700 color="--leaf"
+  prop "sun" x=0 y=500 z=-3800 s=2.6 color="--white" color2="--marigold"
+  prop "hill" x=0 y=-700 z=-3400 w=2600 h=760 color="--leaf" every=2200
+  prop "hill" x=1100 y=-760 z=-3000 w=1800 h=600 color="--leaf-dark" every=2500
+  prop "cloud" x=0 y=420 z=-1800 s=2.2 every=1400
+  prop "cloud" x=500 y=120 z=-1300 s=1.6 every=1700
+  prop "cloud" x=200 y=560 z=-700 s=1.1 every=1500
+  prop "cloud" x=900 y=-60 z=-600 s=1.2 every=1900
+  prop "cloud" x=300 y=330 z=380 s=0.9 every=2300
 }

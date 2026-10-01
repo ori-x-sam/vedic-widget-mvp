@@ -5,6 +5,7 @@ import { idleFrame } from "../src/core/input";
 import { WORDS } from "../src/rules/vocab/registry";
 
 const base = `
+player { auto-aim 0 }
 projectile "pellet" r=10
 projectile "coin" r=10
 projectile "shockwave" r=20

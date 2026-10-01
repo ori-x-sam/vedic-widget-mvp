@@ -2,7 +2,9 @@
 :root {
   --view-h: 720;              /* world units visible vertically */
   --floor-frac: 0.27;         /* floor line, as a fraction of screen height from the bottom */
-  --camera-zoom: 1.08;
+  --camera-zoom: 1;
+  --camera-pitch: 7;          /* degrees the camera looks down at the play plane */
+  --camera-fov: 30;
   --shake-scale: 1;
   --shake-decay: 10;
   --apron-color: var(--velvet-dark);

@@ -1,13 +1,61 @@
-// SlumMonkey cutout puppet. Positions are world px from his feet (y up). size = part height in px.
-// px/py = pivot inside the part image (0..1 from left/top). anim = view/puppet.ts ANIMS entry.
-puppet "slummonkey" scale=1.25 {
-  part "tail" svg="parts/slummonkey/tail" size=54 x=-14 y=36 px=0.88 py=0.95 z=1 anim="tail"
-  part "arm-back" svg="parts/slummonkey/arm-back" size=36 x=-14 y=74 px=0.48 py=0.08 z=2 anim="arm" tags="b"
-  part "leg-back" svg="parts/slummonkey/leg" size=40 x=-8 y=38 px=0.48 py=0.05 z=3 anim="leg" tags="b"
-  part "leg-front" svg="parts/slummonkey/leg" size=40 x=10 y=38 px=0.48 py=0.05 z=4 anim="leg"
-  part "torso" svg="parts/slummonkey/torso" size=54 x=0 y=30 px=0.5 py=0.96 z=5 anim="breathe"
-  part "head" svg="parts/slummonkey/head" size=64 x=6 y=78 px=0.5 py=0.86 z=6 anim="head"
-  part "gun" svg="parts/slummonkey/gun-arm" size=26 x=8 y=70 px=0.08 py=0.5 z=7 anim="aim"
-  part "rotor" svg="parts/slummonkey/rotor" size=32 x=0 y=140 px=0.5 py=0.5 z=8 anim="rotor"
+// Low-poly models. A puppet is a stack of simple flat-shaded shapes on pivots.
+// Units are world px; the model faces +x, y is up from the feet, pz is depth toward the camera.
+//   part "id" shape=box|ball|sphere|cyl|cone|torus|dome|gem|tetra|wedge|none dim="w h d"
+//        x= y= pz=  (pivot)   off="x y z" rot="x y z" (mesh offset/rotation from the pivot, degrees)
+//        color="--token" emissive=0..1 taper=(cyl top/bottom ratio) detail=(segments)
+//        parent="part" anim="view/model.ts ANIMS name" tags="b" (b = back limb: animates in opposite phase)
+
+// SlumMonkey: cream hoodie, red cap with cyber goggles, coin blaster on the right arm.
+puppet "slummonkey" scale=1.3 {
+  part "tail" shape="cyl" dim="7 50 7" taper=0.6 x=-14 y=30 pz=-6 off="-12 20 0" rot="0 0 30" color="--monkey-fur" anim="tail"
+  part "tail-tip" shape="ball" dim="12" off="-25 43 0" color="--monkey-fur-dark" parent="tail"
+  part "arm-back" shape="box" dim="10 26 10" x=-3 y=58 pz=-17 off="0 -12 0" color="--hoodie-dark" anim="arm" tags="b"
+  part "hand-back" shape="ball" dim="12" off="0 -27 0" color="--monkey-face" parent="arm-back"
+  part "leg-back" shape="box" dim="12 30 12" x=-5 y=32 pz=-8 off="0 -15 0" color="--indigo" anim="leg" tags="b"
+  part "shoe-back" shape="box" dim="20 9 14" off="4 -31 0" color="--white" parent="leg-back"
+  part "leg-front" shape="box" dim="12 30 12" x=5 y=32 pz=8 off="0 -15 0" color="--indigo" anim="leg"
+  part "shoe-front" shape="box" dim="20 9 14" off="4 -31 0" color="--white" parent="leg-front"
+  part "sole-front" shape="box" dim="21 3 15" off="4 -36 0" color="--cap" parent="leg-front"
+  part "torso" shape="box" dim="32 34 26" x=0 y=28 off="0 17 0" color="--hoodie" anim="breathe"
+  part "pocket" shape="box" dim="18 8 2" off="8 10 13" color="--hoodie-dark" parent="torso"
+  part "hood" shape="ball" dim="26 18 26" off="-12 34 0" color="--hoodie-dark" parent="torso"
+  part "logo" shape="box" dim="2 10 10" off="16 22 0" color="--cyber" emissive=0.5 parent="torso"
+  part "head" shape="ball" dim="38 36 34" x=2 y=60 off="0 18 0" color="--monkey-fur" anim="head"
+  part "muzzle" shape="ball" dim="22 20 24" off="15 12 0" color="--monkey-face" parent="head"
+  part "nose" shape="ball" dim="6 4 8" off="26 16 0" color="--ink" parent="head"
+  part "eye-l" shape="box" dim="3 8 4" x=17 y=24 pz=7 color="--ink" parent="head" anim="blink"
+  part "eye-r" shape="box" dim="3 8 4" x=17 y=24 pz=-7 color="--ink" parent="head" anim="blink"
+  part "ear-l" shape="ball" dim="12 14 6" off="0 20 18" color="--monkey-face" parent="head"
+  part "ear-r" shape="ball" dim="12 14 6" off="0 20 -18" color="--monkey-face" parent="head"
+  part "cap" shape="cyl" dim="40 12 38" off="-1 34 0" color="--cap" parent="head"
+  part "brim" shape="box" dim="24 4 30" off="20 30 0" color="--cap" parent="head"
+  part "goggles" shape="box" dim="10 8 36" off="6 41 0" color="--cyber" emissive=0.55 parent="head"
+  part "gun" shape="box" dim="24 10 10" x=4 y=54 pz=17 off="11 0 0" color="--hoodie" anim="aim"
+  part "blaster" shape="box" dim="20 14 13" off="28 2 0" color="--cyber-dark" parent="gun"
+  part "barrel" shape="cyl" dim="9 12 9" off="42 3 0" rot="0 0 90" color="--cyber" emissive=0.7 parent="gun"
+  part "rotor" shape="box" dim="110 3 10" x=0 y=116 color="--cyber" emissive=0.4 anim="rotor"
+  part "rotor-b" shape="box" dim="10 3 110" color="--cyber" emissive=0.4 parent="rotor"
+  part "rotor-hub" shape="cyl" dim="10 14 10" off="0 -6 0" color="--ink" parent="rotor"
 }
-puppet "missing" { part "x" svg="sprites/pellet" size=60 x=0 y=30 }
+
+// The flying autorickshaw: green body, yellow canopy, propeller on the nose.
+puppet "rickshaw" {
+  part "body" shape="box" dim="100 38 64" x=0 y=40 color="--pattu" anim="bank"
+  part "canopy" shape="box" dim="80 10 70" off="-8 50 0" color="--lattu" parent="body"
+  part "pillar-f" shape="box" dim="5 32 5" off="26 30 30" color="--ink" parent="body"
+  part "pillar-f2" shape="box" dim="5 32 5" off="26 30 -30" color="--ink" parent="body"
+  part "back" shape="box" dim="18 34 66" off="-42 30 0" color="--lattu" parent="body"
+  part "nose" shape="box" dim="26 30 46" off="58 -2 0" color="--lattu" parent="body"
+  part "lamp" shape="ball" dim="10 12 14" off="72 6 0" color="--white" emissive=0.9 parent="body"
+  part "wheel-f" shape="cyl" dim="24 10 24" off="56 -24 0" rot="90 0 0" color="--ink" parent="body"
+  part "wheel-b" shape="cyl" dim="24 10 24" off="-34 -24 30" rot="90 0 0" color="--ink" parent="body"
+  part "wheel-b2" shape="cyl" dim="24 10 24" off="-34 -24 -30" rot="90 0 0" color="--ink" parent="body"
+  part "rider" shape="ball" dim="28 28 26" off="6 30 0" color="--monkey-fur" parent="body"
+  part "rider-face" shape="ball" dim="14 14 18" off="18 28 0" color="--monkey-face" parent="body"
+  part "rider-cap" shape="cyl" dim="28 8 26" off="6 44 0" color="--cap" parent="body"
+  part "stripe" shape="box" dim="102 6 66" off="0 6 0" color="--white" parent="body"
+  part "prop" shape="box" dim="4 70 10" x=76 y=-2 color="--cyber" emissive=0.4 anim="prop" parent="body"
+  part "prop-b" shape="box" dim="4 10 70" color="--cyber" emissive=0.4 parent="prop"
+}
+
+puppet "missing" { part "x" shape="box" dim="60 60 60" y=30 color="--magenta" }

@@ -1,37 +1,71 @@
 // Final boss — Jadugar Raj. The magic show was a rug-pull all along.
+// Jadugar Raj: purple sherwani, cape, marigold turban with a plume, shades, wand and a fan of cards.
 puppet "raj" {
-  part "cape" svg="parts/raj/cape" size=300 x=-10 y=310 px=0.5 py=0.03 z=1 anim="sway"
-  part "arm-cards" svg="parts/raj/arm-cards" size=74 x=-30 y=230 px=0.06 py=0.65 z=2 anim="arm" tags="b"
-  part "body" svg="parts/raj/body" size=270 x=0 y=0 px=0.5 py=0.98 z=3 anim="breathe"
-  part "head" svg="parts/raj/head" size=190 x=8 y=250 px=0.4 py=0.82 z=4 anim="head"
-  part "arm-wand" svg="parts/raj/arm-wand" size=56 x=34 y=226 px=0.05 py=0.5 z=5 anim="arm"
+  part "cape" shape="cone" dim="170 300 150" detail=8 x=-14 y=300 pz=-12 off="-8 -150 0" color="--velvet" anim="sway"
+  part "collar" shape="cyl" dim="110 22 100" detail=8 taper=1.3 off="4 -4 0" color="--gold" emissive=0.12 parent="cape"
+  part "arm-cards" shape="box" dim="22 76 22" x=-20 y=232 pz=-56 off="0 -34 0" color="--raj-coat-light" anim="arm" tags="b"
+  part "hand-cards" shape="ball" dim="22" off="0 -76 0" color="--skin-1" parent="arm-cards"
+  part "card-1" shape="box" dim="26 36 3" off="10 -96 4" rot="0 0 -20" color="--white" parent="arm-cards"
+  part "card-2" shape="box" dim="26 36 3" off="16 -92 8" rot="0 0 -5" color="--vermilion" parent="arm-cards"
+  part "body" shape="cyl" dim="130 250 100" taper=0.72 detail=8 y=0 off="0 125 0" color="--raj-coat" anim="breathe"
+  part "sash" shape="box" dim="132 18 104" off="0 150 0" rot="0 0 -14" color="--gold" emissive=0.1 parent="body"
+  part "button-1" shape="ball" dim="10" off="44 200 0" color="--gold" emissive=0.2 parent="body"
+  part "button-2" shape="ball" dim="10" off="48 176 0" color="--gold" emissive=0.2 parent="body"
+  part "button-3" shape="ball" dim="10" off="52 110 0" color="--gold" emissive=0.2 parent="body"
+  part "chain" shape="torus" dim="70 70 70" taper=0.08 off="30 218 0" rot="0 90 0" color="--gold" emissive=0.3 parent="body"
+  part "pendant" shape="coin" dim="20" off="46 190 0" color="--gold" emissive=0.3 parent="body"
+  part "shoe" shape="box" dim="44 14 34" off="12 7 22" color="--ink" parent="body"
+  part "shoe-2" shape="box" dim="44 14 34" off="12 7 -22" color="--ink" parent="body"
+  part "head" shape="ball" dim="78 88 74" x=6 y=250 off="0 40 0" color="--skin-1" anim="head"
+  part "turban" shape="ball" dim="100 66 92" off="-4 92 0" color="--marigold" parent="head"
+  part "turban-gem" shape="gem" dim="14 22 22" off="46 96 0" color="--vermilion" emissive=0.35 parent="head"
+  part "plume" shape="cone" dim="12 56 12" off="-12 140 0" rot="0 0 20" color="--white" parent="head"
+  part "shades" shape="box" dim="8 14 70" off="38 48 0" color="--ink" parent="head"
+  part "moustache" shape="box" dim="8 8 50" off="38 26 0" color="--ink" parent="head"
+  part "moustache-l" shape="ball" dim="10 10 10" off="36 30 28" color="--ink" parent="head"
+  part "moustache-r" shape="ball" dim="10 10 10" off="36 30 -28" color="--ink" parent="head"
+  part "arm-wand" shape="box" dim="22 76 22" x=20 y=228 pz=56 off="0 -34 0" color="--raj-coat-light" anim="arm"
+  part "hand" shape="ball" dim="22" off="0 -76 0" color="--skin-1" parent="arm-wand"
+  part "wand" shape="cyl" dim="7 80 7" off="22 -100 0" rot="0 0 -70" color="--ink" parent="arm-wand"
+  part "wand-tip" shape="cyl" dim="8 14 8" off="58 -86 0" rot="0 0 -70" color="--white" emissive=0.4 parent="arm-wand"
 }
+// The rug-pull: Raj grows huge, hands like boulders, chart candles orbiting him.
 puppet "raj-giant" {
-  part "chart-b" svg="parts/raj/chart" size=120 x=-260 y=420 px=0.5 py=0.5 z=1 anim="float" tags="b"
-  part "body" svg="parts/raj/giant-body" size=540 x=0 y=0 px=0.5 py=0.99 z=2 anim="breathe"
-  part "hand-b" svg="parts/raj/giant-hand" size=170 x=-210 y=300 px=0.45 py=0.0 z=3 anim="arm" tags="b"
-  part "hand" svg="parts/raj/giant-hand" size=170 x=210 y=300 px=0.45 py=0.0 z=4 anim="arm"
-  part "chart" svg="parts/raj/chart" size=110 x=250 y=520 px=0.5 py=0.5 z=5 anim="float"
+  part "chart-b" shape="box" dim="40 110 30" x=-250 y=400 pz=-120 color="--candle-red" emissive=0.45 anim="float" tags="b"
+  part "body" shape="cyl" dim="320 290 230" taper=0.62 detail=8 y=0 off="0 145 0" color="--raj-coat" anim="breathe"
+  part "sash" shape="box" dim="250 24 210" off="0 170 0" rot="0 0 -14" color="--gold" emissive=0.1 parent="body"
+  part "chain" shape="torus" dim="130 130 130" taper=0.07 off="40 262 0" rot="0 90 0" color="--gold" emissive=0.3 parent="body"
+  part "head" shape="ball" dim="150 160 140" off="10 350 0" color="--skin-1" parent="body"
+  part "turban" shape="ball" dim="160 90 150" off="2 432 0" color="--marigold" parent="body"
+  part "turban-gem" shape="gem" dim="22 36 36" off="80 436 0" color="--vermilion" emissive=0.35 parent="body"
+  part "shades" shape="box" dim="12 26 130" off="80 368 0" color="--ink" parent="body"
+  part "moustache" shape="box" dim="12 12 90" off="80 330 0" color="--ink" parent="body"
+  part "grin" shape="box" dim="10 10 60" off="78 306 0" color="--white" parent="body"
+  part "hand-b" shape="ball" dim="120 130 110" x=-190 y=250 pz=-140 off="0 -40 0" color="--skin-1" anim="arm" tags="b"
+  part "hand" shape="ball" dim="120 130 110" x=190 y=250 pz=140 off="0 -40 0" color="--skin-1" anim="arm"
+  part "ring" shape="torus" dim="50 50 50" taper=0.15 off="30 -10 50" rot="0 90 0" color="--gold" emissive=0.3 parent="hand"
+  part "chart" shape="box" dim="40 120 30" x=250 y=470 pz=60 color="--candle-green" emissive=0.45 anim="float"
+  part "chart-wick" shape="box" dim="6 170 6" color="--candle-green" emissive=0.45 parent="chart"
 }
-
 boss "raj" name="Jadugar Raj" title="The Great Rug-Pull" hp=1700 w=160 h=380 x=380 stage="raj" theme="raj" reward=60 \
   intro="Swagat hai mere show mein... aakhri show!" outro="Pinky azaad!" {
 
   phase "showman" name="The Showman" until="75%" {
     say "Raj" "Taaliyaan! Aaj ka trick: tumhara gayab hona!" dur=2.4
-    parry-every 5
+    parry-every 4
     loop {
       spotlight 1
-      windup 0.45 pose="spray"
-      spray 1.2 80 "card" rate=10 speed=450 from="front" burst=4 pause=0.3
-      wait 0.6
-      windup 0.4 pose="juggle"
-      summon "rabbit" 3 from="hat" gap=0.3
-      wait 0.8
-      juggle 3 "prop" 1.4 speed=540
+      windup 0.6 pose="spray"
+      spray 1.2 70 "card" rate=8 speed=400 from="front" burst=4 pause=0.4
+      wait 1.0
+      windup 0.6 pose="juggle"
+      summon "rabbit" 2 from="hat" gap=0.7
+      wait 1.6
+      windup 0.5 pose="juggle"
+      juggle 2 "prop" 1.2 speed=460
       wait 0.8
       teleport "far" 0
-      wait 0.5
+      stun 1.4 vuln=1.25
     }
   }
 
@@ -39,17 +73,18 @@ boss "raj" name="Jadugar Raj" title="The Great Rug-Pull" hp=1700 w=160 h=380 x=3
     bg "raj-climb"
     say "Raj" "Rassi pe chadho, beta. Neeche mat dekhna!" dur=2.4
     move-to 0 250 dur=1
-    rising-platforms 165
-    scroll 0 70
-    parry-every 4
+    rising-platforms 150 w=230
+    scroll 0 55
+    parry-every 3
     loop {
       hover 26 2 dur=1.6
-      rain 6 "star" width=700 speed=380 warn=0.5
-      wait 0.8
-      homing 2 "pigeon" turn=70 speed=260
+      rain 4 "star" width=600 speed=340 warn=0.7
       wait 1.4
-      volley 5 60 360 "card" from="mid"
-      wait 1.2
+      homing 1 "pigeon" turn=60 speed=240
+      wait 1.6
+      windup 0.5
+      volley 3 40 340 "card" from="mid"
+      wait 1.4
       move-to "random" 250 dur=1.2
     }
   }
@@ -59,17 +94,18 @@ boss "raj" name="Jadugar Raj" title="The Great Rug-Pull" hp=1700 w=160 h=380 x=3
     say "Raj" "Yeh lota kabhi khaali nahi hota. Tairna aata hai?" dur=2.4
     move-to 380 150 dur=1
     rider "lota" keep-visible=#true x=-110 y=40
-    buoyant 3 w=180
-    flood 22 230
-    parry-every 4
+    buoyant 3 w=200
+    flood 18 210
+    parry-every 3
     loop {
       hover 20 1.6 dur=1.2
-      beam 1.3 warn=0.8 angle="player" width=34 proj="water-jet"
-      wait 0.7
-      rain 7 "water-drop" width=800 speed=360 warn=0.5
-      wait 1
-      volley 3 30 420 "card" from="front"
+      beam 1.2 warn=1.0 angle="player" width=34 proj="water-jet"
+      wait 1.0
+      rain 5 "water-drop" width=700 speed=340 warn=0.7
       wait 1.2
+      windup 0.5
+      volley 3 30 380 "card" from="front"
+      wait 1.6
     }
   }
 
@@ -81,18 +117,17 @@ boss "raj" name="Jadugar Raj" title="The Great Rug-Pull" hp=1700 w=160 h=380 x=3
     move-to 420 0 dur=0.1
     shake 20
     say "Raj" "Jaadu? Kaun sa jaadu? Yeh toh RUG PULL tha!" dur=2.6
-    parry-every 4
+    parry-every 3
     loop {
-      graph-shot "pump-dump" 18 "candle-green" speed=270
-      wait 1.3
-      candles 4 warn=0.8 red=0.6
+      graph-shot "pump-dump" 14 "candle-green" speed=250
+      wait 1.6
+      candles 3 warn=1.0 red=0.6
+      wait 1.6
+      rain 5 "cash" width=800 speed=360 warn=0.7
+      wait 1.2
+      graph-shot "rug" 12 "candle-green" speed=270
       wait 1.4
-      rain 7 "cash" width=900 speed=400 warn=0.5
-      wait 1
-      graph-shot "rug" 16 "candle-green" speed=300
-      wait 1.3
-      homing 2 "pigeon" turn=60 speed=240
-      wait 1
+      stun 1.6 vuln=1.25
     }
   }
 }

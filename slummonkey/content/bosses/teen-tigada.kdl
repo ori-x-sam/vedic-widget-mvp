@@ -1,39 +1,104 @@
 // Boss 2 — Teen Tigada: Lattu, Pattu and Sattu, three tiny stage assistants with big schemes.
 // The joke is their tricks and bickering, never their size.
+// Lattu (yellow spinning-top), Pattu (tall green), Sattu (round blue): three brothers, one coat.
 puppet "lattu" {
-  part "arm-b" svg="parts/tigada/arm" size=34 x=-16 y=78 px=0.4 py=0.06 z=1 anim="arm" tags="b"
-  part "body" svg="parts/tigada/lattu" size=100 x=0 y=0 px=0.5 py=1 z=2 anim="bob"
-  part "arm" svg="parts/tigada/arm" size=34 x=14 y=78 px=0.4 py=0.06 z=3 anim="arm"
+  part "arm-b" shape="box" dim="10 34 10" x=-4 y=74 pz=-30 off="0 -15 0" color="--skin-3" anim="arm" tags="b"
+  part "body" shape="cone" dim="70 70 70" detail=8 y=0 off="0 35 0" rot="180 0 0" color="--lattu" anim="bob"
+  part "belt" shape="cyl" dim="74 8 74" detail=8 off="0 64 0" color="--vermilion" parent="body"
+  part "head" shape="ball" dim="44 44 42" off="2 92 0" color="--skin-3" parent="body"
+  part "eye" shape="box" dim="3 7 4" off="22 96 8" color="--ink" parent="body"
+  part "eye-2" shape="box" dim="3 7 4" off="22 96 -8" color="--ink" parent="body"
+  part "cap" shape="cone" dim="40 30 40" detail=6 off="0 124 0" color="--lattu" parent="body"
+  part "pom" shape="ball" dim="12" off="0 140 0" color="--vermilion" parent="body"
+  part "arm" shape="box" dim="10 34 10" x=4 y=74 pz=30 off="0 -15 0" color="--skin-3" anim="arm"
 }
 puppet "pattu" {
-  part "arm-b" svg="parts/tigada/arm" size=38 x=-14 y=96 px=0.4 py=0.06 z=1 anim="arm" tags="b"
-  part "body" svg="parts/tigada/pattu" size=118 x=0 y=0 px=0.5 py=1 z=2 anim="bob"
-  part "arm" svg="parts/tigada/arm" size=38 x=14 y=96 px=0.4 py=0.06 z=3 anim="arm"
+  part "arm-b" shape="box" dim="11 40 11" x=-4 y=92 pz=-24 off="0 -18 0" color="--skin-1" anim="arm" tags="b"
+  part "body" shape="cyl" dim="50 90 44" taper=0.8 detail=7 y=0 off="0 45 0" color="--pattu" anim="bob"
+  part "sash" shape="box" dim="52 10 46" off="0 60 0" rot="0 0 20" color="--marigold" parent="body"
+  part "head" shape="ball" dim="38 42 38" off="2 110 0" color="--skin-1" parent="body"
+  part "eye" shape="box" dim="3 7 4" off="20 114 7" color="--ink" parent="body"
+  part "eye-2" shape="box" dim="3 7 4" off="20 114 -7" color="--ink" parent="body"
+  part "moustache" shape="box" dim="5 4 24" off="20 102 0" color="--ink" parent="body"
+  part "turban" shape="ball" dim="46 30 44" off="-2 134 0" color="--leaf-dark" parent="body"
+  part "arm" shape="box" dim="11 40 11" x=4 y=92 pz=24 off="0 -18 0" color="--skin-1" anim="arm"
 }
 puppet "sattu" {
-  part "arm-b" svg="parts/tigada/arm" size=34 x=-30 y=72 px=0.4 py=0.06 z=1 anim="arm" tags="b"
-  part "body" svg="parts/tigada/sattu" size=96 x=0 y=0 px=0.5 py=1 z=2 anim="bob"
-  part "arm" svg="parts/tigada/arm" size=34 x=30 y=72 px=0.4 py=0.06 z=3 anim="arm"
+  part "arm-b" shape="box" dim="10 30 10" x=-6 y=66 pz=-40 off="0 -13 0" color="--skin-2" anim="arm" tags="b"
+  part "body" shape="ball" dim="86 76 76" y=0 off="0 38 0" color="--sattu" anim="bob"
+  part "buttons" shape="box" dim="4 40 6" off="42 40 0" color="--white" parent="body"
+  part "head" shape="ball" dim="40 38 38" off="4 90 0" color="--skin-2" parent="body"
+  part "eye" shape="box" dim="3 7 4" off="22 94 8" color="--ink" parent="body"
+  part "eye-2" shape="box" dim="3 7 4" off="22 94 -8" color="--ink" parent="body"
+  part "topi" shape="cyl" dim="36 14 34" off="0 114 0" color="--white" parent="body"
+  part "arm" shape="box" dim="10 30 10" x=6 y=66 pz=40 off="0 -13 0" color="--skin-2" anim="arm"
 }
-// all three together (what pops out of the matka)
 puppet "teen-tigada" {
-  part "pattu" svg="parts/tigada/pattu" size=118 x=0 y=0 px=0.5 py=1 z=1 anim="bob" tags="b"
-  part "lattu" svg="parts/tigada/lattu" size=96 x=-58 y=0 px=0.5 py=1 z=2 anim="bob"
-  part "sattu" svg="parts/tigada/sattu" size=92 x=58 y=0 px=0.5 py=1 z=3 anim="bob" tags="b"
+  part "pattu" shape="cyl" dim="46 86 40" taper=0.8 x=0 y=0 pz=-30 off="0 43 0" color="--pattu" anim="bob" tags="b"
+  part "pattu-head" shape="ball" dim="36 40 36" off="2 106 0" color="--skin-1" parent="pattu"
+  part "pattu-turban" shape="ball" dim="44 28 42" off="-2 128 0" color="--leaf-dark" parent="pattu"
+  part "lattu" shape="cone" dim="64 64 64" detail=8 x=-60 y=0 pz=10 off="0 32 0" rot="180 0 0" color="--lattu" anim="bob"
+  part "lattu-head" shape="ball" dim="40 40 38" off="2 84 0" color="--skin-3" parent="lattu"
+  part "lattu-cap" shape="cone" dim="36 28 36" detail=6 off="0 114 0" color="--lattu" parent="lattu"
+  part "sattu" shape="ball" dim="78 70 70" x=60 y=0 pz=10 off="0 35 0" color="--sattu" anim="bob" tags="b"
+  part "sattu-head" shape="ball" dim="38 36 36" off="4 84 0" color="--skin-2" parent="sattu"
+  part "sattu-topi" shape="cyl" dim="34 12 32" off="0 106 0" color="--white" parent="sattu"
 }
-puppet "rope" { part "rope" svg="parts/tigada/rope" size=640 x=0 y=0 px=0.5 py=0.99 anim="sway" }
-puppet "matka" { part "pot" svg="parts/tigada/matka" size=170 x=0 y=0 px=0.5 py=0.98 anim="breathe" }
+// The Indian rope trick: a rope rising out of a basket.
+puppet "rope" {
+  part "basket" shape="cyl" dim="90 50 90" taper=1.2 detail=10 y=0 off="0 25 0" color="--wood"
+  part "rope" shape="cyl" dim="10 620 10" detail=6 y=40 off="0 310 0" color="--paper-dark" anim="sway"
+  part "knot" shape="ball" dim="16" off="0 620 0" color="--wood-dark" parent="rope"
+}
+puppet "matka" {
+  part "pot" shape="ball" dim="150 130 150" detail=2 y=0 off="0 62 0" color="--clay" anim="breathe"
+  part "neck" shape="cyl" dim="70 30 70" taper=1.2 detail=10 off="0 135 0" color="--clay" parent="pot"
+  part "rim" shape="torus" dim="84 84 84" taper=0.12 off="0 152 0" rot="90 0 0" color="--clay-dark" parent="pot"
+  part "band" shape="cyl" dim="154 12 154" detail=12 off="0 80 0" color="--marigold" parent="pot"
+}
+// Three brothers stacked in one trench coat.
 puppet "tigada-stack" {
-  part "feet" svg="parts/tigada/stack-feet" size=40 x=0 y=24 px=0.5 py=0.6 z=1 anim="leg"
-  part "coat" svg="parts/tigada/stack-coat" size=290 x=0 y=20 px=0.5 py=0.97 z=2 anim="wobble"
-  part "peek" svg="parts/tigada/stack-peek" size=22 x=14 y=145 px=0.5 py=0.5 z=3 anim="blink"
-  part "head" svg="parts/tigada/stack-head" size=130 x=0 y=290 px=0.5 py=0.85 z=4 anim="wobble" tags="b"
-  part "arm" svg="parts/tigada/stack-arm" size=70 x=20 y=250 px=0.06 py=0.3 z=5 anim="arm"
+  part "feet" shape="box" dim="30 12 24" x=6 y=12 pz=14 off="6 -6 0" color="--ink" anim="leg"
+  part "feet-b" shape="box" dim="30 12 24" x=-6 y=12 pz=-14 off="6 -6 0" color="--ink" anim="leg" tags="b"
+  part "coat" shape="cyl" dim="110 260 90" taper=0.72 detail=7 x=0 y=14 off="0 130 0" color="--wood" anim="wobble"
+  part "collar" shape="cone" dim="96 40 84" detail=7 off="0 262 0" color="--wood-dark" parent="coat"
+  part "belt" shape="cyl" dim="104 12 86" taper=0.95 detail=7 off="0 120 0" color="--ink" parent="coat"
+  part "button" shape="ball" dim="10" off="44 170 0" color="--gold" parent="coat"
+  part "button-2" shape="ball" dim="10" off="48 90 0" color="--gold" parent="coat"
+  part "peek" shape="box" dim="6 10 24" x=48 y=150 pz=0 color="--white" emissive=0.4 anim="blink"
+  part "head" shape="ball" dim="62 66 60" x=0 y=280 off="0 32 0" color="--skin-1" anim="wobble" tags="b"
+  part "shades" shape="box" dim="8 12 52" off="28 40 0" color="--ink" parent="head"
+  part "hat" shape="cyl" dim="90 8 90" detail=10 off="0 64 0" color="--ink" parent="head"
+  part "hat-top" shape="cyl" dim="56 40 56" detail=10 off="0 86 0" color="--ink" parent="head"
+  part "hat-band" shape="cyl" dim="58 8 58" detail=10 off="0 72 0" color="--lattu" parent="head"
+  part "arm" shape="box" dim="20 70 20" x=16 y=244 pz=46 off="0 -30 0" color="--wood" anim="arm"
+  part "hand" shape="ball" dim="20" off="0 -68 0" color="--skin-2" parent="arm"
 }
-puppet "rabbit" { part "r" svg="parts/tigada/rabbit" size=70 x=0 y=0 px=0.5 py=0.95 anim="bob" }
-puppet "pigeon" { part "p" svg="parts/tigada/pigeon" size=56 x=0 y=0 px=0.5 py=0.6 anim="float" }
-puppet "pigeon-dive" { part "p" svg="parts/tigada/pigeon" size=56 x=0 y=0 px=0.5 py=0.6 anim="float" }
-
+puppet "rabbit" {
+  part "r" shape="ball" dim="54 44 44" y=0 off="0 24 0" color="--white" anim="bob"
+  part "head" shape="ball" dim="34 32 32" off="24 50 0" color="--white" parent="r"
+  part "ear" shape="ball" dim="10 40 12" off="18 82 8" rot="0 0 15" color="--white" parent="r"
+  part "ear-2" shape="ball" dim="10 40 12" off="22 80 -8" rot="0 0 -5" color="--white" parent="r"
+  part "nose" shape="ball" dim="6" off="40 52 0" color="--vermilion" parent="r"
+  part "eye" shape="box" dim="3 6 3" off="34 58 9" color="--ink" parent="r"
+  part "tail" shape="ball" dim="16" off="-28 26 0" color="--paper" parent="r"
+}
+puppet "pigeon" {
+  part "p" shape="ball" dim="46 30 30" y=0 off="0 0 0" color="--steel" anim="float"
+  part "head" shape="ball" dim="22 22 20" off="22 12 0" color="--steel-dark" parent="p"
+  part "beak" shape="cone" dim="6 12 6" off="36 10 0" rot="0 0 -90" color="--marigold" parent="p"
+  part "neck" shape="box" dim="10 10 24" off="16 6 0" color="--teal" parent="p"
+  part "wing" shape="box" dim="30 4 34" x=0 y=8 pz=14 off="-4 0 16" color="--steel-dark" anim="flutter" parent="p"
+  part "wing-2" shape="box" dim="30 4 34" x=0 y=8 pz=-14 off="-4 0 -16" color="--steel-dark" anim="flutter" tags="b" parent="p"
+  part "tail" shape="box" dim="20 4 18" off="-28 2 0" color="--steel-dark" parent="p"
+}
+puppet "pigeon-dive" {
+  part "p" shape="ball" dim="46 30 30" y=0 off="0 0 0" color="--steel" anim="float"
+  part "head" shape="ball" dim="22 22 20" off="22 12 0" color="--steel-dark" parent="p"
+  part "beak" shape="cone" dim="6 12 6" off="36 10 0" rot="0 0 -90" color="--marigold" parent="p"
+  part "wing" shape="box" dim="30 4 34" x=0 y=8 pz=14 off="-4 0 16" color="--steel-dark" anim="flutter" parent="p"
+  part "wing-2" shape="box" dim="30 4 34" x=0 y=8 pz=-14 off="-4 0 -16" color="--steel-dark" anim="flutter" tags="b" parent="p"
+}
 minion "rabbit" hp=8 w=60 h=80 gravity=2200 {
   hop 160 1
   loop { hop 140 1; wait 0.2 }
@@ -48,25 +113,26 @@ minion "pigeon" hp=4 w=60 h=40 {
 boss "teen-tigada" name="Teen Tigada" title="Lattu, Pattu & Sattu" hp=1000 w=150 h=160 x=380 stage="tigada" theme="tigada" reward=35 \
   intro="Teen dimaag, ek plan. Ya teen plan?" outro="Plan B tha hi nahi!" {
 
+  // The brothers take turns (one attack every ~1.6s, never all at once). Shoot a rope to drop a brother: he's dizzy.
   phase "rope-trick" name="Rope Trick" until="66%" {
     split {
       part "lattu" hp=110 x=-40 w=70 h=95 {
-        target "rope" hp=26 w=34 { drop; stun 3 vuln=2; say "Lattu" "Kisne kaati meri rassi?!" }
+        target "rope" hp=22 w=34 { drop; say "Lattu" "Kisne kaati meri rassi?!" dur=1.4; stun 3 vuln=2 }
         climb 230 150
         say "Lattu" "Mera turn pehle!"
-        loop { lob 1 "bomb" air=1.2; wait 1.6; shoot "knife" 480; wait 1.4 }
+        loop { windup 0.5; shoot "knife" 420; wait 4.3 }
       }
       part "pattu" hp=110 x=190 w=70 h=110 {
-        target "rope" hp=26 w=34 { drop; stun 3 vuln=2; say "Pattu" "Main toh plan ka hissa tha..." }
+        target "rope" hp=22 w=34 { drop; say "Pattu" "Main toh plan ka hissa tha..." dur=1.4; stun 3 vuln=2 }
         climb 300 130
-        wait 0.8
-        loop { volley 3 26 430 "card"; wait 2.1; say "Pattu" "Lattu, card ulta pakda hai!"; wait 0.6 }
+        wait 1.6
+        loop { windup 0.5; volley 3 26 380 "card"; wait 4.3 }
       }
       part "sattu" hp=110 x=420 w=80 h=90 {
-        target "rope" hp=26 w=34 { drop; stun 3 vuln=2; say "Sattu" "Ab dekhna mera gussa!" }
+        target "rope" hp=22 w=34 { drop; say "Sattu" "Ab dekhna mera gussa!" dur=1.4; stun 3 vuln=2 }
         climb 170 160
-        wait 1.6
-        loop { lob 2 "bomb" air=1.1 spread=160; wait 2.4 }
+        wait 3.2
+        loop { windup 0.5; lob 1 "bomb" air=1.2; wait 4.3 }
       }
     }
     // once every brother is knocked out, the boss pool keeps the phase honest
@@ -77,12 +143,12 @@ boss "teen-tigada" name="Teen Tigada" title="Lattu, Pattu & Sattu" hp=1000 w=150
     say "Sattu" "Teeno matke. Ek hum. Guess karo!" dur=2
     loop {
       hide-under 3 "matka"
-      shuffle 5 1.8 ramp=1.18
-      drumroll 0.7
+      shuffle 4 1.6 ramp=1.15
+      drumroll 0.8
       reveal bombs=2 bonus="laddoo"
-      wait 1.6
+      stun 1.6 vuln=1.3
       say "Lattu" "Sattu! Galat matka!" dur=1.4
-      wait 0.4
+      wait 0.6
     }
   }
 
@@ -92,18 +158,21 @@ boss "teen-tigada" name="Teen Tigada" title="Lattu, Pattu & Sattu" hp=1000 w=150
     say "Lattu" "Hum... ek bahut lambe jaadugar hain." dur=2.4
     parry-every 4
     loop {
-      windup 0.4 pose="juggle"
-      summon "rabbit" 2 from="hat" gap=0.4
-      wait 0.8
-      spray 1.2 60 "card" rate=9 speed=430 from="hat" burst=3 pause=0.35
-      wait 0.6
-      summon "pigeon" 2 from="hat" gap=0.5
-      windup 0.4 pose="juggle"
-      volley 5 50 420 "card" from="hat"
+      windup 0.6 pose="juggle"
+      summon "rabbit" 2 from="hat" gap=0.6
+      wait 1.6
+      windup 0.5
+      spray 1.0 50 "card" rate=8 speed=400 from="hat" burst=3 pause=0.4
+      wait 1.2
+      windup 0.6 pose="juggle"
+      summon "pigeon" 1 from="hat"
       wait 1.0
+      windup 0.5
+      volley 3 30 400 "card" from="hat"
+      wait 0.6
       pick {
-        seq { say "Pattu" "Neeche se mat hilo!" dur=1.2; hop 160 1 }
-        seq { say "Sattu" "Mera pair so gaya..." dur=1.2; wait 0.8 }
+        seq { say "Pattu" "Neeche se mat hilo!" dur=1.2; hop 160 1; stun 1.3 vuln=1.3 }
+        seq { say "Sattu" "Mera pair so gaya..." dur=1.2; stun 1.8 vuln=1.3 }
       }
     }
   }

@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 160">
-  <path d="M60 6 L 112 56 L 60 120 L 8 56Z" fill="var(--magenta)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="M60 6 L 60 120 M8 56 L 112 56" stroke="var(--ink)" stroke-width="4"/>
-  <path d="M60 6 L 112 56 L 60 56Z" fill="var(--marigold)" opacity="0.9"/>
-  <path d="M60 120 C 50 132, 70 140, 60 156" fill="none" stroke="var(--ink)" stroke-width="4"/>
-  <path d="M54 130 l12 4 M52 146 l12 2" stroke="var(--teal)" stroke-width="6" stroke-linecap="round"/>
-  <path d="M40 60 C 44 54, 50 54, 52 60 M68 60 C 72 54, 78 54, 80 60" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
-  <path d="M44 74 C 52 70, 68 70, 76 74" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
-</svg>

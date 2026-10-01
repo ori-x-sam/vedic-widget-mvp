@@ -1,36 +1,70 @@
 // Boss 1 — Gayab Gajraj, the Vanishing Elephant. Read it as a stack of vocabulary words.
 puppet "gajraj" {
-  part "tail" svg="parts/gajraj/tail" size=70 x=-150 y=170 px=0.85 py=0.05 z=1 anim="sway"
-  part "leg-bb" svg="parts/gajraj/leg-back" size=100 x=-70 y=100 px=0.5 py=0.04 z=2 anim="leg" tags="b"
-  part "leg-bf" svg="parts/gajraj/leg-back" size=100 x=90 y=100 px=0.5 py=0.04 z=3 anim="leg"
-  part "body" svg="parts/gajraj/body" size=215 x=-10 y=40 px=0.5 py=0.94 z=4 anim="breathe"
-  part "leg-fb" svg="parts/gajraj/leg" size=100 x=-110 y=100 px=0.5 py=0.04 z=5 anim="leg"
-  part "leg-ff" svg="parts/gajraj/leg" size=100 x=60 y=100 px=0.5 py=0.04 z=6 anim="leg" tags="b"
-  part "head" svg="parts/gajraj/head" size=175 x=105 y=175 px=0.25 py=0.6 z=7 anim="head"
-  part "ear" svg="parts/gajraj/ear" size=140 x=-6 y=48 px=0.82 py=0.1 z=8 anim="flap" parent="head"
-  part "trunk" svg="parts/gajraj/trunk" size=150 x=104 y=-22 px=0.38 py=0.04 z=9 anim="trunk" parent="head"
+  part "tail" shape="cyl" dim="8 64 8" taper=0.6 x=-150 y=190 pz=0 off="-6 -30 0" rot="0 0 -12" color="--elephant-dark" anim="sway"
+  part "tail-tuft" shape="cone" dim="16 18 16" off="-13 -64 0" rot="0 0 180" color="--ink" parent="tail"
+  part "leg-bb" shape="cyl" dim="54 104 54" detail=7 x=-90 y=102 pz=-48 off="0 -51 0" color="--elephant-dark" anim="leg" tags="b"
+  part "leg-fb" shape="cyl" dim="56 104 56" detail=7 x=70 y=102 pz=-48 off="0 -51 0" color="--elephant-dark" anim="leg"
+  part "body" shape="ball" dim="290 196 180" x=-14 y=58 off="0 98 0" color="--elephant" anim="breathe"
+  part "blanket" shape="box" dim="150 86 186" off="-6 140 0" color="--velvet" parent="body"
+  part "blanket-trim" shape="box" dim="156 12 192" off="-6 98 0" color="--gold" emissive=0.12 parent="body"
+  part "blanket-gem" shape="gem" dim="26 26 8" off="-6 140 96" color="--marigold" emissive=0.3 parent="body"
+  part "leg-bf" shape="cyl" dim="56 104 56" detail=7 x=-80 y=102 pz=48 off="0 -51 0" color="--elephant" anim="leg"
+  part "leg-ff" shape="cyl" dim="58 104 58" detail=7 x=80 y=102 pz=48 off="0 -51 0" color="--elephant" anim="leg" tags="b"
+  part "toe-1" shape="box" dim="20 8 6" off="16 -98 27" color="--white" parent="leg-ff"
+  part "toe-2" shape="box" dim="20 8 6" off="16 -98 27" color="--white" parent="leg-bf"
+  part "head" shape="ball" dim="150 140 132" x=118 y=168 off="30 14 0" color="--elephant" anim="head"
+  part "forehead" shape="box" dim="10 54 70" off="100 44 0" rot="0 0 -18" color="--gold" emissive=0.12 parent="head"
+  part "forehead-gem" shape="gem" dim="14 22 22" off="106 46 0" color="--vermilion" emissive=0.3 parent="head"
+  part "eye" shape="ball" dim="14 16 10" off="78 34 50" color="--ink" parent="head"
+  part "eye-2" shape="ball" dim="14 16 10" off="78 34 -50" color="--ink" parent="head"
+  part "brow" shape="box" dim="26 6 16" off="78 46 52" rot="0 0 -15" color="--elephant-dark" parent="head"
+  part "tusk" shape="cone" dim="12 46 12" off="96 -30 34" rot="0 0 -115" color="--white" parent="head"
+  part "tusk-2" shape="cone" dim="12 46 12" off="96 -30 -34" rot="0 0 -115" color="--white" parent="head"
+  part "ear" shape="ball" dim="18 120 104" x=10 y=10 pz=64 off="-10 -4 18" color="--elephant-light" anim="flap" parent="head"
+  part "ear-inner" shape="ball" dim="8 90 74" off="-4 -6 22" color="--skin-3" parent="ear"
+  part "ear-b" shape="ball" dim="18 120 104" x=10 y=10 pz=-64 off="-10 -4 -18" color="--elephant-light" anim="flap" tags="b" parent="head"
+  part "trunk" shape="cyl" dim="44 56 44" taper=0.85 x=92 y=-14 off="0 -26 0" color="--elephant" anim="trunk" parent="head"
+  part "trunk-2" shape="cyl" dim="36 50 36" taper=0.82 y=-52 off="0 -24 0" color="--elephant" anim="trunk" parent="trunk"
+  part "trunk-3" shape="cyl" dim="30 44 30" taper=0.75 y=-46 off="0 -20 0" color="--elephant" anim="trunk" parent="trunk-2"
+  part "trunk-tip" shape="cyl" dim="26 8 26" off="0 -43 0" color="--elephant-dark" parent="trunk-3"
 }
-puppet "howdah" { part "howdah" svg="parts/gajraj/howdah" size=120 x=0 y=0 px=0.5 py=0.95 anim="bob" }
-puppet "mahout" { part "mahout" svg="parts/gajraj/mahout" size=90 x=0 y=0 px=0.5 py=0.95 anim="float" }
+puppet "howdah" {
+  part "howdah" shape="box" dim="120 46 100" y=0 off="0 23 0" color="--velvet" anim="bob"
+  part "trim" shape="box" dim="126 10 106" off="0 48 0" color="--gold" emissive=0.12 parent="howdah"
+  part "post-1" shape="cyl" dim="6 70 6" off="-52 82 -42" color="--gold" parent="howdah"
+  part "post-2" shape="cyl" dim="6 70 6" off="52 82 -42" color="--gold" parent="howdah"
+  part "post-3" shape="cyl" dim="6 70 6" off="-52 82 42" color="--gold" parent="howdah"
+  part "post-4" shape="cyl" dim="6 70 6" off="52 82 42" color="--gold" parent="howdah"
+  part "roof" shape="dome" dim="134 60 114" off="0 116 0" color="--saffron" parent="howdah"
+  part "finial" shape="cone" dim="14 30 14" off="0 160 0" color="--gold" emissive=0.3 parent="howdah"
+}
+puppet "mahout" {
+  part "mahout" shape="cyl" dim="44 50 36" taper=0.7 y=0 off="0 25 0" color="--white" anim="float"
+  part "head" shape="ball" dim="34 36 32" off="2 66 0" color="--skin-2" parent="mahout"
+  part "turban" shape="ball" dim="40 26 38" off="0 84 0" color="--saffron" parent="mahout"
+  part "moustache" shape="box" dim="6 5 22" off="18 60 0" color="--ink" parent="mahout"
+  part "arm" shape="box" dim="10 34 10" x=0 y=46 pz=22 off="0 -15 0" rot="0 0 40" color="--skin-2" parent="mahout" anim="arm"
+  part "stick" shape="cyl" dim="5 60 5" off="16 -34 0" rot="0 0 -50" color="--wood-dark" parent="arm"
+}
 
 boss "gajraj" name="Gayab Gajraj" title="The Vanishing Elephant" hp=1100 w=300 h=250 x=380 stage="gajraj" theme="gajraj" reward=30 \
   intro="Sheet girao, haathi gayab!" outro="Gajraj ki chhutti!" {
+  // Rhythm per loop: tell -> attack -> breathe. Every charge ends dizzy against the wall: free hits.
 
   phase "sheet-trick" name="Sheet Trick" until="66%" {
     parry-every 5
     loop {
-      stomp 0.55 2 speed=520
-      wait 0.5
-      windup 0.45 pose="spray"
-      spray 1.4 70 "coin" rate=10 speed=470 from="trunk"
-      wait 0.5
+      stomp 0.7 1 speed=460
+      wait 0.9
+      windup 0.6 pose="spray"
+      spray 1.2 60 "coin" rate=8 speed=400 from="trunk" burst=4 pause=0.4
+      wait 0.8
       pick {
-        seq w=2 { windup 0.55; charge 820 }
-        seq { hop 240 2 }
+        seq w=2 { windup 0.8; charge 760; stun 1.5 vuln=1.25 }
+        seq { hop 220 2; wait 0.6 }
       }
-      wait 0.3
-      vanish-under-sheet 2.6 to="far"
-      wait 0.5
+      vanish-under-sheet 2.2 to="far"
+      wait 0.9
     }
   }
 
@@ -41,15 +75,15 @@ boss "gajraj" name="Gayab Gajraj" title="The Vanishing Elephant" hp=1100 w=300 h
     rider "howdah" keep-visible=#true y=235
     parry-every 4
     loop {
-      patrol "left" "right" 240 dur=2.4
-      drumroll 0.6
-      charge 700
-      wait 0.4
-      stomp 0.6 1 speed=480
-      wait 0.4
-      windup 0.5 pose="spray"
-      spray 1.0 60 "coin" rate=8 speed=430 from="trunk"
-      wait 0.6
+      patrol "left" "right" 220 dur=2.2
+      drumroll 0.8
+      charge 680
+      stun 1.3 vuln=1.25
+      stomp 0.7 1 speed=440
+      wait 0.8
+      windup 0.6 pose="spray"
+      spray 1.0 50 "coin" rate=7 speed=400 from="trunk" burst=3 pause=0.45
+      wait 1.0
     }
   }
 
@@ -59,14 +93,16 @@ boss "gajraj" name="Gayab Gajraj" title="The Vanishing Elephant" hp=1100 w=300 h
     rider "mahout" y=240 { parryable "marigold" }
     wait 1
     loop {
-      zip 760 dur=3.2
-      windup 0.35
-      volley 3 34 430 "coin" from="mid"
-      wait 0.5
+      drumroll 0.7
+      zip 560 dur=2.2
+      stun 1.4 vuln=1.3
+      windup 0.5
+      volley 3 30 400 "coin" from="mid"
+      wait 0.9
       hop 180 2
-      windup 0.4
-      ring 10 330 "coin"
-      wait 0.7
+      windup 0.6
+      ring 8 300 "coin"
+      wait 1.0
     }
   }
 }

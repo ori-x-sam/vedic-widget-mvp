@@ -47,7 +47,7 @@ export interface OwNpc { id: string; x: number; y: number; puppet: string; lines
 export interface OverworldDef { map: string[]; start: [number, number]; nodes: OwNode[]; npcs: OwNpc[]; props: { kind: string; x: number; y: number; s: number }[]; size: [number, number] }
 export interface StageLayer { art: string; depth: number; x: number; y: number; tile: boolean; tiley: boolean; dim: number; blur: number; scale: number; tint: string }
 export interface StageLight { kind: string; x: number; y: number; w: number; h: number; angle: number; color: string; alpha: number; depth: number }
-export interface StageProp { kind: string; x: number; y: number; z: number; s: number; rot: number; color: string; color2: string; every: number; from: number; to: number; w: number; h: number }
+export interface StageProp { kind: string; x: number; y: number; z: number; s: number; rot: number; color: string; color2: string; every: number; everyY: number; n: number; from: number; to: number; w: number; h: number }
 export interface StageDef {
   id: string; layers: StageLayer[]; lights: StageLight[]; floor: number; ceiling: number; width: number;
   props: StageProp[]; sky: [string, string]; fog: string; ground: string; ambient: number; sun: number;
@@ -238,7 +238,7 @@ function loadNode(c: Content, n: KdlNode, file: string) {
       c.stages[id] = {
         props: childrenNamed(n, "prop").map((k) => ({
           kind: argStr(k, 0, ""), x: propNum(k, "x", 0), y: propNum(k, "y", 0), z: propNum(k, "z", -300), s: propNum(k, "s", 1), rot: propNum(k, "rot", 0),
-          color: propStr(k, "color", ""), color2: propStr(k, "color2", ""), every: propNum(k, "every", 0), from: propNum(k, "from", 0), to: propNum(k, "to", 0),
+          color: propStr(k, "color", ""), color2: propStr(k, "color2", ""), every: propNum(k, "every", 0), everyY: propNum(k, "every-y", 0), n: propNum(k, "n", 1), from: propNum(k, "from", 0), to: propNum(k, "to", 0),
           w: propNum(k, "w", 0), h: propNum(k, "h", 0),
         })),
         sky: [propStr(n, "sky-top", `--sky-${id}-top`), propStr(n, "sky-bottom", `--sky-${id}-bottom`)],

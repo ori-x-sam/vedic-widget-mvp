@@ -33,7 +33,7 @@ story "intro" {
 
 story "ending" {
   panel layout="wide" bg="chart" caption="Rug pull ka rug... khud Raj ke neeche se khinch gaya." {
-    art "parts/raj/giant-body" x=50 y=104 s=1.6
+    art "comic/raj-giant" x=50 y=104 s=1.6
     say "Jadugar Raj" "Mera... jaadu... mera chart..." x=78 y=24
     sfx "" "DHADAAM!" x=22 y=40
   }

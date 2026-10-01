@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 700">
-  <path d="M60 0 C 54 120, 66 240, 58 360 C 52 480, 66 560, 60 640" fill="none" stroke="var(--ink)" stroke-width="16" stroke-linecap="round"/>
-  <path d="M60 0 C 54 120, 66 240, 58 360 C 52 480, 66 560, 60 640" fill="none" stroke="var(--wood)" stroke-width="8" stroke-linecap="round"/>
-  <path d="M60 0 C 54 120, 66 240, 58 360 C 52 480, 66 560, 60 640" fill="none" stroke="var(--paper)" stroke-width="3" stroke-dasharray="6 10"/>
-  <!-- basket -->
-  <path d="M14 620 C 12 600, 108 600, 106 620 L 98 692 C 80 700, 40 700, 22 692Z" fill="var(--turmeric)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round"/>
-  <g fill="none" stroke="var(--wood-dark)" stroke-width="4"><path d="M18 640 C 40 646, 80 646, 104 640"/><path d="M20 660 C 40 666, 80 666, 102 660"/><path d="M22 680 C 40 686, 80 686, 100 680"/><path d="M36 612 L 32 694 M60 612 L 60 696 M84 612 L 88 694"/></g>
-  <ellipse cx="60" cy="612" rx="46" ry="10" fill="var(--wood-dark)" stroke="var(--ink)" stroke-width="5"/>
-</svg>

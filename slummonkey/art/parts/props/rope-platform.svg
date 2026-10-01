@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 90">
-  <path d="M30 40 L 100 4 L 170 40" fill="none" stroke="var(--ink)" stroke-width="8"/>
-  <path d="M30 40 L 100 4 L 170 40" fill="none" stroke="var(--wood)" stroke-width="4"/>
-  <rect x="6" y="40" width="188" height="28" rx="6" fill="var(--turmeric)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
-  <g stroke="var(--wood-dark)" stroke-width="4"><path d="M50 42 V66 M100 42 V66 M150 42 V66"/></g>
-  <path d="M100 4 L 100 -100" stroke="var(--ink)" stroke-width="6"/>
-</svg>

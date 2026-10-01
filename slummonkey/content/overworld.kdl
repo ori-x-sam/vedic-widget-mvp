@@ -1,9 +1,37 @@
 // The island. The map is plain text: ~ sea, . grass, , sand, # path, ^ rock, T tree.
 // Nodes are tents/stalls you can walk up to; requires= lists bosses that must be beaten first.
-puppet "npc-chaiwala" { part "n" svg="overworld/npc-chaiwala" size=120 x=0 y=0 px=0.5 py=0.98 anim="bob" }
-puppet "npc-bunty" { part "n" svg="overworld/npc-bunty" size=120 x=0 y=0 px=0.5 py=0.98 anim="bob" }
-puppet "npc-dadi" { part "n" svg="overworld/npc-dadi" size=110 x=0 y=0 px=0.5 py=0.98 anim="sway" }
-
+puppet "npc-chaiwala" {
+  part "n" shape="none" y=0 anim="bob"
+  part "legs" shape="box" dim="24 40 20" off="0 20 0" color="--wood-dark" parent="n"
+  part "body" shape="box" dim="34 40 26" off="0 60 0" color="--white" parent="n"
+  part "head" shape="ball" dim="34 36 32" off="2 98 0" color="--skin-2" parent="n"
+  part "hair" shape="ball" dim="36 18 34" off="-2 112 0" color="--ink" parent="n"
+  part "eye" shape="box" dim="3 6 4" off="18 100 7" color="--ink" parent="n"
+  part "kettle" shape="ball" dim="24 20 22" off="26 50 18" color="--steel" parent="n"
+  part "spout" shape="cone" dim="6 14 6" off="40 54 18" rot="0 0 -60" color="--steel" parent="n"
+  part "towel" shape="box" dim="6 30 28" off="-12 70 0" color="--vermilion" parent="n"
+}
+puppet "npc-bunty" {
+  part "n" shape="none" y=0 anim="bob"
+  part "legs" shape="box" dim="26 44 22" off="0 22 0" color="--indigo" parent="n"
+  part "body" shape="box" dim="38 44 28" off="0 66 0" color="--ink" parent="n"
+  part "chain" shape="torus" dim="30 30 30" taper=0.1 off="12 76 0" rot="0 90 0" color="--gold" emissive=0.3 parent="n"
+  part "head" shape="ball" dim="34 36 32" off="2 106 0" color="--skin-1" parent="n"
+  part "hair" shape="cone" dim="34 24 32" off="-2 126 0" color="--ink" parent="n"
+  part "shades" shape="box" dim="4 7 28" off="18 108 0" color="--cyber" emissive=0.5 parent="n"
+  part "phone" shape="box" dim="4 20 12" off="22 78 18" color="--neon-green" emissive=0.4 parent="n"
+}
+puppet "npc-dadi" {
+  part "n" shape="none" y=0 anim="sway"
+  part "sari" shape="cone" dim="56 90 50" detail=7 off="0 45 0" color="--white" parent="n"
+  part "border" shape="cyl" dim="56 8 50" detail=7 off="0 6 0" color="--vermilion" parent="n"
+  part "pallu" shape="box" dim="10 60 40" off="-6 64 0" rot="0 0 -20" color="--marigold" parent="n"
+  part "head" shape="ball" dim="32 34 30" off="2 100 0" color="--skin-2" parent="n"
+  part "bun" shape="ball" dim="20" off="-14 112 0" color="--paper-dark" parent="n"
+  part "hair" shape="ball" dim="34 16 32" off="-2 112 0" color="--paper-dark" parent="n"
+  part "glasses" shape="box" dim="4 6 26" off="18 102 0" color="--ink" parent="n"
+  part "stick" shape="cyl" dim="5 100 5" off="26 50 14" color="--wood-dark" parent="n"
+}
 overworld x=6.5 y=7.5 {
   map \
     "~~~~~~~~~~~~~~~~~~~~" \
@@ -28,8 +56,8 @@ overworld x=6.5 y=7.5 {
   node "dolly" x=7 y=11 level="dolly" label="Do-Tukdi Dolly" kind="tent-dolly"
   node "raj" x=10 y=8 level="raj" label="Jadugar Raj — Final Show" kind="stage" requires="gajraj teen-tigada dolly"
   npc "Chotu Chaiwala" x=4 y=8 puppet="npc-chaiwala" {
-    line "Gulaabi cheez dikhe? PARRY maar! Card bharte hain, super milta hai."
-    line "Double jump ke baad JUMP pakad ke rakh. Poonch helicopter ban jaati hai!"
+    line "Gulaabi cheez dikhe? Hawa mein dobara JUMP dabao: parry! Card bharte hain, SPECIAL milta hai."
+    line "Double jump ke baad JUMP pakad ke rakh. Poonch helicopter ban jaati hai! DASH se goli ke beech se nikal jaa."
     line "Chai peeyo, phir haathi se lado. Order important hai."
   }
   npc "Bunty Bhai" x=13 y=8 puppet="npc-bunty" {

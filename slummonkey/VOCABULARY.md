@@ -37,7 +37,7 @@ Units: px, px/s, seconds, degrees. x/y accept `player`, `me`, `left`, `right`, `
 | `fly-path` | `shape [dur=s] [amp=px]` | Fly a shmup path: sine, dive, loop or straight (moves left across the camera). | 3 scripts |
 | `follow` | `speed:px/s [dur=s] [fly=#true]` | Chase the player's x (and y when flying). | 3 scripts |
 | `hop` | `height:px count:int [air=s]` | Jump toward the player a few times, landing with a thud. | 6 scripts |
-| `hover` | `amp:px period:s [dur=s]` | Bob up and down in place. | 4 scripts |
+| `hover` | `amp:px period:s [dur=s]` | Bob up and down in place. | 3 scripts |
 | `move-to` | `x y [dur=s]` | Glide to a point (x/y may be player, left, right, center, random, far, near). | 8 scripts |
 | `orbit` | `radius:px speed:rad/s [dur=s]` | Circle around where I am now. | — |
 | `patrol` | `x1 x2 speed [dur=s]` | Walk back and forth between two x positions. | 1 script |
@@ -52,7 +52,7 @@ Units: px, px/s, seconds, degrees. x/y accept `player`, `me`, `left`, `right`, `
 | `beam` | `dur:s [warn=s] [angle=deg\|player] [width=px] [proj=beam]` | Telegraph a thin line, then hold a long beam (lasers, water jets, rocket trails). | 1 script |
 | `candles` | `count [warn=s] [red=0..1]` | Candlestick pillars erupt from the floor: red ones hurt, green ones are platforms. | 1 script |
 | `graph-shot` | `shape count proj [speed=] [len=px]` | Lay bullets along a chart curve (pump-dump, rug, moon) and send it sliding at the player. | 1 script |
-| `homing` | `count proj [turn=deg/s] [speed=]` | Release projectiles that steer toward the player. | 3 scripts |
+| `homing` | `count proj [turn=deg/s] [speed=]` | Release projectiles that steer toward the player. | 2 scripts |
 | `juggle` | `count proj dur:s [speed=]` | Juggle props over my head, then fling them at the player one by one. | 3 scripts |
 | `lob` | `count proj [air=s] [spread=px] [gap=s]` | Throw arcing projectiles that land around the player. | 2 scripts |
 | `rain` | `count proj [width=px] [speed=] [gap=s] [warn=s]` | Drop projectiles from the ceiling across a strip around the player. | 3 scripts |
@@ -69,14 +69,14 @@ Units: px, px/s, seconds, degrees. x/y accept `player`, `me`, `left`, `right`, `
 
 | word | arguments | what it does | used by |
 |---|---|---|---|
-| `drumroll` | `dur:s` | Ta-da drumroll with a building shake: something big is coming. | 3 scripts |
+| `drumroll` | `dur:s` | Ta-da drumroll with a building shake: something big is coming. | 4 scripts |
 | `flash` | `dur:s` | Flash bright white. | — |
 | `ground-mark` | `x [dur=s] [block=#true]` | Paint a target circle on the floor where something will land. | — |
-| `pose` | `name` | Set my animation pose (see look/ and art/ for the frames). | — |
+| `pose` | `name` | Set my animation pose (the view animates each model part per pose). | — |
 | `shake` | `amount [dur=s]` | Shake the camera. | 1 script |
 | `spotlight` | `[dur=s]` | Swing a stage spotlight onto me (a tell that I'm about to act). | 1 script |
 | `warn-line` | `axis:x\|y pos [dur=s] [block=#true]` | Draw a danger stripe across the stage at a column or row. | — |
-| `windup` | `dur:s [pose=name]` | Hold an anticipation pose (squash down) before an attack. | 11 scripts |
+| `windup` | `dur:s [pose=name]` | Hold an anticipation pose (squash down) before an attack. | 17 scripts |
 
 ## State & illusions
 
@@ -96,7 +96,7 @@ Units: px, px/s, seconds, degrees. x/y accept `player`, `me`, `left`, `right`, `
 | `shuffle` | `swaps speed:swaps/s [ramp=x]` | Swap the pots around, faster each time. | 1 script |
 | `split` | `{ part id hp= x= y= puppet= { words } }` | Come apart into pieces that each have their own HP and their own words. | 2 scripts |
 | `stack` | `count [puppet=id]` | Stack up into one tall wobbly form (hits make it sway). | 1 script |
-| `stun` | `dur:s [vuln=x]` | Get dizzy: stop moving/attacking and take extra damage for a while. | 1 script |
+| `stun` | `dur:s [vuln=x]` | Get dizzy: stop moving/attacking and take extra damage for a while. | 10 scripts |
 | `swap-real` | `[dur=s]` | Shuffle me and my copies around (flash of mirrors). | 1 script |
 | `target` | `id hp [x=] [y=] { words-on-destroy }` | Attach a shootable sub-part (rope, mirror); when it breaks, I run the children. | 1 script |
 | `topple` | — | Fall apart in a heap (stacks, towers). | — |
@@ -114,7 +114,7 @@ Units: px, px/s, seconds, degrees. x/y accept `player`, `me`, `left`, `right`, `
 
 | word | arguments | what it does | used by |
 |---|---|---|---|
-| `bg` | `id` | Switch the painted background set (look/stages.css + art/stages). | 3 scripts |
+| `bg` | `id` | Switch the stage set (content/stages.kdl props + look/stages.css sky). | 3 scripts |
 | `buoyant` | `count [w=px]` | Float platforms that ride on the water surface. | 1 script |
 | `clear-stage` | `[tag=stage]` | Remove platforms, props and hazards from the stage. | 1 script |
 | `coins` | `count [x=] [y=] [arc=px]` | Scatter fake-token coin pickups in an arc. | 2 scripts |

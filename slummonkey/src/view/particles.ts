@@ -1,7 +1,12 @@
-// Pooled CPU particles drawn through one SpriteBatch. Generous but readable: short lives,
-// ink-outlined sprites, nothing ever uses the --parry color except the parry burst.
+// Pooled CPU particles drawn as instanced low-poly shapes (puffs, confetti, sparks, coins) that shrink away.
+// Nothing ever uses the --parry color except the parry burst.
 import type { Tokens, RGB } from "../core/tokens";
-import type { SpriteBatch } from "./batch";
+import type { Instancer, ShapeKey } from "./instancer";
+
+const SHAPE: Record<string, ShapeKey> = {
+  puff: "ball", smoke: "ball", confetti: "box", "confetti-b": "box", sparkle: "gem", spark: "gem", "coin-fx": "coin",
+  shard: "tetra", petal: "gem", "pop-ring": "ball", bubble: "ball",
+};
 
 interface P {
   sprite: string; x: number; y: number; vx: number; vy: number; rot: number; vr: number;
@@ -60,12 +65,13 @@ export class Particles {
     }
   }
 
-  draw(b: SpriteBatch, t: number) {
+  draw(b: Instancer, parry: RGB) {
     for (const p of this.live) {
       const k = p.t / p.life;
-      const size = p.size * (1 + (p.grow - 1) * k);
-      const rot = p.held ? Math.floor(p.rot * 2) / 2 : p.rot;
-      b.add(p.sprite, p.x, p.y, size, rot + (p.held ? Math.floor(t * 12) * 0.3 : 0), p.fade ? 1 - k * k : 1, p.parry, p.tint);
+      const size = p.size * (1 + (p.grow - 1) * k) * (p.fade ? 1 - k * k : 1) * 0.55;
+      const shape = SHAPE[p.sprite] ?? "ball";
+      const flat = shape === "box" ? 0.25 : 1;
+      b.add(shape, p.x, p.y, 40, size, size * flat, size, p.rot * 0.7, p.rot, p.rot * 0.4, p.parry ? parry : p.tint);
     }
   }
 

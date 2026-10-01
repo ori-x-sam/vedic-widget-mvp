@@ -544,7 +544,7 @@ word("spotlight", "telegraph", "[dur=s]", "Swing a stage spotlight onto me (a te
   w.emit("spotlight", me.x, me.y, "", pnum(c, "dur", num(c, 0, 1)), me.id);
   w.emit("telegraph", me.x, me.y, "spotlight", pnum(c, "dur", num(c, 0, 1)), me.id);
 });
-word("pose", "telegraph", "name", "Set my animation pose (see look/ and art/ for the frames).", function* (_w, me, c) {
+word("pose", "telegraph", "name", "Set my animation pose (the view animates each model part per pose).", function* (_w, me, c) {
   me.pose = str(c, 0, "idle");
   me.poseT = 0;
 });
@@ -836,7 +836,7 @@ word("clear-stage", "stage", "[tag=stage]", "Remove platforms, props and hazards
   const tag = pstr(c, "tag", "");
   for (const e of w.ents()) if ((e.kind === "platform" || e.kind === "hazard" || e.kind === "prop") && (!tag || e.tag === tag)) { e.alive = false; e.deadT = 99; }
 });
-word("bg", "stage", "id", "Switch the painted background set (look/stages.css + art/stages).", function* (w, me, c) {
+word("bg", "stage", "id", "Switch the stage set (content/stages.kdl props + look/stages.css sky).", function* (w, me, c) {
   w.emit("bg", me.x, me.y, str(c, 0, ""));
 });
 word("coins", "stage", "count [x=] [y=] [arc=px]", "Scatter fake-token coin pickups in an arc.", function* (w, me, c) {

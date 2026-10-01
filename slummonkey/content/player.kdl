@@ -21,7 +21,7 @@ player {
   blink-dist 230     // dash distance in the shmup
   auto-aim 1         // 1 = auto-aim + auto-fire at the nearest target; 0 = hold shoot and aim yourself
   aim-range 1500
-  hp 3
+  hp 4
   cards 5            // super meter cards
   ex-cost 1
   meter-per-card 110 // damage dealt per card earned

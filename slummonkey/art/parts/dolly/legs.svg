@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 170">
-  <!-- striped stockings + heels, kicking -->
-  <path d="M36 4 C 32 60, 30 110, 34 146 L 50 146 C 52 110, 54 60, 54 4Z" fill="var(--white)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="M66 4 C 68 60, 72 110, 78 146 L 94 146 C 90 110, 86 60, 84 4Z" fill="var(--white)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
-  <g stroke="var(--rani)" stroke-width="7"><path d="M34 30 L 54 30 M33 60 L 54 60 M32 90 L 53 90 M32 120 L 51 120"/><path d="M67 30 L 84 30 M69 60 L 86 60 M71 90 L 89 90 M74 120 L 92 120"/></g>
-  <path d="M26 150 C 26 140, 54 138, 58 150 L 56 160 L 22 160Z" fill="var(--vermilion)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="M74 150 C 74 140, 100 138, 104 150 L 104 160 L 70 160Z" fill="var(--vermilion)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
-  <path d="M28 160 L 26 168 M100 160 L 102 168" stroke="var(--ink)" stroke-width="5"/>
-</svg>

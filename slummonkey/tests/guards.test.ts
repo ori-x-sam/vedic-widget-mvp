@@ -9,6 +9,9 @@ import { WORDS } from "../src/rules/vocab/registry";
 import { allUsages, walkWords } from "../src/rules/vocab/walk";
 import { buildCatalog } from "../tools/catalog";
 import { nodeKdlFiles, nodeCssFiles, nodeSvgFiles, ROOT } from "../tools/node-sources";
+import { ANIMS, MaterialBank } from "../src/view/model";
+import { StageBuilder } from "../src/view/stage3d";
+const SHAPES = ["box", "ball", "sphere", "cyl", "cone", "torus", "dome", "gem", "tetra", "wedge", "coin", "plane", "none"];
 
 const content = loadContent(nodeKdlFiles());
 const tokens = parseCssTokens(Object.values(nodeCssFiles()).join("\n"));
@@ -101,14 +104,30 @@ describe("ids resolve (KDL ↔ CSS ↔ SVG)", () => {
   it("every puppet used exists", () => expect([...puppetUsed].filter((p) => !content.puppets[p])).toEqual([]));
   it("every stage used exists, with sky tokens in look/stages.css", () => {
     expect([...stagesUsed].filter((s) => !content.stages[s])).toEqual([]);
+    const kinds = new StageBuilder(new MaterialBank({ color: () => [1, 1, 1] } as never)).kindNames();
+    for (const st of Object.values(content.stages)) {
+      for (const t of st.sky) expect(tokens[t], `${st.id} sky ${t}`).toBeDefined();
+      for (const pr of st.props) {
+        expect(kinds, `${st.id} prop "${pr.kind}"`).toContain(pr.kind);
+        for (const c of [pr.color, pr.color2]) if (c) expect(tokens[c], `${st.id} prop ${pr.kind} color ${c}`).toBeDefined();
+      }
+    }
     for (const st of Object.values(content.stages)) for (const l of st.layers) {
       if (l.art.startsWith("sky:")) { expect(tokens[`--sky-${l.art.slice(4)}-top`], `${st.id} ${l.art}`).toBeDefined(); expect(tokens[`--sky-${l.art.slice(4)}-bottom`]).toBeDefined(); }
       else expect(svgs[`art/${l.art}.svg`], `${st.id} layer ${l.art}`).toBeDefined();
     }
   });
   it("every music theme used exists", () => expect([...themesUsed].filter((t) => !content.themes[t])).toEqual([]));
-  it("every puppet part and sprite points at an SVG file", () => {
-    for (const p of Object.values(content.puppets)) for (const part of p.parts) expect(svgs[`art/${part.svg}.svg`], `${p.id}.${part.id} → art/${part.svg}.svg`).toBeDefined();
+  it("every model part is a known shape with a defined color token and anim", () => {
+    for (const p of Object.values(content.puppets)) for (const part of p.parts) {
+      const where = `${p.id}.${part.id}`;
+      if (part.svg) { expect(svgs[`art/${part.svg}.svg`], `${where} → art/${part.svg}.svg`).toBeDefined(); continue; }
+      expect(SHAPES, `${where} shape="${part.shape}"`).toContain(part.shape);
+      if (part.shape !== "none") expect(tokens[part.color], `${where} color ${part.color}`).toBeDefined();
+      expect(part.color, `${where}: --parry is reserved for parryable things`).not.toBe("--parry");
+      if (part.anim) expect(ANIMS[part.anim], `${where} anim="${part.anim}"`).toBeDefined();
+      if (part.parent) expect(p.parts.some((q) => q.id === part.parent), `${where} parent="${part.parent}"`).toBe(true);
+    }
     for (const pr of Object.values(content.projectiles)) expect(svgs[`art/sprites/${pr.sprite}.svg`], `projectile ${pr.id} sprite`).toBeDefined();
   });
   it("every var(--token) used by SVG art is defined in look/*.css", () => {
@@ -119,7 +138,7 @@ describe("ids resolve (KDL ↔ CSS ↔ SVG)", () => {
   it("story art and overworld nodes resolve", () => {
     for (const st of Object.values(content.stories)) for (const p of st.panels) for (const a of p.art) expect(svgs[`art/${a.id}.svg`], `story ${st.id} art ${a.id}`).toBeDefined();
     for (const n of content.overworld.nodes) {
-      expect(svgs[`art/overworld/${n.kind}.svg`], `node ${n.id}`).toBeDefined();
+      expect(["shop", "stage", "tent-mela", "tent-gajraj", "tent-tigada", "tent-sky", "tent-dolly"], `node ${n.id} kind`).toContain(n.kind);
       if (n.level) expect(content.bosses[n.level] ?? content.levels[n.level], `node ${n.id} → ${n.level}`).toBeDefined();
       for (const r of n.requires.split(/\s+/).filter(Boolean)) expect(content.bosses[r] ?? content.levels[r], `requires ${r}`).toBeDefined();
     }
@@ -149,21 +168,21 @@ describe("the parry color is reserved", () => {
 });
 
 describe("touch layout + safe zones", () => {
-  it("has every action button with a distinct shape and icon", () => {
+  it("has the three action buttons (JUMP, DASH, SPECIAL) with distinct icons and generous hit zones", () => {
     const ids = content.controls.buttons.map((b) => b.id);
-    for (const need of ["shoot", "jump", "parry", "blink", "ex"]) expect(ids).toContain(need);
-    const core = content.controls.buttons.filter((b) => ["shoot", "jump", "parry", "blink", "ex"].includes(b.id));
-    expect(new Set(core.map((b) => b.shape)).size).toBe(core.length);
-    const shoot = core.find((b) => b.id === "shoot")!;
-    for (const b of core) if (b !== shoot) expect(b.r).toBeLessThan(shoot.r);
+    for (const need of ["jump", "blink", "ex"]) expect(ids).toContain(need);
+    const core = content.controls.buttons.filter((b) => ["jump", "blink", "ex"].includes(b.id));
+    expect(new Set(core.map((b) => b.icon)).size).toBe(core.length);
+    const jump = core.find((b) => b.id === "jump")!;
+    for (const b of core) if (b !== jump) expect(b.r, `${b.id} smaller than JUMP`).toBeLessThan(jump.r);
     for (const b of core) expect(b.hit, b.id).toBeGreaterThan(1);
   });
-  it("JUMP is up-left of SHOOT, PARRY up-right of JUMP, BLINK left of SHOOT, EX at the top of the arc", () => {
+  it("JUMP rests under the right thumb, DASH just left of it, SPECIAL above them", () => {
     const B = Object.fromEntries(content.controls.buttons.map((b) => [b.id, b]));
-    expect(B.jump.x).toBeLessThan(B.shoot.x); expect(B.jump.y).toBeLessThan(B.shoot.y);
-    expect(B.parry.x).toBeGreaterThan(B.jump.x); expect(B.parry.y).toBeLessThan(B.jump.y);
-    expect(B.blink.x).toBeLessThan(B.shoot.x);
-    for (const b of ["shoot", "jump", "parry", "blink"]) expect(B.ex.y).toBeLessThan(B[b].y);
+    for (const b of content.controls.buttons) expect(B.jump.x, b.id).toBeGreaterThanOrEqual(b.x);
+    expect(B.blink.x).toBeLessThan(B.jump.x);
+    expect(Math.abs(B.blink.y - B.jump.y)).toBeLessThan(0.15);
+    expect(B.ex.y).toBeLessThan(Math.min(B.jump.y, B.blink.y));
   });
   it("safe zones in controls.kdl match look/camera.css", () => {
     const l = tokens["--safe-left"].split(/\s+/).map(Number), r = tokens["--safe-right"].split(/\s+/).map(Number);

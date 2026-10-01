@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 260">
-  <g fill="var(--white)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="7">
-    <path d="M300 200 C 260 150, 340 110, 390 140 C 420 80, 540 84, 560 140 C 600 120, 680 140, 660 190 C 700 196, 700 236, 650 236 L 330 236 C 290 236, 280 214, 300 200Z"/>
-    <path d="M1400 160 C 1390 130, 1440 116, 1460 136 C 1480 100, 1560 104, 1566 140 C 1600 140, 1606 176, 1570 180 L 1420 180 C 1390 180, 1386 168, 1400 160Z"/>
-  </g>
-  <g fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"><path d="M400 180 C 420 166, 446 170, 440 186"/><path d="M1460 160 C 1474 150, 1492 154, 1488 166"/></g>
-</svg>
