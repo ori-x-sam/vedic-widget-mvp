@@ -33,7 +33,12 @@ export class Harness {
     this.ready = this.init();
   }
 
+  /** Shader compile/link errors (three.js logs them) — every story fails on these. */
+  shaderErrors: string[] = [];
+
   private async init() {
+    const orig = console.error;
+    console.error = (...a: unknown[]) => { const m = a.map(String).join(" "); if (/Shader Error|WebGLProgram|VALIDATE_STATUS/.test(m)) this.shaderErrors.push(m.slice(0, 300)); orig(...a); };
     const b = getBoot();
     const o = this.opts;
     this.view = new GameView(this.canvas, b.tokens, b.content, b.svgs);
@@ -98,5 +103,7 @@ export function stage(opts: MountOpts): HTMLElement {
 export async function harnessOf(root: HTMLElement): Promise<Harness> {
   const el = (root.querySelector("[data-stage]") ?? root) as unknown as { harness: Harness };
   await el.harness.ready;
+  el.harness.view.render(el.harness.world, 0, 1 / 60); // compile every material once (no sim step)
+  if (el.harness.shaderErrors.length) throw new Error("shader error: " + el.harness.shaderErrors[0]);
   return el.harness;
 }

@@ -27,6 +27,7 @@ export const GajrajP1SheetTrick = story({ boss: "gajraj", phase: 0, seed: 2, god
   await expect(sawHidden).toBe(true);
   await expect(Math.abs(h.world.boss!.x - x0) > 1 || h.world.marked("gajraj", "charge") > 0).toBe(true); // reappears elsewhere
   await expect(h.view.entityVisible(h.world.boss!.id)).toBe(true);
+  await expect(h.view.stageLayerCount).toBeGreaterThan(5); // the painted stage is there
 });
 
 export const GajrajP2InvisibleAct = story({ boss: "gajraj", phase: 1, seed: 2, god: true }, async ({ canvasElement }) => {

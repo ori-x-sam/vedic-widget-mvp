@@ -192,8 +192,14 @@ export function paperBakeMaterial(t: Tokens, map: THREE.Texture, w: number, h: n
       uniform sampler2D map; uniform vec2 uTexSize; uniform float uGrain, uScale, uEdge, uWash, uSeed, uBgInk; uniform vec2 uWrap; varying vec2 vUv;
       ${NOISE}
       vec2 W(vec2 uv) { return mix(clamp(uv, 0.0, 1.0), fract(uv), uWrap); }
-      vec4 T(vec2 uv) { return T(W(uv)); }
-      //
+      vec4 T(vec2 uv) { return texture2D(map, W(uv)); }
+      // seamless noise across a tiled edge: cross-fade the field with itself shifted by one tile
+      float fT(vec2 P, float f) {
+        float a = fbm(P * f);
+        if (uWrap.x > 0.5) { float u = P.x / uTexSize.x; a = mix(a, fbm((P - vec2(uTexSize.x, 0.0)) * f), u); }
+        if (uWrap.y > 0.5) { float v = P.y / uTexSize.y; a = mix(a, fbm((P - vec2(0.0, uTexSize.y)) * f), v); }
+        return a;
+      }
       void main(){
         vec2 P = vUv * uTexSize;
         vec2 wob = vec2(fT(P + uSeed * 50.0, 0.02), fT(P + uSeed * 50.0 + 350.0, 0.02)) - 0.5;
