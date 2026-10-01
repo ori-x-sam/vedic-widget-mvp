@@ -151,6 +151,7 @@ export class GameView {
       const dim = l.dim >= 0 ? l.dim : l.depth < 1 ? this.tokens.num("--fg-dim", 0.7) : 1;
       const blur = l.blur >= 0 ? l.blur : l.depth > 1 ? Math.min(2.5, far * this.tokens.num("--bg-blur", 1.6)) : l.depth < 1 ? this.tokens.num("--fg-blur", 1.2) : 0;
       const mat = paperMaterial(this.tokens, baked, haze, desat, dim, blur);
+      if (l.tint) mat.uniforms.uTint.value.setRGB(...this.tokens.color(l.tint));
       const meshW = l.tile ? 3200 : w;
       const meshH = l.tiley ? 2400 : h;
       const mesh = new THREE.Mesh(new THREE.PlaneGeometry(meshW, meshH), mat);
@@ -211,7 +212,6 @@ export class GameView {
       case "particles": this.particles.emit(e.s ?? "dust", e.x, e.y, e.n ?? 4); break;
       case "shake": this.shake = Math.min(30, this.shake + (e.n ?? 6)); break;
       case "boss-hit":
-        this.tracking = Math.max(this.tracking, 0.12);
         if (this.t - this.lastImpact > 0.11) { this.lastImpact = this.t; this.fx.push({ kind: "impact", x: e.x + (Math.random() - 0.5) * 40, y: e.y + (Math.random() - 0.5) * 60, t: 0, dur: 0.12, n: 1, id: 0, s: "" }); }
         break;
       case "tracking": this.tracking = Math.max(this.tracking, e.n ?? 0.4); break;

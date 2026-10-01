@@ -223,7 +223,7 @@ export function paperBakeMaterial(t: Tokens, map: THREE.Texture, w: number, h: n
             fillAvg += f.rgb * ok; wsum += ok;
           }
           vec3 fillc = wsum > 0.0 ? fillAvg / wsum : c.rgb;
-          rgb = mix(fillc * vec3(0.55, 0.45, 0.6), c.rgb, uBgInk);
+          rgb = mix(fillc * vec3(0.8, 0.74, 0.84), c.rgb, uBgInk);
         }
         rgb *= 1.0 - clamp(near, 0.0, 1.0) * uEdge * (1.0 - isInk);
         rgb *= 1.0 + clamp(-lit * 0.12, -0.12, 0.12) * (1.0 - isInk);
@@ -245,7 +245,7 @@ export function paperMaterial(t: Tokens, map: THREE.Texture, haze: number, desat
     depthWrite: false,
     uniforms: {
       map: { value: map },
-      uHaze: { value: haze }, uDesat: { value: desat }, uDim: { value: dim }, uBlur: { value: blur },
+      uHaze: { value: haze }, uDesat: { value: desat }, uDim: { value: dim }, uBlur: { value: blur }, uTint: { value: new THREE.Color(1, 1, 1) },
       uHazeColor: { value: col(t, "--haze-color") },
       uRepeat: { value: new THREE.Vector2(1, 1) },
       uOffset: { value: new THREE.Vector2(0, 0) },
@@ -253,12 +253,12 @@ export function paperMaterial(t: Tokens, map: THREE.Texture, haze: number, desat
     },
     vertexShader: /* glsl */ `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0); }`,
     fragmentShader: /* glsl */ `
-      uniform sampler2D map; uniform float uHaze, uDesat, uDim, uBlur, uTime; uniform vec3 uHazeColor; uniform vec2 uRepeat, uOffset;
+      uniform sampler2D map; uniform float uHaze, uDesat, uDim, uBlur, uTime; uniform vec3 uHazeColor, uTint; uniform vec2 uRepeat, uOffset;
       varying vec2 vUv;
       void main(){
         vec4 c = texture2D(map, fract(vUv * uRepeat + uOffset), uBlur);
         if (c.a < 0.01) discard;
-        vec3 rgb = c.rgb;
+        vec3 rgb = c.rgb * uTint;
         float l = dot(rgb, vec3(0.299, 0.587, 0.114));
         rgb = mix(rgb, vec3(l), uDesat);
         rgb = mix(rgb, uHazeColor, uHaze) * uDim;

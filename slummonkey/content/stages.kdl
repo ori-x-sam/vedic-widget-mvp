@@ -28,11 +28,11 @@ stage "tigada" {
   layer "stages/tigada/backdrop" depth=1.6 y=-40 scale=0.9
   layer "stages/theatre/tinstars" depth=1.3 y=330 scale=0.8 tile=#true
   layer "stages/theatre/tubelights" depth=1.15 y=470 scale=0.9 tile=#true
-  layer "stages/theatre/deck" depth=1 y=-212 scale=1 tile=#true
+  layer "stages/theatre/deck-sand" depth=1 y=-212 scale=1 tile=#true
   layer "stages/theatre/curtain-left" depth=0.97 x=-760 y=-40 scale=0.8
   layer "stages/theatre/curtain-right" depth=0.97 x=760 y=-40 scale=0.8
   layer "stages/theatre/valance" depth=0.96 y=520 scale=1 tile=#true
-  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true
+  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true tint="--peacock"
 }
 
 stage "dolly" {
@@ -45,11 +45,11 @@ stage "dolly" {
   layer "stages/dolly/backdrop" depth=1.6 y=-40 scale=0.9
   layer "stages/theatre/tubelights" depth=1.15 y=470 scale=0.9 tile=#true
   layer "stages/theatre/garland" depth=1.05 y=430 scale=0.9 tile=#true
-  layer "stages/theatre/deck" depth=1 y=-212 scale=1 tile=#true
+  layer "stages/theatre/deck-dolly" depth=1 y=-212 scale=1 tile=#true
   layer "stages/theatre/curtain-left" depth=0.97 x=-760 y=-40 scale=0.8
   layer "stages/theatre/curtain-right" depth=0.97 x=760 y=-40 scale=0.8
   layer "stages/theatre/valance" depth=0.96 y=520 scale=1 tile=#true
-  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true
+  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true tint="--magenta"
 }
 
 stage "raj" {
@@ -82,10 +82,10 @@ stage "raj-reveal" {
   light "glow" x=-300 y=100 w=700 h=500 color="--candle-green" alpha=0.12
   layer "sky:raj" depth=100
   layer "stages/raj/reveal" depth=1.5 y=-60 scale=0.95
-  layer "stages/theatre/deck" depth=1 y=-212 scale=1 tile=#true
+  layer "stages/theatre/deck-reveal" depth=1 y=-212 scale=1 tile=#true
   layer "stages/theatre/curtain-left" depth=0.97 x=-760 y=-40 scale=0.8
   layer "stages/theatre/curtain-right" depth=0.97 x=760 y=-40 scale=0.8
-  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true
+  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true tint="--candle-red"
 }
 
 stage "mela" {

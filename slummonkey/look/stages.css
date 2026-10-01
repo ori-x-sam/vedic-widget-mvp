@@ -33,3 +33,4 @@
 }
 :root { --bg-ink: 0.3; /* backgrounds keep only 30% of their ink: hard lines are for things you play against */ }
 :root { --fg-blur: 0.8; --bg-blur: 1.0; }
+:root { --bg-ink: 0.12; }
