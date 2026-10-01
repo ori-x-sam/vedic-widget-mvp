@@ -15,11 +15,11 @@ export const SPRITES = [
   // projectiles
   "pellet", "coin", "enemy-coin", "player-coin", "mirchi", "kabootar", "laddoo", "big-coin", "mirchi-bomb", "big-kabootar", "big-laddoo",
   "airdrop-crate", "shockwave", "bomb", "knife", "club", "card", "rabbit-shot", "pigeon", "water-drop", "candle-red", "candle-green",
-  "marigold", "star", "beam", "moon-beam", "prop-shot", "cash", "kite-shot",
+  "marigold", "star", "beam", "moon-beam", "prop-shot", "cash", "kite-shot", "water-beam",
   // fx
   "puff", "confetti", "confetti-b", "sparkle", "spark", "coin-fx", "shard", "petal", "pop-ring", "bubble", "footprint", "shadow",
   "warn-mark", "warn-line", "spotlight", "token", "sheet", "rotor-disc",
-].map((s) => `sprites/${s}`);
+].map((s) => `sprites/${s}`).concat(["parts/dolly/mirror-frame"]);
 
 interface EntView { pv: PuppetView; puppet: string; refl?: PuppetView; lastX: number }
 interface Fx { kind: string; x: number; y: number; t: number; dur: number; n: number; id: number; s: string }
@@ -44,7 +44,7 @@ export class GameView {
   private ghosts: { pv: PuppetView; t: number; x: number; y: number; facing: number }[] = [];
   private stageGroup = new THREE.Group();
   private fgGroup = new THREE.Group();
-  private layers: { mesh: THREE.Mesh; mat: THREE.ShaderMaterial; depth: number; y: number; tile: string; w: number; h: number; x: number }[] = [];
+  private layers: { mesh: THREE.Mesh; mat: THREE.ShaderMaterial; depth: number; y: number; tile: string; tiley: boolean; w: number; h: number; x: number }[] = [];
   private sky: THREE.Mesh | null = null;
   private water: THREE.Mesh;
   private decals: { x: number; y: number; t: number; s: string; scale: number }[] = [];
@@ -58,7 +58,7 @@ export class GameView {
   stageId = "";
   renderScale = 1;
   private frameTimes: number[] = [];
-  private tk: { fps: number; squashK: number; smearSpeed: number; floorFrac: number; shadowA: number; shakeScale: number; shakeDecay: number; tracking: number; trackingDecay: number };
+  private tk: { fps: number; squashK: number; smearSpeed: number; floorFrac: number; shadowA: number; shakeScale: number; shakeDecay: number; hitFlash: number; tracking: number; trackingDecay: number };
 
   constructor(public canvas: HTMLCanvasElement, public tokens: Tokens, public content: Content, svgs: Record<string, string>) {
     THREE.ColorManagement.enabled = false;
@@ -78,7 +78,7 @@ export class GameView {
     this.tk = {
       fps: tokens.num("--anim-fps", 12), squashK: tokens.num("--squash-k", 1), smearSpeed: tokens.num("--smear-speed", 900),
       floorFrac: tokens.num("--floor-frac", 0.27), shadowA: tokens.num("--shadow-alpha", 0.28), shakeScale: tokens.num("--shake-scale", 1),
-      shakeDecay: tokens.num("--shake-decay", 10), tracking: tokens.num("--tracking", 0.6), trackingDecay: tokens.num("--tracking-decay", 3),
+      shakeDecay: tokens.num("--shake-decay", 10), hitFlash: tokens.num("--hit-flash-amount", 0.35), tracking: tokens.num("--tracking", 0.6), trackingDecay: tokens.num("--tracking-decay", 3),
     };
   }
 
@@ -116,14 +116,19 @@ export class GameView {
   }
 
   /** Build the painted stage (sky + parallax layers + foreground). */
+  private stageToken = 0;
   async setStage(id: string) {
     if (this.stageId === id) return;
     this.stageId = id;
+    const token = ++this.stageToken;
+    const st: StageDef | undefined = this.content.stages[id];
+    if (!st) return;
+    // rasterize first, then swap in one go (a later setStage wins the race)
+    await this.preloadStage(id);
+    if (token !== this.stageToken) return;
     for (const l of this.layers) { this.stageGroup.remove(l.mesh); this.fgGroup.remove(l.mesh); l.mat.dispose(); }
     this.layers = [];
     if (this.sky) { this.scene.remove(this.sky); this.sky = null; }
-    const st: StageDef | undefined = this.content.stages[id];
-    if (!st) return;
     let order = 0;
     for (const l of st.layers.slice().sort((a, b) => b.depth - a.depth)) {
       if (l.art.startsWith("sky:")) {
@@ -137,16 +142,18 @@ export class GameView {
       const r = await this.bank.get(l.art, h, 1);
       const w = h * r.aspect;
       if (l.tile) { r.tex.wrapS = THREE.RepeatWrapping; r.tex.needsUpdate = true; }
+      if (l.tiley) { r.tex.wrapT = THREE.RepeatWrapping; r.tex.needsUpdate = true; }
       const haze = l.depth > 1 ? Math.min(0.6, (l.depth - 1) * this.tokens.num("--haze", 0.2)) : 0;
       const mat = paperMaterial(this.tokens, r.tex, haze);
       const meshW = l.tile ? 3200 : w;
-      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(meshW, h), mat);
+      const meshH = l.tiley ? 2400 : h;
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(meshW, meshH), mat);
       mesh.frustumCulled = false;
-      if (l.tile) mat.uniforms.uRepeat.value.set(meshW / w, 1);
+      mat.uniforms.uRepeat.value.set(l.tile ? meshW / w : 1, l.tiley ? meshH / h : 1);
       mesh.renderOrder = l.depth < 1 ? 800 + order : -500 + order;
       order++;
       (l.depth < 1 ? this.fgGroup : this.stageGroup).add(mesh);
-      this.layers.push({ mesh, mat, depth: l.depth, y: l.y, tile: l.tile ? "x" : "", w, h, x: l.x });
+      this.layers.push({ mesh, mat, depth: l.depth, y: l.y, tile: l.tile ? "x" : "", tiley: l.tiley, w, h, x: l.x });
     }
   }
 
@@ -221,7 +228,11 @@ export class GameView {
     for (const l of this.layers) {
       const par = 1 - 1 / l.depth;
       l.mat.uniforms.uTime.value = t;
-      if (l.tile) {
+      if (l.tiley) {
+        // vertical tiling (sky climbs): the quad follows the camera, the texture scrolls
+        l.mesh.position.set(l.tile ? camX : l.x + camX * par, camY + this.viewH * (0.5 - this.tk.floorFrac), 0);
+        l.mat.uniforms.uOffset.value.set(l.tile ? ((camX / l.depth) % l.w) / l.w : 0, ((camY / l.depth) % l.h) / l.h);
+      } else if (l.tile) {
         l.mesh.position.set(camX, l.y + camY * par + l.h / 2, 0);
         l.mat.uniforms.uOffset.value.set(((camX / l.depth) % l.w) / l.w, 0);
       } else {
@@ -263,7 +274,7 @@ export class GameView {
       const speed = (e.x - e.px) / w.dt;
       const st: PuppetState = {
         pose: e.pose, poseT: e.poseT, t: t + e.id * 0.37, facing: e.facing, aim: 0, speed, vy: (e.y - e.py) / w.dt,
-        wobble: e.wobble, scale: e.scale, squash: e.squash, alpha: e.alpha * fade, flash: e.hitFlash > 0 ? 0.8 : 0,
+        wobble: e.wobble, scale: e.scale, squash: e.squash, alpha: e.alpha * fade, flash: e.hitFlash > 0 ? this.tk.hitFlash : 0,
         parry: e.parryable && !(e.vars.parryCd > 0) ? 1 : 0, flipY: e.flipY, rot: e.rot, grounded: true,
       };
       v.pv.update(st, this.tk);
@@ -272,8 +283,7 @@ export class GameView {
         if (!v.refl) { v.refl = this.puppets.make(e.puppet); v.refl.setOrder(40); v.refl.tint(...this.tokens.color("--sky"), 0.35); this.scene.add(v.refl.root); }
         v.refl.root.visible = !e.hidden;
         v.refl.root.position.set(x, w.floor - 6, 0);
-        v.refl.update({ ...st, alpha: 0.4 * st.alpha, flipY: !st.flipY }, this.tk);
-        v.refl.body.position.y = -v.refl.body.position.y;
+        v.refl.update({ ...st, alpha: 0.4 * st.alpha }, this.tk);
         v.refl.root.scale.y = -0.6;
       } else if (v.refl) { v.refl.root.visible = false; }
     }
@@ -312,6 +322,7 @@ export class GameView {
       const sw = e.w * e.scale * 1.05;
       ub.add("shadow", e.x, w.floor + 2, sw * 0.18, 0, this.tk.shadowA * e.alpha * Math.max(0.2, 1 - (e.y - w.floor) / 500), false, undefined, sw);
     }
+    for (const e of w.all) if ((e.kind === "decoy" || e.reflect) && e.alive && !e.hidden) ub.add("mirror-frame", e.x, w.floor + 170, 340, 0, 0.95, false, undefined, 220);
     for (let i = this.decals.length - 1; i >= 0; i--) {
       const d = this.decals[i];
       d.t += realDt;

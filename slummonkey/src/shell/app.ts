@@ -14,6 +14,7 @@ import { keyboardSource } from "./keyboard";
 import { gamepadSource } from "./gamepad";
 import { Store } from "./store";
 import { Session, SessionResult } from "./session";
+import { Bot } from "../bot/bot";
 
 export class App {
   engine = new Engine();
@@ -79,6 +80,11 @@ export class App {
     resize();
     this.engine.start();
     (window as unknown as { __ready: boolean }).__ready = true;
+    if (params.has("bot")) {
+      const bot = new Bot({ skill: Number(params.get("bot")) || 0.8, seed: 3 });
+      this.merger.add(() => (this.session && !this.session.paused ? bot.step(this.session.world) : null));
+    }
+    if (params.has("god")) (window as unknown as { __god: boolean }).__god = true;
     // dev / screenshot / story entry points
     const seed = params.has("seed") ? Number(params.get("seed")) : undefined;
     if (params.get("boss")) return this.fight("boss", params.get("boss")!, Number(params.get("phase") ?? 0), seed);

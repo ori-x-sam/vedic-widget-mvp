@@ -62,6 +62,7 @@ export class Session implements Scene {
     const input = this.d.merger.frame();
     if (input.pressed.pause) { this.paused = true; this.onPause(); return; }
     this.world.step(input);
+    if ((window as unknown as { __god?: boolean }).__god && this.world.player.hp < 3) this.world.player.hp = 3;
     this.drain();
     if (this.slowT > 0) { this.slowT -= _dt; if (this.slowT <= 0) this.d.clock.scale = 1; }
     if (this.world.result && this.world.resultT > (this.world.result === "win" ? 3.2 : 2.4) && !this.ended) this.finish(this.world.result);

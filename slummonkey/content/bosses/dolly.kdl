@@ -1,0 +1,82 @@
+// Boss 3 — Do-Tukdi Dolly, the girl who saws herself in half. All stage-prop: ribbons and confetti.
+puppet "dolly" {
+  part "legs" svg="parts/dolly/legs" size=110 x=0 y=110 px=0.5 py=0.03 z=1 anim="kick"
+  part "arm-b" svg="parts/dolly/arm" size=60 x=-70 y=215 px=0.4 py=0.06 z=2 anim="arm" tags="b"
+  part "bottom" svg="parts/dolly/box-bottom" size=70 x=0 y=100 px=0.5 py=0.95 z=3 anim="breathe"
+  part "top" svg="parts/dolly/box-top" size=66 x=0 y=164 px=0.5 py=0.95 z=4 anim="breathe"
+  part "torso" svg="parts/dolly/torso" size=120 x=0 y=226 px=0.5 py=0.95 z=5 anim="head"
+  part "arm" svg="parts/dolly/arm" size=60 x=70 y=215 px=0.4 py=0.06 z=6 anim="arm"
+}
+puppet "dolly-legs" {
+  part "legs" svg="parts/dolly/legs" size=120 x=0 y=120 px=0.5 py=0.03 z=1 anim="kick"
+  part "bottom" svg="parts/dolly/box-bottom" size=80 x=0 y=110 px=0.5 py=0.95 z=2 anim="breathe"
+}
+puppet "dolly-torso" {
+  part "arm-b" svg="parts/dolly/arm" size=60 x=-70 y=70 px=0.4 py=0.06 z=1 anim="arm" tags="b"
+  part "top" svg="parts/dolly/box-top" size=72 x=0 y=0 px=0.5 py=1 z=2 anim="breathe"
+  part "torso" svg="parts/dolly/torso" size=125 x=0 y=60 px=0.5 py=0.97 z=3 anim="head"
+  part "arm" svg="parts/dolly/arm" size=60 x=70 y=70 px=0.4 py=0.06 z=4 anim="arm"
+}
+puppet "buzzsaw" { part "saw" svg="parts/dolly/buzzsaw" size=200 x=0 y=100 px=0.5 py=0.5 anim="spin" }
+
+boss "dolly" name="Do-Tukdi Dolly" title="The Girl Who Saws Herself in Half" hp=1150 w=180 h=320 x=380 stage="dolly" theme="dolly" reward=40 \
+  intro="Aadha show tumhara, aadha mera!" outro="Phir se jod do na, please?" {
+
+  phase "split" name="The Split" until="66%" {
+    say "Dolly" "Ek, do... DO TUKDE!" dur=1.6
+    split {
+      part "legs" hp=200 x=120 w=120 h=200 puppet="dolly-legs" {
+        wait 0.8
+        loop {
+          windup 0.5 pose="kick"
+          charge 760
+          wait 0.5
+          hop 200 2
+          wait 0.6
+        }
+      }
+      part "torso" hp=200 x=400 y=170 w=150 h=170 puppet="dolly-torso" {
+        parry-every 4
+        loop {
+          hover 18 1.4 dur=1.2
+          volley 3 24 520 "knife"
+          wait 0.9
+          juggle 3 "club" 1.2 speed=520
+          wait 1.1
+          move-to "random" 170 dur=1
+        }
+      }
+    }
+    wait 99
+  }
+
+  phase "mirror-maze" name="Mirror Maze" until="33%" {
+    reassemble
+    say "Dolly" "Asli kaun? Sirf mera reflection jaanta hai." dur=2.2
+    mirror-copies 3 { loop { wait 1.4; volley 2 16 360 "knife" } }
+    loop {
+      volley 2 16 360 "knife"
+      wait 1.4
+      spray 1.0 50 "card" rate=7 speed=380 from="mid" burst=2 pause=0.4
+      wait 0.8
+      swap-real dur=0.7
+      wait 0.6
+    }
+  }
+
+  phase "wrong-reassembly" name="Wrong Reassembly" {
+    reassemble flip=#true
+    say "Dolly" "Ulta jud gayi! Koi baat nahi, ulta hi sahi!" dur=2.2
+    parry-every 3
+    loop {
+      cartwheel 520 dur=2.8
+      volley 4 40 440 "knife" from="mid"
+      wait 0.6
+      drumroll 0.6
+      ride-platform "buzzsaw" 330
+      wait 0.4
+      juggle 2 "club" 1.0
+      wait 0.8
+    }
+  }
+}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 300">
+  <path d="M30 4 V296" stroke="var(--ink)" stroke-width="8"/>
+  <rect x="8" y="30" width="44" height="250" rx="4" fill="var(--candle-red)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M18 44 V260" stroke="var(--white)" stroke-width="6" opacity="0.45" stroke-linecap="round"/>
+  <path d="M8 30 L 52 30" stroke="var(--marigold)" stroke-width="6"/>
+</svg>

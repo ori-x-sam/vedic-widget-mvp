@@ -48,7 +48,7 @@ export interface Proj {
 export type WorldEventType =
   | "sfx" | "shake" | "flash" | "banner" | "decal" | "particles" | "hit" | "boss-hit" | "parry" | "drumroll" | "tracking"
   | "sheet" | "theme" | "say" | "warn" | "spotlight" | "phase" | "knockout" | "player-hurt" | "player-dead" | "blink"
-  | "jump" | "shoot" | "super" | "ex" | "pickup" | "win" | "topple" | "mirror" | "glide" | "land" | "bg" | "card" | "haptic";
+  | "telegraph" | "jump" | "shoot" | "super" | "ex" | "pickup" | "win" | "topple" | "mirror" | "glide" | "land" | "bg" | "card" | "haptic";
 
 export interface WorldEvent {
   type: WorldEventType;

@@ -74,6 +74,10 @@ word("say", "flow", "who text [dur=s] [block=#false]", "Pop a speech bubble over
 word("sfx", "flow", "name", "Play a named sound effect at my position.", function* (w, me, c) {
   w.emit("sfx", me.x, me.y, str(c, 0, "pop"));
 });
+word("wait-clear", "flow", "[kind=minion] [max=s]", "Wait until every minion (or a given minion kind) is gone.", function* (w, _me, c) {
+  const kind = pstr(c, "kind", "");
+  yield* until(() => !w.ents().some((e) => e.kind === "minion" && e.alive && (!kind || e.def === kind)), pnum(c, "max", 120));
+});
 word("despawn", "flow", "", "Remove me from the stage quietly.", function* (_w, me) {
   me.alive = false;
   me.hp = 0;
@@ -134,9 +138,15 @@ word("charge", "move", "speed:px/s [to=far]", "Dash across the stage toward the 
   w.emit("shake", me.x, me.y, "", 6);
 });
 word("zip", "move", "speed:px/s [dur=s]", "Pinball around the stage, bouncing off walls, floor and ceiling.", function* (w, me, c) {
-  const sp = num(c, 0, 900), d = pnum(c, "dur", num(c, 1, 4));
-  const a = deg(w.range(25, 65)) * (w.rand() < 0.5 ? -1 : 1);
-  let vx = Math.cos(a) * sp * (w.player.x < me.x ? -1 : 1), vy = Math.abs(Math.sin(a) * sp);
+  const sp = num(c, 0, 900), d = pnum(c, "dur", num(c, 1, 4)), warn = pnum(c, "warn", 0.5);
+  const a = deg(w.range(25, 55));
+  const dir = w.player.x < me.x ? -1 : 1;
+  let vx = Math.cos(a) * sp * dir, vy = Math.abs(Math.sin(a) * sp);
+  if (warn > 0) {
+    me.pose = "windup";
+    w.emit("warn", me.x, me.y + 20, "beam", warn, Math.round((Math.atan2(vy, vx) * 180) / Math.PI));
+    for (let t = 0; t < warn; t += w.dt) { me.squash = -0.3 * (t / warn); yield; }
+  }
   const top = w.ceiling - me.h * me.scale;
   me.pose = "zip";
   w.mark(me, "zip");
@@ -235,8 +245,9 @@ word("drop", "move", "", "Fall to the floor under gravity and land with a bump."
   w.emit("sfx", me.x, me.y, "thud");
 });
 word("face", "move", "", "Turn to face the player.", function* (w, me) { facePlayer(w, me); });
-word("scroll", "move", "dx:px/s dy:px/s", "Set the camera auto-scroll speed (shmup, vertical climb).", function* (w, _me, c) {
+word("scroll", "move", "dx:px/s dy:px/s", "Set the camera auto-scroll speed (shmup, vertical climb); I travel with the camera.", function* (w, me, c) {
   w.setScroll(num(c, 0, 0), num(c, 1, 0));
+  if (me.kind !== "director") me.vars.camLock = 1;
 });
 word("fly-path", "move", "shape [dur=s] [amp=px]", "Fly a shmup path: sine, dive, loop or straight (moves left across the camera).", function* (w, me, c) {
   const shape = str(c, 0, "sine"), d = pnum(c, "dur", 6), amp = pnum(c, "amp", 120), sp = pnum(c, "speed", 260);
@@ -272,17 +283,21 @@ word("volley", "attack", "count spread:deg speed proj [from=]", "Fire a fan of p
   w.emit("sfx", x, y, "volley");
   w.mark(me, "volley");
 });
-word("spray", "attack", "dur:s arc:deg proj [rate=/s] [speed=]", "Sweep a stream of projectiles across an arc (trunks, hoses, card fans).", function* (w, me, c) {
+word("spray", "attack", "dur:s arc:deg proj [rate=/s] [speed=] [burst=n] [pause=s]", "Sweep projectiles across an arc in bursts with jumpable gaps (trunks, hoses, card fans).", function* (w, me, c) {
   const d = num(c, 0, 1), arc = deg(num(c, 1, 90)), rate = pnum(c, "rate", 14), sp = pnum(c, "speed", 520);
+  const burst = pnum(c, "burst", 3), pause = pnum(c, "pause", 0.3);
+  let inBurst = 0, pauseT = 0;
   facePlayer(w, me);
   const [x0, y0] = anchor(me, pstr(c, "from", "trunk"));
   const base = angleTo(x0, y0, w.player.x, w.player.y + w.player.h / 2);
   let acc = 0;
   me.pose = "spray";
   for (let t = 0; t < d; t += w.dt) {
+    if (pauseT > 0) { pauseT -= w.dt; yield; continue; }
     acc += rate * w.dt;
     while (acc >= 1) {
       acc--;
+      if (++inBurst >= burst) { inBurst = 0; pauseT = pause; }
       const [x, y] = anchor(me, pstr(c, "from", "trunk"));
       const a = base - arc / 2 + arc * (t / d);
       w.spawnProj(proj(c, 2, "coin"), x, y, Math.cos(a) * sp, Math.sin(a) * sp, { owner: me.id });
@@ -363,6 +378,7 @@ word("stomp", "attack", "windup:s count:int [proj=shockwave] [speed=]", "Raise u
   const wind = num(c, 0, 0.6), n = num(c, 1, 1), sp = pnum(c, "speed", 520);
   for (let i = 0; i < n; i++) {
     me.pose = "stomp-up";
+    w.emit("telegraph", me.x, me.y, "stomp", wind, me.id);
     for (let t = 0; t < wind; t += w.dt) { me.squash = 0.25 * (t / wind); yield; }
     me.pose = "stomp"; me.squash = -0.45;
     w.emit("shake", me.x, me.y, "", 14);
@@ -493,6 +509,7 @@ word("drumroll", "telegraph", "dur:s", "Ta-da drumroll with a building shake: so
 word("windup", "telegraph", "dur:s [pose=name]", "Hold an anticipation pose (squash down) before an attack.", function* (w, me, c) {
   const d = num(c, 0, 0.5);
   me.pose = pstr(c, "pose", "windup");
+  w.emit("telegraph", me.x, me.y, me.pose, d, me.id);
   for (let t = 0; t < d; t += w.dt) { me.squash = -0.2 * Math.min(1, t / d); yield; }
   me.squash = 0.15;
 });
@@ -589,7 +606,7 @@ word("reassemble", "state", "[flip=#true]", "Pull my pieces back together (optio
   w.mark(me, "reassemble");
   yield* wait(w, 0.4);
 });
-word("mirror-copies", "state", "count", "Mirror panels spawn copies of me; only the real me has a reflection.", function* (w, me, c) {
+word("mirror-copies", "state", "count { words-for-copies }", "Mirror panels spawn copies of me (they run the child words too); only the real me has a reflection.", function* (w, me, c) {
   const n = num(c, 0, 3);
   for (const e of w.ents()) if (e.kind === "decoy" && e.dmgTo === me.id) { e.alive = false; e.deadT = 99; }
   me.reflect = true;
@@ -598,10 +615,11 @@ word("mirror-copies", "state", "count", "Mirror panels spawn copies of me; only 
   const order = xs.map((x) => ({ x, r: w.rand() })).sort((a, b) => a.r - b.r).map((o) => o.x);
   me.x = order[0];
   for (let i = 1; i < slots; i++) {
-    w.spawnEnt("decoy", me.def, order[i], me.y, {
+    const d = w.spawnEnt("decoy", me.def, order[i], me.y, {
       puppet: me.puppet, w: me.w, h: me.h, scale: me.scale, dmgTo: me.id, shootable: true, hurts: true, hp: 1e9, maxHp: 1e9,
-      tag: w.phaseTag, reflect: false, facing: -1,
+      tag: w.phaseTag, reflect: false, facing: -1, flipY: me.flipY,
     });
+    if (c.children.length) w.fork(d, w.run(d, c.children), w.phaseTag);
   }
   w.emit("mirror", me.x, me.y, "spawn", n);
   w.emit("sfx", me.x, me.y, "mirror");
@@ -614,20 +632,26 @@ word("swap-real", "state", "[dur=s]", "Shuffle me and my copies around (flash of
   const from = group.map((e) => e.x);
   const d = pnum(c, "dur", 0.6);
   w.emit("mirror", me.x, me.y, "flash", d);
+  // mid-swap everyone is a ghost in the glass: no contact damage, half visible
+  for (const e of group) { e.hurts = false; e.alpha = 0.5; }
   for (let t = 0; t < d; t += w.dt) {
     const k = easeInOut(Math.min(1, t / d));
     group.forEach((e, i) => { e.x = from[i] + (xs[i] - from[i]) * k; e.y = me.y + Math.sin(k * Math.PI) * 60 * (i % 2 ? 1 : -0.4); });
     yield;
   }
-  group.forEach((e, i) => { e.x = xs[i]; e.y = w.floor; });
+  group.forEach((e, i) => { e.x = xs[i]; e.y = w.floor; e.alpha = 1; e.hurts = true; });
 });
 word("hide-under", "state", "count kind", "Hide under N pots/baskets spread across the floor.", function* (w, me, c) {
   const n = num(c, 0, 3), kind = str(c, 1, "matka");
   for (const e of w.ents()) if (e.kind === "pot" && e.dmgTo === me.id) { e.alive = false; e.deadT = 99; }
   me.hidden = true; me.shootable = false; me.hurts = false;
+  const xs = Array.from({ length: n }, (_, i) => w.camX + (i - (n - 1) / 2) * 300);
+  for (const x of xs) w.emit("warn", x, w.floor, "mark", 0.7);
+  yield* wait(w, 0.7);
   for (let i = 0; i < n; i++) {
-    const x = w.camX + (i - (n - 1) / 2) * 300;
-    const pot = w.spawnEnt("pot", kind, x, w.ceiling + 80, { puppet: kind, w: 150, h: 170, dmgTo: me.id, shootable: true, hurts: true, hp: 1e9, maxHp: 1e9, tag: w.phaseTag });
+    const x = xs[i];
+    // pots are props you can stand next to; only what comes out of them hurts
+    const pot = w.spawnEnt("pot", kind, x, w.ceiling + 80, { puppet: kind, w: 150, h: 170, dmgTo: me.id, shootable: true, hurts: false, hp: 1e9, maxHp: 1e9, tag: w.phaseTag });
     pot.vars.slot = i;
     w.fork(pot, (function* () { let vy = 0; while (pot.y > w.floor) { vy -= GRAV * w.dt; pot.y = Math.max(w.floor, pot.y + vy * w.dt); yield; } pot.squash = -0.4; w.emit("shake", pot.x, pot.y, "", 6); })(), w.phaseTag);
   }
@@ -714,12 +738,14 @@ word("target", "state", "id hp [x=] [y=] { words-on-destroy }", "Attach a shoota
     yield* w.run(me, c.children);
   })(), w.phaseTag);
 });
-word("stun", "state", "dur:s [vuln=x]", "Get dizzy and take extra damage for a while.", function* (w, me, c) {
+word("stun", "state", "dur:s [vuln=x]", "Get dizzy: stop moving/attacking and take extra damage for a while.", function* (w, me, c) {
   me.pose = "dizzy";
   me.vars.vuln = pnum(c, "vuln", 2);
+  me.vars.stunned = 1;
   w.emit("particles", me.x, me.y + me.h, "stars", 6);
   yield* wait(w, num(c, 0, 2));
   me.vars.vuln = 1;
+  me.vars.stunned = 0;
   me.pose = "idle";
 });
 word("rider", "state", "kind [keep-visible=#true] [y=px] { words }", "Put someone/something on top of me that follows me and runs its own words.", function* (w, me, c) {

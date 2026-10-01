@@ -1,0 +1,103 @@
+// Boss 2 — Teen Tigada: Lattu, Pattu and Sattu, three tiny stage assistants with big schemes.
+// The joke is their tricks and bickering, never their size.
+puppet "lattu" {
+  part "arm-b" svg="parts/tigada/arm" size=34 x=-16 y=78 px=0.4 py=0.06 z=1 anim="arm" tags="b"
+  part "body" svg="parts/tigada/lattu" size=100 x=0 y=0 px=0.5 py=1 z=2 anim="bob"
+  part "arm" svg="parts/tigada/arm" size=34 x=14 y=78 px=0.4 py=0.06 z=3 anim="arm"
+}
+puppet "pattu" {
+  part "arm-b" svg="parts/tigada/arm" size=38 x=-14 y=96 px=0.4 py=0.06 z=1 anim="arm" tags="b"
+  part "body" svg="parts/tigada/pattu" size=118 x=0 y=0 px=0.5 py=1 z=2 anim="bob"
+  part "arm" svg="parts/tigada/arm" size=38 x=14 y=96 px=0.4 py=0.06 z=3 anim="arm"
+}
+puppet "sattu" {
+  part "arm-b" svg="parts/tigada/arm" size=34 x=-30 y=72 px=0.4 py=0.06 z=1 anim="arm" tags="b"
+  part "body" svg="parts/tigada/sattu" size=96 x=0 y=0 px=0.5 py=1 z=2 anim="bob"
+  part "arm" svg="parts/tigada/arm" size=34 x=30 y=72 px=0.4 py=0.06 z=3 anim="arm"
+}
+puppet "rope" { part "rope" svg="parts/tigada/rope" size=640 x=0 y=0 px=0.5 py=0.99 anim="sway" }
+puppet "matka" { part "pot" svg="parts/tigada/matka" size=170 x=0 y=0 px=0.5 py=0.98 anim="breathe" }
+puppet "tigada-stack" {
+  part "feet" svg="parts/tigada/stack-feet" size=40 x=0 y=24 px=0.5 py=0.6 z=1 anim="leg"
+  part "coat" svg="parts/tigada/stack-coat" size=290 x=0 y=20 px=0.5 py=0.97 z=2 anim="wobble"
+  part "peek" svg="parts/tigada/stack-peek" size=22 x=14 y=145 px=0.5 py=0.5 z=3 anim="blink"
+  part "head" svg="parts/tigada/stack-head" size=130 x=0 y=290 px=0.5 py=0.85 z=4 anim="wobble" tags="b"
+  part "arm" svg="parts/tigada/stack-arm" size=70 x=20 y=250 px=0.06 py=0.3 z=5 anim="arm"
+}
+puppet "rabbit" { part "r" svg="parts/tigada/rabbit" size=70 x=0 y=0 px=0.5 py=0.95 anim="bob" }
+puppet "pigeon" { part "p" svg="parts/tigada/pigeon" size=56 x=0 y=0 px=0.5 py=0.6 anim="float" }
+puppet "pigeon-dive" { part "p" svg="parts/tigada/pigeon" size=56 x=0 y=0 px=0.5 py=0.6 anim="float" }
+
+minion "rabbit" hp=8 w=60 h=80 gravity=2200 {
+  hop 160 1
+  loop { hop 140 1; wait 0.2 }
+}
+minion "pigeon" hp=4 w=60 h=40 {
+  move-to "me" 380 dur=0.6
+  follow 180 dur=3 fly=#true
+  shoot "pigeon" 420
+  despawn
+}
+
+boss "teen-tigada" name="Teen Tigada" title="Lattu, Pattu & Sattu" hp=1000 w=150 h=160 x=380 stage="tigada" theme="tigada" reward=35 \
+  intro="Teen dimaag, ek plan. Ya teen plan?" outro="Plan B tha hi nahi!" {
+
+  phase "rope-trick" name="Rope Trick" until="66%" {
+    split {
+      part "lattu" hp=110 x=-40 w=70 h=95 {
+        target "rope" hp=26 w=34 { drop; stun 3 vuln=2; say "Lattu" "Kisne kaati meri rassi?!" }
+        climb 230 150
+        say "Lattu" "Mera turn pehle!"
+        loop { lob 1 "bomb" air=1.2; wait 1.6; shoot "knife" 480; wait 1.4 }
+      }
+      part "pattu" hp=110 x=190 w=70 h=110 {
+        target "rope" hp=26 w=34 { drop; stun 3 vuln=2; say "Pattu" "Main toh plan ka hissa tha..." }
+        climb 300 130
+        wait 0.8
+        loop { volley 3 26 430 "card"; wait 2.1; say "Pattu" "Lattu, card ulta pakda hai!"; wait 0.6 }
+      }
+      part "sattu" hp=110 x=420 w=80 h=90 {
+        target "rope" hp=26 w=34 { drop; stun 3 vuln=2; say "Sattu" "Ab dekhna mera gussa!" }
+        climb 170 160
+        wait 1.6
+        loop { lob 2 "bomb" air=1.1 spread=160; wait 2.4 }
+      }
+    }
+    // once every brother is knocked out, the boss pool keeps the phase honest
+    wait 99
+  }
+
+  phase "matka-shuffle" name="Matka Shuffle" until="33%" {
+    say "Sattu" "Teeno matke. Ek hum. Guess karo!" dur=2
+    loop {
+      hide-under 3 "matka"
+      shuffle 5 1.8 ramp=1.18
+      drumroll 0.7
+      reveal bombs=2 bonus="laddoo"
+      wait 1.6
+      say "Lattu" "Sattu! Galat matka!" dur=1.4
+      wait 0.4
+    }
+  }
+
+  phase "tall-magician" name="The Tall Magician" {
+    move-to 380 0 dur=0.1
+    stack 3 puppet="tigada-stack"
+    say "Lattu" "Hum... ek bahut lambe jaadugar hain." dur=2.4
+    parry-every 4
+    loop {
+      windup 0.4 pose="juggle"
+      summon "rabbit" 2 from="hat" gap=0.4
+      wait 0.8
+      spray 1.2 60 "card" rate=9 speed=430 from="hat" burst=3 pause=0.35
+      wait 0.6
+      summon "pigeon" 2 from="hat" gap=0.5
+      volley 5 50 420 "card" from="hat"
+      wait 1.0
+      pick {
+        seq { say "Pattu" "Neeche se mat hilo!" dur=1.2; hop 160 1 }
+        seq { say "Sattu" "Mera pair so gaya..." dur=1.2; wait 0.8 }
+      }
+    }
+  }
+}

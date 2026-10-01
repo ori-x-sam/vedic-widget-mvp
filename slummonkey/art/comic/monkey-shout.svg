@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 340">
+  <path d="M40 300 C 70 290, 90 300, 110 330 M260 300 C 230 290, 210 300, 190 330" fill="none" stroke="var(--marigold)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M110 320 L 120 250 M 190 320 L 180 250" stroke="var(--ink)" stroke-width="20" stroke-linecap="round"/>
+  <path d="M110 320 L 120 250 M 190 320 L 180 250" stroke="var(--monkey-fur)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M100 250 C 96 190, 116 160, 150 158 C 186 156, 206 190, 200 250Z" fill="var(--hoodie)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- cyborg fist raised -->
+  <path d="M190 180 L 240 90" stroke="var(--ink)" stroke-width="30" stroke-linecap="round"/>
+  <path d="M190 180 L 240 90" stroke="var(--steel)" stroke-width="20" stroke-linecap="round"/>
+  <path d="M206 150 L 222 158 M216 132 L 232 140 M226 114 L 242 122" stroke="var(--cyber)" stroke-width="5"/>
+  <circle cx="246" cy="76" r="24" fill="var(--steel)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M232 66 L 260 66 M232 78 L 260 78" stroke="var(--ink)" stroke-width="4"/>
+  <g stroke="var(--cyber)" stroke-width="5" stroke-linecap="round"><path d="M270 50 L 290 34"/><path d="M276 76 L 298 76"/><path d="M262 30 L 270 8"/></g>
+  <path d="M110 200 L 70 240" stroke="var(--ink)" stroke-width="20" stroke-linecap="round"/><path d="M110 200 L 70 240" stroke="var(--hoodie-dark)" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="150" cy="112" r="54" fill="var(--monkey-fur)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="100" cy="108" r="18" fill="var(--monkey-fur)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="200" cy="108" r="18" fill="var(--monkey-fur)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M116 110 C 118 88, 140 86, 150 100 C 160 86, 184 88, 186 110 C 188 140, 170 156, 150 156 C 130 156, 114 140, 116 110Z" fill="var(--monkey-face)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M126 96 L 146 104 M158 104 L 178 96" stroke="var(--ink)" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="138" cy="112" r="6" fill="var(--ink)"/><rect x="156" y="104" width="22" height="16" rx="3" fill="var(--steel)" stroke="var(--ink)" stroke-width="4"/><circle cx="167" cy="112" r="5" fill="var(--cyber)"/>
+  <path d="M126 132 C 140 154, 164 154, 176 132Z" fill="var(--velvet-dark)" stroke="var(--ink)" stroke-width="5"/>
+  <path d="M132 134 L 170 134" stroke="var(--white)" stroke-width="6"/>
+  <path d="M100 62 C 110 36, 190 32, 204 64 C 172 54, 132 54, 100 62Z" fill="var(--hoodie)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M102 62 C 86 60, 64 66, 60 74 C 76 76, 92 72, 104 68Z" fill="var(--hoodie-dark)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+</svg>

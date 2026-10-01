@@ -30,10 +30,31 @@ export async function withGame<T>(fn: (open: (query: string, w?: number, h?: num
   }
 }
 
+/** Wait for `secs` of simulated game time (headless GPUs run slower than real time). */
+export async function waitSim(page: import("playwright").Page, secs: number) {
+  const hasSession = await page.evaluate(() => !!(window as any).app?.session);
+  if (!hasSession) { await page.waitForTimeout(secs * 1000); return; }
+  await page.waitForFunction((s) => ((window as any).app?.session?.world?.t ?? 0) >= s, secs, { timeout: secs * 20000 + 30000, polling: 250 });
+}
+
 const SHOTS = [
-  ["boss=gajraj&phase=0&seed=3", "gajraj-p1", 5],
-  ["boss=gajraj&phase=1&seed=3", "gajraj-p2", 5],
-  ["boss=gajraj&phase=2&seed=3", "gajraj-p3", 5],
+  ["boss=gajraj&phase=0&seed=3&bot=0.8&god", "gajraj-p1", 6],
+  ["boss=gajraj&phase=1&seed=3&bot=0.8&god", "gajraj-p2", 7],
+  ["boss=gajraj&phase=2&seed=3&bot=0.8&god", "gajraj-p3", 7],
+  ["boss=teen-tigada&phase=0&seed=3&bot=0.8&god", "tigada-p1", 7],
+  ["boss=teen-tigada&phase=1&seed=3&bot=0.8&god", "tigada-p2", 7],
+  ["boss=teen-tigada&phase=2&seed=3&bot=0.8&god", "tigada-p3", 7],
+  ["boss=dolly&phase=0&seed=3&bot=0.8&god", "dolly-p1", 6],
+  ["boss=dolly&phase=1&seed=3&bot=0.8&god", "dolly-p2", 6],
+  ["boss=dolly&phase=2&seed=3&bot=0.8&god", "dolly-p3", 7],
+  ["boss=raj&phase=0&seed=3&bot=0.8&god", "raj-p1", 6],
+  ["boss=raj&phase=1&seed=3&bot=0.8&god", "raj-p2", 9],
+  ["boss=raj&phase=2&seed=3&bot=0.8&god", "raj-p3", 9],
+  ["boss=raj&phase=3&seed=3&bot=0.8&god", "raj-p4", 7],
+  ["level=mela&seed=3&bot=0.8&god", "mela", 9],
+  ["level=rickshaw-sky&seed=3&bot=0.8&god", "shmup", 8],
+  ["overworld", "overworld", 3],
+  ["story=intro", "story-intro", 2],
 ] as const;
 
 async function main() {
@@ -44,7 +65,7 @@ async function main() {
   await withGame(async (open) => {
     for (const [q, name, wait] of list) {
       const page = await open(q, w, h);
-      await page.waitForTimeout(wait * 1000);
+      await waitSim(page, wait);
       const out = join(ROOT, "shots", name.endsWith(".png") ? name : `${name}.png`);
       await page.screenshot({ path: out });
       console.log("saved", out);

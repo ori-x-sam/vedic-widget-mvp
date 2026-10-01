@@ -21,6 +21,7 @@ boss "gajraj" name="Gayab Gajraj" title="The Vanishing Elephant" hp=1100 w=300 h
     loop {
       stomp 0.55 2 speed=520
       wait 0.5
+      windup 0.45 pose="spray"
       spray 1.4 70 "coin" rate=10 speed=470 from="trunk"
       wait 0.5
       pick {
@@ -46,6 +47,7 @@ boss "gajraj" name="Gayab Gajraj" title="The Vanishing Elephant" hp=1100 w=300 h
       wait 0.4
       stomp 0.6 1 speed=480
       wait 0.4
+      windup 0.5 pose="spray"
       spray 1.0 60 "coin" rate=8 speed=430 from="trunk"
       wait 0.6
     }

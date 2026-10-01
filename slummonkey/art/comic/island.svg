@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 300">
+  <path d="M0 220 C 100 200, 200 230, 300 214 C 400 200, 480 226, 560 210 V300 H0Z" fill="var(--water)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M60 230 C 90 190, 160 170, 280 168 C 400 170, 470 190, 500 230Z" fill="var(--leaf)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M60 230 L 500 230 L 480 250 L 80 250Z" fill="var(--clay-dark)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- big top on the stage -->
+  <path d="M190 172 L 190 110 C 220 80, 250 60, 280 40 C 310 60, 340 80, 370 110 L 370 172Z" fill="var(--velvet)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M280 40 C 260 90, 250 130, 246 172 M280 40 C 300 90, 310 130, 314 172" fill="none" stroke="var(--gold)" stroke-width="10"/>
+  <path d="M280 40 V14" stroke="var(--ink)" stroke-width="5"/><path d="M280 14 L 310 22 L 280 30Z" fill="var(--candle-red)" stroke="var(--ink)" stroke-width="3"/>
+  <!-- ferris wheel + tents -->
+  <circle cx="130" cy="150" r="40" fill="none" stroke="var(--rani)" stroke-width="7"/>
+  <path d="M130 110 V190 M90 150 H170 M102 122 L158 178 M158 122 L102 178" stroke="var(--rani)" stroke-width="3"/>
+  <path d="M410 180 L 410 150 C 420 140, 430 130, 440 124 C 450 130, 460 140, 470 150 L 470 180Z" fill="var(--teal)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- searchlights -->
+  <path d="M250 60 L 160 -10 L 200 -10Z M310 60 L 400 -10 L 360 -10Z" fill="var(--paper)" opacity="0.5"/>
+  <g fill="var(--white)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="4"><path d="M40 270 c 10 -6, 20 -6, 30 0 M480 260 c 10 -6, 20 -6, 30 0"/></g>
+</svg>

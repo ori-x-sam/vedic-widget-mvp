@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 140">
+  <path d="M48 116 L 46 130 M 82 116 L 86 130" stroke="var(--ink)" stroke-width="12" stroke-linecap="round"/>
+  <path d="M30 134 C 30 124, 54 124, 56 134Z M76 134 C 76 124, 100 124, 104 134Z" fill="var(--midnight)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- stocky body with vest -->
+  <path d="M22 80 C 22 60, 108 60, 108 80 L 104 118 C 80 126, 50 126, 26 118Z" fill="var(--white)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M30 70 C 40 66, 50 66, 56 70 L 52 120 L 28 116Z M74 70 C 82 66, 96 66, 102 70 L 100 116 L 78 120Z" fill="var(--sattu)" stroke="var(--ink)" stroke-width="5"/>
+  <!-- gamcha scarf -->
+  <path d="M40 66 C 56 76, 76 76, 92 66 L 96 74 C 78 86, 54 86, 36 74Z" fill="var(--vermilion)" stroke="var(--ink)" stroke-width="4"/>
+  <path d="M44 72 L 50 76 M60 76 L64 78 M76 76 L80 74" stroke="var(--white)" stroke-width="3"/>
+  <!-- head: bald with topknot -->
+  <ellipse cx="68" cy="40" rx="30" ry="26" fill="var(--skin-2)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M60 14 C 56 4, 70 0, 72 10" fill="var(--ink)" stroke="var(--ink)" stroke-width="3"/>
+  <path d="M48 26 C 56 20, 66 18, 76 20" fill="none" stroke="var(--white)" stroke-width="4" opacity="0.5" stroke-linecap="round"/>
+  <!-- angry brows + eyes -->
+  <path d="M64 30 L 78 34 M84 34 L 96 30" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="74" cy="40" r="4" fill="var(--ink)"/><circle cx="90" cy="40" r="4" fill="var(--ink)"/>
+  <!-- giant curly moustache -->
+  <path d="M82 50 C 90 44, 102 46, 104 54 C 110 50, 116 54, 112 60 C 106 56, 100 58, 94 56 C 90 58, 86 58, 82 56 C 78 58, 72 58, 68 56 C 62 58, 56 56, 52 60 C 48 54, 54 50, 60 54 C 62 46, 74 44, 82 50Z" fill="var(--ink)"/>
+  <circle cx="44" cy="42" r="7" fill="var(--skin-2)" stroke="var(--ink)" stroke-width="4"/>
+</svg>

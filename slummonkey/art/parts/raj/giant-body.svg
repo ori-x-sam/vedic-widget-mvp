@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 560">
+  <!-- a figure made of stage curtains -->
+  <path d="M210 20 C 120 20, 70 90, 60 180 C 40 300, 10 420, 0 556 L 420 556 C 410 420, 380 300, 360 180 C 350 90, 300 20, 210 20Z" fill="var(--velvet)" stroke="var(--ink)" stroke-width="9" stroke-linejoin="round"/>
+  <g fill="none" stroke="var(--velvet-dark)" stroke-width="26" stroke-linecap="round"><path d="M110 120 C 90 260, 70 400, 50 556"/><path d="M170 200 C 160 320, 150 440, 140 556"/><path d="M250 200 C 260 320, 270 440, 280 556"/><path d="M310 120 C 330 260, 350 400, 370 556"/></g>
+  <g fill="none" stroke="var(--velvet-light)" stroke-width="12" stroke-linecap="round" opacity="0.8"><path d="M140 160 C 126 280, 112 420, 96 556"/><path d="M280 160 C 294 280, 308 420, 324 556"/></g>
+  <!-- hood shadow + glowing eyes -->
+  <path d="M130 110 C 150 60, 270 60, 290 110 C 280 190, 140 190, 130 110Z" fill="var(--midnight)" stroke="var(--ink)" stroke-width="7"/>
+  <path d="M160 120 L 200 112 L 196 132 Z M260 120 L 220 112 L 224 132Z" fill="var(--candle-red)" stroke="var(--marigold)" stroke-width="3"/>
+  <path d="M180 160 C 200 172, 220 172, 240 160" fill="none" stroke="var(--candle-red)" stroke-width="6" stroke-linecap="round"/>
+  <!-- gold tieback belt + the top-hat crown -->
+  <path d="M70 300 C 160 330, 260 330, 350 300" fill="none" stroke="var(--gold)" stroke-width="18" stroke-linecap="round"/>
+  <path d="M70 300 C 160 330, 260 330, 350 300" fill="none" stroke="var(--ink)" stroke-width="4" stroke-dasharray="14 10"/>
+  <rect x="160" y="0" width="100" height="40" fill="var(--midnight)" stroke="var(--ink)" stroke-width="7"/>
+  <path d="M140 40 L 280 40" stroke="var(--ink)" stroke-width="14" stroke-linecap="round"/>
+  <!-- ticker tape -->
+  <path d="M60 420 C 160 400, 260 440, 360 410" fill="none" stroke="var(--paper)" stroke-width="22"/>
+  <path d="M80 418 h10 M110 414 h18 M150 414 h10 M190 420 h22 M240 424 h12 M280 420 h16 M320 414 h10" stroke="var(--candle-red)" stroke-width="6"/>
+</svg>

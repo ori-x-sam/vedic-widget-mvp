@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 110">
+  <defs><pattern id="hq" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="var(--dolly-a)"/><path d="M20 0 L40 20 L20 40 L0 20Z" fill="var(--dolly-b)"/><path d="M20 0 L40 20 L20 40 L0 20Z" fill="none" stroke="var(--ink)" stroke-width="2"/></pattern></defs>
+  <rect x="10" y="10" width="180" height="90" rx="6" fill="url(#hq)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <rect x="10" y="84" width="180" height="16" fill="var(--gold)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M14 92 C 30 84, 46 100, 62 92 C 78 84, 94 100, 110 92 C 126 84, 142 100, 158 92 C 174 84, 186 96, 188 92" fill="none" stroke="var(--white)" stroke-width="4"/>
+  <path d="M10 84 L 190 84" stroke="var(--ink)" stroke-width="4" stroke-dasharray="10 6"/>
+  <!-- ribbon streamers -->
+  <path d="M190 40 C 210 50, 196 70, 214 84" fill="none" stroke="var(--marigold)" stroke-width="7" stroke-linecap="round"/>
+  <path d="M10 40 C -8 54, 6 70, -10 86" fill="none" stroke="var(--teal)" stroke-width="7" stroke-linecap="round"/>
+</svg>

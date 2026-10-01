@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 110">
+  <path d="M8 60 C 40 52, 70 54, 90 60 L 88 82 C 64 76, 40 76, 10 84Z" fill="var(--raj-coat)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <g stroke="var(--ink)" stroke-width="4" stroke-linejoin="round">
+    <rect x="112" y="14" width="32" height="48" rx="4" fill="var(--white)" transform="rotate(-40 120 66)"/><path d="M128 30 C 124 24, 118 30, 128 40 C 138 30, 132 24, 128 30Z" fill="var(--vermilion)" stroke="none" transform="rotate(-40 120 66)"/>
+<rect x="112" y="14" width="32" height="48" rx="4" fill="var(--white)" transform="rotate(-20 120 66)"/><path d="M128 30 C 124 24, 118 30, 128 40 C 138 30, 132 24, 128 30Z" fill="var(--vermilion)" stroke="none" transform="rotate(-20 120 66)"/>
+<rect x="112" y="14" width="32" height="48" rx="4" fill="var(--white)" transform="rotate(0 120 66)"/><path d="M128 30 C 124 24, 118 30, 128 40 C 138 30, 132 24, 128 30Z" fill="var(--vermilion)" stroke="none" transform="rotate(0 120 66)"/>
+<rect x="112" y="14" width="32" height="48" rx="4" fill="var(--white)" transform="rotate(20 120 66)"/><path d="M128 30 C 124 24, 118 30, 128 40 C 138 30, 132 24, 128 30Z" fill="var(--vermilion)" stroke="none" transform="rotate(20 120 66)"/>
+<rect x="112" y="14" width="32" height="48" rx="4" fill="var(--white)" transform="rotate(40 120 66)"/><path d="M128 30 C 124 24, 118 30, 128 40 C 138 30, 132 24, 128 30Z" fill="var(--vermilion)" stroke="none" transform="rotate(40 120 66)"/>
+  </g>
+  <circle cx="104" cy="70" r="13" fill="var(--white)" stroke="var(--ink)" stroke-width="5"/>
+</svg>

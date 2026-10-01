@@ -13,6 +13,7 @@
   --smear-speed: 900;         /* px/s before a smear frame shows */
   --smear-alpha: 0.38;
   --hit-flash: #ffffff;
+  --hit-flash-amount: 0.35;   /* how white a hit makes a character */
   --parry-pulse: 6;           /* Hz of the parry glow pulse */
   --texture-scale: 2;         /* SVG rasterization scale */
   --shadow-alpha: 0.28;       /* contact shadow under characters */

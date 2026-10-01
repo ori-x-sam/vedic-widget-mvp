@@ -1,0 +1,10 @@
+// Props, pickups and platforms used by many stages.
+puppet "platform" { part "p" svg="parts/props/platform" size=50 x=0 y=0 px=0.5 py=0.2 }
+puppet "rope-platform" { part "p" svg="parts/props/rope-platform" size=90 x=0 y=0 px=0.5 py=0.5 }
+puppet "raft" { part "p" svg="parts/props/raft" size=70 x=0 y=0 px=0.5 py=0.3 anim="sway" }
+puppet "candle-red" { part "c" svg="parts/props/candle-red" size=300 x=0 y=0 px=0.5 py=1 anim="pulse" }
+puppet "candle-green" { part "c" svg="parts/props/candle-green" size=300 x=0 y=0 px=0.5 py=0.03 }
+puppet "goal" { part "g" svg="parts/props/goal" size=300 x=0 y=0 px=0.13 py=0.99 anim="sway" }
+puppet "token" { part "t" svg="sprites/token" size=40 x=0 y=0 px=0.5 py=0.5 anim="float" }
+puppet "laddoo" { part "l" svg="sprites/marigold" size=64 x=0 y=0 px=0.5 py=0.5 anim="float" }
+puppet "lota" { part "l" svg="parts/raj/lota" size=110 x=0 y=0 px=0.5 py=0.9 anim="float" }

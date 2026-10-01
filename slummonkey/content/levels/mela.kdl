@@ -1,0 +1,26 @@
+// Run-and-gun: the Mela fairground. Same words as the bosses, triggered by how far you've run.
+level "mela" name="Mela Madness" mode="run" length=4400 stage="mela" theme="mela" reward=15 \
+  intro="Mela mein sab bikta hai. Tum bhi!" {
+  coins 5 x=200 y=140
+  at-x 200 { summon "kettle" 2 from="right" gap=1.2 }
+  at-x 600 {
+    platforms 3 170 x0=-150 x1=350 w=170 tag="mela"
+    coins 4 x=100 y=260
+    summon "balloon" 3 from="top" gap=0.7
+  }
+  at-x 1100 { summon "anar" 2 from="right" gap=0.9; summon "parrot" 1 from="right" y=380 }
+  at-x 1600 {
+    platforms 2 200 x0=50 x1=360 w=180 tag="mela"
+    summon "kettle" 3 from="right" gap=0.8
+    bonus "laddoo" x=200 y=280 ttl=10
+  }
+  at-x 2100 { summon "balloon" 4 from="top" gap=0.5; summon "parrot" 2 from="right" gap=1.2 y=350 }
+  at-x 2600 { coins 6 x=150 y=200; summon "anar" 3 from="right" gap=0.6 }
+  at-x 3100 {
+    platforms 3 180 x0=-100 x1=380 w=160 tag="mela"
+    summon "kettle" 2 from="right"
+    summon "balloon" 3 from="top" gap=0.6
+  }
+  at-x 3600 { summon "parrot" 3 from="right" gap=0.8 y=380; summon "anar" 2 from="right" gap=1 }
+  goal 4400
+}

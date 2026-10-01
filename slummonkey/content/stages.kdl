@@ -12,3 +12,71 @@ stage "gajraj" {
   layer "stages/theatre/valance" depth=0.96 y=520 scale=1 tile=#true
   layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true
 }
+
+stage "tigada" {
+  layer "sky:tigada" depth=100
+  layer "stages/tigada/backdrop" depth=1.6 y=-40 scale=0.9
+  layer "stages/theatre/tinstars" depth=1.3 y=330 scale=0.8 tile=#true
+  layer "stages/theatre/tubelights" depth=1.15 y=470 scale=0.9 tile=#true
+  layer "stages/theatre/deck" depth=1 y=-212 scale=1 tile=#true
+  layer "stages/theatre/curtain-left" depth=0.97 x=-760 y=-40 scale=0.8
+  layer "stages/theatre/curtain-right" depth=0.97 x=760 y=-40 scale=0.8
+  layer "stages/theatre/valance" depth=0.96 y=520 scale=1 tile=#true
+  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true
+}
+
+stage "dolly" {
+  layer "sky:dolly" depth=100
+  layer "stages/dolly/backdrop" depth=1.6 y=-40 scale=0.9
+  layer "stages/theatre/tubelights" depth=1.15 y=470 scale=0.9 tile=#true
+  layer "stages/theatre/garland" depth=1.05 y=430 scale=0.9 tile=#true
+  layer "stages/theatre/deck" depth=1 y=-212 scale=1 tile=#true
+  layer "stages/theatre/curtain-left" depth=0.97 x=-760 y=-40 scale=0.8
+  layer "stages/theatre/curtain-right" depth=0.97 x=760 y=-40 scale=0.8
+  layer "stages/theatre/valance" depth=0.96 y=520 scale=1 tile=#true
+  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true
+}
+
+stage "raj" {
+  layer "sky:raj" depth=100
+  layer "stages/raj/backdrop" depth=1.6 y=-40 scale=0.9
+  layer "stages/theatre/tinstars" depth=1.3 y=330 scale=0.8 tile=#true
+  layer "stages/theatre/tubelights" depth=1.15 y=470 scale=0.9 tile=#true
+  layer "stages/theatre/garland" depth=1.05 y=430 scale=0.9 tile=#true
+  layer "stages/theatre/deck" depth=1 y=-212 scale=1 tile=#true
+  layer "stages/theatre/curtain-left" depth=0.97 x=-760 y=-40 scale=0.8
+  layer "stages/theatre/curtain-right" depth=0.97 x=760 y=-40 scale=0.8
+  layer "stages/theatre/valance" depth=0.96 y=520 scale=1 tile=#true
+  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true
+}
+
+stage "raj-climb" {
+  layer "sky:climb" depth=100
+  layer "stages/raj/clouds" depth=2.2 scale=1 tile=#true tiley=#true
+  layer "stages/raj/clouds" depth=1.3 scale=0.7 tile=#true tiley=#true
+  layer "stages/theatre/deck" depth=1 y=-212 scale=1 tile=#true
+}
+
+stage "raj-reveal" {
+  layer "sky:raj" depth=100
+  layer "stages/raj/reveal" depth=1.5 y=-60 scale=0.95
+  layer "stages/theatre/deck" depth=1 y=-212 scale=1 tile=#true
+  layer "stages/theatre/curtain-left" depth=0.97 x=-760 y=-40 scale=0.8
+  layer "stages/theatre/curtain-right" depth=0.97 x=760 y=-40 scale=0.8
+  layer "stages/theatre/crowd" depth=0.85 y=-250 scale=0.75 tile=#true
+}
+
+stage "mela" {
+  layer "sky:mela" depth=100
+  layer "stages/mela/far" depth=2.2 y=-20 scale=0.9 tile=#true
+  layer "stages/mela/stalls" depth=1.4 y=-30 scale=0.9 tile=#true
+  layer "stages/mela/ground" depth=1 y=-212 scale=1 tile=#true
+  layer "stages/mela/bushes" depth=0.8 y=-270 scale=0.9 tile=#true
+}
+
+stage "shmup" {
+  layer "sky:shmup" depth=100
+  layer "stages/raj/clouds" depth=3 scale=0.8 tile=#true tiley=#true
+  layer "stages/shmup/hills" depth=2 y=-180 scale=1 tile=#true
+  layer "stages/raj/clouds" depth=1.2 scale=0.55 tile=#true tiley=#true
+}

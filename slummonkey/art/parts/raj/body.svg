@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 260">
+  <!-- legs -->
+  <path d="M60 180 L 56 246 M 104 180 L 110 246" stroke="var(--ink)" stroke-width="22" stroke-linecap="round"/>
+  <path d="M60 180 L 56 246 M 104 180 L 110 246" stroke="var(--midnight)" stroke-width="12" stroke-linecap="round"/>
+  <path d="M36 254 C 36 240, 70 238, 72 254Z M92 254 C 94 238, 128 240, 130 254Z" fill="var(--ink)"/>
+  <!-- tailcoat -->
+  <path d="M40 20 C 60 6, 110 6, 130 20 L 146 150 L 160 210 C 130 200, 120 180, 110 196 L 84 120 L 58 196 C 46 180, 36 200, 10 210 L 24 150Z" fill="var(--raj-coat)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M84 16 L 60 70 L 84 120 L 108 70Z" fill="var(--white)" stroke="var(--ink)" stroke-width="5"/>
+  <path d="M76 26 L 92 26 L 84 40Z" fill="var(--vermilion)" stroke="var(--ink)" stroke-width="3"/>
+  <g fill="var(--gold)" stroke="var(--ink)" stroke-width="3"><circle cx="84" cy="62" r="4"/><circle cx="84" cy="84" r="4"/></g>
+  <g fill="var(--gold)"><path d="M40 90 l4 9 l10 1 l-7 6 l2 10 l-9 -5 l-9 5 l2 -10 l-7 -6 l10 -1z"/><path d="M126 120 l4 9 l10 1 l-7 6 l2 10 l-9 -5 l-9 5 l2 -10 l-7 -6 l10 -1z"/><path d="M34 160 l3 7 l8 1 l-6 5 l2 8 l-7 -4 l-7 4 l2 -8 l-6 -5 l8 -1z"/></g>
+  <path d="M40 20 C 50 60, 50 120, 30 190" fill="none" stroke="var(--raj-coat-light)" stroke-width="10" stroke-linecap="round" opacity="0.8"/>
+  <path d="M30 150 L 140 150" stroke="var(--gold)" stroke-width="6"/>
+</svg>

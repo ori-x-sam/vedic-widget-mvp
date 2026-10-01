@@ -39,7 +39,7 @@ export function makePlayer(def: Record<string, number>, loadout: Loadout): Playe
 export const isInvulnerable = (p: Player) => p.iframes > 0 || p.blinkT > 0 || p.invulnT > 0 || p.superT > 0 || p.dead;
 
 /** Damage the player. Returns true if it landed. */
-export function hurtPlayer(w: World, by: string): boolean {
+export function hurtPlayer(w: World, by: string, spawnT = -Infinity): boolean {
   const p = w.player;
   if (isInvulnerable(p) || w.result) return false;
   p.hp--;
@@ -58,17 +58,11 @@ export function hurtPlayer(w: World, by: string): boolean {
     w.result = "lose";
     w.deaths.push({
       t: w.t, phase: w.phase?.id ?? w.level?.id ?? "", by, x: p.x, y: p.y,
-      spawnedAgo: lastSpawnAgo(w, by), telegraphed: w.t - w.lastWarnT < 2.5,
+      spawnedAgo: w.t - spawnT, telegraphed: w.t - w.lastWarnT < 2.5,
     });
     w.emit("player-dead", p.x, p.y, by);
   }
   return true;
-}
-
-function lastSpawnAgo(w: World, by: string): number {
-  let best = Infinity;
-  for (const q of w.projs.live) if (q.def.id === by) best = Math.min(best, w.t - q.spawnT);
-  return best;
 }
 
 export function stepPlayer(w: World, inp: InputFrame, frozen: boolean) {

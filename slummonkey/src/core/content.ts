@@ -41,7 +41,7 @@ export interface ThemeDef { id: string; bpm: number; root: number; scale: number
 export interface OwNode { id: string; x: number; y: number; level: string; label: string; requires: string; kind: string }
 export interface OwNpc { id: string; x: number; y: number; puppet: string; lines: string[] }
 export interface OverworldDef { map: string[]; start: [number, number]; nodes: OwNode[]; npcs: OwNpc[]; props: { kind: string; x: number; y: number; s: number }[]; size: [number, number] }
-export interface StageLayer { art: string; depth: number; x: number; y: number; tile: boolean; scale: number; tint: string }
+export interface StageLayer { art: string; depth: number; x: number; y: number; tile: boolean; tiley: boolean; scale: number; tint: string }
 export interface StageDef { id: string; layers: StageLayer[]; floor: number; ceiling: number; width: number }
 
 export interface Content {
@@ -220,7 +220,7 @@ function loadNode(c: Content, n: KdlNode, file: string) {
         id, floor: propNum(n, "floor", -250), ceiling: propNum(n, "ceiling", 360), width: propNum(n, "width", 1280),
         layers: childrenNamed(n, "layer").map((l) => ({
           art: argStr(l, 0, ""), depth: propNum(l, "depth", 1), x: propNum(l, "x", 0), y: propNum(l, "y", 0), tile: propBool(l, "tile", false),
-          scale: propNum(l, "scale", 1), tint: propStr(l, "tint", ""),
+          scale: propNum(l, "scale", 1), tint: propStr(l, "tint", ""), tiley: propBool(l, "tiley", false),
         })),
       };
       return;

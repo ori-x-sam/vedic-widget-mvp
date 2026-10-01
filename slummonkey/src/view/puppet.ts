@@ -80,11 +80,16 @@ export const ANIMS: Record<string, AnimFn> = {
   },
   jaw: (s) => ({ r: ["spray", "stomp", "beam", "charge", "hurt", "ko", "drumroll"].includes(s.pose) ? 0.35 : 0 }),
   spin: (s) => ({ r: -s.t * 14 }),
+  prop: (s) => ({ sx: Math.cos(s.t * 47) * 0.85 + Math.sign(Math.cos(s.t * 47)) * 0.15 }),
+  bank: (s) => ({ r: Math.max(-0.25, Math.min(0.25, s.vy / 2400)) }),
   "spin-slow": (s) => ({ r: -s.t * 2 }),
   float: (s, t, p) => ({ y: Math.sin(t * TAU * 0.8 + phase(p)) * 8 }),
   flutter: (s, t, p) => ({ r: (has(p, "b") ? -1 : 1) * Math.sin(t * TAU * 6) * 0.5 }),
   sway: (s, t, p) => ({ r: Math.sin(t * TAU * 0.4 + phase(p)) * 0.06 }),
-  wobble: (s, t) => ({ r: Math.sin(s.t * 9) * s.wobble * 0.18 + Math.sin(t * TAU * 0.5) * 0.03 }),
+  wobble: (s, t, p) => {
+    if (s.pose === "ko" || s.pose === "topple") { const k = Math.min(1, s.poseT * 1.5); return { r: (has(p, "b") ? -1.3 : 1.1) * k, x: (has(p, "b") ? -60 : 50) * k, y: -40 * k * k }; }
+    return { r: Math.sin(s.t * 9) * s.wobble * 0.18 + Math.sin(t * TAU * 0.5) * 0.03 };
+  },
   hat: (s, t) => ({ y: s.pose === "juggle" || s.pose === "summon" ? Math.abs(Math.sin(t * TAU * 2)) * 12 : 0, r: Math.sin(t * TAU * 0.5) * 0.04 }),
   ponytail: (s, t) => ({ r: Math.sin(t * TAU * (moving(s) ? 3 : 1)) * 0.3 }),
   kick: (s, t, p) => ({ r: s.pose === "charge" || s.pose === "kick" ? Math.sin(t * TAU * 3 + phase(p)) * 1.1 : Math.sin(t * TAU * 1.2 + phase(p)) * 0.15 }),
@@ -112,16 +117,19 @@ export class PuppetFactory {
 
 export class PuppetView {
   root = new THREE.Group(); // positioned at entity feet
-  body = new THREE.Group(); // squash/stretch, facing, rotation
+  body = new THREE.Group(); // squash/stretch, facing, rotation, flip — all around the puppet's center
+  inner = new THREE.Group(); // offsets parts so body's origin is the visual center
+  private cy = 0;
   parts: PartNode[] = [];
   smear: THREE.Group;
   width = 0; height = 0;
 
   constructor(f: PuppetFactory, public def: PuppetDef) {
     this.root.add(this.body);
+    this.body.add(this.inner);
     const byId = new Map<string, PartNode>();
     const sorted = def.parts.slice();
-    let minX = 0, maxX = 0, maxY = 0;
+    let minX = 0, maxX = 0, maxY = 0, minY = 0;
     for (const part of sorted) {
       const r = f.rasters.get(`${part.svg}@${part.size * def.scale}`);
       const h = part.size * def.scale, w = h * (r?.aspect ?? 1);
@@ -136,13 +144,18 @@ export class PuppetView {
       const node = { def: part, pivot, mesh, mat };
       byId.set(part.id, node);
       this.parts.push(node);
-      minX = Math.min(minX, part.x - w / 2); maxX = Math.max(maxX, part.x + w / 2); maxY = Math.max(maxY, part.y * def.scale + h / 2);
+      if (!part.parent) {
+        minX = Math.min(minX, part.x * def.scale - part.px * w); maxX = Math.max(maxX, part.x * def.scale + (1 - part.px) * w);
+        maxY = Math.max(maxY, part.y * def.scale + part.py * h); minY = Math.min(minY, part.y * def.scale - (1 - part.py) * h);
+      }
     }
     for (const n of this.parts) {
       const parent = n.def.parent ? byId.get(n.def.parent) : null;
-      (parent ? parent.pivot : this.body).add(n.pivot);
+      (parent ? parent.pivot : this.inner).add(n.pivot);
     }
-    this.width = maxX - minX; this.height = maxY;
+    this.width = maxX - minX; this.height = maxY - Math.min(0, minY);
+    this.cy = (maxY + Math.max(minY, 0)) / 2;
+    this.inner.position.y = -this.cy;
     // smear: speed lines behind the body on fast moves
     this.smear = new THREE.Group();
     const lineMat = new THREE.MeshBasicMaterial({ color: new THREE.Color().setRGB(...f.tokens.color("--ink")), transparent: true, opacity: f.tokens.num("--smear-alpha", 0.35), depthWrite: false });
@@ -168,7 +181,7 @@ export class PuppetView {
     const fast = Math.abs(s.speed) > tokens.smearSpeed;
     const smearK = fast ? 1.22 : 1;
     this.body.scale.set(facing * s.scale * (1 - sq * 0.5) * smearK, flip * s.scale * (1 + sq) / Math.sqrt(smearK), 1);
-    this.body.position.y = s.flipY ? this.height * s.scale : 0;
+    this.body.position.y = this.cy * s.scale;
     this.body.rotation.z = s.rot;
     this.smear.visible = fast;
     if (fast) {

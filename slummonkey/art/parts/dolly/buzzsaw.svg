@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220">
+  <defs><pattern id="hq" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="var(--dolly-a)"/><path d="M20 0 L40 20 L20 40 L0 20Z" fill="var(--dolly-b)"/><path d="M20 0 L40 20 L20 40 L0 20Z" fill="none" stroke="var(--ink)" stroke-width="2"/></pattern></defs>
+  <path d="M216.0 110.0 L195.0 132.8 L201.8 163.0 L172.2 172.2 L163.0 201.8 L132.8 195.0 L110.0 216.0 L87.2 195.0 L57.0 201.8 L47.8 172.2 L18.2 163.0 L25.0 132.8 L4.0 110.0 L25.0 87.2 L18.2 57.0 L47.8 47.8 L57.0 18.2 L87.2 25.0 L110.0 4.0 L132.8 25.0 L163.0 18.2 L172.2 47.8 L201.8 57.0 L195.0 87.2Z" fill="var(--steel)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <rect x="40" y="40" width="140" height="140" rx="8" fill="url(#hq)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="110" cy="110" r="22" fill="var(--gold)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M60 60 L 160 160 M160 60 L 60 160" stroke="var(--ink)" stroke-width="4" opacity="0.5"/>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 300">
+  <rect x="40" y="140" width="340" height="150" fill="var(--wood)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M20 140 L 400 140 L 370 70 L 50 70Z" fill="var(--teal)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M20 140 L 400 140 L 400 156 C 370 170, 350 150, 320 166 C 290 150, 270 170, 240 156 C 210 170, 190 150, 160 166 C 130 150, 110 170, 80 156 C 60 168, 40 160, 20 156Z" fill="var(--paper)" stroke="var(--ink)" stroke-width="5"/>
+  <rect x="120" y="20" width="180" height="50" rx="10" fill="var(--marigold)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <text x="210" y="54" font-family="sans-serif" font-weight="900" font-size="22" text-anchor="middle" fill="var(--ink)">SLUM CHAI</text>
+  <rect x="60" y="190" width="300" height="70" fill="var(--wood-dark)" stroke="var(--ink)" stroke-width="5"/>
+  <g stroke="var(--ink)" stroke-width="4"><path d="M100 200 h24 v26 h-24z" fill="var(--white)"/><path d="M140 200 h24 v26 h-24z" fill="var(--white)"/><path d="M180 200 h24 v26 h-24z" fill="var(--white)"/></g>
+  <path d="M110 196 C 106 184, 116 178, 112 166 M150 196 C 146 184, 156 178, 152 166" fill="none" stroke="var(--white)" stroke-width="4" stroke-linecap="round"/>
+  <rect x="250" y="180" width="80" height="50" rx="6" fill="var(--midnight)" stroke="var(--ink)" stroke-width="4"/>
+  <rect x="258" y="186" width="64" height="34" fill="var(--pinky)"/>
+  <text x="290" y="208" font-family="sans-serif" font-weight="900" font-size="12" text-anchor="middle" fill="var(--white)">LIVE ♥ 2M</text>
+</svg>

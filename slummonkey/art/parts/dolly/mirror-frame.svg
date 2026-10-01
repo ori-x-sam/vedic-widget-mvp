@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 340">
+  <path d="M110 6 C 170 6, 210 50, 210 110 L 210 330 L 10 330 L 10 110 C 10 50, 50 6, 110 6Z" fill="var(--gold)" stroke="var(--ink)" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M110 26 C 160 26, 190 62, 190 112 L 190 314 L 30 314 L 30 112 C 30 62, 60 26, 110 26Z" fill="var(--sky)" stroke="var(--ink)" stroke-width="5"/>
+  <path d="M60 80 L 100 40 M60 130 L 140 50 M120 300 L 180 240" stroke="var(--white)" stroke-width="10" stroke-linecap="round" opacity="0.6"/>
+  <g fill="var(--rani)" stroke="var(--ink)" stroke-width="3"><circle cx="110" cy="14" r="8"/><circle cx="16" cy="200" r="6"/><circle cx="204" cy="200" r="6"/></g>
+</svg>

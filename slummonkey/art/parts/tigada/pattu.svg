@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 110 170">
+  <path d="M44 138 L 40 160 M 64 138 L 68 160" stroke="var(--ink)" stroke-width="9" stroke-linecap="round"/>
+  <path d="M28 164 C 30 154, 46 154, 48 164Z M60 164 C 62 154, 80 154, 84 164Z" fill="var(--wood)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- long thin kurta -->
+  <path d="M34 80 C 34 70, 72 70, 74 80 L 80 140 C 64 146, 40 146, 28 140Z" fill="var(--pattu)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M40 84 L 36 138" stroke="var(--leaf-dark)" stroke-width="8" opacity="0.6" stroke-linecap="round"/>
+  <path d="M52 76 L 56 100" stroke="var(--ink)" stroke-width="3"/>
+  <!-- long neck + head -->
+  <path d="M50 76 L 52 62 L 62 62 L 62 76" fill="var(--skin-1)" stroke="var(--ink)" stroke-width="4"/>
+  <ellipse cx="60" cy="46" rx="20" ry="24" fill="var(--skin-1)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- tall fez -->
+  <path d="M40 30 L 46 2 L 78 4 L 80 30 C 66 34, 52 34, 40 30Z" fill="var(--vermilion)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M60 3 C 70 -4, 84 2, 88 14" fill="none" stroke="var(--ink)" stroke-width="3"/><circle cx="88" cy="16" r="5" fill="var(--marigold)" stroke="var(--ink)" stroke-width="3"/>
+  <!-- sly half-lidded eyes -->
+  <path d="M58 40 C 62 36, 68 36, 72 40 L 58 40Z" fill="var(--white)" stroke="var(--ink)" stroke-width="3"/>
+  <path d="M58 40 L 72 40" stroke="var(--ink)" stroke-width="5"/><circle cx="68" cy="42" r="3" fill="var(--ink)"/>
+  <path d="M50 34 L 60 36" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M74 46 C 82 46, 84 52, 78 54" fill="var(--skin-2)" stroke="var(--ink)" stroke-width="3"/>
+  <!-- droopy moustache + smirk -->
+  <path d="M60 56 C 66 52, 78 52, 82 56 C 86 62, 86 70, 82 72 C 80 64, 74 60, 70 60 C 66 62, 62 66, 58 70 C 56 64, 56 58, 60 56Z" fill="var(--ink)"/>
+  <path d="M66 64 C 70 66, 74 66, 76 64" stroke="var(--velvet-dark)" stroke-width="3" fill="none"/>
+</svg>

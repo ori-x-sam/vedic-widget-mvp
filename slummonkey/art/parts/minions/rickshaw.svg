@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 170">
+  <!-- autorickshaw body -->
+  <path d="M30 70 C 30 40, 70 30, 120 32 C 160 34, 190 50, 196 80 L 200 130 L 20 130 Z" fill="var(--turmeric)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M30 70 C 34 46, 70 38, 118 40 L 118 90 L 30 92Z" fill="var(--leaf)" stroke="var(--ink)" stroke-width="5"/>
+  <path d="M130 46 C 160 50, 180 64, 186 90 L 130 92Z" fill="var(--sky)" stroke="var(--ink)" stroke-width="5"/>
+  <path d="M136 56 L 160 60" stroke="var(--white)" stroke-width="6" stroke-linecap="round" opacity="0.7"/>
+  <path d="M20 110 L 204 110" stroke="var(--ink)" stroke-width="5"/>
+  <rect x="160" y="96" width="30" height="12" rx="4" fill="var(--paper)" stroke="var(--ink)" stroke-width="4"/>
+  <circle cx="198" cy="96" r="9" fill="var(--marigold)" stroke="var(--ink)" stroke-width="4"/>
+  <!-- monkey peeking out -->
+  <circle cx="92" cy="70" r="20" fill="var(--monkey-fur)" stroke="var(--ink)" stroke-width="5"/>
+  <path d="M86 70 C 88 60, 106 58, 110 70 C 112 82, 100 88, 92 86 C 84 84, 84 76, 86 70Z" fill="var(--monkey-face)" stroke="var(--ink)" stroke-width="4"/>
+  <circle cx="102" cy="68" r="5" fill="var(--cyber)" stroke="var(--ink)" stroke-width="2"/>
+  <path d="M74 52 C 80 40, 104 38, 112 52Z" fill="var(--hoodie)" stroke="var(--ink)" stroke-width="4"/>
+  <!-- wheels -->
+  <circle cx="50" cy="134" r="20" fill="var(--midnight)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="50" cy="134" r="7" fill="var(--steel)"/>
+  <circle cx="176" cy="134" r="20" fill="var(--midnight)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="176" cy="134" r="7" fill="var(--steel)"/>
+  <!-- rotor mast -->
+  <path d="M110 32 L 110 10" stroke="var(--ink)" stroke-width="7"/>
+  <!-- cyborg cannon -->
+  <rect x="190" y="70" width="28" height="14" rx="4" fill="var(--steel)" stroke="var(--ink)" stroke-width="4"/>
+  <circle cx="216" cy="77" r="4" fill="var(--cyber)"/>
+</svg>

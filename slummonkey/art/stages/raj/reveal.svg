@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 700">
+  <rect width="1800" height="700" fill="#0d1b1e"/>
+  <g stroke="#1f3a3f" stroke-width="3"><path d="M0 0 V700"/>
+<path d="M100 0 V700"/>
+<path d="M200 0 V700"/>
+<path d="M300 0 V700"/>
+<path d="M400 0 V700"/>
+<path d="M500 0 V700"/>
+<path d="M600 0 V700"/>
+<path d="M700 0 V700"/>
+<path d="M800 0 V700"/>
+<path d="M900 0 V700"/>
+<path d="M1000 0 V700"/>
+<path d="M1100 0 V700"/>
+<path d="M1200 0 V700"/>
+<path d="M1300 0 V700"/>
+<path d="M1400 0 V700"/>
+<path d="M1500 0 V700"/>
+<path d="M1600 0 V700"/>
+<path d="M1700 0 V700"/>
+<path d="M1800 0 V700"/><path d="M0 0 H1800"/>
+<path d="M0 100 H1800"/>
+<path d="M0 200 H1800"/>
+<path d="M0 300 H1800"/>
+<path d="M0 400 H1800"/>
+<path d="M0 500 H1800"/>
+<path d="M0 600 H1800"/>
+<path d="M0 700 H1800"/></g>
+  <!-- the pump-and-dump, painted huge -->
+  <path d="M0 600 C 300 590, 500 560, 700 480 C 900 380, 1000 200, 1100 90 L 1180 640 L 1800 660" fill="none" stroke="var(--ink)" stroke-width="22" stroke-linejoin="round"/>
+  <path d="M0 600 C 300 590, 500 560, 700 480 C 900 380, 1000 200, 1100 90" fill="none" stroke="var(--candle-green)" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M1100 90 L 1180 640 L 1800 660" fill="none" stroke="var(--candle-red)" stroke-width="12" stroke-linejoin="round"/>
+  <g stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="4"><path d="M40 579.0301725899775 V625.0301725899775" stroke="var(--candle-green)"/><rect x="28" y="597.0301725899775" width="24" height="10" fill="var(--candle-green)"/><path d="M92 579.0301725899775 V625.0301725899775" stroke="var(--candle-red)"/><rect x="80" y="597.0301725899775" width="24" height="10" fill="var(--candle-red)"/><path d="M144 572.0596500700045 V618.0596500700045" stroke="var(--candle-green)"/><rect x="132" y="590.0596500700045" width="24" height="10" fill="var(--candle-green)"/><path d="M196 572.0596500700045 V618.0596500700045" stroke="var(--candle-red)"/><rect x="184" y="590.0596500700045" width="24" height="10" fill="var(--candle-red)"/><path d="M248 572.1707037795129 V618.1707037795129" stroke="var(--candle-red)"/><rect x="236" y="590.1707037795129" width="24" height="10" fill="var(--candle-red)"/><path d="M300 566.3826715932556 V612.3826715932556" stroke="var(--candle-green)"/><rect x="288" y="584.3826715932556" width="24" height="10" fill="var(--candle-green)"/><path d="M352 537.5003799559223 V602.3826715932556" stroke="var(--candle-green)"/><rect x="340" y="555.5003799559223" width="24" height="28.88229163733331" fill="var(--candle-green)"/><path d="M404 513.0831905990816 V573.5003799559223" stroke="var(--candle-green)"/><rect x="392" y="531.0831905990816" width="24" height="24.41718935684071" fill="var(--candle-green)"/><path d="M456 490.0070117038749 V549.0831905990816" stroke="var(--candle-green)"/><rect x="444" y="508.0070117038749" width="24" height="23.07617889520668" fill="var(--candle-green)"/><path d="M508 487.5737410276429 V533.5737410276429" stroke="var(--candle-green)"/><rect x="496" y="505.5737410276429" width="24" height="10" fill="var(--candle-green)"/><path d="M560 473.17990071699995 V523.5737410276429" stroke="var(--candle-green)"/><rect x="548" y="491.17990071699995" width="24" height="14.39384031064293" fill="var(--candle-green)"/><path d="M612 468.66596026622483 V514.6659602662248" stroke="var(--candle-green)"/><rect x="600" y="486.66596026622483" width="24" height="10" fill="var(--candle-green)"/><path d="M664 468.1047081533808 V514.1047081533808" stroke="var(--candle-green)"/><rect x="652" y="486.1047081533808" width="24" height="10" fill="var(--candle-green)"/><path d="M716 468.1047081533808 V514.1047081533808" stroke="var(--candle-red)"/><rect x="704" y="486.1047081533808" width="24" height="10" fill="var(--candle-red)"/><path d="M768 467.9225266029838 V513.9225266029838" stroke="var(--candle-green)"/><rect x="756" y="485.9225266029838" width="24" height="10" fill="var(--candle-green)"/><path d="M820 438.6784526087175 V503.9225266029838" stroke="var(--candle-green)"/><rect x="808" y="456.6784526087175" width="24" height="29.244073994266273" fill="var(--candle-green)"/><path d="M872 413.1794907551376 V474.6784526087175" stroke="var(--candle-green)"/><rect x="860" y="431.1794907551376" width="24" height="25.498961853579942" fill="var(--candle-green)"/><path d="M924 388.5267015804493 V449.1794907551376" stroke="var(--candle-green)"/><rect x="912" y="406.5267015804493" width="24" height="24.65278917468828" fill="var(--candle-green)"/><path d="M976 364.1096837158166 V424.5267015804493" stroke="var(--candle-green)"/><rect x="964" y="382.1096837158166" width="24" height="24.417017864632726" fill="var(--candle-green)"/><path d="M1028 362.75913023108546 V408.75913023108546" stroke="var(--candle-green)"/><rect x="1016" y="380.75913023108546" width="24" height="10" fill="var(--candle-green)"/><path d="M1080 356.9848318537031 V402.9848318537031" stroke="var(--candle-green)"/><rect x="1068" y="374.9848318537031" width="24" height="10" fill="var(--candle-green)"/><path d="M1132 356.9848318537031 V652.9848318537031" stroke="var(--candle-red)"/><rect x="1120" y="374.9848318537031" width="24" height="260.0" fill="var(--candle-red)"/><path d="M1184 616.9848318537031 V668.0" stroke="var(--candle-red)"/><rect x="1172" y="634.9848318537031" width="24" height="15.0151681462969" fill="var(--candle-red)"/><path d="M1236 632 V678" stroke="var(--candle-red)"/><rect x="1224" y="650" width="24" height="10" fill="var(--candle-red)"/><path d="M1288 632 V678" stroke="var(--candle-red)"/><rect x="1276" y="650" width="24" height="10" fill="var(--candle-red)"/><path d="M1340 632 V678" stroke="var(--candle-red)"/><rect x="1328" y="650" width="24" height="10" fill="var(--candle-red)"/><path d="M1392 632 V678" stroke="var(--candle-red)"/><rect x="1380" y="650" width="24" height="10" fill="var(--candle-red)"/><path d="M1444 623.9078015579682 V669.9078015579682" stroke="var(--candle-green)"/><rect x="1432" y="641.9078015579682" width="24" height="10" fill="var(--candle-green)"/><path d="M1496 623.9078015579682 V669.9078015579682" stroke="var(--candle-red)"/><rect x="1484" y="641.9078015579682" width="24" height="10" fill="var(--candle-red)"/><path d="M1548 627.2365429998056 V673.2365429998056" stroke="var(--candle-red)"/><rect x="1536" y="645.2365429998056" width="24" height="10" fill="var(--candle-red)"/><path d="M1600 632 V678" stroke="var(--candle-red)"/><rect x="1588" y="650" width="24" height="10" fill="var(--candle-red)"/><path d="M1652 625.9113838332972 V671.9113838332972" stroke="var(--candle-green)"/><rect x="1640" y="643.9113838332972" width="24" height="10" fill="var(--candle-green)"/><path d="M1704 625.9113838332972 V671.9113838332972" stroke="var(--candle-red)"/><rect x="1692" y="643.9113838332972" width="24" height="10" fill="var(--candle-red)"/><path d="M1756 618.295933920009 V664.295933920009" stroke="var(--candle-green)"/><rect x="1744" y="636.295933920009" width="24" height="10" fill="var(--candle-green)"/></g>
+  <text x="80" y="90" font-family="monospace" font-size="54" font-weight="900" fill="var(--candle-red)" stroke="var(--ink)" stroke-width="3">$RAJ  -99.9%</text>
+  <text x="1260" y="200" font-family="monospace" font-size="40" font-weight="900" fill="var(--paper)" opacity="0.5">RUG PULLED</text>
+  <rect x="4" y="4" width="1792" height="692" fill="none" stroke="var(--ink)" stroke-width="8"/>
+</svg>

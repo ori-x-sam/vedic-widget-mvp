@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 360">
+  <path d="M130 10 C 220 10, 250 90, 240 150 C 228 210, 170 240, 150 250 L 110 250 C 90 240, 32 210, 20 150 C 10 90, 40 10, 130 10Z" fill="var(--saffron)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <g fill="none" stroke="var(--vermilion)" stroke-width="16"><path d="M130 12 C 90 60, 80 180, 112 250"/><path d="M130 12 C 170 60, 180 180, 148 250"/></g>
+  <path d="M30 120 C 90 140, 170 140, 230 120" fill="none" stroke="var(--marigold)" stroke-width="10"/>
+  <path d="M70 40 C 80 28, 96 22, 110 22" fill="none" stroke="var(--white)" stroke-width="10" stroke-linecap="round" opacity="0.7"/>
+  <path d="M112 250 L 96 296 M148 250 L 164 296" stroke="var(--ink)" stroke-width="5"/>
+  <!-- guru in the basket -->
+  <circle cx="130" cy="280" r="28" fill="var(--skin-1)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M100 270 C 100 240, 160 240, 160 270 C 146 262, 114 262, 100 270Z" fill="var(--white)" stroke="var(--ink)" stroke-width="5"/>
+  <path d="M116 280 C 120 276, 126 276, 128 280 M136 280 C 140 276, 146 276, 148 280" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M112 294 C 124 304, 140 304, 150 294 C 150 318, 112 318, 112 294Z" fill="var(--white)" stroke="var(--ink)" stroke-width="4"/>
+  <path d="M78 296 L 182 296 L 172 352 L 88 352Z" fill="var(--wood)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <g stroke="var(--wood-dark)" stroke-width="4"><path d="M84 316 H176 M86 334 H174 M110 298 V350 M150 298 V350"/></g>
+</svg>

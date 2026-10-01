@@ -107,3 +107,6 @@ canvas.game { position: absolute; inset: 0; width: 100%; height: 100%; display: 
 .comic-bg-stage { background: linear-gradient(var(--velvet), var(--velvet-dark)); }
 .comic-bg-dots { background: radial-gradient(var(--rani) 22%, transparent 24%) 0 0 / 18px 18px, var(--pinky); }
 .comic-bg-chart { background: linear-gradient(transparent 95%, rgba(0,0,0,.15) 95%) 0 0 / 100% 30px, linear-gradient(90deg, transparent 95%, rgba(0,0,0,.15) 95%) 0 0 / 30px 100%, #0d1b1e; }
+.ow-prompt { position: absolute; left: 50%; bottom: 18%; transform: translateX(-50%); pointer-events: auto; }
+.ow-prompt .btn { animation: bubble-pop 0.25s; }
+.screen .coins-tag, .layer > .coins-tag { pointer-events: none; }

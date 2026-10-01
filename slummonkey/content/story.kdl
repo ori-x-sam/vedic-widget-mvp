@@ -1,0 +1,62 @@
+// Comic-panel cutscenes. Each panel: layout (wide | half), bg (look/hud.css .comic-bg-*), art pieces
+// (art/<id>.svg at x/y % of the panel, s = scale), and bubbles: say/shout/think/sfx who "text" x= y= tail=.
+// Hinglish, punchy. Villain threats yes, gore never.
+
+story "intro" {
+  panel layout="wide" bg="night" caption="Mumbai. Raat ke 3 baje. Ek kholi. Ek phone. Zero balance." {
+    art "comic/monkey-phone" x=32 y=96 s=1.5
+    think "SlumMonkey" "Bas ek aur bet... is baar pakka jackpot!" x=66 y=26
+    sfx "" "TING!" x=80 y=62
+  }
+  panel layout="half" bg="phone" caption="Unknown sender: “Video dekho.”" {
+    art "comic/phone-raj" x=50 y=97 s=1.5
+    say "Jadugar Raj" "Namaste, SlumMonkey. Tumhari favourite streamer... Pinky... ab mere show ka hissa hai." x=50 y=18
+  }
+  panel layout="half" bg="dots" {
+    art "comic/pinky-cage" x=50 y=98 s=1.5
+    shout "Pinky" "MONKEY?! Is show-wale ka dimaag kharab hai!" x=50 y=14
+  }
+  panel layout="half" bg="stage" {
+    art "comic/phone-raj" x=30 y=98 s=1.1
+    say "Jadugar Raj" "Mere island aao. Mera show khelo. Jeete toh Pinky azaad." x=66 y=22
+    say "Jadugar Raj" "Haare... toh tumhara wallet bhi gayab. Abracadabra." x=66 y=60
+  }
+  panel layout="half" bg="sun" {
+    art "comic/monkey-shout" x=50 y=99 s=1.6
+    shout "SlumMonkey" "Pinky ne mujhe kabhi block nahi kiya. MAIN AA RAHA HOON!" x=46 y=16
+  }
+  panel layout="wide" bg="night" caption="Jadugar Raj ka Island: ek purana 80s magic stage... aur uske upar poora mela." {
+    art "comic/island" x=50 y=92 s=1.5
+    say "SlumMonkey" "Chalo. Khel shuru." x=22 y=30
+  }
+}
+
+story "ending" {
+  panel layout="wide" bg="chart" caption="Rug pull ka rug... khud Raj ke neeche se khinch gaya." {
+    art "parts/raj/giant-body" x=50 y=104 s=1.6
+    say "Jadugar Raj" "Mera... jaadu... mera chart..." x=78 y=24
+    sfx "" "DHADAAM!" x=22 y=40
+  }
+  panel layout="half" bg="dots" {
+    art "comic/pinky-phone" x=50 y=99 s=1.6
+    shout "Pinky" "Monkey! Tu sach mein aaya!" x=40 y=14
+  }
+  panel layout="half" bg="sun" {
+    art "comic/monkey-shout" x=36 y=99 s=1.3
+    say "Pinky" "Waise... main poore time LIVE thi. 20 lakh log Raj ka confession dekh rahe the." x=68 y=16
+    think "SlumMonkey" "Matlab... main viral hoon?" x=70 y=62
+  }
+  panel layout="half" bg="chart" caption="Raj ke saare fake tokens zabt. Jitne logon ko loota, sabke paise wapas." {
+    art "comic/coins-pile" x=50 y=94 s=1.3
+  }
+  panel layout="half" bg="paper" {
+    art "comic/chai-stall" x=50 y=96 s=1.4
+    say "SlumMonkey" "Ab koi bet nahi. Asli kaam. Asli chai." x=30 y=14
+    say "Pinky" "Aur main stream karungi: 'Chai with SlumMonkey'!" x=70 y=38
+  }
+  panel layout="wide" bg="sun" caption="KHEL KHATAM. Nayi shuruaat." {
+    art "comic/pinky-phone" x=70 y=99 s=1.2
+    art "comic/monkey-shout" x=30 y=99 s=1.2
+    shout "Dono" "Like, share, aur chai piyo!" x=50 y=16
+  }
+}

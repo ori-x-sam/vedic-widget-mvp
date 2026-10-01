@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 700">
+  <rect width="1800" height="700" fill="var(--midnight)"/>
+  <g opacity="0.5"><path d="M900 640 L-600 640 L-598 556Z" fill="var(--indigo)"/><path d="M900 640 L-591 472 L-579 389Z" fill="var(--indigo)"/><path d="M900 640 L-562 306 L-541 225Z" fill="var(--indigo)"/><path d="M900 640 L-516 145 L-486 66Z" fill="var(--indigo)"/><path d="M900 640 L-451 -11 L-413 -86Z" fill="var(--indigo)"/><path d="M900 640 L-370 -158 L-323 -228Z" fill="var(--indigo)"/><path d="M900 640 L-273 -295 L-218 -360Z" fill="var(--indigo)"/><path d="M900 640 L-161 -421 L-100 -478Z" fill="var(--indigo)"/><path d="M900 640 L-35 -533 L32 -583Z" fill="var(--indigo)"/><path d="M900 640 L102 -630 L174 -673Z" fill="var(--indigo)"/><path d="M900 640 L249 -711 L326 -746Z" fill="var(--indigo)"/><path d="M900 640 L405 -776 L485 -801Z" fill="var(--indigo)"/><path d="M900 640 L566 -822 L649 -839Z" fill="var(--indigo)"/><path d="M900 640 L732 -851 L816 -858Z" fill="var(--indigo)"/><path d="M900 640 L900 -860 L984 -858Z" fill="var(--indigo)"/><path d="M900 640 L1068 -851 L1151 -839Z" fill="var(--indigo)"/><path d="M900 640 L1234 -822 L1315 -801Z" fill="var(--indigo)"/><path d="M900 640 L1395 -776 L1474 -746Z" fill="var(--indigo)"/><path d="M900 640 L1551 -711 L1626 -673Z" fill="var(--indigo)"/><path d="M900 640 L1698 -630 L1768 -583Z" fill="var(--indigo)"/><path d="M900 640 L1835 -533 L1900 -478Z" fill="var(--indigo)"/><path d="M900 640 L1961 -421 L2018 -360Z" fill="var(--indigo)"/><path d="M900 640 L2073 -295 L2123 -228Z" fill="var(--indigo)"/><path d="M900 640 L2170 -158 L2213 -86Z" fill="var(--indigo)"/><path d="M900 640 L2251 -11 L2286 66Z" fill="var(--indigo)"/><path d="M900 640 L2316 145 L2341 225Z" fill="var(--indigo)"/><path d="M900 640 L2362 306 L2379 389Z" fill="var(--indigo)"/><path d="M900 640 L2391 472 L2398 556Z" fill="var(--indigo)"/></g>
+  <!-- giant poster of Raj -->
+  <rect x="620" y="40" width="560" height="520" rx="20" fill="var(--paper)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="10"/>
+  <rect x="644" y="64" width="512" height="472" rx="12" fill="var(--rani)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="5"/>
+  <circle cx="900" cy="270" r="170" fill="var(--marigold)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="6"/>
+  <path d="M780 310 C 780 220, 840 190, 900 190 C 970 190, 1020 230, 1020 310 C 1020 380, 960 420, 900 420 C 840 420, 780 380, 780 310Z" fill="var(--skin-2)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="7"/>
+  <rect x="800" y="70" width="200" height="130" fill="var(--midnight)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="7"/>
+  <path d="M760 200 L 1040 200" stroke="var(--ink)" stroke-width="22" stroke-linecap="round"/>
+  <rect x="800" y="160" width="200" height="24" fill="var(--vermilion)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="4"/>
+  <path d="M840 290 C 860 276, 880 276, 892 290 M916 290 C 930 276, 950 276, 966 290" fill="none" stroke="var(--ink)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M850 360 C 880 340, 920 340, 950 360 C 980 340, 1010 350, 1010 370 C 990 362, 960 364, 940 372 C 920 366, 880 366, 860 372 C 840 364, 810 362, 790 370 C 790 350, 820 340, 850 360Z" fill="var(--ink)"/>
+  <path d="M700 470 L 1100 470 L 1080 520 L 720 520Z" fill="var(--gold)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="6"/>
+  <g fill="var(--rani)"><circle cx="740" cy="495" r="9"/>
+<circle cx="790" cy="495" r="9"/>
+<circle cx="840" cy="495" r="9"/>
+<circle cx="890" cy="495" r="9"/>
+<circle cx="940" cy="495" r="9"/>
+<circle cx="990" cy="495" r="9"/>
+<circle cx="1040" cy="495" r="9"/></g>
+  <!-- marquee bulbs around the poster -->
+  <g fill="var(--paper)" stroke="var(--ink)" stroke-width="4"><circle cx="640" cy="40" r="11"/><circle cx="640" cy="560" r="11"/>
+<circle cx="680" cy="40" r="11"/><circle cx="680" cy="560" r="11"/>
+<circle cx="720" cy="40" r="11"/><circle cx="720" cy="560" r="11"/>
+<circle cx="760" cy="40" r="11"/><circle cx="760" cy="560" r="11"/>
+<circle cx="800" cy="40" r="11"/><circle cx="800" cy="560" r="11"/>
+<circle cx="840" cy="40" r="11"/><circle cx="840" cy="560" r="11"/>
+<circle cx="880" cy="40" r="11"/><circle cx="880" cy="560" r="11"/>
+<circle cx="920" cy="40" r="11"/><circle cx="920" cy="560" r="11"/>
+<circle cx="960" cy="40" r="11"/><circle cx="960" cy="560" r="11"/>
+<circle cx="1000" cy="40" r="11"/><circle cx="1000" cy="560" r="11"/>
+<circle cx="1040" cy="40" r="11"/><circle cx="1040" cy="560" r="11"/>
+<circle cx="1080" cy="40" r="11"/><circle cx="1080" cy="560" r="11"/>
+<circle cx="1120" cy="40" r="11"/><circle cx="1120" cy="560" r="11"/>
+<circle cx="1160" cy="40" r="11"/><circle cx="1160" cy="560" r="11"/><circle cx="620" cy="60" r="11"/><circle cx="1180" cy="60" r="11"/>
+<circle cx="620" cy="100" r="11"/><circle cx="1180" cy="100" r="11"/>
+<circle cx="620" cy="140" r="11"/><circle cx="1180" cy="140" r="11"/>
+<circle cx="620" cy="180" r="11"/><circle cx="1180" cy="180" r="11"/>
+<circle cx="620" cy="220" r="11"/><circle cx="1180" cy="220" r="11"/>
+<circle cx="620" cy="260" r="11"/><circle cx="1180" cy="260" r="11"/>
+<circle cx="620" cy="300" r="11"/><circle cx="1180" cy="300" r="11"/>
+<circle cx="620" cy="340" r="11"/><circle cx="1180" cy="340" r="11"/>
+<circle cx="620" cy="380" r="11"/><circle cx="1180" cy="380" r="11"/>
+<circle cx="620" cy="420" r="11"/><circle cx="1180" cy="420" r="11"/>
+<circle cx="620" cy="460" r="11"/><circle cx="1180" cy="460" r="11"/>
+<circle cx="620" cy="500" r="11"/><circle cx="1180" cy="500" r="11"/>
+<circle cx="620" cy="540" r="11"/><circle cx="1180" cy="540" r="11"/></g>
+  <!-- side star cutouts -->
+  <g fill="var(--gold)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="6">
+    <path transform="translate(300 260) scale(2.2)" d="M0 -40 L11 -12 L40 -12 L17 6 L25 36 L0 18 L-25 36 L-17 6 L-40 -12 L-11 -12Z"/>
+    <path transform="translate(1500 260) scale(2.2)" d="M0 -40 L11 -12 L40 -12 L17 6 L25 36 L0 18 L-25 36 L-17 6 L-40 -12 L-11 -12Z"/>
+  </g>
+  <rect x="4" y="4" width="1792" height="692" fill="none" stroke="var(--ink)" stroke-width="8"/>
+</svg>

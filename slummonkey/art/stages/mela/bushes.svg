@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200">
+  <g stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="5">
+    <path d="M0 200 C 0 120, 80 100, 120 140 C 140 80, 240 80, 250 140 C 290 100, 380 110, 380 170 C 420 120, 520 120, 520 180 C 560 110, 680 110, 680 170 C 720 120, 820 120, 830 160 C 850 130, 900 140, 900 160 V200Z" fill="var(--leaf-dark)"/>
+  </g>
+  <g stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="3"><circle cx="20" cy="140" r="12" fill="var(--marigold)"/>
+<circle cx="70" cy="169" r="12" fill="var(--saffron)"/>
+<circle cx="120" cy="158" r="12" fill="var(--marigold)"/>
+<circle cx="170" cy="147" r="12" fill="var(--saffron)"/>
+<circle cx="220" cy="176" r="12" fill="var(--marigold)"/>
+<circle cx="270" cy="165" r="12" fill="var(--saffron)"/>
+<circle cx="320" cy="154" r="12" fill="var(--marigold)"/>
+<circle cx="370" cy="143" r="12" fill="var(--saffron)"/>
+<circle cx="420" cy="172" r="12" fill="var(--marigold)"/>
+<circle cx="470" cy="161" r="12" fill="var(--saffron)"/>
+<circle cx="520" cy="150" r="12" fill="var(--marigold)"/>
+<circle cx="570" cy="179" r="12" fill="var(--saffron)"/>
+<circle cx="620" cy="168" r="12" fill="var(--marigold)"/>
+<circle cx="670" cy="157" r="12" fill="var(--saffron)"/>
+<circle cx="720" cy="146" r="12" fill="var(--marigold)"/>
+<circle cx="770" cy="175" r="12" fill="var(--saffron)"/>
+<circle cx="820" cy="164" r="12" fill="var(--marigold)"/>
+<circle cx="870" cy="153" r="12" fill="var(--saffron)"/></g>
+</svg>

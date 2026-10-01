@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150">
+  <circle cx="60" cy="96" r="30" fill="var(--skin-3)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- tall top hat -->
+  <rect x="34" y="10" width="54" height="56" fill="var(--midnight)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M20 66 L 102 66" stroke="var(--ink)" stroke-width="12" stroke-linecap="round"/>
+  <path d="M34 50 L 88 50" stroke="var(--rani)" stroke-width="9"/>
+  <!-- obviously fake glued-on moustache -->
+  <path d="M40 112 C 50 100, 64 104, 66 110 C 70 104, 86 100, 98 112 C 84 110, 74 116, 66 114 C 58 116, 50 110, 40 112Z" fill="var(--ink)"/>
+  <rect x="62" y="104" width="7" height="6" fill="var(--paper)" stroke="var(--ink)" stroke-width="1.5" transform="rotate(-10 65 107)"/>
+  <!-- Lattu's eyes trying to look grand -->
+  <path d="M52 84 C 58 80, 64 80, 70 84 M76 84 C 82 80, 88 80, 92 84" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="62" cy="92" r="4" fill="var(--ink)"/><circle cx="84" cy="92" r="4" fill="var(--ink)"/>
+  <path d="M70 124 C 76 128, 82 128, 86 124" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/>
+</svg>

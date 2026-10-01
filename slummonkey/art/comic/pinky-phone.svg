@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 340">
+  <path d="M80 340 C 80 260, 180 260, 180 340Z" fill="var(--rani)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="130" cy="190" r="52" fill="var(--skin-3)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="82" cy="148" r="26" fill="var(--pinky)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="178" cy="148" r="26" fill="var(--pinky)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M80 180 C 76 130, 184 130, 180 180 C 160 156, 100 156, 80 180Z" fill="var(--pinky)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M76 190 C 70 120, 190 120, 184 190" fill="none" stroke="var(--ink)" stroke-width="10"/>
+  <rect x="64" y="180" width="20" height="34" rx="8" fill="var(--teal)" stroke="var(--ink)" stroke-width="5"/><rect x="176" y="180" width="20" height="34" rx="8" fill="var(--teal)" stroke="var(--ink)" stroke-width="5"/>
+  <!-- wink + grin -->
+  <path d="M106 186 C 112 180, 120 180, 124 186" fill="none" stroke="var(--ink)" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="148" cy="186" r="7" fill="var(--ink)"/><circle cx="150" cy="183" r="2" fill="var(--white)"/>
+  <path d="M110 212 C 120 228, 144 228, 154 212Z" fill="var(--velvet-dark)" stroke="var(--ink)" stroke-width="4"/>
+  <circle cx="104" cy="206" r="7" fill="var(--rani)" opacity="0.45"/><circle cx="160" cy="206" r="7" fill="var(--rani)" opacity="0.45"/>
+  <!-- phone held up, streaming -->
+  <path d="M170 280 L 210 160" stroke="var(--ink)" stroke-width="18" stroke-linecap="round"/><path d="M170 280 L 210 160" stroke="var(--skin-3)" stroke-width="9" stroke-linecap="round"/>
+  <rect x="190" y="70" width="60" height="100" rx="10" fill="var(--midnight)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" transform="rotate(12 220 120)"/>
+  <rect x="198" y="80" width="44" height="66" fill="var(--pinky)" transform="rotate(12 220 120)"/>
+  <rect x="200" y="84" width="26" height="12" rx="3" fill="var(--candle-red)" transform="rotate(12 220 120)"/>
+  <g fill="var(--rani)" stroke="var(--ink)" stroke-width="2"><path d="M30 80 c -8 -10, -22 2, 0 18 c 22 -16, 8 -28, 0 -18z"/><path d="M50 40 c -6 -8, -16 2, 0 12 c 16 -10, 6 -20, 0 -12z"/></g>
+</svg>

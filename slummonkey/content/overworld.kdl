@@ -1,0 +1,48 @@
+// The island. The map is plain text: ~ sea, . grass, , sand, # path, ^ rock, T tree.
+// Nodes are tents/stalls you can walk up to; requires= lists bosses that must be beaten first.
+puppet "npc-chaiwala" { part "n" svg="overworld/npc-chaiwala" size=120 x=0 y=0 px=0.5 py=0.98 anim="bob" }
+puppet "npc-bunty" { part "n" svg="overworld/npc-bunty" size=120 x=0 y=0 px=0.5 py=0.98 anim="bob" }
+puppet "npc-dadi" { part "n" svg="overworld/npc-dadi" size=110 x=0 y=0 px=0.5 py=0.98 anim="sway" }
+
+overworld x=6.5 y=7.5 {
+  map \
+    "~~~~~~~~~~~~~~~~~~~~" \
+    "~~~~,,,,~~~~~~~~~~~~" \
+    "~~~,..T.,,~~~,,,~~~~" \
+    "~~,..#####..,..T,~~~" \
+    "~~,.T#..T.#....,,~~~" \
+    "~~,..#....#..T..,~~~" \
+    "~~~,.#.^..####..,~~~" \
+    "~~~,.#........#.,~~~" \
+    "~~,..#######..#..,~~" \
+    "~~,.T..#...T..#.,~~~" \
+    "~~~,...#......#,~~~~" \
+    "~~~~,,.#,..T..,~~~~~" \
+    "~~~~~~,,,,,,,,~~~~~~" \
+    "~~~~~~~~~~~~~~~~~~~~"
+  node "mela" x=6 y=2 level="mela" label="Mela Madness" kind="tent-mela"
+  node "shop" x=3 y=6 level="" label="Paan & Chai Stall" kind="shop"
+  node "gajraj" x=11 y=3 level="gajraj" label="Gayab Gajraj" kind="tent-gajraj"
+  node "tigada" x=13 y=6 level="teen-tigada" label="Teen Tigada" kind="tent-tigada"
+  node "sky" x=15 y=9 level="rickshaw-sky" label="Udta Rickshaw" kind="tent-sky"
+  node "dolly" x=7 y=11 level="dolly" label="Do-Tukdi Dolly" kind="tent-dolly"
+  node "raj" x=10 y=8 level="raj" label="Jadugar Raj — Final Show" kind="stage" requires="gajraj teen-tigada dolly"
+  npc "Chotu Chaiwala" x=4 y=8 puppet="npc-chaiwala" {
+    line "Gulaabi cheez dikhe? PARRY maar! Card bharte hain, super milta hai."
+    line "Double jump ke baad JUMP pakad ke rakh. Poonch helicopter ban jaati hai!"
+    line "Chai peeyo, phir haathi se lado. Order important hai."
+  }
+  npc "Bunty Bhai" x=13 y=8 puppet="npc-bunty" {
+    line "Bhai, HODL kar. Diamond Hands super le le, stall pe milta hai."
+    line "Mela mein coins uthao. Fake hain, par stall wala accept karta hai."
+    line "Mera portfolio? -98%. Par vibes +100%."
+  }
+  npc "Dadi" x=9 y=5 puppet="npc-dadi" {
+    line "Haathi gayab ho jaaye toh pairon ke nishaan dekh, beta. Aur kaan khol ke sun."
+    line "Teen matke ghoomte hain. Aankh mat jhapkana."
+    line "Shisha jhooth bolta hai. Parchhai sach."
+  }
+  prop "lamp" x=8 y=7 s=1
+  prop "lamp" x=12 y=4 s=1
+  prop "boat" x=17 y=11 s=1.2
+}

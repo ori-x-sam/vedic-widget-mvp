@@ -1,0 +1,22 @@
+// Shmup: SlumMonkey flies a propeller-modified autorickshaw. Same words again.
+level "rickshaw-sky" name="Udta Rickshaw" mode="fly" length=99999 stage="shmup" theme="shmup" reward=20 \
+  intro="Rickshaw mein pankh lagao, aasman tumhara!" {
+  scroll 160 0
+  wait 1
+  summon "kite" 3 from="right" y=380 gap=0.6
+  wait 3
+  summon "pigeon-dive" 4 from="right" y=450 gap=0.4
+  wait 3
+  summon "kite" 4 from="right" y=180 gap=0.5
+  bonus "laddoo" x=200 y=300 ttl=8
+  wait 4
+  summon "balloon" 4 from="top" gap=0.5
+  summon "parrot" 3 from="right" y=300 gap=0.8
+  coins 5 x=500 y=300
+  wait 5
+  scroll 0 0
+  card "GUBBARA GURU" sub="Hawa mein bhi kaatenge!"
+  summon "gubbara" 1 from="right" y=150
+  wait-clear kind="gubbara"
+  win
+}

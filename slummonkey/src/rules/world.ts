@@ -155,7 +155,7 @@ export class World implements WorldApi {
   emit(type: WorldEventType, x: number, y: number, s?: string, n?: number, id?: number) {
     this.events.push({ type, x, y, s, n, id });
     if (type === "win" && !this.result) { this.result = "win"; this.resultT = 0; }
-    if (type === "warn" || type === "drumroll" || type === "sheet") this.lastWarnT = this.t;
+    if (type === "warn" || type === "drumroll" || type === "sheet" || type === "telegraph") this.lastWarnT = this.t;
   }
 
   mark(me: Ent, key: string) {
@@ -177,6 +177,8 @@ export class World implements WorldApi {
       if (!me.alive && me.kind !== "director") return;
       const w = getWord(n.name);
       if (!w) { this.err(`${n.file ?? ""}:${n.line}: unknown word '${n.name}'`); continue; }
+      // stunned actors don't move or attack until the stun wears off
+      while (me.vars.stunned > 0 && (w.kind === "attack" || w.kind === "move")) yield;
       yield* w.fn(this, me, { args: n.args, props: n.props, children: n.children, line: n.line, file: n.file });
     }
   }
@@ -221,6 +223,14 @@ export class World implements WorldApi {
     Object.assign(boss, { alpha: 1, scale: 1, hidden: false, shootable: true, hurts: true, flipY: false, parryable: false, reflect: false, parent: 0, trail: "", rot: 0, puppet: def.puppet, w: def.w, h: def.h, pose: "idle" });
     boss.vars = {};
     this.scrollX = this.scrollY = 0;
+    this.water = this.waterTarget = -1e9;
+    if (this.camX !== 0 || this.camY !== 0) {
+      // a phase that moved the camera (vertical climb) cuts back to the stage
+      this.camX = this.camY = 0;
+      for (const e of this.all) if (e.kind === "platform" && e.tag !== "stage") { e.alive = false; e.deadT = 99; }
+      Object.assign(this.player, { x: -420, y: this.floor, px: -420, py: this.floor, vx: 0, vy: 0 });
+      boss.x = boss.px = this.bossDef!.x; boss.y = boss.py = this.floor + this.bossDef!.y;
+    }
     if (this.phaseIdx > 0) this.emit("phase", boss.x, boss.y, ph.name || ph.id, this.phaseIdx);
     this.fork(boss, this.loopScript(boss, ph.script), this.phaseTag);
   }
@@ -241,7 +251,12 @@ export class World implements WorldApi {
     amount *= e.vars.vuln ?? 1;
     e.hitFlash = 0.08;
     if (e.vars.wobbly) e.wobble = Math.min(1.5, e.wobble + 0.25);
-    if (e.kind === "decoy") { e.vars.cracks = (e.vars.cracks ?? 0) + 1; this.emit("hit", e.x, e.y + e.h / 2, "glass"); return; }
+    if (e.kind === "decoy") {
+      e.vars.cracks = (e.vars.cracks ?? 0) + 1;
+      this.emit("hit", e.x, e.y + e.h / 2, "glass");
+      if (e.vars.cracks >= 14) { e.alive = false; e.deadT = 0; this.emit("particles", e.x, e.y + e.h / 2, "glass", 20); this.emit("sfx", e.x, e.y, "glass"); }
+      return;
+    }
     const pool = e.dmgTo ? this.entMap.get(e.dmgTo) : null;
     if (e.kind === "part" || e.kind === "target" || e.kind === "minion" || !pool) {
       e.hp -= amount;
@@ -431,9 +446,11 @@ export class World implements WorldApi {
         p.x += p.vx * dt;
         p.y += p.vy * dt;
         p.rot += p.spin * dt;
-        if (p.ground) p.y = this.floor;
-        if (p.gravity > 0 && p.y < this.floor && this.mode !== "fly") {
-          if (p.hostile) { this.emit("particles", p.x, this.floor, "smoke", 6); this.emit("sfx", p.x, p.y, "boom"); }
+        if (p.ground) p.y = this.floor + p.r;
+        if (p.y < this.floor - 4 && !p.ground && this.mode !== "fly" && this.camY === 0) {
+          // shots hit the stage boards instead of flying into the audience (and under the thumbs)
+          if (p.hostile && p.gravity > 0) { this.emit("particles", p.x, this.floor, "smoke", 6); this.emit("sfx", p.x, p.y, "boom"); }
+          else this.emit("particles", p.x, this.floor, "dust", 2);
           p.alive = false; continue;
         }
         if (p.x < this.left - 300 || p.x > this.right + 300 || p.y < this.camY - 300 || p.y > this.ceiling + 500) { p.alive = false; continue; }
@@ -442,14 +459,14 @@ export class World implements WorldApi {
         // vs player
         if (!pl.dead && this.projHitsBox(p, pl.x, pl.y, pl.hitW, pl.hitH)) {
           if (pl.parryT > 0 && p.parryable) { this.parried(p.x, p.y); p.alive = false; continue; }
-          if (hurtPlayer(this, p.def.id)) { if (!p.pierce && p.len === 0) p.alive = false; }
+          if (hurtPlayer(this, p.def.id, p.spawnT)) { if (!p.pierce && p.len === 0) p.alive = false; }
         }
       } else {
         // vs enemies
         for (const e of this.all) {
           if (!e.alive || !e.shootable || e.hidden || e.hp <= 0 && e.kind !== "decoy") continue;
           if (p.hitIds.includes(e.id)) continue;
-          if (!this.projHitsBox(p, e.x, e.y, e.w * e.scale * 0.9, e.h * e.scale * 0.95, e.flipY)) continue;
+          if (!this.projHitsBox(p, e.x, e.y, e.w * e.scale * 0.9, e.h * e.scale * 0.95)) continue;
           const dmg = p.len > 0 ? p.damage * dt : p.damage;
           this.damage(e, dmg);
           if (p.len > 0) continue;
@@ -510,7 +527,7 @@ export class World implements WorldApi {
     for (const e of this.all) {
       if (!e.alive || e.hidden || e.hp <= 0 && e.kind !== "decoy" && e.kind !== "pot" && e.kind !== "hazard" && e.kind !== "pickup" && e.kind !== "rider") continue;
       const w = e.w * e.scale * 0.8, h = e.h * e.scale * 0.85;
-      const y0 = e.flipY ? e.y - h : e.y;
+      const y0 = e.y; // flipY flips the art in place; the box stays put
       const overlap = Math.abs(pl.x - e.x) < (w + pl.hitW) / 2 && pl.y < y0 + h && pl.y + pl.hitH > y0;
       if (!overlap) continue;
       if (e.parryable && pl.parryT > 0 && !(e.vars.parryCd > 0)) {

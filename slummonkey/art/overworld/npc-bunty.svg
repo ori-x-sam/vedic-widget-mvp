@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 170">
+  <path d="M44 140 L 42 164 M 74 140 L 78 164" stroke="var(--ink)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M26 86 C 26 66, 94 66, 94 86 L 98 146 C 70 152, 50 152, 22 146Z" fill="var(--midnight)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M60 70 L 60 146" stroke="var(--gold)" stroke-width="4"/>
+  <path d="M40 80 C 50 96, 70 96, 80 80" fill="none" stroke="var(--gold)" stroke-width="6"/>
+  <circle cx="60" cy="46" r="27" fill="var(--skin-2)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M32 40 C 30 10, 92 8, 90 40 C 80 24, 44 24, 32 40Z" fill="var(--ink)"/>
+  <rect x="38" y="40" width="46" height="14" rx="6" fill="var(--midnight)" stroke="var(--ink)" stroke-width="3"/>
+  <path d="M44 44 L 54 44 M66 44 L 76 44" stroke="var(--cyber)" stroke-width="3"/>
+  <path d="M48 62 C 56 68, 68 68, 74 60" fill="none" stroke="var(--ink)" stroke-width="4" stroke-linecap="round"/>
+  <path d="M92 100 L 108 82" stroke="var(--skin-2)" stroke-width="10" stroke-linecap="round"/>
+  <rect x="100" y="66" width="14" height="22" rx="3" fill="var(--midnight)" stroke="var(--ink)" stroke-width="3"/>
+  <rect x="102" y="68" width="10" height="14" fill="var(--neon-green)"/>
+</svg>

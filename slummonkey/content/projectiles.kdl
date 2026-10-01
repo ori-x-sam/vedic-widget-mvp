@@ -33,3 +33,4 @@ projectile "cash" sprite="cash" r=16 spin=3
 projectile "kite" sprite="kite-shot" r=16 spin=2
 projectile "marigold" sprite="marigold" r=18 parryable=#true
 projectile "laddoo-parry" sprite="marigold" r=18 parryable=#true gravity=1400 life=5
+projectile "water-jet" sprite="water-beam" r=20 life=3
