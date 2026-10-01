@@ -305,7 +305,11 @@ export function waterMaterial(t: Tokens): THREE.ShaderMaterial {
         vec3 c = mix(uA, uB, smoothstep(0.0, 0.5, d));
         float s = smoothstep(0.62, 0.8, fbm(vW * vec2(0.01, 0.04) + vec2(uTime * 0.3, 0.0)));
         c += s * uSheen;
-        if (d < 0.012) c = uInk; else if (d < 0.03) c = mix(c, vec3(1.0), 0.6);
+        float band = step(0.5, fract((vUv.y + sin(vW.x * 0.012 + uTime) * 0.01) * 18.0));
+        c = mix(c, c * 0.88, band * 0.5);
+        float foam = smoothstep(0.55, 0.75, fbm(vW * vec2(0.03, 0.08) + vec2(uTime * 0.8, 0.0)));
+        c = mix(c, vec3(1.0), foam * smoothstep(0.15, 0.0, d) * 0.8);
+        if (d < 0.012) c = uInk; else if (d < 0.035) c = mix(c, vec3(1.0), 0.75);
         gl_FragColor = vec4(c, 0.88);
         #include <colorspace_fragment>
       }`,
@@ -337,12 +341,13 @@ export function postMaterial(t: Tokens, tex: THREE.Texture): THREE.ShaderMateria
       uFlicker: { value: t.num("--flicker", 0.02) },
       uDust: { value: t.num("--dust", 0.5) },
       uBloom: { value: t.num("--bloom", 0.15) },
+      uSharpen: { value: t.num("--sharpen", 0.6) },
       uFlash: { value: 0 },
     },
     vertexShader: /* glsl */ `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
     fragmentShader: /* glsl */ `
       uniform sampler2D tDiffuse; uniform float uTime, uGrain, uGrainFps, uWeave, uChroma, uTracking, uScan, uVig, uVigSoft;
-      uniform vec3 uLift, uGain; uniform float uGamma, uSat, uContrast, uFlicker, uDust, uBloom, uFlash; uniform vec2 uRes;
+      uniform vec3 uLift, uGain; uniform float uGamma, uSat, uContrast, uFlicker, uDust, uBloom, uFlash, uSharpen; uniform vec2 uRes;
       varying vec2 vUv;
       ${NOISE}
       void main(){
@@ -371,6 +376,9 @@ export function postMaterial(t: Tokens, tex: THREE.Texture): THREE.ShaderMateria
         b += texture2D(tDiffuse, uv + vec2(0, px.y)).rgb; b += texture2D(tDiffuse, uv - vec2(0, px.y)).rgb;
         b *= 0.25;
         c += max(b - 0.72, 0.0) * uBloom * 3.0;
+        // unsharp mask: keeps ink edges crisp under the film treatment
+        vec3 blur4 = (texture2D(tDiffuse, uv + vec2(1.0, 0.0) / uRes).rgb + texture2D(tDiffuse, uv - vec2(1.0, 0.0) / uRes).rgb + texture2D(tDiffuse, uv + vec2(0.0, 1.0) / uRes).rgb + texture2D(tDiffuse, uv - vec2(0.0, 1.0) / uRes).rgb) * 0.25;
+        c += (c - blur4) * uSharpen;
         // grade: lift / gamma / gain, saturation, contrast
         float lumIn = dot(c, vec3(0.299, 0.587, 0.114));
         c = mix(c, c * uGain + uLift * (1.0 - c), smoothstep(0.08, 0.3, lumIn)); // keep the darkest inks clean

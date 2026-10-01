@@ -333,7 +333,7 @@ export class GameView {
     const localAim = Math.atan2(p.aimY, p.aimX * p.facing);
     this.player.update({
       pose: p.pose, poseT: p.poseT, t, facing: p.facing, aim: localAim, speed: p.vx, vy: p.vy, wobble: 0, scale: 1,
-      squash: p.grounded ? 0 : Math.max(-0.15, Math.min(0.15, p.vy / 5000)), alpha: p.blinkT > 0 ? 0.3 : 1, flash: p.hurtT > 0.25 ? 1 : flicker ? 0.55 : 0,
+      squash: p.grounded ? 0 : Math.max(-0.15, Math.min(0.15, p.vy / 5000)), alpha: p.blinkT > 0 ? 0.3 : 1, flash: p.hurtT > 0.25 ? 1 : flicker ? 0.35 : 0,
       parry: 0, flipY: false, rot: p.pose === "spin" ? -t * 18 * p.facing : 0, grounded: p.grounded,
     }, this.tk);
     if (p.invulnT > 0) this.player.tint(...this.tokens.color("--sky"), 0.3 + Math.sin(t * 20) * 0.2); else this.player.tint(1, 1, 1, 0);
@@ -355,7 +355,10 @@ export class GameView {
       const lx = L.x + camX * (1 - 1 / L.depth), ly = L.y + camY * (1 - 1 / L.depth);
       lb.add(L.kind === "cone" ? "cone" : L.kind === "pool" ? "glow" : "glow", lx, ly, L.h, (L.angle * Math.PI) / 180, L.alpha * flick, false, this.tokens.color(L.color), L.w);
     }
-    if (!p.dead) lb.add("glow", px, py + 55, 190, 0, this.tk.playerGlow, false, this.tokens.color("--rim-color"), 190);
+    if (!p.dead) {
+      lb.add("glow", px, py + 55, 190, 0, this.tk.playerGlow, false, this.tokens.color("--rim-color"), 190);
+      if (!p.flying && w.camY === 0) lb.add("cone", px, w.floor + 300, 620, 0, this.tk.playerGlow * 0.6, false, this.tokens.color("--rim-color"), 300); // follow-spot
+    }
     for (const q of w.projs.live) if (!q.hostile && q.len === 0) lb.add("glow", q.x, q.y, q.r * 5, 0, 0.3, false, this.tokens.color("--shot-glow"));
     lb.end();
 

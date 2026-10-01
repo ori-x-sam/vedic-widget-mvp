@@ -57,7 +57,7 @@ boss "raj" name="Jadugar Raj" title="The Great Rug-Pull" hp=1700 w=160 h=380 x=3
   phase "lota" name="Lota of Endless Water" until="25%" {
     bg "raj"
     say "Raj" "Yeh lota kabhi khaali nahi hota. Tairna aata hai?" dur=2.4
-    move-to 380 250 dur=1
+    move-to 380 150 dur=1
     rider "lota" keep-visible=#true x=-110 y=40
     buoyant 3 w=180
     flood 22 230

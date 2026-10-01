@@ -1,9 +1,9 @@
 /* Post stack: VHS-1986 film look. Every parameter of the final pass lives here. */
 :root {
-  --grain: 0.06;
+  --grain: 0.04;
   --grain-fps: 24;
   --gate-weave: 0.0018;       /* UV jitter of the whole frame */
-  --chroma: 0.0012;           /* chromatic offset */
+  --chroma: 0.0007;           /* chromatic offset */
   --tracking: 0.5;           /* strength of VHS tracking glitch on boss hits */
   --tracking-decay: 3.2;
   --scanlines: 0;
@@ -17,5 +17,6 @@
   --flicker: 0.025;
   --dust: 0.35;                /* dust specks + film scratches */
   --dpr-max: 2;
-  --bloom: 0.18;              /* cheap glow on bright pixels */
+  --bloom: 0.12;              /* cheap glow on bright pixels */
 }
+:root { --sharpen: 0.7; /* unsharp mask so the film look never softens the ink */ }
