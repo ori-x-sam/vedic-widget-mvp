@@ -294,7 +294,12 @@ export class App {
       this.store.update((x) => { const k = inp.dataset.k as keyof typeof s; (x.settings as unknown as Record<string, unknown>)[k] = inp.type === "checkbox" ? inp.checked : Number(inp.value); });
       this.applySettings();
     }));
-    d.querySelector('[data-a="reset"]')!.addEventListener("click", () => { if (confirm("Erase all progress?")) { this.store.reset(); this.applySettings(); } });
+    // two-tap confirm (no browser dialogs: they're blocked in embedded viewers)
+    const reset = d.querySelector('[data-a="reset"]') as HTMLButtonElement;
+    reset.addEventListener("click", () => {
+      if (reset.dataset.armed) { this.store.reset(); this.applySettings(); reset.textContent = "Progress erased"; reset.disabled = true; return; }
+      reset.dataset.armed = "1"; reset.textContent = "Tap again to erase everything";
+    });
     d.querySelector('[data-a="back"]')!.addEventListener("click", back);
   }
 
