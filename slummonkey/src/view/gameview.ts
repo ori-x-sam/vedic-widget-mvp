@@ -423,6 +423,18 @@ export class GameView {
     if (prev !== this.renderScale) { const s = new THREE.Vector2(); this.renderer.getSize(s); this.resize(s.x, s.y); }
   }
 
+  // ── introspection for stories/tests: what is actually on screen ──
+  get decalCount() { return this.decals.length; }
+  get particleCount() { return this.particles.count; }
+  get bulletCount() { return this.bullets.n; }
+  get playerPuppetId() { return this.player.def.id; }
+  playerPartVisible(id: string) { const n = this.player.parts.find((p) => p.def.id === id); return !!n && n.pivot.visible && this.player.root.visible; }
+  ghostVisible() { return this.ghosts.some((g) => g.pv.root.visible); }
+  entityVisible(id: number) { const v = this.views.get(id); return !!v && v.pv.root.visible; }
+  entityPuppet(id: number) { return this.views.get(id)?.puppet ?? ""; }
+  reflectionVisible(id: number) { const v = this.views.get(id); return !!v?.refl && v.refl.root.visible; }
+  get stageLayerCount() { return this.layers.length; }
+
   clearWorld() {
     for (const [, v] of this.views) { this.scene.remove(v.pv.root); v.pv.dispose(); if (v.refl) this.scene.remove(v.refl.root); }
     this.views.clear();

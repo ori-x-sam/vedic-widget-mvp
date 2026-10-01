@@ -5,3 +5,4 @@ reference/*.png
 reference/*.jpg
 shots/
 .vitest-attachments
+node_modules/.cache

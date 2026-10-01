@@ -279,7 +279,7 @@ function doSuper(w: World) {
     p.superT = 0.4;
     for (let i = 0; i < 12; i++) {
       const tx = w.left + 80 + ((w.right - w.left - 160) * (i + 0.5)) / 12;
-      w.spawnProj("airdrop-crate", tx + w.range(-30, 30), w.ceiling + 80 + i * 70, 0, -300, { hostile: false, damage: s.damage, gravity: 1400, life: 4 });
+      w.spawnProj("airdrop-crate", tx + w.range(-30, 30), w.ceiling + 60 + (i % 4) * 90, 0, -300, { hostile: false, damage: s.damage, gravity: 1400, life: 4 });
     }
   }
 }
