@@ -154,6 +154,7 @@ export class World implements WorldApi {
 
   emit(type: WorldEventType, x: number, y: number, s?: string, n?: number, id?: number) {
     this.events.push({ type, x, y, s, n, id });
+    if (type === "win" && !this.result) { this.result = "win"; this.resultT = 0; }
     if (type === "warn" || type === "drumroll" || type === "sheet") this.lastWarnT = this.t;
   }
 

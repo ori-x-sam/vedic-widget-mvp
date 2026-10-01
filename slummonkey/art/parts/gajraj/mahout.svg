@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 150">
+  <path d="M30 140 C 20 110, 24 70, 34 56 C 46 40, 78 40, 88 56 C 100 74, 102 110, 92 140 C 84 130, 78 146, 70 136 C 62 148, 54 132, 46 142 C 40 132, 34 146, 30 140Z" fill="var(--parry)" stroke="var(--ink)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M28 52 C 30 22, 90 18, 94 50 C 76 42, 46 42, 28 52Z" fill="var(--white)" stroke="var(--ink)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M90 40 C 104 36, 110 44, 104 52" fill="none" stroke="var(--ink)" stroke-width="5"/>
+  <circle cx="52" cy="72" r="8" fill="var(--white)" stroke="var(--ink)" stroke-width="4"/><circle cx="76" cy="72" r="8" fill="var(--white)" stroke="var(--ink)" stroke-width="4"/>
+  <circle cx="54" cy="74" r="3.5" fill="var(--ink)"/><circle cx="78" cy="74" r="3.5" fill="var(--ink)"/>
+  <path d="M50 92 C 58 100, 70 100, 78 92" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M44 86 C 54 82, 60 86, 64 90 C 68 86, 76 82, 86 86" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M96 90 L 116 60" stroke="var(--wood)" stroke-width="7" stroke-linecap="round"/><path d="M112 58 C 120 56, 120 66, 114 68" fill="none" stroke="var(--steel)" stroke-width="6"/>
+</svg>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 700">
+  <!-- painted canvas backdrop hung on the stage: a palace at sunset -->
+  <rect x="0" y="0" width="1800" height="700" fill="var(--sky-warm)"/>
+  <path d="M0 0 H1800 V420 C 1400 380, 400 380, 0 420Z" fill="var(--saffron)" opacity="0.55"/>
+  <path d="M0 0 H1800 V230 C 1300 200, 500 200, 0 230Z" fill="var(--rani)" opacity="0.35"/>
+  <circle cx="900" cy="330" r="190" fill="var(--marigold)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="8"/>
+  <circle cx="900" cy="330" r="150" fill="var(--turmeric)" opacity="0.8"/>
+  <g fill="none" stroke="var(--saffron)" stroke-width="10" stroke-linecap="round" opacity="0.6"><path d="M700 330 H560"/><path d="M1100 330 H1240"/><path d="M760 200 L 660 120"/><path d="M1040 200 L 1140 120"/></g>
+  <!-- swirly clouds -->
+  <g fill="var(--white)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="6" opacity="0.95">
+    <path d="M120 170 C 120 130, 180 120, 200 150 C 220 110, 290 116, 296 160 C 330 160, 340 200, 300 206 L 140 206 C 100 206, 96 176, 120 170Z"/>
+    <path d="M1420 120 C 1420 80, 1480 70, 1500 100 C 1520 60, 1590 66, 1596 110 C 1630 110, 1640 150, 1600 156 L 1440 156 C 1400 156, 1396 126, 1420 120Z"/>
+  </g>
+  <g fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"><path d="M180 186 C 200 176, 220 186, 210 196"/><path d="M1480 136 C 1500 126, 1520 136, 1510 146"/></g>
+  <!-- far hills -->
+  <path d="M0 470 C 200 400, 380 430, 520 460 C 700 400, 900 420, 1100 460 C 1300 400, 1560 420, 1800 450 V700 H0Z" fill="var(--magenta)" opacity="0.55"/>
+  <!-- palace -->
+  <g stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="7">
+    <rect x="620" y="400" width="560" height="200" fill="var(--paper)"/>
+    <path d="M620 400 H1180 V420 H620Z" fill="var(--gold)"/>
+    <path d="M820 400 C 820 300, 900 250, 900 230 C 900 250, 980 300, 980 400Z" fill="var(--paper)"/>
+    <path d="M900 230 V196" /><circle cx="900" cy="192" r="8" fill="var(--gold)"/>
+    <path d="M660 400 C 660 350, 700 330, 700 316 C 700 330, 740 350, 740 400Z" fill="var(--paper)"/>
+    <path d="M1060 400 C 1060 350, 1100 330, 1100 316 C 1100 330, 1140 350, 1140 400Z" fill="var(--paper)"/>
+    <rect x="560" y="330" width="60" height="270" fill="var(--paper-dark)"/><path d="M550 330 C 550 290, 590 270, 590 256 C 590 270, 630 290, 630 330Z" fill="var(--paper)"/>
+    <rect x="1180" y="330" width="60" height="270" fill="var(--paper-dark)"/><path d="M1170 330 C 1170 290, 1210 270, 1210 256 C 1210 270, 1250 290, 1250 330Z" fill="var(--paper)"/>
+    <g fill="var(--peacock)"><path d="M700 600 V500 C 700 470, 740 470, 740 500 V600Z"/><path d="M800 600 V500 C 800 470, 840 470, 840 500 V600Z"/><path d="M960 600 V500 C 960 470, 1000 470, 1000 500 V600Z"/><path d="M1060 600 V500 C 1060 470, 1100 470, 1100 500 V600Z"/><path d="M870 600 V480 C 870 440, 930 440, 930 480 V600Z"/></g>
+  </g>
+  <g fill="var(--rani)" opacity="0.8"><circle cx="760" cy="440" r="7"/><circle cx="900" cy="440" r="7"/><circle cx="1040" cy="440" r="7"/></g>
+  <!-- palms -->
+  <g stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="6">
+    <path d="M300 600 C 310 500, 330 420, 360 360" fill="none" stroke="var(--wood-dark)" stroke-width="22"/>
+    <path d="M300 600 C 310 500, 330 420, 360 360" fill="none" stroke="var(--wood)" stroke-width="12"/>
+    <g fill="var(--leaf)"><path d="M360 360 C 300 330, 250 350, 230 390 C 280 370, 320 370, 360 360Z"/><path d="M360 360 C 420 320, 480 330, 500 370 C 450 356, 410 356, 360 360Z"/><path d="M360 360 C 340 300, 360 260, 400 250 C 380 290, 376 320, 360 360Z"/><path d="M360 360 C 300 300, 260 300, 240 320 C 290 320, 330 336, 360 360Z"/></g>
+    <path d="M1500 600 C 1490 500, 1470 430, 1440 370" fill="none" stroke="var(--wood-dark)" stroke-width="22"/>
+    <path d="M1500 600 C 1490 500, 1470 430, 1440 370" fill="none" stroke="var(--wood)" stroke-width="12"/>
+    <g fill="var(--leaf)"><path d="M1440 370 C 1500 340, 1550 360, 1570 400 C 1520 380, 1480 380, 1440 370Z"/><path d="M1440 370 C 1380 330, 1320 340, 1300 380 C 1350 366, 1390 366, 1440 370Z"/><path d="M1440 370 C 1460 310, 1440 270, 1400 260 C 1420 300, 1424 330, 1440 370Z"/></g>
+  </g>
+  <!-- painted ground of the backdrop -->
+  <path d="M0 600 C 400 580, 1400 580, 1800 600 V700 H0Z" fill="var(--leaf-dark)" opacity="0.8"/>
+  <!-- canvas frame edge -->
+  <rect x="4" y="4" width="1792" height="692" fill="none" stroke="var(--ink)" stroke-width="8"/>
+</svg>

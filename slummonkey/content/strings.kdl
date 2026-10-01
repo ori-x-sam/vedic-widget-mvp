@@ -1,0 +1,14 @@
+// UI strings (Hinglish). Edit freely.
+strings {
+  title "SLUMMONKEY"
+  subtitle "Crypto Billionaire"
+  ready "SHOW SHURU!"
+  ready-sub "Ladies and gentlemen..."
+  knockout "KHEL KHATAM!"
+  lose "PAISA DOOB GAYA!"
+  lose-sub "Rug pulled. Try again?"
+  level-clear "MELA PAAR!"
+  shop-title "Paan & Chai Stall"
+  shop-greet "Kya loge, boss? Sab kuch fake-token mein."
+  press-start "Tap to start"
+}

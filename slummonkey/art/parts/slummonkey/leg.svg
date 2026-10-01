@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 90">
+  <path d="M22 4 C 18 30, 20 50, 22 62 L 36 62 C 38 50, 40 30, 36 4Z" fill="var(--monkey-fur)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M10 66 C 10 56, 40 54, 44 62 C 54 62, 58 76, 52 82 C 40 86, 16 86, 8 80 C 6 74, 8 70, 10 66Z" fill="var(--white)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M8 80 C 22 84, 42 84, 54 80" fill="none" stroke="var(--vermilion)" stroke-width="7"/>
+  <path d="M20 64 L 30 72 M28 62 L 38 70" stroke="var(--vermilion)" stroke-width="4" stroke-linecap="round"/>
+</svg>

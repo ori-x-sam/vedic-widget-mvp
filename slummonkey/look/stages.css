@@ -1,0 +1,22 @@
+/* Stage paint: watercolor paper, brush noise, parallax haze, per-stage sky colors and lights. */
+:root {
+  --paper-grain: 0.10;        /* paper texture strength on backgrounds */
+  --paper-scale: 3.2;
+  --brush-noise: 0.0035;      /* UV wobble of painted layers */
+  --pigment-edge: 0.35;       /* watercolor edge darkening */
+  --wash: 0.12;               /* random wash blotches */
+  --haze: 0.22;               /* far layers fade toward the sky */
+  --haze-color: var(--sky-warm);
+  --bulb-glow: 0.9;
+  --tube-flicker: 0.12;
+
+  --sky-gajraj-top: #ffcf8a;  --sky-gajraj-bottom: #f37e5b;
+  --sky-tigada-top: #7ed0c8;  --sky-tigada-bottom: #f6d38a;
+  --sky-dolly-top: #c86fb5;   --sky-dolly-bottom: #ffb38a;
+  --sky-raj-top: #241a5a;     --sky-raj-bottom: #9a2f7a;
+  --sky-climb-top: #8fd3e8;   --sky-climb-bottom: #fff0c9;
+  --sky-mela-top: #8ad0e6;    --sky-mela-bottom: #ffe2a8;
+  --sky-shmup-top: #4aa0d8;   --sky-shmup-bottom: #ffc98a;
+  --sky-island-top: #7fc8e0;  --sky-island-bottom: #bfe6dc;
+  --water-sheen: 0.35;
+}

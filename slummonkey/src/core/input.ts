@@ -47,7 +47,7 @@ export class InputMerger {
       if (Math.abs(r.y) > Math.abs(y)) y = r.y;
       for (const b of BUTTONS) if (r.held[b]) held[b] = true;
     }
-    if (this.autoFire) held.shoot = !held.shoot ? true : held.shoot;
+    if (this.autoFire) held.shoot = !held.shoot; // auto-fire: holding shoot pauses
     const [mx, my] = snap8(x, y, this.deadZone);
     const pressed = emptyButtons(), released = emptyButtons();
     for (const b of BUTTONS) {

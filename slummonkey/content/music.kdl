@@ -1,0 +1,99 @@
+// Procedural soundtrack. One theme per boss/stage. Each track: instrument "pattern" notes...
+// pattern: one char per 16th step. "." rest. tabla: g=ge(bass) n=na t=tin k=ka N=accent.
+// dholak: D=boom d=slap. shaker: x / X. harmonium/synth/bass/bell: x/X = play next note.
+// notes < 24 are scale degrees of the theme's scale from root; bigger numbers are MIDI notes.
+
+theme "title" bpm=96 root="D3" swing=0.1 {
+  scale 0 2 4 7 9
+  tabla "g..n..n.g.tn..k."
+  harmonium "X...............x...............X...............x..............." 0 4 3 0
+  bell "x.......x...x...x.......x.x....." 7 9 10 9 7 4 7 9
+  bass "x.......x.......x.......x......." 0 0 4 3
+}
+
+theme "overworld" bpm=104 root="F3" swing=0.15 {
+  scale 0 2 4 5 7 9 10
+  tabla "g.n.n.g.t.n.k.n."
+  dholak "D.......d...D.d."
+  shaker "..x...x...x...x."
+  synth "x.x.x...x.x.....x.x.x...x...x..." 7 9 10 9 7 4 5 4 7 9 7 4 2 4
+  bass "x...x...x...x..." 0 4 3 4
+}
+
+// Gajraj: Bhairav, stomping
+theme "gajraj" bpm=112 root="D3" swing=0.12 {
+  scale 0 1 4 5 7 8 11
+  tabla "g..n.n g.tn..n.kg..n.nNg.tn.kn.k"
+  dholak "D...d.D.D...d...D...d.D.D.d.d.d."
+  shaker "x.x.x.x.x.x.x.x."
+  harmonium "X.......x.......X.......x......." 0 3 4 0
+  synth "..x.x..x.x.x..x...x.x..x.xx.x..." 7 8 7 5 4 5 4 1 4 5 7 8 11 10 8 7
+  bass "x.....x.x.....x." 0 0 4 3
+}
+
+// Teen Tigada: Kafi, sneaky and bouncy
+theme "tigada" bpm=128 root="G3" swing=0.2 {
+  scale 0 2 3 5 7 9 10
+  tabla "n.k.n.g.n.k.g.t."
+  dholak "D..dD..d.D.dD..d"
+  shaker "xxXxxxXx"
+  synth "x.x...x.x.x.x...x.x...x...x.x.x." 4 5 4 2 0 2 4 7 9 7 4 2 4 0
+  bell "....x.......x......x....x..x...." 11 9 11 14 12
+  bass "x..x..x.x..x..x." 0 0 3 4 0 0 5 4
+}
+
+// Dolly: Khamaj waltz-ish 3-feel squeezed into 12 steps
+theme "dolly" bpm=120 root="E3" swing=0.05 {
+  scale 0 2 4 5 7 9 10
+  tabla "g..n.ng..t.n"
+  dholak "D...d.D...d."
+  harmonium "X.....x.....X.....x....." 0 5 3 4
+  synth "x.x.x.x...x.x.x.x...x.x." 7 9 11 12 11 9 7 4 5 7 4 2
+  bell "x...........x.....x....." 14 12 11
+  bass "x.....x....." 0 3 4 0
+}
+
+// Jadugar Raj: Bhairavi showman march -> the reveal
+theme "raj" bpm=118 root="C3" swing=0.08 {
+  scale 0 1 3 5 7 8 10
+  tabla "gNn.tnk.g.n.Ntkng..n.ng.tnk.N.t."
+  dholak "D.d.D.d.D.d.DddD"
+  shaker "x.x.X.x.x.x.X.x."
+  harmonium "X.......X.......x.......X......." 0 5 3 4
+  synth "x.xx.x.xx.x.x...x.xx.x.xxx.x.x.." 7 8 10 8 7 5 3 5 7 12 10 8 7 5 3 1 0 1 3
+  bass "x.x...x.x.x...x." 0 0 5 5 3 3 4 4
+}
+theme "raj-reveal" bpm=140 root="C3" swing=0 {
+  scale 0 1 3 5 6 8 10
+  dholak "D.D.d.D.D.D.d.Dd"
+  tabla "NkNkg.n.NkNkg.t."
+  synth "xxxxxxxxxxxxxxxx" 0 12 3 15 6 18 3 15 0 12 1 13 5 17 1 13
+  bass "x.x.x.x.x.x.x.x." 0 0 0 0 1 1 6 6
+  clap "....x.......x..."
+}
+
+theme "mela" bpm=132 root="A3" swing=0.15 {
+  scale 0 2 4 5 7 9 11
+  dholak "D..dD.d.D..dD.dd"
+  tabla "n.n.g.n.n.n.g.tn"
+  shaker "x.x.x.x.x.x.x.x."
+  synth "x.x.x.x.x...x.x.x.x.x.x.x...x..." 4 4 5 7 7 5 4 2 0 0 2 4 4 2 2
+  harmonium "X...............X..............." 0 3
+  bass "x...x...x...x..." 0 4 5 4
+}
+
+theme "shmup" bpm=150 root="E3" swing=0 {
+  scale 0 2 3 5 7 8 10
+  dholak "D.d.D.d.D.d.D.dd"
+  tabla "nknkgnknnknkgntk"
+  synth "x.x.xx.x.x.xx.x." 0 3 5 7 10 7 5 3 0 3 5 8 7 5 3 2
+  bass "xxxxxxxxxxxxxxxx" 0 0 0 0 5 5 5 5 3 3 3 3 4 4 4 4
+}
+
+theme "ending" bpm=88 root="F3" swing=0.1 {
+  scale 0 2 4 5 7 9 11
+  tabla "g...n...g.n.t..."
+  harmonium "X...............X...............X...............X..............." 0 5 3 4
+  bell "x...x...x.x.x...x...x...x...x..." 7 9 11 12 11 9 7 4 2 4 7 4
+  bass "x.......x......." 0 5 3 4
+}

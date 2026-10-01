@@ -1,0 +1,19 @@
+/* Line + shading: outline widths, cel rim, squash & stretch, animation timing. */
+:root {
+  --ink-w: 7;                 /* SVG outline width (viewBox units) for big parts */
+  --ink-w-thin: 4;
+  --rim-color: #fff1c9;       /* cel rim light on characters */
+  --rim-amount: 0.55;
+  --rim-offset: 0.012;        /* in UV units */
+  --rim-dir: -0.6 0.8;        /* light direction (x y) */
+  --shade-color: #3a1030;     /* cel shadow tint on characters */
+  --shade-amount: 0.22;
+  --anim-fps: 12;             /* body animation "on twos" */
+  --squash-k: 1;              /* multiplier on squash & stretch */
+  --smear-speed: 900;         /* px/s before a smear frame shows */
+  --smear-alpha: 0.38;
+  --hit-flash: #ffffff;
+  --parry-pulse: 6;           /* Hz of the parry glow pulse */
+  --texture-scale: 2;         /* SVG rasterization scale */
+  --shadow-alpha: 0.28;       /* contact shadow under characters */
+}

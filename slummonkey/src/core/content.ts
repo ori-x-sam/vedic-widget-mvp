@@ -40,8 +40,8 @@ export interface TrackDef { inst: string; pattern: string; notes: number[]; gain
 export interface ThemeDef { id: string; bpm: number; root: number; scale: number[]; swing: number; tracks: TrackDef[] }
 export interface OwNode { id: string; x: number; y: number; level: string; label: string; requires: string; kind: string }
 export interface OwNpc { id: string; x: number; y: number; puppet: string; lines: string[] }
-export interface OverworldDef { start: [number, number]; nodes: OwNode[]; npcs: OwNpc[]; props: { kind: string; x: number; y: number; s: number }[]; size: [number, number] }
-export interface StageLayer { art: string; depth: number; y: number; tile: boolean; scale: number; tint: string }
+export interface OverworldDef { map: string[]; start: [number, number]; nodes: OwNode[]; npcs: OwNpc[]; props: { kind: string; x: number; y: number; s: number }[]; size: [number, number] }
+export interface StageLayer { art: string; depth: number; x: number; y: number; tile: boolean; scale: number; tint: string }
 export interface StageDef { id: string; layers: StageLayer[]; floor: number; ceiling: number; width: number }
 
 export interface Content {
@@ -86,7 +86,7 @@ export function emptyContent(): Content {
   return {
     player: {}, bosses: {}, minions: {}, levels: {}, weapons: {}, supers: {}, charms: {}, shop: [], projectiles: {},
     puppets: {}, stories: {}, controls: { joystick: { zone: 0.4, dead: 0.25, radius: 70 }, buttons: [], safe: [] },
-    themes: {}, overworld: { start: [0, 0], nodes: [], npcs: [], props: [], size: [10, 10] }, stages: {}, strings: {}, errors: [],
+    themes: {}, overworld: { map: [], start: [0, 0], nodes: [], npcs: [], props: [], size: [10, 10] }, stages: {}, strings: {}, errors: [],
   };
 }
 
@@ -202,6 +202,7 @@ function loadNode(c: Content, n: KdlNode, file: string) {
       return;
     case "overworld":
       c.overworld = {
+        map: (child(n, "map")?.args ?? []).map(String),
         start: [propNum(n, "x", 0), propNum(n, "y", 0)], size: [propNum(n, "w", 12), propNum(n, "h", 12)],
         nodes: childrenNamed(n, "node").map((k) => ({
           id: argStr(k, 0, ""), x: propNum(k, "x", 0), y: propNum(k, "y", 0), level: propStr(k, "level", ""), label: propStr(k, "label", ""),
@@ -218,7 +219,7 @@ function loadNode(c: Content, n: KdlNode, file: string) {
       c.stages[id] = {
         id, floor: propNum(n, "floor", -250), ceiling: propNum(n, "ceiling", 360), width: propNum(n, "width", 1280),
         layers: childrenNamed(n, "layer").map((l) => ({
-          art: argStr(l, 0, ""), depth: propNum(l, "depth", 1), y: propNum(l, "y", 0), tile: propBool(l, "tile", false),
+          art: argStr(l, 0, ""), depth: propNum(l, "depth", 1), x: propNum(l, "x", 0), y: propNum(l, "y", 0), tile: propBool(l, "tile", false),
           scale: propNum(l, "scale", 1), tint: propStr(l, "tint", ""),
         })),
       };

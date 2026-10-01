@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 900">
+  <path d="M0 0 L 230 0 C 220 200, 190 380, 120 520 C 90 580, 110 640, 140 700 C 170 760, 150 840, 120 900 L 0 900Z" fill="var(--velvet)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="8"/>
+  <g fill="none" stroke="var(--velvet-dark)" stroke-width="22" stroke-linecap="round"><path d="M40 0 C 44 200, 40 400, 30 900"/><path d="M110 0 C 112 160, 100 330, 70 500"/><path d="M180 0 C 176 140, 160 300, 120 460"/></g>
+  <g fill="none" stroke="var(--velvet-light)" stroke-width="12" stroke-linecap="round" opacity="0.8"><path d="M76 0 C 78 200, 70 380, 54 560"/><path d="M146 0 C 144 150, 132 300, 100 470"/></g>
+  <!-- tieback rope with tassel -->
+  <path d="M0 560 C 50 540, 110 530, 140 560" fill="none" stroke="var(--ink)" stroke-width="22" stroke-linecap="round"/><path d="M0 560 C 50 540, 110 530, 140 560" fill="none" stroke="var(--gold)" stroke-width="14" stroke-linecap="round"/>
+  <path d="M0 560 C 50 540, 110 530, 140 560" fill="none" stroke="var(--marigold)" stroke-width="6"/>
+  <path d="M130 556 L 160 640 L 120 640Z" fill="var(--gold)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="5"/>
+  <circle cx="140" cy="556" r="14" fill="var(--marigold)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="5"/>
+  <path d="M0 860 L 120 860 C 130 880, 125 890, 118 900 L 0 900Z" fill="var(--gold)" stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="5"/>
+</svg>

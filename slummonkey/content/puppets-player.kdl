@@ -1,0 +1,13 @@
+// SlumMonkey cutout puppet. Positions are world px from his feet (y up). size = part height in px.
+// px/py = pivot inside the part image (0..1 from left/top). anim = view/puppet.ts ANIMS entry.
+puppet "slummonkey" {
+  part "tail" svg="parts/slummonkey/tail" size=54 x=-14 y=36 px=0.88 py=0.95 z=1 anim="tail"
+  part "arm-back" svg="parts/slummonkey/arm-back" size=36 x=-14 y=74 px=0.48 py=0.08 z=2 anim="arm" tags="b"
+  part "leg-back" svg="parts/slummonkey/leg" size=40 x=-8 y=38 px=0.48 py=0.05 z=3 anim="leg" tags="b"
+  part "leg-front" svg="parts/slummonkey/leg" size=40 x=10 y=38 px=0.48 py=0.05 z=4 anim="leg"
+  part "torso" svg="parts/slummonkey/torso" size=54 x=0 y=30 px=0.5 py=0.96 z=5 anim="breathe"
+  part "head" svg="parts/slummonkey/head" size=64 x=6 y=78 px=0.5 py=0.86 z=6 anim="head"
+  part "gun" svg="parts/slummonkey/gun-arm" size=26 x=8 y=70 px=0.08 py=0.5 z=7 anim="aim"
+  part "rotor" svg="parts/slummonkey/rotor" size=32 x=0 y=140 px=0.5 py=0.5 z=8 anim="rotor"
+}
+puppet "missing" { part "x" svg="sprites/pellet" size=60 x=0 y=30 }

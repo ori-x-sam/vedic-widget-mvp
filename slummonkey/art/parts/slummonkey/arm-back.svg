@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 90">
+  <path d="M18 6 C 12 30, 14 50, 16 64 L 30 64 C 34 48, 34 28, 32 6Z" fill="var(--hoodie-dark)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="23" cy="72" r="13" fill="var(--monkey-face)" stroke="var(--ink)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M14 66 C 18 74, 28 74, 32 66" fill="none" stroke="var(--marigold)" stroke-width="4"/>
+</svg>

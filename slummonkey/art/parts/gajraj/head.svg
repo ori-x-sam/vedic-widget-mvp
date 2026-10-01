@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <path d="M20 90 C 20 30, 80 8, 130 14 C 176 20, 196 60, 190 104 C 184 146, 150 168, 110 168 C 64 168, 22 144, 20 90Z" fill="var(--elephant)" stroke="var(--ink)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M36 130 C 60 160, 110 170, 150 156" fill="none" stroke="var(--elephant-dark)" stroke-width="12" stroke-linecap="round" opacity="0.7"/>
+  <!-- forehead ornament -->
+  <path d="M100 18 C 130 14, 160 24, 172 44 C 160 70, 130 82, 108 72 C 92 60, 88 32, 100 18Z" fill="var(--rani)" stroke="var(--ink)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M106 26 C 128 22, 150 30, 160 44 C 150 62, 128 70, 112 62" fill="none" stroke="var(--gold)" stroke-width="5"/>
+  <circle cx="134" cy="44" r="10" fill="var(--sky)" stroke="var(--ink)" stroke-width="4"/>
+  <g fill="var(--gold)" stroke="var(--ink)" stroke-width="3"><circle cx="112" cy="84" r="6"/><circle cx="132" cy="88" r="6"/><circle cx="152" cy="84" r="6"/><circle cx="170" cy="74" r="6"/></g>
+  <!-- eye with kohl -->
+  <path d="M138 98 C 146 86, 170 86, 176 100 C 168 112, 146 112, 138 98Z" fill="var(--white)" stroke="var(--ink)" stroke-width="6"/>
+  <circle cx="162" cy="99" r="7" fill="var(--ink)"/><circle cx="164" cy="96" r="2.5" fill="var(--white)"/>
+  <path d="M132 96 C 140 82, 166 78, 182 92" fill="none" stroke="var(--ink)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M134 80 C 146 70, 166 68, 180 76" fill="none" stroke="var(--ink)" stroke-width="8" stroke-linecap="round"/>
+  <!-- cheek paint -->
+  <path d="M120 130 C 130 120, 146 120, 150 132 C 140 142, 126 142, 120 130Z" fill="var(--saffron)" stroke="var(--ink)" stroke-width="3"/>
+  <circle cx="104" cy="118" r="5" fill="var(--marigold)"/><circle cx="96" cy="138" r="4" fill="var(--marigold)"/>
+  <!-- tusk -->
+  <path d="M150 156 C 168 168, 190 168, 198 150 C 188 172, 160 184, 140 168Z" fill="var(--white)" stroke="var(--ink)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+  <!-- mouth -->
+  <path d="M120 160 C 130 172, 146 172, 152 162" fill="var(--velvet-dark)" stroke="var(--ink)" stroke-width="5"/>
+</svg>

@@ -1,0 +1,35 @@
+// Every projectile. sprite = art/sprites/<sprite>.svg. r = hit radius (px).
+// Parryable ones are drawn as the reserved pink marigold automatically.
+
+// player
+projectile "player-coin" sprite="player-coin" r=11 damage=4 hostile=#false life=2
+projectile "p-mirchi" sprite="mirchi" r=12 damage=2.6 hostile=#false life=0.5
+projectile "p-kabootar" sprite="kabootar" r=13 damage=2.4 hostile=#false life=2.4
+projectile "p-laddoo" sprite="laddoo" r=15 damage=7 hostile=#false life=2.5
+projectile "ex-coin" sprite="big-coin" r=30 damage=24 hostile=#false pierce=#true life=2
+projectile "ex-mirchi" sprite="mirchi-bomb" r=22 damage=5 hostile=#false life=0.8
+projectile "ex-kabootar" sprite="big-kabootar" r=24 damage=8 hostile=#false life=3
+projectile "ex-laddoo" sprite="big-laddoo" r=34 damage=26 hostile=#false life=3
+projectile "moon-beam" sprite="moon-beam" r=60 damage=150 hostile=#false pierce=#true life=2
+projectile "airdrop-crate" sprite="airdrop-crate" r=30 damage=16 hostile=#false life=4
+
+// enemy
+projectile "pellet" sprite="pellet" r=13
+projectile "coin" sprite="enemy-coin" r=14 spin=8
+projectile "shockwave" sprite="shockwave" r=26 life=4
+projectile "bomb" sprite="bomb" r=20 gravity=1400 life=5
+projectile "beam" sprite="beam" r=22 life=3
+projectile "knife" sprite="knife" r=12
+projectile "club" sprite="club" r=18 spin=10 life=9
+projectile "card" sprite="card" r=13 spin=6
+projectile "rabbit" sprite="rabbit-shot" r=20
+projectile "pigeon" sprite="pigeon" r=16 life=7
+projectile "water-drop" sprite="water-drop" r=14 gravity=900
+projectile "candle-red" sprite="candle-red" r=16 life=9
+projectile "candle-green" sprite="candle-green" r=16 life=9
+projectile "star" sprite="star" r=14 spin=5
+projectile "prop" sprite="prop-shot" r=18 spin=6
+projectile "cash" sprite="cash" r=16 spin=3
+projectile "kite" sprite="kite-shot" r=16 spin=2
+projectile "marigold" sprite="marigold" r=18 parryable=#true
+projectile "laddoo-parry" sprite="marigold" r=18 parryable=#true gravity=1400 life=5

@@ -1,0 +1,12 @@
+/* Camera framing + safe zones. Floor sits above the bottom band so thumbs never cover threats. */
+:root {
+  --view-h: 720;              /* world units visible vertically */
+  --floor-frac: 0.27;         /* floor line, as a fraction of screen height from the bottom */
+  --camera-zoom: 1;
+  --shake-scale: 1;
+  --shake-decay: 10;
+  --apron-color: var(--velvet-dark);
+  /* safe zones (fractions of the screen, from bottom-left) kept clear of key threats */
+  --safe-left: 0 0 0.22 0.27;
+  --safe-right: 0.78 0 0.22 0.27;
+}

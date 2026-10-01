@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 170">
+  <path d="M110 10 C 50 0, 10 40, 12 90 C 14 140, 50 164, 86 160 C 110 156, 112 130, 104 112 C 120 90, 132 40, 110 10Z" fill="var(--elephant)" stroke="var(--ink)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M100 24 C 56 20, 30 50, 32 90 C 34 126, 58 144, 84 140" fill="var(--rani)" opacity="0.45"/>
+  <path d="M44 110 C 50 126, 66 136, 84 136" fill="none" stroke="var(--elephant-dark)" stroke-width="8" stroke-linecap="round"/>
+  <g fill="var(--gold)" stroke="var(--ink)" stroke-width="3"><circle cx="40" cy="60" r="5"/><circle cx="36" cy="88" r="5"/><circle cx="48" cy="116" r="5"/></g>
+</svg>

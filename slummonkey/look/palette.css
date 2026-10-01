@@ -1,0 +1,67 @@
+/* Palette — every color in the game. Edit here; SVG parts and shaders read these tokens. */
+:root {
+  /* reserved: ONLY parryable things use this. Nothing else may. */
+  --parry: #ff2e88;
+  --parry-glow: #ffb13b;
+
+  --ink: #1d0f14;             /* outline ink */
+  --paper: #f6e7c8;           /* cream paper */
+  --paper-dark: #e3c99b;
+  --white: #fff8ec;
+
+  /* Bollywood billboard core */
+  --saffron: #ff9a1f;
+  --marigold: #ffbf1f;
+  --turmeric: #f2c230;
+  --magenta: #c2187a;
+  --rani: #e0337a;
+  --vermilion: #e2412b;
+  --chilli: #c8281f;
+  --peacock: #0f8a8a;
+  --teal: #1aa5a0;
+  --indigo: #2b2a6b;
+  --midnight: #1a1440;
+  --velvet: #8e1131;
+  --velvet-dark: #5a0a20;
+  --velvet-light: #c22a4a;
+  --gold: #e8b33c;
+  --gold-dark: #a8741c;
+  --leaf: #4f9a3a;
+  --leaf-dark: #2f6a2a;
+  --sky: #8fd3e8;
+  --sky-warm: #ffd9a8;
+  --wood: #a0602e;
+  --wood-dark: #6b3a1a;
+  --clay: #c8643a;
+  --clay-dark: #8a3a1e;
+  --steel: #9fb0bd;
+  --steel-dark: #5d6d7a;
+  --neon-green: #3ddc84;
+  --candle-red: #e5383b;
+  --candle-green: #2fbf71;
+  --water: #3aa0c8;
+  --water-deep: #1d5f8a;
+
+  /* characters */
+  --monkey-fur: #9a5a2c;
+  --monkey-fur-dark: #6b3a1a;
+  --monkey-face: #f2c79a;
+  --cyber: #34e2ff;
+  --cyber-dark: #1679a8;
+  --hoodie: #2a9d8f;
+  --hoodie-dark: #1c6d63;
+  --elephant: #8e8aa6;
+  --elephant-dark: #625e7c;
+  --elephant-light: #b9b5cf;
+  --dolly-a: #f25f8c;   /* harlequin diamonds (rani, not parry) */
+  --dolly-b: #2bb3c0;
+  --raj-coat: #301a5c;
+  --raj-coat-light: #4b2d86;
+  --skin-1: #c98a5e;
+  --skin-2: #a8693f;
+  --skin-3: #e0a77a;
+  --lattu: #ffcb3d;
+  --pattu: #39b56a;
+  --sattu: #3d7bff;
+  --pinky: #ff6fb5;
+}

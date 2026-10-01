@@ -1,0 +1,68 @@
+// Boss 1 — Gayab Gajraj, the Vanishing Elephant. Read it as a stack of vocabulary words.
+puppet "gajraj" {
+  part "tail" svg="parts/gajraj/tail" size=70 x=-150 y=170 px=0.85 py=0.05 z=1 anim="sway"
+  part "leg-bb" svg="parts/gajraj/leg-back" size=100 x=-70 y=100 px=0.5 py=0.04 z=2 anim="leg" tags="b"
+  part "leg-bf" svg="parts/gajraj/leg-back" size=100 x=90 y=100 px=0.5 py=0.04 z=3 anim="leg"
+  part "body" svg="parts/gajraj/body" size=215 x=-10 y=40 px=0.5 py=0.94 z=4 anim="breathe"
+  part "leg-fb" svg="parts/gajraj/leg" size=100 x=-110 y=100 px=0.5 py=0.04 z=5 anim="leg"
+  part "leg-ff" svg="parts/gajraj/leg" size=100 x=60 y=100 px=0.5 py=0.04 z=6 anim="leg" tags="b"
+  part "head" svg="parts/gajraj/head" size=175 x=105 y=175 px=0.25 py=0.6 z=7 anim="head"
+  part "ear" svg="parts/gajraj/ear" size=140 x=-6 y=48 px=0.82 py=0.1 z=8 anim="flap" parent="head"
+  part "trunk" svg="parts/gajraj/trunk" size=150 x=104 y=-22 px=0.38 py=0.04 z=9 anim="trunk" parent="head"
+}
+puppet "howdah" { part "howdah" svg="parts/gajraj/howdah" size=120 x=0 y=0 px=0.5 py=0.95 anim="bob" }
+puppet "mahout" { part "mahout" svg="parts/gajraj/mahout" size=90 x=0 y=0 px=0.5 py=0.95 anim="float" }
+
+boss "gajraj" name="Gayab Gajraj" title="The Vanishing Elephant" hp=1100 w=300 h=250 x=380 stage="gajraj" theme="gajraj" reward=30 \
+  intro="Sheet girao, haathi gayab!" outro="Gajraj ki chhutti!" {
+
+  phase "sheet-trick" name="Sheet Trick" until="66%" {
+    parry-every 5
+    loop {
+      stomp 0.55 2 speed=520
+      wait 0.5
+      spray 1.4 70 "coin" rate=10 speed=470 from="trunk"
+      wait 0.5
+      pick {
+        seq w=2 { windup 0.55; charge 820 }
+        seq { hop 240 2 }
+      }
+      wait 0.3
+      vanish-under-sheet 2.6 to="far"
+      wait 0.5
+    }
+  }
+
+  phase "invisible" name="The Invisible Act" until="33%" {
+    say "Gajraj" "Ab dikha... ab gayab!" dur=2
+    invisible 0
+    invisible-trail "powder"
+    rider "howdah" keep-visible=#true y=235
+    parry-every 4
+    loop {
+      patrol "left" "right" 240 dur=2.4
+      drumroll 0.6
+      charge 700
+      wait 0.4
+      stomp 0.6 1 speed=480
+      wait 0.4
+      spray 1.0 60 "coin" rate=8 speed=430 from="trunk"
+      wait 0.6
+    }
+  }
+
+  phase "trick-gone-wrong" name="Trick Gone Wrong" {
+    say "Gajraj" "Arre! Mantra ulta pad gaya!" dur=2
+    shrink 0.34
+    rider "mahout" y=240 { parryable "marigold" }
+    wait 1
+    loop {
+      zip 760 dur=3.2
+      volley 3 34 430 "coin" from="mid"
+      wait 0.5
+      hop 180 2
+      ring 10 330 "coin"
+      wait 0.7
+    }
+  }
+}

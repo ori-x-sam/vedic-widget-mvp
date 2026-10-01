@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 190">
+  <path d="M30 70 C 60 20, 140 20, 170 70Z" fill="var(--rani)" stroke="var(--ink)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M100 8 L 100 28" stroke="var(--ink)" stroke-width="6"/><circle cx="100" cy="10" r="8" fill="var(--gold)" stroke="var(--ink)" stroke-width="4"/>
+  <path d="M46 62 C 70 40, 130 40, 154 62" fill="none" stroke="var(--gold)" stroke-width="6"/>
+  <g stroke="var(--ink)" stroke-width="6" fill="var(--gold)"><rect x="32" y="66" width="12" height="70"/><rect x="156" y="66" width="12" height="70"/></g>
+  <path d="M30 66 L 170 66" stroke="var(--ink)" stroke-width="7"/>
+  <path d="M44 74 L 50 96 L 56 74 L 62 96 L 68 74" fill="none" stroke="var(--gold)" stroke-width="3"/>
+  <path d="M132 74 L 138 96 L 144 74 L 150 96 L 156 74" fill="none" stroke="var(--gold)" stroke-width="3"/>
+  <path d="M14 130 L 186 130 L 176 176 L 24 176Z" fill="var(--gold)" stroke="var(--ink)" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M30 144 L 170 144" stroke="var(--gold-dark)" stroke-width="5"/>
+  <g fill="var(--rani)" stroke="var(--ink)" stroke-width="3"><circle cx="50" cy="160" r="7"/><circle cx="80" cy="160" r="7"/><circle cx="110" cy="160" r="7"/><circle cx="140" cy="160" r="7"/></g>
+  <path d="M60 130 C 70 110, 90 110, 100 120 C 110 110, 130 110, 140 130Z" fill="var(--velvet)" stroke="var(--ink)" stroke-width="5"/>
+</svg>

@@ -1,0 +1,25 @@
+/* Touch controls: shapes, colors, idle fade. Layout positions live in content/controls.kdl. */
+.touch { position: absolute; inset: 0; pointer-events: auto; touch-action: none; }
+.joy-base { position: absolute; width: calc(var(--r) * 2px); height: calc(var(--r) * 2px); margin: calc(var(--r) * -1px) 0 0 calc(var(--r) * -1px); border-radius: 50%; border: 3px dashed var(--joy-color); background: radial-gradient(rgba(255,255,255,.08), transparent 70%); display: none; }
+.joy-base.on { display: block; }
+.joy-knob { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: var(--paper); border: 3px solid var(--ink); opacity: 0.8; box-shadow: 2px 3px 0 var(--ink); }
+.joy-knob.locked { background: var(--cyber); }
+.tbtn { position: absolute; transform: translate(-50%, -50%); display: grid; place-items: center; opacity: var(--btn-idle-opacity); transition: opacity 0.2s, transform 0.05s; }
+.tbtn .face { width: 100%; height: 100%; display: grid; place-items: center; border: 4px solid var(--ink); box-shadow: 3px 4px 0 var(--ink); background: var(--c); color: var(--ink); font: 700 14px var(--font-hand); }
+.tbtn .face svg { width: 55%; height: 55%; }
+.tbtn.down, .tbtn.recent { opacity: var(--btn-active-opacity); }
+.tbtn.down { transform: translate(-50%, -50%) scale(0.92); }
+.tbtn.shape-circle .face { border-radius: 50%; }
+.tbtn.shape-pill .face { border-radius: 40px; }
+.tbtn.shape-diamond .face { border-radius: 10px; transform: rotate(45deg) scale(0.78); }
+.tbtn.shape-diamond .face svg { transform: rotate(-45deg); }
+.tbtn.shape-hex .face { clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); border-radius: 0; border-width: 0; box-shadow: none; outline: none; filter: drop-shadow(3px 4px 0 var(--ink)); }
+.tbtn.shape-star .face { clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); border: none; box-shadow: none; }
+.tbtn.ready { opacity: 1; animation: ex-ready 0.5s infinite alternate; }
+@keyframes ex-ready { to { filter: drop-shadow(0 0 12px var(--btn-ex)) brightness(1.2); } }
+.tbtn.cooldown .face { filter: grayscale(0.8) brightness(0.8); }
+.tbtn.toggled .face { outline: 4px solid var(--cyber); }
+.editor-on .tbtn { opacity: 0.95; outline: 2px dashed var(--white); }
+.editor-on .tbtn .handle { position: absolute; right: -8px; bottom: -8px; width: 22px; height: 22px; border-radius: 50%; background: var(--white); border: 3px solid var(--ink); }
+.editor-bar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; pointer-events: auto; }
+.safe-overlay { position: absolute; border: 2px dashed rgba(255, 46, 136, 0.6); background: rgba(255, 46, 136, 0.08); pointer-events: none; }
