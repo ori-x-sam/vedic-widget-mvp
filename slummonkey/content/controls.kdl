@@ -1,15 +1,12 @@
 // Touch layout defaults (landscape). x/y = fraction of the screen from the top-left; r = radius as a
 // fraction of screen height; hit = touch zone multiplier (bigger than the art).
-// The in-game layout editor saves overrides to localStorage and can export this block back as KDL.
+// Shooting is automatic (auto-aim), and parrying is jumping into something pink, so the right thumb
+// only needs three buttons. The in-game layout editor saves overrides and can export this block as KDL.
 controls {
-  joystick zone=0.4 dead=0.25 radius=70        // floating stick anywhere in the left 40%
-  button "shoot" x=0.875 y=0.78 r=0.115 shape="circle" icon="shoot" hit=1.3   // biggest, at the thumb's resting point
-  button "jump"  x=0.755 y=0.60 r=0.085 shape="pill" icon="jump" hit=1.35      // up-left of SHOOT
-  button "parry" x=0.875 y=0.50 r=0.075 shape="diamond" icon="parry" hit=1.4   // up-right, next to JUMP: one-thumb roll
-  button "blink" x=0.725 y=0.83 r=0.07 shape="hex" icon="blink" hit=1.35       // left of SHOOT
-  button "ex"    x=0.965 y=0.40 r=0.06 shape="star" icon="ex" hit=1.5          // small, top of the arc; glows when ready
-  button "lock"  x=0.045 y=0.30 r=0.045 shape="hex" icon="lock" hit=1.4        // aim-lock toggle
-  button "swap"  x=0.965 y=0.62 r=0.04 shape="circle" icon="swap" hit=1.4
+  joystick zone=0.5 dead=0.22 radius=64          // floating stick anywhere in the left half
+  button "jump"  x=0.885 y=0.76 r=0.125 shape="circle" icon="jump" hit=1.3     // biggest, at the thumb's resting point
+  button "blink" x=0.735 y=0.83 r=0.09 shape="circle" icon="blink" hit=1.35   // DASH: left of JUMP
+  button "ex"    x=0.80 y=0.50 r=0.075 shape="circle" icon="ex" hit=1.4       // SPECIAL: above, between them; glows when ready
   // Screen regions kept free of key threats (fractions from the bottom-left). Mirrors look/camera.css.
   safe-zone "left-thumb" x=0 y=0 w=0.22 h=0.27
   safe-zone "right-thumb" x=0.78 y=0 w=0.22 h=0.27

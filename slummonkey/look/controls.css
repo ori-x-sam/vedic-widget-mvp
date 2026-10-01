@@ -1,29 +1,24 @@
-/* Touch controls: shapes, colors, idle fade. Layout positions live in content/controls.kdl. */
+/* Touch controls: clean translucent discs with a clear label. Positions live in content/controls.kdl. */
 .touch { position: absolute; inset: 0; pointer-events: auto; touch-action: none; }
-.joy-base { position: absolute; width: calc(var(--r) * 2px); height: calc(var(--r) * 2px); margin: calc(var(--r) * -1px) 0 0 calc(var(--r) * -1px); border-radius: 50%; border: 3px dashed var(--joy-color); background: radial-gradient(rgba(255,255,255,.08), transparent 70%); display: none; }
+.joy-base { position: absolute; width: calc(var(--r) * 2px); height: calc(var(--r) * 2px); margin: calc(var(--r) * -1px) 0 0 calc(var(--r) * -1px); border-radius: 50%; background: rgba(20, 14, 30, 0.35); border: 2px solid rgba(255, 255, 255, 0.55); display: none; }
 .joy-base.on { display: block; }
-.joy-knob { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: var(--paper); border: 3px solid var(--ink); opacity: 0.8; box-shadow: 2px 3px 0 var(--ink); }
+.joy-knob { position: absolute; left: 50%; top: 50%; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; background: rgba(255, 255, 255, 0.85); box-shadow: 0 2px 8px rgba(0,0,0,.35); }
 .joy-knob.locked { background: var(--cyber); }
-.tbtn { position: absolute; transform: translate(-50%, -50%); display: grid; place-items: center; opacity: var(--btn-idle-opacity); transition: opacity 0.2s, transform 0.05s; }
-/* each button: colored disc + dark ring so it reads on any background; icon in ink */
-.tbtn .face { width: 100%; height: 100%; display: grid; place-items: center; border: 4px solid var(--ink); box-shadow: 0 0 0 3px rgba(255, 248, 236, 0.55), 3px 5px 0 var(--ink); background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.45), transparent 55%), var(--c); color: var(--ink); font: 700 14px var(--font-hand); }
-.touch.island .tbtn { display: none; }
-.touch.portrait .tbtn { opacity: 0.92; }
-.touch .tbtn::after { content: attr(data-id); position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font: 700 11px var(--font-hand); color: var(--white); text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 1px 0 var(--ink), 0 0 4px var(--ink); pointer-events: none; }
-.touch:not(.portrait) .tbtn::after { display: none; }
-.tbtn .face svg { width: 55%; height: 55%; }
-.tbtn.down, .tbtn.recent { opacity: var(--btn-active-opacity); }
+.tbtn { position: absolute; transform: translate(-50%, -50%); display: grid; place-items: center; opacity: var(--btn-idle-opacity); transition: opacity 0.15s, transform 0.06s; }
+.tbtn .face { position: relative; width: 100%; height: 100%; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  background: rgba(24, 16, 34, 0.55); border: 2.5px solid rgba(255, 255, 255, 0.75); color: #fff; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3); backdrop-filter: blur(2px); }
+.tbtn .face svg { width: 38%; height: 38%; }
+.tbtn .lbl { font: 800 13px/1 system-ui, -apple-system, "Segoe UI", sans-serif; letter-spacing: 1.5px; }
+.tbtn[data-id="jump"] .lbl { font-size: 15px; }
+.tbtn[data-id="ex"] .face { border-color: rgba(255, 210, 63, 0.6); }
+.tbtn.down, .tbtn.recent { opacity: 1; }
 .tbtn.down { transform: translate(-50%, -50%) scale(0.92); }
-.tbtn.shape-circle .face { border-radius: 50%; }
-.tbtn.shape-pill .face { border-radius: 40px; }
-.tbtn.shape-diamond .face { border-radius: 10px; transform: rotate(45deg) scale(0.78); }
-.tbtn.shape-diamond .face svg { transform: rotate(-45deg); }
-.tbtn.shape-hex .face { clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0 50%); border-radius: 0; border-width: 0; box-shadow: none; outline: none; filter: drop-shadow(3px 4px 0 var(--ink)); }
-.tbtn.shape-star .face { clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); border: none; box-shadow: none; }
-.tbtn.ready { opacity: 1; animation: ex-ready 0.5s infinite alternate; }
-@keyframes ex-ready { to { filter: drop-shadow(0 0 12px var(--btn-ex)) brightness(1.2); } }
-.tbtn.cooldown .face { filter: grayscale(0.8) brightness(0.8); }
-.tbtn.toggled .face { outline: 4px solid var(--cyber); }
+.tbtn.down .face { background: rgba(255, 255, 255, 0.28); }
+.tbtn.ready { opacity: 1; }
+.tbtn.ready .face { background: rgba(255, 190, 40, 0.85); border-color: #fff; color: var(--ink); animation: ex-ready 0.7s ease-in-out infinite alternate; }
+@keyframes ex-ready { to { box-shadow: 0 0 22px rgba(255, 200, 60, 0.95); } }
+.tbtn.cooldown .face { opacity: 0.45; }
+.touch.island .tbtn { display: none; }
 .editor-on .tbtn { opacity: 0.95; outline: 2px dashed var(--white); }
 .editor-on .tbtn .handle { position: absolute; right: -8px; bottom: -8px; width: 22px; height: 22px; border-radius: 50%; background: var(--white); border: 3px solid var(--ink); }
 .editor-bar { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; pointer-events: auto; }

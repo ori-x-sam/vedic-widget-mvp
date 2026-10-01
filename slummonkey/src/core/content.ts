@@ -25,7 +25,11 @@ export interface ProjDef {
   id: string; sprite: string; r: number; damage: number; gravity: number; spin: number; life: number;
   parryable: boolean; hostile: boolean; pierce: boolean; scale: number;
 }
-export interface PartDef { id: string; svg: string; x: number; y: number; px: number; py: number; z: number; parent: string; anim: string; size: number; tags: string[] }
+export interface PartDef {
+  id: string; svg: string; x: number; y: number; px: number; py: number; z: number; parent: string; anim: string; size: number; tags: string[];
+  // low-poly 3D parts: a primitive shape on a pivot
+  shape: string; dim: number[]; pz: number; off: number[]; rot: number[]; color: string; detail: number; taper: number; emissive: number;
+}
 export interface PuppetDef { id: string; scale: number; parts: PartDef[] }
 export interface Bubble { who: string; text: string; x: number; y: number; tail: string; kind: string }
 export interface PanelDef { layout: string; art: { id: string; x: number; y: number; s: number; flip: boolean }[]; bg: string; caption: string; bubbles: Bubble[]; sfx: string }
@@ -43,7 +47,11 @@ export interface OwNpc { id: string; x: number; y: number; puppet: string; lines
 export interface OverworldDef { map: string[]; start: [number, number]; nodes: OwNode[]; npcs: OwNpc[]; props: { kind: string; x: number; y: number; s: number }[]; size: [number, number] }
 export interface StageLayer { art: string; depth: number; x: number; y: number; tile: boolean; tiley: boolean; dim: number; blur: number; scale: number; tint: string }
 export interface StageLight { kind: string; x: number; y: number; w: number; h: number; angle: number; color: string; alpha: number; depth: number }
-export interface StageDef { id: string; layers: StageLayer[]; lights: StageLight[]; floor: number; ceiling: number; width: number }
+export interface StageProp { kind: string; x: number; y: number; z: number; s: number; rot: number; color: string; color2: string; every: number; from: number; to: number; w: number; h: number }
+export interface StageDef {
+  id: string; layers: StageLayer[]; lights: StageLight[]; floor: number; ceiling: number; width: number;
+  props: StageProp[]; sky: [string, string]; fog: string; ground: string; ambient: number; sun: number;
+}
 
 export interface Content {
   player: Record<string, number>;
@@ -72,6 +80,13 @@ const pct = (v: KdlValue | undefined): number | null => {
   if (s.endsWith("%")) return parseFloat(s) / 100;
   const n = parseFloat(s);
   return Number.isNaN(n) ? null : n > 1 ? n / 100 : n;
+};
+
+const vec = (v: KdlValue | undefined, d: number[]): number[] => {
+  if (v == null) return d;
+  if (typeof v === "number") return [v, v, v];
+  const a = String(v).trim().split(/[\s,]+/).map(Number);
+  return a.length === 1 ? [a[0], a[0], a[0]] : a;
 };
 
 const NOTE_RE = /^([A-G])(#|b)?(-?\d)$/;
@@ -165,6 +180,9 @@ function loadNode(c: Content, n: KdlNode, file: string) {
           id: argStr(p, 0, "p" + i), svg: propStr(p, "svg", ""), x: propNum(p, "x", 0), y: propNum(p, "y", 0),
           px: propNum(p, "px", 0.5), py: propNum(p, "py", 0.5), z: propNum(p, "z", i), parent: propStr(p, "parent", ""),
           anim: propStr(p, "anim", ""), size: propNum(p, "size", 128), tags: propStr(p, "tags", "").split(/\s+/).filter(Boolean),
+          shape: propStr(p, "shape", ""), dim: vec(p.props.dim, [40, 40, 40]), pz: propNum(p, "pz", 0), off: vec(p.props.off, [0, 0, 0]),
+          rot: vec(p.props.rot, [0, 0, 0]), color: propStr(p, "color", "--white"), detail: propNum(p, "detail", 0), taper: propNum(p, "taper", 1),
+          emissive: propNum(p, "emissive", 0),
         })),
       };
       return;
@@ -218,6 +236,13 @@ function loadNode(c: Content, n: KdlNode, file: string) {
       return;
     case "stage":
       c.stages[id] = {
+        props: childrenNamed(n, "prop").map((k) => ({
+          kind: argStr(k, 0, ""), x: propNum(k, "x", 0), y: propNum(k, "y", 0), z: propNum(k, "z", -300), s: propNum(k, "s", 1), rot: propNum(k, "rot", 0),
+          color: propStr(k, "color", ""), color2: propStr(k, "color2", ""), every: propNum(k, "every", 0), from: propNum(k, "from", 0), to: propNum(k, "to", 0),
+          w: propNum(k, "w", 0), h: propNum(k, "h", 0),
+        })),
+        sky: [propStr(n, "sky-top", `--sky-${id}-top`), propStr(n, "sky-bottom", `--sky-${id}-bottom`)],
+        fog: propStr(n, "fog", ""), ground: propStr(n, "ground", "--wood"), ambient: propNum(n, "ambient", 1), sun: propNum(n, "sun", 1),
         id, floor: propNum(n, "floor", -250), ceiling: propNum(n, "ceiling", 360), width: propNum(n, "width", 1280),
         lights: childrenNamed(n, "light").map((l) => ({
           kind: argStr(l, 0, "glow"), x: propNum(l, "x", 0), y: propNum(l, "y", 0), w: propNum(l, "w", 300), h: propNum(l, "h", 300),

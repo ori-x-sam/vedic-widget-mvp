@@ -1,25 +1,35 @@
 // SlumMonkey's feel. Gameplay numbers only — colors and looks live in look/*.css.
 player {
-  speed 430          // run speed px/s
-  gravity 2900
+  speed 440          // top run speed px/s
+  accel 4200         // how fast he gets to top speed on the ground
+  decel 6000         // how fast he stops (higher = less slidey)
+  air-accel 2800     // steering in the air
+  gravity 2700       // while rising
+  fall-gravity 3900  // while falling: snappier, less floaty arcs
+  apex-gravity 0.55  // holding jump near the top of a jump hangs a moment
   jump 1080          // first jump velocity
   double-jump 940
   jump-cut 0.5       // releasing jump early cuts upward speed
+  jump-buffer 0.13   // a jump pressed this long before landing still happens
+  coyote 0.09        // and you can still jump this long after running off a ledge
   glide-fall 150     // tail-copter max fall speed while holding jump after the 2nd jump
   max-fall 1500
-  blink-dist 230
-  blink-cd 0.55
-  blink-iframes 0.28
+  dash-speed 1500    // DASH: a fast slide with i-frames
+  dash-time 0.15
+  blink-cd 0.5       // dash cooldown
+  blink-iframes 0.22
+  blink-dist 230     // dash distance in the shmup
+  auto-aim 1         // 1 = auto-aim + auto-fire at the nearest target; 0 = hold shoot and aim yourself
+  aim-range 1500
   hp 3
   cards 5            // super meter cards
   ex-cost 1
   meter-per-card 110 // damage dealt per card earned
   iframes 1.6
-  parry-window 0.22
+  parry-window 0.22  // jump into anything pink to parry it
   parry-cd 0.3
   parry-bounce 950
   fly-speed 500      // autorickshaw (shmup)
-  coyote 0.08
-  hit-w 46
-  hit-h 92
+  hit-w 44
+  hit-h 90
 }

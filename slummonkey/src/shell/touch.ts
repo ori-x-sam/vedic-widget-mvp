@@ -19,6 +19,7 @@ const ICONS: Record<string, string> = {
   swap: `<svg viewBox="0 0 40 40"><path d="M8 14h20l-5-5M32 26H12l5 5" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
   pause: `<svg viewBox="0 0 40 40"><rect x="10" y="8" width="7" height="24" fill="currentColor"/><rect x="23" y="8" width="7" height="24" fill="currentColor"/></svg>`,
 };
+const LABEL: Record<string, string> = { jump: "JUMP", blink: "DASH", ex: "SPECIAL", shoot: "SHOOT", parry: "PARRY", lock: "AIM", swap: "SWAP" };
 const COLOR_VAR: Record<string, string> = { shoot: "--btn-shoot", jump: "--btn-jump", parry: "--btn-parry", blink: "--btn-blink", ex: "--btn-ex", lock: "--paper", swap: "--paper", pause: "--paper" };
 
 export class TouchControls {
@@ -102,7 +103,8 @@ export class TouchControls {
       el.className = `tbtn shape-${b.shape}`;
       el.dataset.id = b.id;
       el.style.setProperty("--c", `var(${COLOR_VAR[b.icon] ?? "--paper"})`);
-      el.innerHTML = `<div class="face">${ICONS[b.icon] ?? b.id}</div><div class="handle"></div>`;
+      el.dataset.label = LABEL[b.icon] ?? b.id;
+      el.innerHTML = `<div class="face">${ICONS[b.icon] ?? b.id}<span class="lbl">${LABEL[b.icon] ?? b.id}</span></div><div class="handle"></div>`;
       this.el.appendChild(el);
       this.btnEls.set(b.id, el);
       this.attachEditor(el, b);
@@ -131,7 +133,7 @@ export class TouchControls {
     if (!this.portrait) return { x: b.x * W, y: b.y * H, r: b.r * H };
     const regionH = Math.max(1, H - this.gameH);
     const S = Math.min(W * 1.05, regionH) * 1.12;
-    const shoot = this.layout.buttons.find((x) => x.id === "shoot") ?? b;
+    const shoot = this.layout.buttons.find((x) => x.id === "jump") ?? this.layout.buttons.find((x) => x.id === "shoot") ?? b;
     const m = this.layout.mirrored;
     const r = b.r * S;
     if (b.id === "lock") return { x: m ? W - S * 0.09 : S * 0.09, y: this.gameH + S * 0.09, r };

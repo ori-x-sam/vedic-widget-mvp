@@ -1,4 +1,5 @@
-// SlumMonkey's rules: run, 8-way aim, aim-lock, double jump, tail-glide, parry, blink, weapons, EX, supers.
+// SlumMonkey's rules: snappy run, jump buffering, double jump, tail-glide, parry-on-jump, dash, auto-aim auto-fire,
+// EX shots and supers.
 // Every number comes from content/player.kdl (with safe defaults here).
 import type { InputFrame } from "../core/input";
 import type { World, Loadout } from "./world";
@@ -7,6 +8,7 @@ export interface Player {
   x: number; y: number; px: number; py: number; vx: number; vy: number;
   w: number; h: number; hitW: number; hitH: number;
   facing: 1 | -1; grounded: boolean; coyote: number; jumps: number; gliding: boolean; ducking: boolean; locked: boolean;
+  jumpBuf: number; dashT: number; dashDir: number; targetId: number;
   aimX: number; aimY: number;
   hp: number; maxHp: number; cards: number; maxCards: number;
   iframes: number; blinkT: number; blinkCd: number; blinkUsedAir: boolean;
@@ -19,7 +21,9 @@ export interface Player {
 }
 
 const D: Record<string, number> = {
-  speed: 430, gravity: 2900, jump: 1080, "double-jump": 940, "jump-cut": 0.5, "glide-fall": 150, "max-fall": 1500,
+  speed: 440, accel: 4200, decel: 6000, "air-accel": 2800, "fall-gravity": 3900, "apex-gravity": 0.55, "jump-buffer": 0.13,
+  "dash-speed": 1500, "dash-time": 0.15, "auto-aim": 1, "aim-range": 1500,
+  gravity: 2700, jump: 1080, "double-jump": 940, "jump-cut": 0.5, "glide-fall": 150, "max-fall": 1500,
   "blink-dist": 230, "blink-cd": 0.55, "blink-iframes": 0.28, hp: 3, cards: 5, iframes: 1.6, "parry-window": 0.22,
   "parry-cd": 0.3, "parry-bounce": 950, "meter-per-card": 110, "fly-speed": 500, coyote: 0.08, "ex-cost": 1, "hit-w": 46, "hit-h": 92,
 };
@@ -29,6 +33,7 @@ export function makePlayer(def: Record<string, number>, loadout: Loadout): Playe
   return {
     x: -420, y: 0, px: -420, py: 0, vx: 0, vy: 0, w: 70, h: 110, hitW: d["hit-w"], hitH: d["hit-h"],
     facing: 1, grounded: true, coyote: 0, jumps: 0, gliding: false, ducking: false, locked: false, aimX: 1, aimY: 0,
+    jumpBuf: 0, dashT: 0, dashDir: 1, targetId: 0,
     hp: d.hp, maxHp: d.hp, cards: 0, maxCards: d.cards, iframes: 0, blinkT: 0, blinkCd: 0, blinkUsedAir: false,
     parryT: 0, parryCd: 0, shootCd: 0, shotAlt: 0, weaponIdx: 0, weapons: loadout.weapons.slice(), super: loadout.super,
     superT: 0, superKind: "", invulnT: 0, exT: 0, dead: false, flying: false, pose: "idle", poseT: 0, hurtT: 0,
@@ -89,33 +94,49 @@ export function stepPlayer(w: World, inp: InputFrame, frozen: boolean) {
     }
   }
 
-  // ── aim & move ──
+  // ── aim ──
   p.locked = inp.held.lock;
   const mx = inp.mx, my = inp.my;
-  if (mx !== 0) p.facing = mx > 0 ? 1 : -1;
-  p.ducking = !p.flying && p.grounded && my < 0 && !p.locked;
+  p.ducking = !p.flying && p.grounded && my < 0 && !p.locked && p.dashT <= 0;
+  const target = d["auto-aim"] && !p.locked ? autoTarget(w) : null;
+  p.targetId = target?.id ?? 0;
   if (p.flying) {
     p.aimX = 1; p.aimY = 0; p.facing = 1;
+  } else if (target) {
+    // auto-aim: point at the nearest thing worth shooting; face it unless we're running the other way
+    const ty = target.y + target.h * target.scale * 0.45, [ox, oy] = muzzle(p);
+    p.aimX = target.x - ox; p.aimY = ty - oy;
+    if (mx === 0 || Math.sign(mx) === Math.sign(p.aimX)) p.facing = p.aimX >= 0 ? 1 : -1;
+    else p.facing = mx > 0 ? 1 : -1;
+    if (Math.sign(p.aimX) !== p.facing) { p.aimX = p.facing; p.aimY = 0; } // never shoot backwards through yourself
   } else if (p.locked) {
     if (mx || my) { p.aimX = mx; p.aimY = my; } else { p.aimX = p.facing; p.aimY = 0; }
-  } else if (p.ducking) {
-    p.aimX = p.facing; p.aimY = 0;
   } else {
+    if (mx !== 0) p.facing = mx > 0 ? 1 : -1;
     p.aimX = my !== 0 && mx === 0 ? 0 : p.facing;
     p.aimY = my > 0 ? 1 : !p.grounded && my < 0 ? -1 : 0;
   }
+  if (!target && mx !== 0 && !p.flying) p.facing = mx > 0 ? 1 : -1;
   const al = Math.hypot(p.aimX, p.aimY) || 1;
   p.aimX /= al; p.aimY /= al;
 
+  if (inp.pressed.jump) p.jumpBuf = d["jump-buffer"];
+  else p.jumpBuf = Math.max(0, p.jumpBuf - dt);
+
   if (p.flying) {
     const sp = d["fly-speed"];
-    p.vx = mx * sp; p.vy = my * sp;
+    p.vx += (mx * sp - p.vx) * Math.min(1, dt * 14);
+    p.vy += (my * sp - p.vy) * Math.min(1, dt * 14);
     p.x += p.vx * dt + w.scrollX * dt; p.y += p.vy * dt;
     p.x = Math.max(w.left + 50, Math.min(w.right - 80, p.x));
     p.y = Math.max(w.camY + 30, Math.min(w.ceiling - 60, p.y));
   } else {
-    const run = p.locked || p.ducking ? 0 : mx * d.speed;
-    p.vx = run;
+    // snappy run: quick acceleration, quicker stop, a little less control in the air
+    const want = p.locked || p.ducking ? 0 : mx * d.speed;
+    const rate = !p.grounded ? d["air-accel"] : Math.abs(want) > Math.abs(p.vx) || Math.sign(want) !== Math.sign(p.vx) ? d.accel : d.decel;
+    const dv = want - p.vx;
+    p.vx += Math.sign(dv) * Math.min(Math.abs(dv), rate * dt);
+    if (p.dashT > 0) { p.dashT = Math.max(0, p.dashT - dt); p.vx = p.dashDir * d["dash-speed"]; if (p.dashT === 0) p.vx = p.dashDir * d.speed; }
     // ride moving platforms
     const plat = p.grounded ? w.platformAt(p.x, p.y) : null;
     if (plat) p.x += plat.x - plat.px;
@@ -123,25 +144,37 @@ export function stepPlayer(w: World, inp: InputFrame, frozen: boolean) {
     p.x = Math.max(w.left + 30, Math.min(w.right - 30, p.x));
     if (w.mode === "run") p.x = Math.min(p.x, w.levelLength + 600);
 
-    // jump / double jump / glide
+    // jump (buffered) / parry / double jump / glide
     if (p.grounded) { p.coyote = d.coyote; p.jumps = 0; p.blinkUsedAir = false; }
     else p.coyote = Math.max(0, p.coyote - dt);
-    if (inp.pressed.jump) {
+    if (p.jumpBuf > 0) {
       if (p.grounded || p.coyote > 0) {
+        p.jumpBuf = 0;
         if (p.ducking && w.platformAt(p.x, p.y)) { p.y -= 4; p.grounded = false; } // drop through
         else { p.vy = d.jump; p.jumps = 1; p.grounded = false; p.coyote = 0; w.emit("jump", p.x, p.y, "1"); }
-      } else if (p.jumps < 2) {
+      } else if (inp.pressed.jump && parryReach(w)) {
+        // jumping into something pink IS the parry
+        p.jumpBuf = 0;
+        p.parryT = d["parry-window"]; p.parryCd = 0;
+        p.pose = "parry"; p.poseT = 0;
+      } else if (inp.pressed.jump && p.jumps < 2) {
+        p.jumpBuf = 0;
         p.vy = d["double-jump"]; p.jumps = 2; w.emit("jump", p.x, p.y, "2");
         w.emit("particles", p.x, p.y, "smoke", 5);
       }
     }
     if (inp.released.jump && p.jumps === 1 && p.vy > 0) p.vy *= d["jump-cut"];
     const wasGliding = p.gliding;
-    p.gliding = p.jumps === 2 && inp.held.jump && p.vy <= 0 && !p.grounded;
+    p.gliding = p.jumps === 2 && inp.held.jump && p.vy <= 0 && !p.grounded && p.dashT <= 0;
     if (p.gliding && !wasGliding) { p.stats.glides++; w.emit("glide", p.x, p.y, "start"); }
     if (!p.gliding && wasGliding) w.emit("glide", p.x, p.y, "stop");
 
-    p.vy -= d.gravity * dt;
+    // asymmetric gravity: floaty apex while holding jump, faster fall
+    let g = p.vy > 0 ? d.gravity : d["fall-gravity"];
+    if (inp.held.jump && Math.abs(p.vy) < 160) g *= d["apex-gravity"];
+    if (p.dashT > 0) g = 0;
+    p.vy -= g * dt;
+    if (p.dashT > 0) p.vy = Math.max(p.vy, 0);
     if (p.gliding) p.vy = Math.max(p.vy, -d["glide-fall"]);
     p.vy = Math.max(p.vy, -d["max-fall"]);
     const ny = p.y + p.vy * dt;
@@ -159,45 +192,73 @@ export function stepPlayer(w: World, inp: InputFrame, frozen: boolean) {
     }
   }
 
-  // ── parry ──
+  // ── parry (dedicated key still works on keyboard/gamepad) ──
   if (inp.pressed.parry && p.parryCd <= 0) {
     p.parryT = d["parry-window"]; p.parryCd = d["parry-cd"] + d["parry-window"];
     p.pose = "parry"; p.poseT = 0;
     w.emit("sfx", p.x, p.y, "parry-swing");
   }
 
-  // ── blink ──
+  // ── dash: a fast slide with i-frames (once per jump in the air) ──
   if (inp.pressed.blink && p.blinkCd <= 0 && (p.grounded || p.flying || !p.blinkUsedAir)) {
-    let bx = mx, by = p.flying ? my : Math.max(0, my);
-    if (!bx && !by) bx = p.facing;
-    const l = Math.hypot(bx, by);
-    const dist = d["blink-dist"];
+    const dir = mx !== 0 ? Math.sign(mx) : p.facing;
     const fx = p.x, fy = p.y;
-    p.x = Math.max(w.left + 30, Math.min(w.right - 30, p.x + (bx / l) * dist));
-    p.y = Math.max(p.flying ? w.camY + 30 : w.groundUnder(p.x, p.y, p.y), p.y + (by / l) * dist * 0.7);
-    if (!p.grounded && !p.flying) { p.blinkUsedAir = true; p.vy = Math.max(p.vy, 0); }
     p.blinkT = d["blink-iframes"]; p.blinkCd = d["blink-cd"];
     p.stats.blinks++;
-    p.px = p.x; p.py = p.y; // no interpolation smear across a teleport
-    w.emit("blink", fx, fy, `${p.x},${p.y}`, p.facing);
+    if (p.flying) {
+      const l = Math.hypot(mx || dir, my) || 1;
+      p.x = Math.max(w.left + 50, Math.min(w.right - 80, p.x + ((mx || dir) / l) * d["blink-dist"]));
+      p.y = Math.max(w.camY + 30, Math.min(w.ceiling - 60, p.y + (my / l) * d["blink-dist"] * 0.7));
+      p.px = p.x; p.py = p.y;
+    } else {
+      p.dashT = d["dash-time"]; p.dashDir = dir as 1 | -1; p.facing = dir as 1 | -1;
+      if (!p.grounded) { p.blinkUsedAir = true; p.vy = Math.max(p.vy, 0); }
+    }
+    w.emit("blink", fx, fy, `${p.x + dir * d["dash-speed"] * d["dash-time"]},${p.y}`, dir);
     w.emit("haptic", p.x, p.y, "blink", 15);
   }
 
   // ── weapons ──
   if (inp.pressed.swap && p.weapons.length > 1) { p.weaponIdx = (p.weaponIdx + 1) % p.weapons.length; w.emit("sfx", p.x, p.y, "swap"); }
   if (inp.pressed.ex) tryExOrSuper(w);
-  if (inp.held.shoot && p.shootCd <= 0 && p.exT <= 0) fire(w);
+  const autoFire = d["auto-aim"] && (p.targetId !== 0 || p.flying || w.mode === "run");
+  if ((autoFire || inp.held.shoot) && p.shootCd <= 0 && p.exT <= 0 && p.dashT <= 0) fire(w);
 
   // ── pose ──
   if (p.parryT > 0) p.pose = "parry";
   else if (p.hurtT > 0) p.pose = "hurt";
   else if (p.flying) p.pose = "fly";
+  else if (p.dashT > 0) p.pose = "dash";
   else if (p.gliding) p.pose = "glide";
   else if (!p.grounded) p.pose = p.jumps === 2 ? "spin" : "jump";
   else if (p.ducking) p.pose = "duck";
   else if (Math.abs(p.vx) > 1) p.pose = "run";
   else p.pose = inp.held.shoot ? "aim" : "idle";
   p.hitH = p.ducking ? d["hit-h"] * 0.55 : d["hit-h"];
+}
+
+/** Nearest thing worth shooting, in front-ish and within range (decoys included: they look real). */
+function autoTarget(w: World) {
+  const p = w.player, range = p.def["aim-range"];
+  let best = null as null | (typeof w.all)[number], bd = Infinity;
+  for (const e of w.all) {
+    if (!e.alive || !e.shootable || e.hidden || (e.hp <= 0 && e.kind !== "decoy")) continue;
+    const cx = e.x, cy = e.y + e.h * e.scale * 0.5;
+    const d = Math.hypot(cx - p.x, cy - p.y - 60);
+    if (d > range) continue;
+    // prefer what we're facing, then the boss pool, then closeness
+    const score = d + (Math.sign(cx - p.x) !== p.facing ? 260 : 0) + (e.kind === "target" ? -120 : 0) + (e.kind === "minion" ? -60 : 0);
+    if (score < bd) { bd = score; best = e; }
+  }
+  return best;
+}
+
+/** Is a parryable thing close enough that a jump press should be a parry? */
+function parryReach(w: World) {
+  const p = w.player, cx = p.x, cy = p.y + p.hitH * 0.5, R = 120;
+  for (const q of w.projs.live) if (q.parryable && q.alive && Math.hypot(q.x - cx, q.y - cy) < R + q.r) return true;
+  for (const e of w.all) if (e.parryable && e.alive && !e.hidden && !(e.vars.parryCd > 0) && Math.abs(e.x - cx) < R + e.w * e.scale * 0.5 && Math.abs(e.y + e.h * e.scale * 0.5 - cy) < R + e.h * e.scale * 0.5) return true;
+  return false;
 }
 
 export function muzzle(p: Player): [number, number] {

@@ -3,7 +3,7 @@
   --font-title: "Yatra One", "Kalam", system-ui, sans-serif;
   --font-hand: "Kalam", "Comic Sans MS", system-ui, sans-serif;
   --hud-scale: 1;
-  --btn-idle-opacity: 0.6;
+  --btn-idle-opacity: 0.85;
   --btn-active-opacity: 0.9;
   --btn-shoot: #ff9a1f;
   --btn-jump: #2bb3c0;
