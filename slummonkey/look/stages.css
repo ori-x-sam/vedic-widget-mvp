@@ -31,3 +31,4 @@
   --wash: 0.16;
   --paper-grain: 0.13;
 }
+:root { --bg-ink: 0.3; /* backgrounds keep only 30% of their ink: hard lines are for things you play against */ }

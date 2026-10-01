@@ -175,74 +175,90 @@ export function spriteBatchMaterial(t: Tokens, atlas: THREE.Texture, additive = 
   });
 }
 
-/** Painted background layer: watercolor paper grain, brush wobble, pigment edges, distance haze. */
+/** One-time bake (texture space): gouache/watercolour treatment of a painted layer — pigment pooling against
+ *  ink lines, light-side lift, wash blotches, wet-edge blooms, paper grain. Runs once per layer at load. */
+export function paperBakeMaterial(t: Tokens, map: THREE.Texture, w: number, h: number): THREE.ShaderMaterial {
+  return new THREE.ShaderMaterial({
+    depthTest: false, depthWrite: false, transparent: false,
+    uniforms: {
+      map: { value: map }, uTexSize: { value: new THREE.Vector2(w, h) },
+      uGrain: { value: t.num("--paper-grain", 0.1) }, uScale: { value: t.num("--paper-scale", 3) },
+      uEdge: { value: t.num("--pigment-edge", 0.3) }, uWash: { value: t.num("--wash", 0.1) }, uSeed: { value: Math.random() * 10 },
+      uBgInk: { value: t.num("--bg-ink", 0.35) },
+    },
+    vertexShader: /* glsl */ `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
+    fragmentShader: /* glsl */ `
+      uniform sampler2D map; uniform vec2 uTexSize; uniform float uGrain, uScale, uEdge, uWash, uSeed, uBgInk; varying vec2 vUv;
+      ${NOISE}
+      void main(){
+        vec2 P = vUv * uTexSize;
+        vec2 wob = vec2(fbm(P * 0.02 + uSeed), fbm(P * 0.02 + uSeed + 7.0)) - 0.5;
+        vec2 suv = vUv + wob * 1.4 / uTexSize;
+        vec4 c = texture2D(map, suv);
+        vec2 px = 1.0 / uTexSize;
+        float near = 0.0, lit = 0.0;
+        for (int k = 0; k < 8; k++) {
+          float a = float(k) * 0.7853982;
+          vec2 d = vec2(cos(a), sin(a));
+          vec4 s1 = texture2D(map, suv + d * px * 7.0);
+          vec4 s2 = texture2D(map, suv + d * px * 16.0);
+          float i1 = step(dot(s1.rgb, vec3(0.333)), 0.2) * s1.a + (1.0 - s1.a);
+          float i2 = step(dot(s2.rgb, vec3(0.333)), 0.2) * s2.a + (1.0 - s2.a);
+          near += i1 * 0.09 + i2 * 0.035;
+          lit += dot(d, vec2(-0.6, 0.8)) * (i2 - i1);
+        }
+        float isInk = step(dot(c.rgb, vec3(0.333)), 0.2);
+        vec3 rgb = c.rgb;
+        // backgrounds don't get hard ink: lines become a darker, hue-shifted shade of the paint around them
+        if (isInk > 0.5) {
+          vec3 fillAvg = vec3(0.0); float wsum = 0.0;
+          for (int k = 0; k < 8; k++) {
+            float a = float(k) * 0.7853982;
+            vec4 f = texture2D(map, suv + vec2(cos(a), sin(a)) * px * 9.0);
+            float ok = step(0.2, dot(f.rgb, vec3(0.333))) * f.a;
+            fillAvg += f.rgb * ok; wsum += ok;
+          }
+          vec3 fillc = wsum > 0.0 ? fillAvg / wsum : c.rgb;
+          rgb = mix(fillc * vec3(0.55, 0.45, 0.6), c.rgb, uBgInk);
+        }
+        rgb *= 1.0 - clamp(near, 0.0, 1.0) * uEdge * (1.0 - isInk);
+        rgb *= 1.0 + clamp(-lit * 0.12, -0.12, 0.12) * (1.0 - isInk);
+        float wash = fbm(P * 0.004 + uSeed * 3.0);
+        rgb *= 1.0 - (wash - 0.5) * uWash * 2.0;
+        float bloom = smoothstep(0.62, 0.7, fbm(P * 0.011 + uSeed)) * (1.0 - isInk);
+        rgb = mix(rgb, rgb * 0.86, bloom * uWash * 2.5);
+        float grain = fbm(P * uScale * 0.12) * 0.6 + hash(floor(P * 0.9)) * 0.4;
+        rgb *= 1.0 - (grain - 0.5) * uGrain * 2.0;
+        gl_FragColor = vec4(rgb, c.a);
+      }`,
+  });
+}
+
+/** Runtime painted layer: samples the baked texture (blurred by depth via mip bias), hazes and desaturates with distance. */
 export function paperMaterial(t: Tokens, map: THREE.Texture, haze: number, desat = 0, dim = 1, blur = 0): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
     uniforms: {
       map: { value: map },
-      uGrain: { value: t.num("--paper-grain", 0.1) },
-      uScale: { value: t.num("--paper-scale", 3) },
-      uBrush: { value: t.num("--brush-noise", 0.003) },
-      uEdge: { value: t.num("--pigment-edge", 0.3) },
-      uWash: { value: t.num("--wash", 0.1) },
-      uHaze: { value: haze },
-      uDesat: { value: desat },
-      uBlur: { value: blur },
-      uTexSize: { value: new THREE.Vector2((map.image as HTMLCanvasElement)?.width ?? 1024, (map.image as HTMLCanvasElement)?.height ?? 1024) },
-      uDim: { value: dim },
+      uHaze: { value: haze }, uDesat: { value: desat }, uDim: { value: dim }, uBlur: { value: blur },
       uHazeColor: { value: col(t, "--haze-color") },
       uRepeat: { value: new THREE.Vector2(1, 1) },
       uOffset: { value: new THREE.Vector2(0, 0) },
       uTime: { value: 0 },
-      uSeed: { value: Math.random() * 10 },
     },
-    vertexShader: /* glsl */ `
-      varying vec2 vUv; varying vec2 vWorld;
-      void main(){ vUv = uv; vec4 w = modelMatrix * vec4(position, 1.0); vWorld = w.xy; gl_Position = projectionMatrix * viewMatrix * w; }`,
+    vertexShader: /* glsl */ `varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0); }`,
     fragmentShader: /* glsl */ `
-      uniform sampler2D map; uniform float uGrain, uScale, uBrush, uEdge, uWash, uHaze, uTime, uSeed, uDesat, uDim, uBlur; uniform vec2 uTexSize;
-      uniform vec3 uHazeColor; uniform vec2 uRepeat, uOffset;
-      varying vec2 vUv; varying vec2 vWorld;
-      ${NOISE}
+      uniform sampler2D map; uniform float uHaze, uDesat, uDim, uBlur, uTime; uniform vec3 uHazeColor; uniform vec2 uRepeat, uOffset;
+      varying vec2 vUv;
       void main(){
-        vec2 uv = vUv * uRepeat + uOffset;
-        vec2 wob = vec2(fbm(vWorld * 0.02 + uSeed), fbm(vWorld * 0.02 + uSeed + 7.0)) - 0.5;
-        vec2 suv = uv + wob * uBrush;
-        vec4 c = texture2D(map, fract(suv), uBlur);
+        vec4 c = texture2D(map, fract(vUv * uRepeat + uOffset), uBlur);
         if (c.a < 0.01) discard;
-        // gouache/watercolour: pigment pools against ink lines and shape edges; fills lift toward the light
-        vec2 px = vec2(1.0) / uTexSize;
-        float near = 0.0, lit = 0.0;
-        for (int k = 0; k < 8; k++) {
-          float a = float(k) * 0.7853982;
-          vec2 d = vec2(cos(a), sin(a));
-          vec4 s1 = texture2D(map, fract(suv + d * px * 7.0), uBlur);
-          vec4 s2 = texture2D(map, fract(suv + d * px * 16.0), uBlur + 1.0);
-          float i1 = step(dot(s1.rgb, vec3(0.333)), 0.2) * s1.a + (1.0 - s1.a);
-          float i2 = step(dot(s2.rgb, vec3(0.333)), 0.2) * s2.a + (1.0 - s2.a);
-          near += i1 * 0.09 + i2 * 0.035;
-          lit += dot(d, vec2(-0.6, 0.8)) * (i2 - i1);
-        }
-        float lum = dot(c.rgb, vec3(0.333));
-        float isInk = step(lum, 0.2);
         vec3 rgb = c.rgb;
-        rgb *= 1.0 - clamp(near, 0.0, 1.0) * uEdge * (1.0 - isInk);
-        rgb *= 1.0 + clamp(-lit * 0.12, -0.12, 0.12) * (1.0 - isInk);
-        // wash blotches + paper grain
-        float wash = fbm(vWorld * 0.004 + uSeed * 3.0);
-        rgb *= 1.0 - (wash - 0.5) * uWash * 2.0;
-        float bloom = smoothstep(0.62, 0.7, fbm(vWorld * 0.011 + uSeed)) * (1.0 - isInk);
-        rgb = mix(rgb, rgb * 0.86, bloom * uWash * 2.5);                       // wet-edge blooms
-        float grain = fbm(vWorld * uScale * 0.12) * 0.6 + hash(floor(vWorld * 0.9)) * 0.4;
-        rgb *= 1.0 - (grain - 0.5) * uGrain * 2.0;
-        float l2 = dot(rgb, vec3(0.299, 0.587, 0.114));
-        rgb = mix(rgb, vec3(l2), uDesat);
-        rgb = mix(rgb, uHazeColor, uHaze);
-        rgb *= uDim;
+        float l = dot(rgb, vec3(0.299, 0.587, 0.114));
+        rgb = mix(rgb, vec3(l), uDesat);
+        rgb = mix(rgb, uHazeColor, uHaze) * uDim;
         gl_FragColor = vec4(rgb, c.a);
-        #include <colorspace_fragment>
       }`,
   });
 }
@@ -356,7 +372,8 @@ export function postMaterial(t: Tokens, tex: THREE.Texture): THREE.ShaderMateria
         b *= 0.25;
         c += max(b - 0.72, 0.0) * uBloom * 3.0;
         // grade: lift / gamma / gain, saturation, contrast
-        c = c * uGain + uLift * (1.0 - c);
+        float lumIn = dot(c, vec3(0.299, 0.587, 0.114));
+        c = mix(c, c * uGain + uLift * (1.0 - c), smoothstep(0.08, 0.3, lumIn)); // keep the darkest inks clean
         c = pow(max(c, 0.0), vec3(uGamma));
         float l = dot(c, vec3(0.299, 0.587, 0.114));
         c = mix(vec3(l), c, uSat);
@@ -377,9 +394,7 @@ export function postMaterial(t: Tokens, tex: THREE.Texture): THREE.ShaderMateria
           dust += smoothstep(r, r * 0.4, length((vUv - dp) * vec2(uRes.x / uRes.y, 1.0))) * step(0.5, hash(vec2(ft * 1.3, float(k))));
         }
         c = mix(c, vec3(0.12, 0.06, 0.05), clamp(dust, 0.0, 1.0) * 0.7 * uDust);
-        float sx = hash(vec2(floor(uTime * 2.0), 4.0));
-        float scratch = smoothstep(0.0012, 0.0, abs(vUv.x - sx)) * step(0.6, hash(vec2(floor(uTime * 2.0), 5.0))) * uDust;
-        c = mix(c, vec3(1.0, 0.96, 0.88), scratch * 0.5);
+
         // vignette
         float v = smoothstep(0.8, 0.8 - uVigSoft, length((vUv - 0.5) * vec2(1.25, 1.0)));
         c *= mix(1.0 - uVig, 1.0, v);

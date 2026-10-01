@@ -9,7 +9,7 @@ import { TextureBank, Atlas } from "./textures";
 import { PuppetFactory, PuppetView, PuppetState } from "./puppet";
 import { SpriteBatch } from "./batch";
 import { Particles } from "./particles";
-import { paperMaterial, postMaterial, skyMaterial, spriteBatchMaterial, waterMaterial } from "./shaders";
+import { paperMaterial, paperBakeMaterial, postMaterial, skyMaterial, spriteBatchMaterial, waterMaterial } from "./shaders";
 
 export const SPRITES = [
   // projectiles
@@ -18,7 +18,7 @@ export const SPRITES = [
   "marigold", "star", "beam", "moon-beam", "prop-shot", "cash", "kite-shot", "water-beam",
   // fx
   "puff", "confetti", "confetti-b", "sparkle", "spark", "coin-fx", "shard", "petal", "pop-ring", "bubble", "footprint", "shadow",
-  "warn-mark", "warn-line", "spotlight", "token", "sheet", "rotor-disc", "glow", "cone", "muzzle",
+  "warn-mark", "warn-line", "spotlight", "token", "sheet", "rotor-disc", "glow", "cone", "muzzle", "impact",
 ].map((s) => `sprites/${s}`).concat(["parts/dolly/mirror-frame"]);
 
 interface EntView { pv: PuppetView; puppet: string; refl?: PuppetView; lastX: number }
@@ -51,6 +51,7 @@ export class GameView {
   private decals: { x: number; y: number; t: number; s: string; scale: number }[] = [];
   private fx: Fx[] = [];
   private shake = 0;
+  private lastImpact = 0;
   private tracking = 0;
   private flash = 0;
   private camShakeX = 0; private camShakeY = 0;
@@ -143,14 +144,13 @@ export class GameView {
       const h = this.layerHeight(l.art, l.scale);
       const r = await this.bank.get(l.art, h, 1);
       const w = h * r.aspect;
-      if (l.tile) { r.tex.wrapS = THREE.RepeatWrapping; r.tex.needsUpdate = true; }
-      if (l.tiley) { r.tex.wrapT = THREE.RepeatWrapping; r.tex.needsUpdate = true; }
+      const baked = this.bake(r.tex, r.w, r.h, l.tile, l.tiley);
       const far = Math.max(0, l.depth - 1);
       const haze = Math.min(0.6, far * this.tokens.num("--haze", 0.2));
       const desat = Math.min(0.6, far * this.tokens.num("--bg-desat", 0.4));
       const dim = l.dim >= 0 ? l.dim : l.depth < 1 ? this.tokens.num("--fg-dim", 0.7) : 1;
       const blur = l.blur >= 0 ? l.blur : l.depth > 1 ? Math.min(2.5, far * this.tokens.num("--bg-blur", 1.6)) : l.depth < 1 ? this.tokens.num("--fg-blur", 1.2) : 0;
-      const mat = paperMaterial(this.tokens, r.tex, haze, desat, dim, blur);
+      const mat = paperMaterial(this.tokens, baked, haze, desat, dim, blur);
       const meshW = l.tile ? 3200 : w;
       const meshH = l.tiley ? 2400 : h;
       const mesh = new THREE.Mesh(new THREE.PlaneGeometry(meshW, meshH), mat);
@@ -161,6 +161,28 @@ export class GameView {
       (l.depth < 1 ? this.fgGroup : this.stageGroup).add(mesh);
       this.layers.push({ mesh, mat, depth: l.depth, y: l.y, tile: l.tile ? "x" : "", tiley: l.tiley, w, h, x: l.x });
     }
+  }
+
+  private baked = new Map<THREE.Texture, THREE.Texture>();
+  /** Paint a layer once (watercolour/gouache pass in texture space) and keep the result with mipmaps. */
+  private bake(src: THREE.Texture, w: number, h: number, tileX: boolean, tileY: boolean): THREE.Texture {
+    const hit = this.baked.get(src);
+    if (hit) return hit;
+    const rt = new THREE.WebGLRenderTarget(w, h, { depthBuffer: false, generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter, magFilter: THREE.LinearFilter });
+    const mat = paperBakeMaterial(this.tokens, src, w, h);
+    const sc = new THREE.Scene();
+    sc.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat));
+    const prev = this.renderer.getRenderTarget();
+    this.renderer.setRenderTarget(rt);
+    this.renderer.setClearColor(0x000000, 0);
+    this.renderer.clear();
+    this.renderer.render(sc, this.postCam);
+    this.renderer.setRenderTarget(prev);
+    mat.dispose();
+    rt.texture.wrapS = tileX ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping;
+    rt.texture.wrapT = tileY ? THREE.RepeatWrapping : THREE.ClampToEdgeWrapping;
+    this.baked.set(src, rt.texture);
+    return rt.texture;
   }
 
   resize(w: number, h: number) {
@@ -184,7 +206,10 @@ export class GameView {
     switch (e.type) {
       case "particles": this.particles.emit(e.s ?? "dust", e.x, e.y, e.n ?? 4); break;
       case "shake": this.shake = Math.min(30, this.shake + (e.n ?? 6)); break;
-      case "boss-hit": this.tracking = Math.max(this.tracking, 0.25); break;
+      case "boss-hit":
+        this.tracking = Math.max(this.tracking, 0.12);
+        if (this.t - this.lastImpact > 0.11) { this.lastImpact = this.t; this.fx.push({ kind: "impact", x: e.x + (Math.random() - 0.5) * 40, y: e.y + (Math.random() - 0.5) * 60, t: 0, dur: 0.12, n: 1, id: 0, s: "" }); }
+        break;
       case "tracking": this.tracking = Math.max(this.tracking, e.n ?? 0.4); break;
       case "decal": this.decals.push({ x: e.x, y: e.y, t: 0, s: e.s ?? "powder", scale: e.n ?? 1 }); if (this.decals.length > 80) this.decals.shift(); break;
       case "warn": case "sheet": case "spotlight": case "mirror": case "drumroll": {
@@ -331,7 +356,7 @@ export class GameView {
       lb.add(L.kind === "cone" ? "cone" : L.kind === "pool" ? "glow" : "glow", lx, ly, L.h, (L.angle * Math.PI) / 180, L.alpha * flick, false, this.tokens.color(L.color), L.w);
     }
     if (!p.dead) lb.add("glow", px, py + 55, 190, 0, this.tk.playerGlow, false, this.tokens.color("--rim-color"), 190);
-    for (const q of w.projs.live) if (!q.hostile && q.len === 0) lb.add("glow", q.x, q.y, q.r * 5, 0, 0.35, false, this.tokens.color("--cyber"));
+    for (const q of w.projs.live) if (!q.hostile && q.len === 0) lb.add("glow", q.x, q.y, q.r * 5, 0, 0.3, false, this.tokens.color("--shot-glow"));
     lb.end();
 
     // ── under layer: shadows, decals, telegraphs ──
@@ -402,6 +427,7 @@ export class GameView {
         const a = drop ? 1 : 1 - k;
         ob.add("sheet", f.x, y + 160, 340, Math.sin(f.t * 12) * 0.05, a, false, undefined, 380);
       }
+      if (f.kind === "impact") { const fr = Math.floor(f.t * 24); ob.add("impact", f.x, f.y, fr === 0 ? 34 : 52, fr * 0.6, fr > 1 ? 0.6 : 1); }
       if (f.kind === "muzzle") ob.add("muzzle", f.x + p.aimX * 16, f.y + p.aimY * 16, 30 * f.n, Math.atan2(p.aimY, p.aimX), 1 - f.t / f.dur);
       if (f.kind === "mirror-flash" || f.kind === "mirror-spawn") ob.add("sparkle", f.x, f.y + 120, 200, t * 2, 1 - f.t / f.dur);
       if (f.kind === "drumroll") {

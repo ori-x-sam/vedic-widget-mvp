@@ -92,7 +92,8 @@ stage "mela" {
   light "glow" x=0 y=420 w=2400 h=600 color="--sky-warm" alpha=0.25 depth=1.2
   layer "sky:mela" depth=100
   layer "stages/mela/far" depth=2.2 y=-20 scale=0.9 tile=#true
-  layer "stages/mela/stalls" depth=1.4 y=-30 scale=0.9 tile=#true
+  layer "stages/mela/stalls2" depth=1.7 y=-10 scale=0.75 tile=#true
+  layer "stages/mela/stalls" depth=1.35 y=-30 scale=0.9 tile=#true
   layer "stages/mela/ground" depth=1 y=-212 scale=1 tile=#true
   layer "stages/mela/bushes" depth=0.8 y=-270 scale=0.9 tile=#true
 }

@@ -35,3 +35,8 @@
   --bevel: 22;
   --shade-amount: 0.6;
 }
+:root {
+  --line-boil: 0.25;
+  --char-grain: 0.05;
+  --shot-glow: var(--marigold); /* warm glow behind SlumMonkey's shots */
+}

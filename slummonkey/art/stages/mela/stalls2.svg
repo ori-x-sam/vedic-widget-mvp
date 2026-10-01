@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1700 420">
+  <!-- a hand cart with a striped parasol -->
+  <g stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="6">
+    <path d="M120 300 L 360 300 L 340 360 L 140 360Z" fill="var(--teal)"/>
+    <circle cx="170" cy="380" r="26" fill="var(--wood)"/><circle cx="310" cy="380" r="26" fill="var(--wood)"/>
+    <path d="M240 300 V140" stroke-width="8"/>
+    <path d="M110 160 C 160 90, 320 90, 370 160Z" fill="var(--paper)"/>
+    <path d="M150 160 C 170 110, 200 100, 240 96 M330 160 C 310 110, 280 100, 240 96" fill="none" stroke="var(--vermilion)" stroke-width="16"/>
+    <g fill="var(--marigold)"><circle cx="170" cy="290" r="12"/><circle cx="200" cy="286" r="12"/><circle cx="230" cy="290" r="12"/><circle cx="290" cy="288" r="12"/></g>
+  </g>
+  <!-- a tall bangle tower -->
+  <g stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="6">
+    <rect x="620" y="130" width="140" height="270" fill="var(--magenta)"/>
+    <path d="M600 130 L 780 130 L 690 60Z" fill="var(--gold)"/>
+    <ellipse cx="690" cy="170" rx="50" ry="14" fill="none" stroke="var(--marigold)" stroke-width="8"/>
+<ellipse cx="690" cy="216" rx="50" ry="14" fill="none" stroke="var(--peacock)" stroke-width="8"/>
+<ellipse cx="690" cy="262" rx="50" ry="14" fill="none" stroke="var(--marigold)" stroke-width="8"/>
+<ellipse cx="690" cy="308" rx="50" ry="14" fill="none" stroke="var(--peacock)" stroke-width="8"/>
+<ellipse cx="690" cy="354" rx="50" ry="14" fill="none" stroke="var(--marigold)" stroke-width="8"/>
+  </g>
+  <!-- a nimbu-pani stall with a striped awning and glass jars -->
+  <g stroke="var(--ink)" stroke-linejoin="round" stroke-linecap="round" stroke-width="6">
+    <rect x="1040" y="230" width="380" height="170" fill="var(--wood)"/>
+    <path d="M1010 230 L 1450 230 L 1420 170 L 1040 170Z" fill="var(--leaf)"/>
+    <path d="M1060 170 L 1080 230 M1120 170 L 1140 230 M1180 170 L 1200 230 M1240 170 L 1260 230 M1300 170 L 1320 230 M1360 170 L 1380 230" stroke="var(--paper)" stroke-width="14"/>
+    <g fill="var(--sky)" fill-opacity="0.85"><rect x="1080" y="260" width="50" height="60" rx="10"/><rect x="1160" y="256" width="50" height="64" rx="10"/><rect x="1240" y="260" width="50" height="60" rx="10"/></g>
+    <g fill="var(--turmeric)" stroke-width="3"><circle cx="1105" cy="300" r="10"/><circle cx="1185" cy="298" r="10"/><circle cx="1265" cy="300" r="10"/></g>
+  </g>
+</svg>

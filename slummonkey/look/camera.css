@@ -2,7 +2,7 @@
 :root {
   --view-h: 720;              /* world units visible vertically */
   --floor-frac: 0.27;         /* floor line, as a fraction of screen height from the bottom */
-  --camera-zoom: 1;
+  --camera-zoom: 1.08;
   --shake-scale: 1;
   --shake-decay: 10;
   --apron-color: var(--velvet-dark);
