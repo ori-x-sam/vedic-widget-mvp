@@ -169,7 +169,11 @@ export class GameView {
     const hit = this.baked.get(src);
     if (hit) return hit;
     const rt = new THREE.WebGLRenderTarget(w, h, { depthBuffer: false, generateMipmaps: true, minFilter: THREE.LinearMipmapLinearFilter, magFilter: THREE.LinearFilter });
-    const mat = paperBakeMaterial(this.tokens, src, w, h);
+    if (tileX) src.wrapS = THREE.RepeatWrapping;
+    if (tileY) src.wrapT = THREE.RepeatWrapping;
+    src.needsUpdate = true;
+    // noise in the bake uses texture-space coords; integer periods keep tiles seamless at the wrap
+    const mat = paperBakeMaterial(this.tokens, src, w, h, new THREE.Vector2(tileX ? 1 : 0, tileY ? 1 : 0));
     const sc = new THREE.Scene();
     sc.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat));
     const prev = this.renderer.getRenderTarget();

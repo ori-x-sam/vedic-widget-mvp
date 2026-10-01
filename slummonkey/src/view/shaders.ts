@@ -177,7 +177,7 @@ export function spriteBatchMaterial(t: Tokens, atlas: THREE.Texture, additive = 
 
 /** One-time bake (texture space): gouache/watercolour treatment of a painted layer — pigment pooling against
  *  ink lines, light-side lift, wash blotches, wet-edge blooms, paper grain. Runs once per layer at load. */
-export function paperBakeMaterial(t: Tokens, map: THREE.Texture, w: number, h: number): THREE.ShaderMaterial {
+export function paperBakeMaterial(t: Tokens, map: THREE.Texture, w: number, h: number, wrap = new THREE.Vector2(0, 0)): THREE.ShaderMaterial {
   return new THREE.ShaderMaterial({
     depthTest: false, depthWrite: false, transparent: false,
     uniforms: {
@@ -185,23 +185,27 @@ export function paperBakeMaterial(t: Tokens, map: THREE.Texture, w: number, h: n
       uGrain: { value: t.num("--paper-grain", 0.1) }, uScale: { value: t.num("--paper-scale", 3) },
       uEdge: { value: t.num("--pigment-edge", 0.3) }, uWash: { value: t.num("--wash", 0.1) }, uSeed: { value: Math.random() * 10 },
       uBgInk: { value: t.num("--bg-ink", 0.35) },
+      uWrap: { value: wrap },
     },
     vertexShader: /* glsl */ `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`,
     fragmentShader: /* glsl */ `
-      uniform sampler2D map; uniform vec2 uTexSize; uniform float uGrain, uScale, uEdge, uWash, uSeed, uBgInk; varying vec2 vUv;
+      uniform sampler2D map; uniform vec2 uTexSize; uniform float uGrain, uScale, uEdge, uWash, uSeed, uBgInk; uniform vec2 uWrap; varying vec2 vUv;
       ${NOISE}
+      vec2 W(vec2 uv) { return mix(clamp(uv, 0.0, 1.0), fract(uv), uWrap); }
+      vec4 T(vec2 uv) { return T(W(uv)); }
+      //
       void main(){
         vec2 P = vUv * uTexSize;
-        vec2 wob = vec2(fbm(P * 0.02 + uSeed), fbm(P * 0.02 + uSeed + 7.0)) - 0.5;
+        vec2 wob = vec2(fT(P + uSeed * 50.0, 0.02), fT(P + uSeed * 50.0 + 350.0, 0.02)) - 0.5;
         vec2 suv = vUv + wob * 1.4 / uTexSize;
-        vec4 c = texture2D(map, suv);
+        vec4 c = T(suv);
         vec2 px = 1.0 / uTexSize;
         float near = 0.0, lit = 0.0;
         for (int k = 0; k < 8; k++) {
           float a = float(k) * 0.7853982;
           vec2 d = vec2(cos(a), sin(a));
-          vec4 s1 = texture2D(map, suv + d * px * 7.0);
-          vec4 s2 = texture2D(map, suv + d * px * 16.0);
+          vec4 s1 = T(suv + d * px * 7.0);
+          vec4 s2 = T(suv + d * px * 16.0);
           float i1 = step(dot(s1.rgb, vec3(0.333)), 0.2) * s1.a + (1.0 - s1.a);
           float i2 = step(dot(s2.rgb, vec3(0.333)), 0.2) * s2.a + (1.0 - s2.a);
           near += i1 * 0.09 + i2 * 0.035;
@@ -214,7 +218,7 @@ export function paperBakeMaterial(t: Tokens, map: THREE.Texture, w: number, h: n
           vec3 fillAvg = vec3(0.0); float wsum = 0.0;
           for (int k = 0; k < 8; k++) {
             float a = float(k) * 0.7853982;
-            vec4 f = texture2D(map, suv + vec2(cos(a), sin(a)) * px * 9.0);
+            vec4 f = T(suv + vec2(cos(a), sin(a)) * px * 9.0);
             float ok = step(0.2, dot(f.rgb, vec3(0.333))) * f.a;
             fillAvg += f.rgb * ok; wsum += ok;
           }
@@ -223,11 +227,11 @@ export function paperBakeMaterial(t: Tokens, map: THREE.Texture, w: number, h: n
         }
         rgb *= 1.0 - clamp(near, 0.0, 1.0) * uEdge * (1.0 - isInk);
         rgb *= 1.0 + clamp(-lit * 0.12, -0.12, 0.12) * (1.0 - isInk);
-        float wash = fbm(P * 0.004 + uSeed * 3.0);
+        float wash = fT(P + uSeed * 750.0, 0.004);
         rgb *= 1.0 - (wash - 0.5) * uWash * 2.0;
-        float bloom = smoothstep(0.62, 0.7, fbm(P * 0.011 + uSeed)) * (1.0 - isInk);
+        float bloom = smoothstep(0.62, 0.7, fT(P + uSeed * 90.0, 0.011)) * (1.0 - isInk);
         rgb = mix(rgb, rgb * 0.86, bloom * uWash * 2.5);
-        float grain = fbm(P * uScale * 0.12) * 0.6 + hash(floor(P * 0.9)) * 0.4;
+        float grain = fT(P, uScale * 0.12) * 0.6 + hash(floor(P * 0.9)) * 0.4;
         rgb *= 1.0 - (grain - 0.5) * uGrain * 2.0;
         gl_FragColor = vec4(rgb, c.a);
       }`,
