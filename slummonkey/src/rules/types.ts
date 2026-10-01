@@ -85,6 +85,8 @@ export interface WordDef {
   sig: string; // argument signature, e.g. "speed:num dur:s"
   doc: string; // one line
   fn: WordFn;
+  /** What the child block holds: more words (default), or `part` nodes whose children are words (split). */
+  children?: "words" | "parts";
 }
 
 /** The subset of World that words may use. Keeps words small and testable. */

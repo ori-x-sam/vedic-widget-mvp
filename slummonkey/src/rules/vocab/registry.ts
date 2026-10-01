@@ -5,8 +5,8 @@ import type { Ent, WordDef, WordFn, WordKind, WorldApi, WordCall } from "../type
 import { wait, until, num, str, pnum, pstr, pbool, resolveX, resolveY, anchor, angleTo, deg, easeInOut, facePlayer } from "./util";
 
 export const WORDS: Record<string, WordDef> = {};
-const word = (name: string, kind: WordKind, sig: string, doc: string, fn: WordFn) => {
-  WORDS[name] = { name, kind, sig, doc, fn };
+const word = (name: string, kind: WordKind, sig: string, doc: string, fn: WordFn, children?: "words" | "parts") => {
+  WORDS[name] = { name, kind, sig, doc, fn, children };
 };
 
 const GRAV = 2600;
@@ -58,7 +58,7 @@ word("at-scroll", "flow", "x:px { words }", "Wait until the camera has scrolled 
   yield* until(() => w.camX >= x);
   yield* w.run(me, c.children);
 });
-word("card", "flow", "text [sub=text] [dur=s]", "Show a title card banner (uses look/banners.css) and wait for it.", function* (w, me, c) {
+word("card", "flow", "text [sub=text] [dur=s]", "Show a title-card banner (styled by .banner in look/hud.css) and wait for it.", function* (w, me, c) {
   const d = pnum(c, "dur", 1.6);
   w.emit("card", me.x, me.y, `${str(c, 0, "")}|${pstr(c, "sub", "")}`, d);
   yield* wait(w, pbool(c, "block", true) ? d : 0);
@@ -596,7 +596,7 @@ word("split", "state", "{ part id hp= x= y= puppet= { words } }", "Come apart in
   w.mark(me, "split");
   yield* until(() => ids.every((id) => { const e = w.ent(id); return !e || e.hp <= 0; }));
   w.mark(me, "parts-down");
-});
+}, "parts");
 word("reassemble", "state", "[flip=#true]", "Pull my pieces back together (optionally upside down).", function* (w, me, c) {
   for (const e of w.ents()) if (e.kind === "part" && e.dmgTo === me.id) { e.alive = false; e.deadT = 99; }
   w.emit("particles", me.x, me.y + me.h / 2, "confetti", 30);

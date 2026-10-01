@@ -15,6 +15,12 @@ puppet "sattu" {
   part "body" svg="parts/tigada/sattu" size=96 x=0 y=0 px=0.5 py=1 z=2 anim="bob"
   part "arm" svg="parts/tigada/arm" size=34 x=30 y=72 px=0.4 py=0.06 z=3 anim="arm"
 }
+// all three together (what pops out of the matka)
+puppet "teen-tigada" {
+  part "pattu" svg="parts/tigada/pattu" size=118 x=0 y=0 px=0.5 py=1 z=1 anim="bob" tags="b"
+  part "lattu" svg="parts/tigada/lattu" size=96 x=-58 y=0 px=0.5 py=1 z=2 anim="bob"
+  part "sattu" svg="parts/tigada/sattu" size=92 x=58 y=0 px=0.5 py=1 z=3 anim="bob" tags="b"
+}
 puppet "rope" { part "rope" svg="parts/tigada/rope" size=640 x=0 y=0 px=0.5 py=0.99 anim="sway" }
 puppet "matka" { part "pot" svg="parts/tigada/matka" size=170 x=0 y=0 px=0.5 py=0.98 anim="breathe" }
 puppet "tigada-stack" {
