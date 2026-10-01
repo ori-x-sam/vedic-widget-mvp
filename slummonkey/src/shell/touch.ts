@@ -52,6 +52,7 @@ export class TouchControls {
     this.el.addEventListener("touchend", (e) => this.onTouch(e, "end"), opts);
     this.el.addEventListener("touchcancel", (e) => this.onTouch(e, "end"), opts);
     window.addEventListener("resize", () => this.place());
+    window.visualViewport?.addEventListener("resize", () => this.place());
   }
 
   static defaultLayout(d: ControlsDef): Layout {
@@ -109,29 +110,60 @@ export class TouchControls {
     this.place();
   }
 
-  private place() {
+  // ── geometry ──
+  // Landscape: buttons sit at their KDL fractions of the screen. Portrait: the game is a strip at the top
+  // and the same arc (same shape, same offsets from SHOOT) is laid out in the space below it.
+  portrait = false;
+  gameH = 0;
+  mode: "fight" | "island" = "fight";
+
+  setRegion(portrait: boolean, gameH: number) {
+    // the thumb area below the game only exists when the game is a strip (portrait fights)
+    this.portrait = portrait && gameH < (this.el.clientHeight || window.innerHeight) - 40;
+    this.gameH = gameH;
+    this.el.classList.toggle("portrait", this.portrait);
+    this.place();
+  }
+  setMode(mode: "fight" | "island") { this.mode = mode; this.el.classList.toggle("island", mode === "island"); }
+
+  geom(b: ControlButton): { x: number; y: number; r: number } {
     const W = this.el.clientWidth || window.innerWidth, H = this.el.clientHeight || window.innerHeight;
+    if (!this.portrait) return { x: b.x * W, y: b.y * H, r: b.r * H };
+    const regionH = Math.max(1, H - this.gameH);
+    const S = Math.min(W * 1.05, regionH) * 1.12;
+    const shoot = this.layout.buttons.find((x) => x.id === "shoot") ?? b;
+    const m = this.layout.mirrored;
+    const r = b.r * S;
+    if (b.id === "lock") return { x: m ? W - S * 0.09 : S * 0.09, y: this.gameH + S * 0.09, r };
+    const sx = m ? S * 0.23 : W - S * 0.23, sy = this.gameH + regionH * 0.6;
+    const LANDSCAPE_ASPECT = 2.0;
+    return { x: sx + (b.x - shoot.x) * LANDSCAPE_ASPECT * S, y: sy + (b.y - shoot.y) * S, r };
+  }
+
+  private place() {
     for (const b of this.layout.buttons) {
       const el = this.btnEls.get(b.id)!;
-      const size = b.r * 2 * H;
-      el.style.left = `${b.x * W}px`; el.style.top = `${b.y * H}px`;
-      el.style.width = el.style.height = `${size}px`;
+      const g = this.geom(b);
+      el.style.left = `${g.x}px`; el.style.top = `${g.y}px`;
+      el.style.width = el.style.height = `${g.r * 2}px`;
     }
   }
 
   private hitButton(x: number, y: number): ControlButton | null {
-    const W = this.el.clientWidth, H = this.el.clientHeight;
+    if (this.mode === "island") return null;
     let best: ControlButton | null = null, bd = Infinity;
     for (const b of this.layout.buttons) {
-      const d = Math.hypot(x - b.x * W, y - b.y * H);
-      const r = b.r * H * b.hit; // touch zone larger than the art
-      if (d < r && d < bd) { bd = d; best = b; }
+      const g = this.geom(b);
+      const d = Math.hypot(x - g.x, y - g.y);
+      if (d < g.r * b.hit && d < bd) { bd = d; best = b; } // touch zone larger than the art
     }
     return best;
   }
 
-  private inJoyZone(x: number) {
+  private inJoyZone(x: number, y = 0) {
     const W = this.el.clientWidth;
+    if (this.mode === "island") return true; // on the island the whole screen is the stick
+    if (this.portrait) return y > this.gameH && (this.layout.mirrored ? x > W * 0.5 : x < W * 0.5);
     return this.layout.mirrored ? x > W * (1 - this.layout.joyZone) : x < W * this.layout.joyZone;
   }
 
@@ -144,7 +176,7 @@ export class TouchControls {
       if (phase === "start") {
         const b = this.hitButton(x, y);
         if (b) { this.pressButton(t.identifier, b.id); continue; }
-        if (this.joyTouch === null && this.inJoyZone(x)) {
+        if (this.joyTouch === null && this.inJoyZone(x, y)) {
           this.joyTouch = t.identifier;
           this.joyOrigin = [x, y]; this.joy = [0, 0];
           this.joyBase.style.left = `${x}px`; this.joyBase.style.top = `${y}px`;

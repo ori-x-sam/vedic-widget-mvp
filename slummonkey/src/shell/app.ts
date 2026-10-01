@@ -71,13 +71,10 @@ export class App {
       this.touch.el.style.display = "none";
       this.applySettings();
     }
-    const resize = () => {
-      const w = this.root.clientWidth, h = this.root.clientHeight;
-      this.view.resize(w, h);
-      this.overworld?.view.resize(w, h);
-    };
-    window.addEventListener("resize", resize);
-    resize();
+    window.addEventListener("resize", () => this.layout());
+    window.addEventListener("orientationchange", () => setTimeout(() => this.layout(), 200));
+    window.visualViewport?.addEventListener("resize", () => this.layout());
+    this.layout();
     this.engine.start();
     (window as unknown as { __ready: boolean }).__ready = true;
     if (params.has("bot")) {
@@ -93,6 +90,25 @@ export class App {
     if (params.has("overworld")) return this.toOverworld();
     if (params.has("shop")) { await this.toOverworld(); return this.shop(); }
     this.title();
+  }
+
+  /** Landscape: the game fills the screen. Portrait (or a tall viewer frame): the game is a 16:9 strip
+   *  at the top and the thumbs get the whole area below it, so they never cover the action. */
+  portrait = false;
+  gameH = 0;
+  private stripMode = false; // fights in portrait use the strip; the island and menus use the whole screen
+  layout(strip = this.stripMode) {
+    this.stripMode = strip;
+    const w = this.root.clientWidth || window.innerWidth, h = this.root.clientHeight || window.innerHeight;
+    this.portrait = h > w * 1.05;
+    this.gameH = this.portrait && strip ? Math.round(Math.min(h * 0.55, w * 0.62)) : h;
+    this.root.classList.toggle("strip", this.portrait && strip);
+    this.root.classList.toggle("portrait", this.portrait);
+    this.root.style.setProperty("--game-h", `${this.gameH}px`);
+    this.canvas.style.height = `${this.gameH}px`;
+    this.view?.resize(w, this.gameH);
+    this.overworld?.view.resize(w, this.gameH);
+    this.touch?.setRegion(this.portrait, this.gameH);
   }
 
   // ── screens ──
@@ -121,7 +137,7 @@ export class App {
         <button class="btn alt" data-a="settings">Settings</button>
         ${this.isTouch ? `<button class="btn alt" data-a="layout">Controls</button>` : ""}
       </div>
-      <div class="hint">Keyboard: arrows move · Z jump · X shoot · C parry · Shift blink · V EX · Ctrl aim-lock · Tab swap</div>`, "screen comic-bg-sun");
+      ${this.isTouch ? `<div class="hint">Best in landscape · portrait works too</div>` : `<div class="hint">Keyboard: arrows move · Z jump · X shoot · C parry · Shift blink · V EX · Ctrl aim-lock · Tab swap</div>`}`, "screen comic-bg-sun");
     this.audio.playTheme("title");
     d.querySelector('[data-a="play"]')!.addEventListener("click", () => {
       this.tryFullscreen();
@@ -156,16 +172,18 @@ export class App {
       const view = new OverworldView(this.view.renderer, this.b.tokens, this.b.content, this.view.bank, this.view.puppets);
       view.gameView = this.view;
       await view.load();
-      view.resize(this.root.clientWidth, this.root.clientHeight);
+      view.resize(this.root.clientWidth, this.gameH || this.root.clientHeight);
       this.overworld = { rules, view };
     }
     const { rules, view } = this.overworld;
     rules.beaten = new Set(this.store.data.beaten);
-    if (this.touch) { this.touch.el.style.display = ""; this.touch.enabled = true; }
+    if (this.touch) { this.touch.el.style.display = ""; this.touch.enabled = true; this.touch.setMode("island"); }
+    this.layout(false);
     this.audio.playTheme("overworld");
-    const hint = this.setScreen(`<div class="coins-tag">◎ ${this.store.data.coins}</div><button class="pause-btn" data-a="menu">≡</button><div class="ow-prompt"></div>`, "layer");
+    const hint = this.setScreen(`<div class="ow-top"><span class="coins-pill">◎ ${this.store.data.coins}</span><button class="btn small" data-a="shows">Shows</button><button class="pause-btn ow-menu" data-a="menu">≡</button></div>
+      <div class="ow-help">${this.isTouch ? "Drag anywhere to walk" : "Arrow keys to walk"} · walk up to a tent, or tap <b>Shows</b></div><div class="ow-prompt"></div>`, "layer ow-layer");
     hint.querySelector('[data-a="menu"]')!.addEventListener("click", () => this.owMenu());
-    (hint.querySelector('[data-a="menu"]') as HTMLElement).style.pointerEvents = "auto";
+    hint.querySelector('[data-a="shows"]')!.addEventListener("click", () => this.showsList());
     const prompt = hint.querySelector(".ow-prompt") as HTMLDivElement;
     this.engine.scene = {
       step: () => {
@@ -175,7 +193,7 @@ export class App {
         const near = rules.near;
         if (near) {
           const label = near.kind === "npc" ? `Talk: ${near.label}` : near.locked ? `🔒 ${near.label}` : near.label;
-          if (prompt.dataset.k !== near.id) { prompt.dataset.k = near.id; prompt.innerHTML = `<button class="btn small">${label} ▶</button>`; prompt.querySelector("button")!.onclick = () => this.owAction(); }
+          if (prompt.dataset.k !== near.id) { prompt.dataset.k = near.id; prompt.innerHTML = `<button class="btn">${near.kind === "npc" ? "Talk" : near.locked ? "Locked" : "Enter"} <small>${label}</small></button>`; prompt.querySelector("button")!.onclick = () => this.owAction(); }
           if (f.pressed.jump || f.pressed.shoot) this.owAction();
         } else if (prompt.dataset.k) { prompt.dataset.k = ""; prompt.innerHTML = ""; }
       },
@@ -213,12 +231,31 @@ export class App {
     d.querySelector('[data-a="back"]')!.addEventListener("click", () => void this.toOverworld());
   }
 
+  /** Every show on the island in one list, so phones never have to hunt for a tent. */
+  private showsList() {
+    const ow = this.b.content.overworld;
+    const beaten = new Set(this.store.data.beaten);
+    const rows = ow.nodes.filter((n) => n.level || n.kind === "shop").map((n) => {
+      const locked = n.requires.split(/\s+/).filter(Boolean).some((r) => !beaten.has(r));
+      const done = beaten.has(n.level);
+      return `<button class="show-row ${locked ? "locked" : ""}" data-n="${n.id}" ${locked ? "disabled" : ""}><b>${n.label}</b><span>${locked ? "Beat the other acts first" : done ? "Cleared ✓" : n.kind === "shop" ? "Weapons & charms" : "Tap to play"}</span></button>`;
+    }).join("");
+    const d = this.setScreen(`<div class="panel"><h2>Tonight's shows</h2><div class="show-list">${rows}</div><div class="row" style="margin-top:10px"><button class="btn alt" data-a="back">Back to island</button></div></div>`);
+    d.querySelectorAll<HTMLButtonElement>("[data-n]").forEach((b) => b.addEventListener("click", () => {
+      const n = ow.nodes.find((x) => x.id === b.dataset.n)!;
+      if (n.kind === "shop") return this.shop();
+      this.preFight(this.b.content.bosses[n.level] ? "boss" : "level", n.level);
+    }));
+    d.querySelector('[data-a="back"]')!.addEventListener("click", () => void this.toOverworld());
+  }
+
   private owMenu() {
     const d = this.setScreen(`<div class="panel"><h2>Island</h2><div class="row" style="flex-direction:column">
-      <button class="btn" data-a="resume">Resume</button><button class="btn alt" data-a="equip">Loadout</button>
+      <button class="btn" data-a="resume">Resume</button><button class="btn alt" data-a="shows">Shows</button><button class="btn alt" data-a="equip">Loadout</button>
       <button class="btn alt" data-a="settings">Settings</button>${this.touch ? `<button class="btn alt" data-a="layout">Edit controls</button>` : ""}
       <button class="btn alt" data-a="title">Title</button></div></div>`);
     d.querySelector('[data-a="resume"]')!.addEventListener("click", () => void this.toOverworld());
+    d.querySelector('[data-a="shows"]')!.addEventListener("click", () => this.showsList());
     d.querySelector('[data-a="equip"]')!.addEventListener("click", () => this.loadout(() => void this.toOverworld()));
     d.querySelector('[data-a="settings"]')!.addEventListener("click", () => this.settings(() => void this.toOverworld()));
     d.querySelector('[data-a="layout"]')?.addEventListener("click", () => this.layoutEditor(() => void this.toOverworld()));
@@ -306,6 +343,12 @@ export class App {
   layoutEditor(back: () => void) {
     const t = this.touch;
     if (!t) return back();
+    if (this.portrait) {
+      const d = this.setScreen(`<div class="panel"><h2>Edit controls</h2><p class="stat">Turn your phone sideways to drag and resize buttons. Portrait uses the same layout, arranged under the game.</p><div class="row"><button class="btn" data-a="back">OK</button></div></div>`);
+      d.querySelector('[data-a="back"]')!.addEventListener("click", back);
+      return;
+    }
+    t.setMode("fight");
     this.clearScreen();
     t.el.style.display = "";
     t.setEditing(true);
@@ -327,7 +370,8 @@ export class App {
     this.leaveGameplay();
     this.clearScreen();
     this.hud.show(true);
-    if (this.touch) { this.touch.el.style.display = ""; this.touch.enabled = true; }
+    if (this.touch) { this.touch.el.style.display = ""; this.touch.enabled = true; this.touch.setMode("fight"); }
+    this.layout(true);
     const pauseBtn = document.createElement("button");
     pauseBtn.className = "pause-btn";
     pauseBtn.textContent = "II";

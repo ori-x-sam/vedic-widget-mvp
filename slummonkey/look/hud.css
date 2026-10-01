@@ -3,7 +3,7 @@
   --font-title: "Yatra One", "Kalam", system-ui, sans-serif;
   --font-hand: "Kalam", "Comic Sans MS", system-ui, sans-serif;
   --hud-scale: 1;
-  --btn-idle-opacity: 0.25;
+  --btn-idle-opacity: 0.6;
   --btn-active-opacity: 0.9;
   --btn-shoot: #ff9a1f;
   --btn-jump: #2bb3c0;
@@ -16,7 +16,9 @@
 html, body { margin: 0; height: 100%; background: #120a10; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 body { font-family: var(--font-hand); color: var(--ink); }
 #app { position: fixed; inset: 0; }
-canvas.game { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+canvas.game { position: absolute; left: 0; top: 0; width: 100%; height: var(--game-h, 100%); display: block; }
+#app.portrait.strip { background: radial-gradient(120% 80% at 50% 100%, #3a1530, #120a10 70%); }
+#app.portrait.strip::after { content: ""; position: absolute; left: 0; right: 0; top: var(--game-h); height: 6px; background: repeating-linear-gradient(90deg, var(--marigold) 0 14px, var(--saffron) 14px 28px); box-shadow: 0 2px 0 var(--ink); pointer-events: none; }
 .layer { position: absolute; inset: 0; pointer-events: none; }
 .layer.interactive { pointer-events: auto; }
 
@@ -45,7 +47,7 @@ canvas.game { position: absolute; inset: 0; width: 100%; height: 100%; display: 
 .pause-btn { position: absolute; right: max(12px, env(safe-area-inset-right)); top: 10px; width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--ink); background: var(--paper); font: 20px var(--font-title); pointer-events: auto; opacity: 0.7; }
 
 /* Banners */
-.banner { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; white-space: nowrap; }
+.banner { position: absolute; left: 50%; top: calc(var(--game-h, 100vh) * 0.42); transform: translate(-50%, -50%); text-align: center; pointer-events: none; white-space: nowrap; }
 .banner .big { font: 72px var(--font-title); color: var(--marigold); -webkit-text-stroke: 3px var(--ink); text-shadow: 6px 6px 0 var(--ink), 0 0 30px var(--saffron); letter-spacing: 2px; }
 .banner .sub { font: 700 24px var(--font-hand); color: var(--white); -webkit-text-stroke: 1px var(--ink); text-shadow: 2px 2px 0 var(--ink); }
 .banner.intro .big { animation: banner-slam 1.6s cubic-bezier(.2,1.6,.4,1) both; }
@@ -81,7 +83,7 @@ canvas.game { position: absolute; inset: 0; width: 100%; height: 100%; display: 
 .stat { font: 700 18px var(--font-hand); }
 .hint { font: 15px var(--font-hand); opacity: 0.8; }
 .rotate-hint { position: fixed; inset: 0; background: var(--midnight); color: var(--marigold); display: none; place-items: center; font: 28px var(--font-title); text-align: center; z-index: 99; }
-@media (orientation: portrait) and (pointer: coarse) { .rotate-hint { display: grid; } }
+/* portrait is supported (game on top, thumbs below), so the rotate hint never blocks the screen */
 
 /* Shop */
 .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
@@ -123,3 +125,39 @@ canvas.game { position: absolute; inset: 0; width: 100%; height: 100%; display: 
 .screen, .comic { z-index: 10; }
 .editor-bar { z-index: 12; }
 .banner, .bubble { z-index: 3; }
+
+/* ── island overlay ── */
+.ow-layer { z-index: 6; }
+.ow-top { position: absolute; top: max(10px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); display: flex; gap: 8px; align-items: center; pointer-events: auto; }
+.ow-top .pause-btn { position: static; opacity: 1; }
+.coins-pill { font: 18px var(--font-title); background: var(--midnight); color: var(--marigold); border: 3px solid var(--ink); border-radius: 20px; padding: 2px 12px; box-shadow: 2px 2px 0 var(--ink); }
+.ow-help { position: absolute; left: 50%; bottom: max(10px, env(safe-area-inset-bottom)); transform: translateX(-50%); font: 700 14px var(--font-hand); color: var(--white); text-shadow: 0 2px 0 var(--ink), 0 0 6px var(--ink); white-space: nowrap; pointer-events: none; }
+
+.ow-prompt { z-index: 7; bottom: 16%; }
+#app.portrait .ow-prompt { bottom: 22%; }
+.ow-prompt .btn { font-size: 26px; padding: 10px 28px; display: flex; flex-direction: column; align-items: center; line-height: 1.05; animation: prompt-bob 1s ease-in-out infinite; }
+.ow-prompt .btn small { font: 700 14px var(--font-hand); opacity: 0.85; }
+@keyframes prompt-bob { 50% { transform: translateY(-4px); } }
+.show-list { display: grid; gap: 8px; }
+.show-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; text-align: left; font: 20px var(--font-title); padding: 10px 14px; border: 3px solid var(--ink); border-radius: 10px; background: var(--white); box-shadow: 3px 3px 0 var(--ink); cursor: pointer; color: var(--ink); }
+.show-row span { font: 700 14px var(--font-hand); opacity: 0.75; }
+.show-row.locked { background: var(--paper-dark); opacity: 0.6; box-shadow: none; }
+.show-row:not(.locked):active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+@media (max-height: 460px) { .panel { padding: 10px 14px; max-height: 92vh; } .panel h2 { font-size: 24px; } .btn { font-size: 20px; padding: 6px 18px; min-width: 140px; } .title-logo { font-size: 48px; } }
+
+/* ── comics on phones ── */
+.comic-panel .bubble { transform: translate(-50%, 0); max-width: 46%; font-size: clamp(12px, 1.2vw + 0.8vh, 18px); padding: 5px 10px; animation-name: bubble-pop-top; }
+.comic-panel .bubble.sfx { transform: translate(-50%, 0) rotate(-8deg); max-width: none; font-size: clamp(26px, 4vw, 40px); }
+.comic-panel .caption { max-width: 82%; font-size: clamp(12px, 1.1vw + 0.7vh, 16px); }
+@keyframes bubble-pop-top { from { transform: translate(-50%, 0) scale(0.3); opacity: 0; } }
+@media (orientation: portrait) {
+  .comic-page { width: 94vw; height: min(78vh, 120vw); }
+  .comic-panel .bubble { max-width: 64%; font-size: clamp(13px, 3.6vw, 17px); }
+}
+@media (max-height: 460px) and (orientation: landscape) {
+  .comic-page { width: min(96vw, 190vh); height: 88vh; }
+}
+
+.title-logo { font-size: clamp(34px, 9vw, 64px); }
+.title-logo small { font-size: 0.47em; }
+@media (orientation: portrait) { .screen .row { flex-direction: column; align-items: stretch; } .title-logo { font-size: clamp(30px, 11vw, 56px); } }

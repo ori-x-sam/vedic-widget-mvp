@@ -7,7 +7,7 @@ import type { Tokens } from "../core/tokens";
 import type { Overworld } from "../rules/overworld";
 import type { TextureBank } from "./textures";
 import type { PuppetFactory, PuppetView } from "./puppet";
-import { paperMaterial, skyMaterial } from "./shaders";
+import { paperMaterial } from "./shaders";
 import type { GameView } from "./gameview";
 
 const TW = 160, TH = 80;
@@ -31,9 +31,8 @@ export class OverworldView {
 
   async load() {
     const def = this.content.overworld;
-    const sky = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), skyMaterial(this.tokens, "--water", "--water-deep"));
-    sky.frustumCulled = false; sky.renderOrder = -1000;
-    this.scene.add(sky);
+    // the sea beyond the painted ground is the same flat sea colour, so tall screens show no seam
+    this.scene.background = new THREE.Color().setRGB(...this.tokens.color("--water"));
     // painted ground
     const { canvas, ox, oy } = this.paintGround();
     const tex = new THREE.CanvasTexture(canvas);
@@ -142,7 +141,8 @@ export class OverworldView {
 
   resize(w: number, h: number) {
     const aspect = w / Math.max(1, h);
-    this.viewH = 760; this.viewW = this.viewH * aspect;
+    // keep at least ~1100 world px of island across, so tall phone screens zoom out instead of in
+    this.viewH = Math.max(760, 1100 / aspect); this.viewW = this.viewH * aspect;
   }
 
   say(who: string, text: string) {

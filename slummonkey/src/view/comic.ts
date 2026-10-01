@@ -36,7 +36,9 @@ export class Comic {
     if (this.i >= st.panels.length) return this.onDone();
     const p = st.panels[this.i];
     const prev = this.page.children.length;
-    const wide = p.layout === "wide" || p.layout === "full";
+    // phones (and any narrow or short screen) get one panel per page so nothing is squeezed or clipped
+    const small = window.innerWidth < 900 || window.innerHeight < 520 || window.innerHeight > window.innerWidth;
+    const wide = small || p.layout === "wide" || p.layout === "full";
     if (wide || prev >= 2 || (prev === 1 && (this.page.children[0] as HTMLElement).dataset.wide)) this.page.innerHTML = "";
     const n = this.page.children.length;
     const panel = document.createElement("div");
@@ -49,7 +51,9 @@ export class Comic {
       if (src) html += `<div class="art" style="left:${a.x}%;top:${a.y}%;height:${a.s * 55}%;"><img src="${src}" style="height:100%;${a.flip ? "transform:scaleX(-1)" : ""}" draggable="false"></div>`;
     }
     if (p.caption) html += `<div class="caption"></div>`;
-    for (const b of p.bubbles) html += `<div class="bubble ${b.kind} tail-${b.tail}" style="left:${b.x}%;top:${b.y}%">${b.who && b.kind !== "sfx" ? `<span class="who"></span>` : ""}<span class="txt"></span></div>`;
+    const clampX = (x: number) => Math.max(26, Math.min(74, x));
+    const clampY = (y: number) => Math.max(4, Math.min(70, y));
+    for (const b of p.bubbles) html += `<div class="bubble ${b.kind} tail-${b.tail}" style="left:${b.kind === "sfx" ? b.x : clampX(b.x)}%;top:${clampY(b.y)}%">${b.who && b.kind !== "sfx" ? `<span class="who"></span>` : ""}<span class="txt"></span></div>`;
     panel.innerHTML = html;
     if (p.caption) panel.querySelector(".caption")!.textContent = p.caption;
     const bs = panel.querySelectorAll(".bubble");
