@@ -12,6 +12,11 @@ import soundsKdl from '../content/sounds.kdl?raw';
 import modelsKdl from '../content/models.kdl?raw';
 import day1Kdl from '../content/day1.kdl?raw';
 import night1Kdl from '../content/night1.kdl?raw';
+import day2Kdl from '../content/day2.kdl?raw';
+import night2Kdl from '../content/night2.kdl?raw';
+import day3Kdl from '../content/day3.kdl?raw';
+import night3Kdl from '../content/night3.kdl?raw';
+import day4Kdl from '../content/day4.kdl?raw';
 import endingsKdl from '../content/endings.kdl?raw';
 
 // ---------- small value parsers ----------
@@ -169,6 +174,8 @@ export const PlaceSchema = z.strictObject({
   set: z.string(),
   /** Which light: day (white, close to overexposed), dusk, night. */
   light: z.enum(['day', 'dusk', 'night']),
+  /** The scenery rolls past (the jeep under way), except while doe-showing is set. */
+  moving: z.boolean().default(false),
   children: words('place word', {
     /** `sits "raja" at="x z" turn=deg y=0.9 model="raja"`: a person placed in the set (their model is their id unless named). */
     sits: z.strictObject({ args: z.tuple([z.string()]), props: z.strictObject({ at: xz, turn: z.number().default(0), y: z.number().default(0), model: z.string().optional() }) }).transform(({ args, props }) => ({ who: args[0]!, ...props, model: props.model ?? args[0]! })),
@@ -280,8 +287,8 @@ export const SpotSchema = z.strictObject({
     bed: said(false),
     /** `talk "scene" "text"`: touching it begins a scene (someone met in the dark); the scene ends with `resume`. */
     talk: said(true),
-    /** `pose if="trunk-at-door" at="x z" turn=deg`: where it stands once the condition holds. */
-    pose: z.strictObject({ args: z.tuple([]), props: z.strictObject({ if: cond, at: xz, turn: z.number().default(0), y: z.number().optional() }) }).transform(({ props }) => props),
+    /** `pose if="trunk-at-door" at="x z" turn=deg`: where it stands, or which way it faces, once the condition holds. */
+    pose: z.strictObject({ args: z.tuple([]), props: z.strictObject({ if: cond, at: xz.optional(), turn: z.number().optional(), y: z.number().optional() }) }).transform(({ props }) => props),
   }),
 });
 
@@ -326,7 +333,8 @@ export type Content = { [K in keyof Kinds]: Record<string, z.output<Kinds[K]>> }
 /** Every content file, by name (the name is only for error messages). */
 export const FILES: Record<string, string> = {
   'cast.kdl': castKdl, 'things.kdl': thingsKdl, 'sounds.kdl': soundsKdl, 'models.kdl': modelsKdl,
-  'day1.kdl': day1Kdl, 'night1.kdl': night1Kdl, 'endings.kdl': endingsKdl,
+  'day1.kdl': day1Kdl, 'night1.kdl': night1Kdl, 'day2.kdl': day2Kdl, 'night2.kdl': night2Kdl, 'day3.kdl': day3Kdl, 'night3.kdl': night3Kdl, 'day4.kdl': day4Kdl,
+  'endings.kdl': endingsKdl,
 };
 
 /** Load and merge content files. Within a file ids are unique across kinds (loadKdl); across files, within a kind. */

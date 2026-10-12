@@ -1,0 +1,165 @@
+// NIGHT 3 — THE DEWAN'S ARITHMETIC. The library, the record room, the billiard room. Proves: the guests' motives, and
+// that the Raja planned the party.
+//
+// The chart:
+//
+//   LIBRARY (start; the way back) ─► BILLIARD ROOM (open) and ─► RECORD ROOM (locked)
+//   LIBRARY: Gladstone's bust rattles ─► the record room key
+//            the Dewan's tiffin ─► a dried chilli ─► use it on Kotwal ─► [talk] Kotwal's voices ─► kotwal-mimicry
+//   RECORD ROOM (the key): the forest receipts ─► forest-receipts; the lease file ─► unsigned-lease;
+//                          the correspondence ─► sudam-refusal
+//   BILLIARD ROOM: the scoreboard gives each colour's worth ─► the cue cabinet, "the colours, lowest first"
+//                  ─► annotated-pamphlet, invitation-drafts
+//   CASEBOOK: the deduction ─► the way back to bed
+//
+// Threads: the ledgers (bust ─► key ─► record room), the cabinet (scoreboard ─► dials), and Kotwal (tiffin ─► chilli).
+// A suspicious Raja sends a second lantern round (patrol bearer-3, if suspicion>=6).
+
+night "night-3" n=3 name="The Dewan's Arithmetic" moon=0.7 moon-alt=30 moon-az=200 start="library" at="-2.5 2" turn=0 proves="guests-motives" then="morning-4" caught="caught-3" {
+}
+
+room "library" night=3 name="The Dewan's library" x=0 z=0 w=8 d=6 h=5 floor="teak" walls="plaster" dark=0.75 {
+    jaali wall="south" at=1.5 w=1.2 h=2 y=1
+    prop "bookcase" at="-3.75 -1" turn=90 solid=0.6
+    prop "bookcase" at="-3.75 1.4" turn=90 solid=0.6
+    prop "bookcase" at="3.75 1.5" turn=270 solid=0.6
+    lamp at="2 -2.6" y=1.6 kind="hanging"
+}
+
+room "record-room" night=3 name="The record room" x=7.5 z=0 w=7 d=6 h=4 floor="brick" walls="plaster" dark=0.9 {
+    jaali wall="south" at=0 w=0.8 h=0.6 y=2.6
+    prop "bookcase" at="3.25 -1.5" turn=270 solid=0.6
+}
+
+room "billiard-room" night=3 name="The billiard room" x=0 z=-7 w=8 d=8 h=5 floor="teak" walls="wallpaper" dark=0.65 {
+    jaali wall="west" at=0 w=1.4 h=2.4 y=0.9
+    prop "billiard-table" at="0 0.3" solid=1.4
+    lamp at="0 0.3" y=2.6 kind="hanging"
+}
+
+door "record-door" name="the record room door" from="library" wall="east" at=0 to="record-room"
+door "billiard-arch" name="the billiard room doors" from="library" wall="north" at=0 to="billiard-room" w=1.8 h=2.8 open=#true arch=#true
+
+// ---------- the library ----------
+
+spot "library-way-back" room="library" name="the way back to your room" at="-2.5 2.85" y=1.2 r=0.6 {
+    bed "Back through the Durbar Wing, past the dark chandeliers, into the guest corridor and your room and the bolt you cannot close behind you. Kotwal's voices follow you in. They will be in your ears all night."
+    look "The way back to the guest wing. Not yet. The Dewan keeps his accounts; I have not yet read them."
+}
+
+spot "gladstone" room="library" name="the bust of Gladstone" at="1 -2.6" y=1.5 r=0.5 model="gladstone-bust" turn=180 {
+    look if="!has:record-key !record-open" "A marble bust of Mr. Gladstone on the Dewan's desk, looking as if he had found a mistake in the accounts. His head rattles. Inside, on a ribbon: a key." gives="record-key" sound="pick-up"
+    look "Mr. Gladstone, hollow-headed, which the Dewan would not thank you for noticing."
+}
+
+spot "dewan-desk" room="library" name="the Dewan's desk" at="2 -2.4" y=0.9 r=0.6 model="writing-desk" turn=180 solid=0.5 {
+    look if="!has:dried-chilli !kotwal-fed" "The Dewan's desk: ledgers squared to the edge, three pens in order of length, and a tiffin carrier with the remains of his supper. Among them, a dried red chilli, saved for later." gives="dried-chilli"
+    look "Everything on the desk is at right angles to everything else. Including, one suspects, the Dewan."
+}
+
+spot "electric-ledger" room="library" name="the electricity ledger" at="2.9 -2.4" y=1 r=0.5 {
+    look "\"Electrical accounts, Durbar Wing, 1931-46.\" Every unit of the dynamo's current, entered in the Dewan's hand. The September page has one entry underlined twice, in red: \"Larder circuit, 11-12th. One hour. Not authorised.\"" clue="dynamo-accounts"
+}
+
+spot "kotwal" room="library" name="Kotwal's cage" at="-3 -2.4" y=1.6 r=0.6 model="birdcage" turn=180 {
+    use "dried-chilli" "You poke the chilli through the bars. Kotwal takes it like a duchess taking a sherry, eats it, and clears his throat." takes="dried-chilli" sets="kotwal-fed" sound="whistle"
+    talk "kotwal-3" if="kotwal-fed !knows:kotwal-mimicry" "Kotwal fixes you with one eye, then the other."
+    look if="knows:kotwal-mimicry" "Kotwal has gone to sleep with his head under his wing, the way a man puts his hands over his ears."
+    look "Kotwal, the Raja's hill mynah, in a brass cage, awake. He looks at your pockets. Mynahs, the Raja said, will say anything for a chilli."
+}
+
+// ---------- the record room ----------
+
+spot "record-dials" room="library" name="the record room door" at="3.85 0" y=1.2 r=0.6 {
+    use "record-key" "The key from Gladstone's head turns sweetly. The record room breathes out dust and the smell of old glue." opens="record-door" sets="record-open" takes="record-key" sound="lock-open"
+    look if="record-open" "The record room stands open."
+    look "\"RECORDS. ADMITTANCE BY THE DEWAN ONLY.\" Locked, with an old-fashioned key. The Dewan keeps his key somewhere he would think clever."
+}
+
+spot "forest-receipts" room="record-room" name="the forest receipts" at="-2 -2.6" y=1 r=0.6 model="ledger-shelf" turn=180 solid=0.4 {
+    look "The forest receipts ledger. In June, from D. Sahukar, Timber Contractor: \"Advance on the Chandragarh sal lease, Rs. 40,000.\" Received by the Raja's own hand. The lease has not been signed. The money has been spent." clue="forest-receipts"
+}
+
+spot "lease-file" room="record-room" name="the lease file" at="1 -2.6" y=1 r=0.6 model="file-boxes" turn=180 solid=0.4 {
+    look "\"Lease of the Chandragarh sal forest, to D. Sahukar, for ninety-nine years.\" Drawn, stamped, ready, and unsigned. On the line for the forest steward's consent, nothing. The forest steward was Kumar Sudam." clue="unsigned-lease"
+}
+
+spot "correspondence" room="record-room" name="the correspondence" at="2.5 1.5" y=1 r=0.6 model="writing-desk" turn=0 solid=0.5 {
+    look "A file marked \"S.\" in the Dewan's hand. One letter, in Sudam's: \"Brother, I will not sign. Sell the jungle and you sell the tigress and the doe and the men who live by them. I want nothing of yours. I want only this.\" Dated the first of September." clue="sudam-refusal"
+}
+
+// ---------- the billiard room ----------
+
+spot "scoreboard" room="billiard-room" name="the scoreboard" at="-3.85 -2" y=1.8 r=0.6 model="scoreboard" turn=90 {
+    look "A mahogany scoreboard with the colours painted down its side and their worth beside each: red one, yellow two, green three, brown four, blue five, pink six, black seven. The old Raja played by English rules and cheated by Indian ones." clue="ball-values"
+}
+
+spot "cue-cabinet" room="billiard-room" name="the cue cabinet" at="3.85 -2" y=1.2 r=0.6 model="cue-cabinet" turn=270 solid=0.4 {
+    look if="cabinet-open" "The cue cabinet stands open, cues in their rack, and nothing else that matters now."
+    look "A locked cue cabinet with four ivory balls set into its door as dials. The brass plate: \"THE COLOURS, LOWEST FIRST.\" Each ball turns to pink, blue, brown or yellow."
+    code "pink blue brown yellow" dials=4 answer="yellow brown blue pink" learns="scoreboard" "Yellow, brown, blue, pink: two, four, five, six. The cabinet unlatches with a click like a good break. Behind the cues, a pamphlet and a sheaf of notepaper." sets="cabinet-open" clue="annotated-pamphlet invitation-drafts" sound="lock-open"
+}
+
+spot "billiard-table" room="billiard-room" name="the billiard table" at="0 0.3" y=0.9 r=1.2 {
+    look "A full-size table under a dust sheet that somebody has turned back. On the baize, a frame abandoned in the middle: the reds scattered, the black on its spot. The last game the old Raja played, they say. Nobody has dared to finish it."
+}
+
+// ---------- Bhima's round, and a second lantern for a suspicious Raja ----------
+
+patrol "bhima-3" night=3 who="bhima" speed=0.9 {
+    stop "billiard-room" at="-2.5 -3" wait=5
+    stop "billiard-room" at="2.5 -3" wait=2
+    stop "billiard-room" at="2.5 3" wait=0
+    stop "library" at="0 -1.5" wait=6
+    stop "library" at="-2 1" wait=3
+    stop "library" at="0 -1.5" wait=0
+    stop "billiard-room" at="-2.5 3" wait=0
+}
+
+patrol "bearer-3" night=3 who="bhima" speed=0.7 if="suspicion>=6" {
+    stop "library" at="3 2" wait=8
+    stop "library" at="-1 2" wait=4
+}
+
+hint "n3-key" night=3 until="record-open" after-s=200 text="The Dewan keeps his key somewhere he would think clever. A man who quotes Gladstone keeps things in Gladstone."
+hint "n3-cabinet" night=3 until="cabinet-open" after-s=200 text="\"The colours, lowest first.\" The scoreboard says what each colour is worth."
+hint "n3-kotwal" night=3 until="knows:kotwal-mimicry" after-s=240 text="Mynahs will say anything for a chilli, the Raja said. The Dewan does not eat his chillies."
+hint "n3-deduce" night=3 until="guests-motives" after-s=240 text="The case page: why Sahukar wanted Sudam gone, what the pamphlet became, and who planned the party."
+
+deduction "guests-motives" night=3 title="The Dewan's arithmetic" reveal="Sahukar had paid for a forest that Sudam would not sell. Ghatak had written a permission, and the Raja had underlined it. Mrs. Sahukar had a smile to punish, and Mrs. Ghatak a man to watch. The Raja did not need to kill anybody at that party. He only needed to invite them." question="Then what did they do to him, that night, while the Raja watched?" {
+    ask "Mr. Sahukar wanted Sudam out of the way because" options="Sudam had insulted his wife | Sudam stood between him and the forest" answer="Sudam stood between him and the forest" from="forest-receipts unsigned-lease sudam-refusal"
+    ask "Mr. Ghatak's pamphlet was" options="a philosopher's harmless joke | marked up by the Raja, like a plan" answer="marked up by the Raja, like a plan" from="annotated-pamphlet"
+    ask "The shikar party was" options="a pleasure party that went wrong | chosen by the Raja, guest by guest" answer="chosen by the Raja, guest by guest" from="invitation-drafts kotwal-mimicry"
+}
+
+// ---------- Kotwal ----------
+
+scene "kotwal-3" day=3 place="caught" first="kotwal-3a"
+
+beat "kotwal-3a" scene="kotwal-3" {
+    line "kotwal" "Hold him! Hold him, he touched me!" sound="whistle"
+    line "narrator" "Mrs. Sahukar's voice, exactly, shrill and delighted with its own distress."
+    line "kotwal" "A relapse, gentlemen! A small, medicinal relapse!"
+    line "narrator" "Mr. Ghatak's. Then a thud, and a thud, and a sound Kotwal makes with his whole body, like a sack being dropped."
+    line "kotwal" "Into the larder with him. With the pig. Ha!"
+    line "narrator" "Mr. Sahukar. Then the Raja's voice, low and close, the way a man talks to himself in a corridor at four in the morning:"
+    line "kotwal" "No, Bhima. Give me the key. I'll go myself." clue="kotwal-mimicry"
+    line "narrator" "Kotwal whistles, pleased, and asks for another chilli in the voice of Mrs. Ghatak. It was funny for nearly a minute."
+    ends "resume"
+}
+
+// ---------- caught ----------
+
+scene "caught-3" day=3 place="caught" first="caught-3a"
+
+beat "caught-3a" scene="caught-3" {
+    line "narrator" "The lantern. In the Dewan's rooms, among the Dewan's books, which is the one place in this palace a guest could be accused of reading."
+    choose "\"I was looking for something to read. I sleep badly.\"" go="caught-3-back" suspicion=1
+    choose "\"I was photographing the moon.\"" if="told-moon" go="caught-3-back"
+    choose "Say nothing, and let him see the plate in your camera is unexposed." go="caught-3-back" regard=1 suspicion=1
+}
+
+beat "caught-3-back" scene="caught-3" {
+    line "narrator" "Bhima walks you back. At your door he stops, and for a moment you think he will speak. He bolts it instead." sound="bolt-shut"
+    ends "back-to-room"
+}

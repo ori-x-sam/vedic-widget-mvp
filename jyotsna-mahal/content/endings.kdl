@@ -3,7 +3,6 @@
 // The midnight shikar plays whenever the Raja's suspicion reaches its peak (tuning.ts SUSPICION_PEAK), at the next
 // beat: it is the scene named `midnight-shikar`.
 
-ending "demo-end" title="End of the demo" text="Day 2, The Sittings, and Night 2, The House of Mirrors, come next: six more nights to the full moon."
 ending "shikar-end" title="The Midnight Shikar" text="The guests were very complimentary about the meat."
 
 // ---------- the midnight shikar ----------

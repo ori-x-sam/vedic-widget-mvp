@@ -120,7 +120,8 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
       build(s);
       wing?.sync(s);
       for (const p of props) p.inst.root.visible = holds(s, p.cond);
-      moving = !s.flags.includes('doe-showing');
+      const pl = s.talk ? get('place', get('scene', s.talk.scene).place) : null;
+      moving = !!pl?.moving && !s.flags.includes('doe-showing');
       candle.visible = !!s.night?.candle && s.phase === 'night';
       const flame = hands.root.getObjectByName('flame');
       if (flame) flame.visible = candle.visible;

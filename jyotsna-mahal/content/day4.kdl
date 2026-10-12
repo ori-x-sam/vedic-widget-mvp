@@ -1,0 +1,8 @@
+// DAY 4 — LUNCHEON AND CARDS. (Being written.)
+
+scene "morning-4" day=4 place="breakfast" first="knock-4" name="Day 4 — Luncheon and Cards"
+
+beat "knock-4" scene="morning-4" {
+    line "narrator" "Knock. Knock. Knock."
+    ends "night"
+}

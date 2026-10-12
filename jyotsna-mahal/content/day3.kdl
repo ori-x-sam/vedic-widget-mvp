@@ -1,0 +1,89 @@
+// DAY 3 — THE SHIKAR. The knock, breakfast, then the shikar: machans, beaters, and a tiger that never comes. Two of
+// three things to look into while the beat goes on: the pugmarks, the place Sudam's "remains" were found, and
+// Mr. Sahukar's blaze marks on the sal. Then a peacock, a rifle, and a choice. Evening, the bolt, Night 3.
+// Clues: pugmarks, remains-place, blaze-marks.
+
+// The jungle at the machans: the road's set, stopped.
+place "shikar" set="jungle-road" light="day" {
+    sits "bhima" at="-1.2 -2.5" turn=170
+    eye at="0 0" y=1.62 turn=0
+}
+
+scene "morning-3" day=3 place="breakfast" first="knock-3" name="Day 3 — The Shikar"
+
+beat "knock-3" scene="morning-3" {
+    line "narrator" "Knock. Knock. Knock. Bhima, with tea, and a shikar jacket from the Raja's own wardrobe, which fits you like a tent fits a pole."
+    line "raja" "The shikar! Today we find the tiger's widow and her children and we make orphans of them. Ha!" if="suspicion<=4" sound="laugh"
+    line "raja" "The shikar. You will stay close to me today, Mr. Thistlewood. The jungle is dangerous for a man who wanders." if="suspicion>=5"
+    line "mrs-ghatak" "Lilabati will stay in the jeep. She is allergic to tigers."
+    line "mrs-sahukar" "And to beaters. They shout so."
+    does resets="slots"
+    go "machans"
+}
+
+beat "machans" scene="shikar-scene" {
+    line "narrator" "The machans are platforms of bamboo lashed high in the sal. Below, two hundred beaters with drums and tins begin the hanka, a wall of noise walking slowly towards you through the jungle."
+    line "narrator" "There is time, while the noise comes, to look about. The forest guard, a thin man with a tin badge, waits at the foot of your tree as if he had been told to."
+    go "hub-3"
+}
+
+scene "shikar-scene" day=3 place="shikar" first="machans"
+
+beat "hub-3" scene="shikar-scene" {
+    line "narrator" "The drums are still far off." if="slots<2"
+    line "narrator" "The drums are close now. Somewhere ahead, something large is moving away from them very fast." if="slots>=2"
+    choose "Ask the forest guard to show you the pugmarks." if="!saw-pugmarks slots<2" go="pugmarks" sets="saw-pugmarks"
+    choose "Ask him where Kumar Sudam's remains were found." if="!saw-remains slots<2" go="remains" sets="saw-remains"
+    choose "Look at the marks cut on the sal trees." if="!saw-blazes slots<2" go="blazes" sets="saw-blazes"
+    choose "Climb up to the machan." if="slots>=2" go="peacock"
+}
+
+beat "pugmarks" scene="shikar-scene" {
+    does adds="slots"
+    line "narrator" "He shows you a stream bank printed with pugmarks: a tigress, broad, and two cubs, small as saucers. And older marks, a month old and crumbling, of the same tigress."
+    line "narrator" "\"A mother, sahib. She does not come near men. She has never come near men.\" He says it the way a man says something he has said already, to someone who did not want to hear it." clue="pugmarks"
+    go "hub-3"
+}
+
+beat "remains" scene="shikar-scene" {
+    does adds="slots"
+    line "narrator" "A clearing by a nullah, a mile from the palace. Here, he says, they found what was left of Kumar Sudam, in the morning. He looks at the ground, not at you."
+    line "narrator" "\"No blood on the leaves, sahib. No drag marks. A tiger is not tidy.\" He spits, carefully, away from the place. \"And the marks on him were all the same depth, like a comb.\"" clue="remains-place" regard=1
+    go "hub-3"
+}
+
+beat "blazes" scene="shikar-scene" {
+    does adds="slots"
+    line "narrator" "On the sal trunks along the ride, fresh blazes: a strip of bark cut away and a number painted in red. Hundreds of them, as far as you can see."
+    line "sahukar" "Admiring my handwriting, Mr. Thistlewood? Every one a rupee standing up. I had them marked in August. Before the, ah, difficulty. A wolf plans ahead." clue="blaze-marks"
+    line "narrator" "He glances round to see that it was appreciated. Only Bhima is there, and Bhima is looking at the trees."
+    go "hub-3"
+}
+
+beat "peacock" scene="shikar-scene" timer-s=10 timeout="peacock-gone" {
+    line "narrator" "The beat breaks out of the trees below you: a sounder of pig, two chital, a jackal. No tiger. And a peacock, heavy and splendid, labouring up into the air right in front of your machan."
+    line "raja" "Shoot it! Shoot the peacock! The Englishman's first bird!"
+    choose "Shoot the peacock." go="peacock-shot" regard=-1 suspicion=-1 sound="rifle"
+    choose "Lower the rifle." go="peacock-spared" regard=1 suspicion=1
+}
+
+beat "peacock-shot" scene="shikar-scene" {
+    line "narrator" "You miss, by a yard, with great conviction. The peacock lands in a tree and shouts at you. The Raja laughs until he has to sit down." sound="laugh-long"
+    go "evening-3"
+}
+
+beat "peacock-spared" scene="shikar-scene" {
+    line "raja" "Again! Again the Englishman cannot shoot. You would have liked my brother, Mr. Thistlewood. He was a very bad guest at a shikar too."
+    go "evening-3"
+}
+
+beat "peacock-gone" scene="shikar-scene" {
+    line "narrator" "The peacock reaches its tree before you have decided anything. It is the kind of decision you have been making all your life."
+    go "evening-3"
+}
+
+beat "evening-3" scene="shikar-scene" {
+    line "narrator" "No tiger. A boar, which the Raja shoots and the beaters carry home on a pole, and a great deal of whisky in the jeep. The moon comes up gibbous over the palace."
+    line "narrator" "Bhima bolts you in. Tonight, past the Durbar Wing, the Dewan's offices: the library, the record room, the billiard room. The Dewan keeps the state's books. Books are where things go to be remembered." sound="bolt-shut"
+    ends "night"
+}

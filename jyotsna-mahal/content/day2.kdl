@@ -1,0 +1,122 @@
+// DAY 2 — THE SITTINGS. The knock, breakfast with the Raja, then two of four engagements: photograph the Ghataks,
+// the Sahukars, the Raja with Kotwal on his wrist, or walk past the locked zenana garden. Each costs one of the day's
+// two slots (`adds="slots"`). Evening drinks, then the bolt and Night 2.
+// Sets: told-moon (if not told already), heard-bells. Clues: ghatak-sitting, sahukar-sitting, kotwal-necessary,
+// zenana-ghost.
+
+// The verandah by day, for breakfast and the sittings: white, hot, close to overexposed.
+place "breakfast" set="verandah" light="day" {
+    prop "cane-chair" at="0 -1.6" turn=180
+    prop "cane-chair" at="-1.6 -0.9" turn=120
+    prop "cane-chair" at="-1.9 0.3" turn=95
+    prop "cane-chair" at="1.6 -0.9" turn=240
+    prop "cane-chair" at="1.9 0.3" turn=265
+    sits "raja" at="0 -1.6" turn=180
+    sits "ghatak" at="-1.6 -0.9" turn=120
+    sits "mrs-ghatak" at="-1.9 0.3" turn=95
+    sits "sahukar" at="1.6 -0.9" turn=240
+    sits "mrs-sahukar" at="1.9 0.3" turn=265
+    sits "bhima" at="3.2 -2.6" turn=200
+    eye at="0 1.0" y=1.2 turn=0
+}
+
+// ---------- the morning ----------
+
+scene "morning-2" day=2 place="dawn" first="knock-2" name="Day 2 — The Sittings"
+
+beat "knock-2" scene="morning-2" {
+    line "narrator" "Knock." sound="knock"
+    line "narrator" "Knock."
+    line "narrator" "Knock. Soft, patient, never louder: the knock of a man who has knocked on the doors of this house for forty years and has never once been asked in."
+    line "narrator" "The man-eater has been dead since 1929. Somebody in this house pulled two claws from a paw with a pair of pliers. And at breakfast the Raja will ask how you slept."
+    go "breakfast-2"
+}
+
+scene "breakfast-2-scene" day=2 place="breakfast" first="breakfast-2"
+
+beat "breakfast-2" scene="breakfast-2-scene" {
+    line "narrator" "Breakfast on the verandah: eggs, mangoes, a fish nobody can name, and the Raja in a silk dressing gown the colour of a bruise."
+    line "raja" "Mr. Thistlewood! You slept like a king, I hope. Like a king who has nothing on his conscience." if="suspicion<=4" sound="laugh"
+    line "raja" "Mr. Thistlewood. Bhima tells me the guest wing was very restless last night. The tiger, perhaps." if="suspicion>=5"
+    line "narrator" "He laughs. It goes on a little after it should have stopped." if="suspicion>=5" sound="laugh-long"
+    line "raja" "Today you will make my album. Everyone sits. Everyone smiles. Nobody blinks."
+    line "mrs-ghatak" "Pitambar blinks. It is how he thinks."
+    does resets="slots"
+    go "hub-2"
+}
+
+beat "hub-2" scene="breakfast-2-scene" {
+    line "narrator" "The day is yours, more or less, until the dressing gong. Two sittings, perhaps, before the light goes yellow." if="slots<2"
+    line "narrator" "The light has gone yellow. Somewhere the dressing gong is being polished." if="slots>=2"
+    choose "Photograph the Ghataks." if="!sat-ghataks slots<2" go="sit-ghataks" sets="sat-ghataks"
+    choose "Photograph the Sahukars." if="!sat-sahukars slots<2" go="sit-sahukars" sets="sat-sahukars"
+    choose "The Raja's portrait, with Kotwal the mynah." if="!sat-raja slots<2" go="sit-raja" sets="sat-raja"
+    choose "Walk round past the zenana garden." if="!walked-zenana slots<2" go="walk-zenana" sets="walked-zenana"
+    choose "Dress for dinner." if="slots>=2" go="evening-2"
+}
+
+beat "sit-ghataks" scene="breakfast-2-scene" {
+    does adds="slots"
+    line "narrator" "Mr. Ghatak arranges himself in front of the lens like a man laying a foundation stone. Mrs. Ghatak sits beside him and as far away as the bench allows."
+    line "ghatak" "A civilised man, Mr. Thistlewood, must now and then permit himself a small relapse into the savage. Medicinal. It keeps the instincts honest. It is all in my pamphlet."
+    line "ghatak" "The night of the last shikar, for instance, we were all, ha, very honest indeed. Very honest."
+    line "mrs-ghatak" "Pitambar was so honest he could not stand up."
+    line "narrator" "She will not face the lens. Every time you duck under the cloth she has turned her head an inch, towards the Sahukars' end of the verandah." clue="ghatak-sitting"
+    go "hub-2"
+}
+
+beat "sit-sahukars" scene="breakfast-2-scene" {
+    does adds="slots"
+    line "sahukar" "Take me from the left, Mr. Thistlewood. From the left I look like a man who owns a forest."
+    line "narrator" "He parks the cigar and looks round to see that it was appreciated."
+    choose "\"And do you, Mr. Sahukar? Own one?\"" go="sit-sahukars-2" suspicion=1
+    choose "\"Hold still, and think of timber.\"" go="sit-sahukars-2"
+}
+
+beat "sit-sahukars-2" scene="breakfast-2-scene" {
+    line "sahukar" "Not yet. Soon. There was a difficulty with the lease, a sentimental difficulty, which has, ah, resolved itself."
+    line "mrs-sahukar" "Dibakar. You promised. Not about the driver."
+    line "narrator" "Nobody had said anything about the driver. Mrs. Sahukar faints, beautifully, at the exact moment you open the shutter." sound="flutter" clue="sahukar-sitting"
+    go "hub-2"
+}
+
+beat "sit-raja" scene="breakfast-2-scene" {
+    does adds="slots"
+    line "narrator" "The Raja sits under the old Raja's portrait in the Durbar Wing with Kotwal on his wrist, a hill mynah with a yellow wattle and the manners of a bank clerk."
+    line "raja" "Kotwal can say anything, Mr. Thistlewood. Anything at all. Kotwal, say good morning to the Englishman."
+    line "kotwal" "Do the necessary." sound="whistle"
+    line "narrator" "It is the Raja's own voice, exactly: the breath, the drawl, the little cough before it."
+    line "raja" "Ha! He picks things up. Servants talk. Bhima! Take the bird." sound="laugh-long" clue="kotwal-necessary"
+    choose "\"I'll want a night plate of the palace too. I photograph the moon, mostly.\"" if="!told-moon" go="sit-raja-2" sets="told-moon"
+    choose "\"A very clever bird.\"" go="sit-raja-2" suspicion=1
+    choose "Say nothing, and change the plate." go="sit-raja-2"
+}
+
+beat "sit-raja-2" scene="breakfast-2-scene" {
+    line "narrator" "Bhima carries Kotwal away at arm's length, the way one carries something that might go off."
+    go "hub-2"
+}
+
+beat "walk-zenana" scene="breakfast-2-scene" {
+    does adds="slots"
+    line "narrator" "Behind the palace the zenana garden is shut by a wall twice your height, and a gate with a padlock that has been oiled lately, though the garden is all weeds."
+    line "narrator" "An old gardener is cutting grass by hand outside it. He stops when he sees you, and does not start again."
+    choose "Thank him for the roses on your breakfast tray." go="walk-zenana-2" regard=1
+    choose "Ask him who oils the padlock." go="walk-zenana-2" suspicion=1
+}
+
+beat "walk-zenana-2" scene="breakfast-2-scene" {
+    line "narrator" "He says, in Odia and then in careful English, that the zenana is empty these twenty years. That on moonlit nights the servants hear ankle bells on its roof. That it is a ghost, sahib, and the ghost is a dancer, and the dancer is waiting." clue="zenana-ghost" sets="heard-bells" sound="ghungroo"
+    go "hub-2"
+}
+
+// ---------- the evening ----------
+
+beat "evening-2" scene="breakfast-2-scene" {
+    line "narrator" "Dinner, and then drinks on the verandah. The moon comes up fatter than last night. The Raja drinks to the album, and to the tiger, and to the album again."
+    line "raja" "Tomorrow, the shikar! A real one. With beaters. Bring your camera, Mr. Thistlewood, and bring your rifle. One or the other will be useful." sound="laugh"
+    line "narrator" "Bhima sees you to your room. The bolt slides home." sound="bolt-shut"
+    line "narrator" "A pause. Then the second bolt." if="suspicion>=5" sound="bolt-shut"
+    line "narrator" "You wait for his footsteps to go. Then the hook, the trunk, the transom: two minutes' work, now that you know it. Tonight you go the other way, past the bend in the guest corridor, to where the zenana begins."
+    ends "night"
+}

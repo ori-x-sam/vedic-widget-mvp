@@ -240,6 +240,17 @@ UI colours, the two lights, surfaces, things, beasts and the cast. Models name t
 | `--sari-border` | its hot pink border |
 | `--bhima-cloth` | Bhima's white dhoti and kurta |
 | `--bhima-turban` | Bhima's red turban |
+| `--skin-malati` | Malati's skin |
+| `--white-sari` | Malati's white sari |
+| `--grey-hair` | Malati's grey hair |
+| `--fresco` | the Sheesh Mahal fresco's painted figures |
+| `--slate` | the schoolroom slate |
+| `--wallpaper` | the Durbar Wing's wallpaper |
+| `--wallpaper-stripe` | its stripes and lilies |
+| `--baize` | billiard baize |
+| `--ivory` | billiard balls, piano keys |
+| `--marble-bust` | Mr. Gladstone |
+| `--file-board` | file boxes |
 
 ## Look
 
@@ -421,6 +432,8 @@ What a room's `floor=` and `walls=` name. Painted from the palette.
 | `sandstone` | pink sandstone in courses |
 | `plaster` | lime plaster, damp low down |
 | `brick` | old red brick laid flat |
+| `mirror` | mirror mosaic in white plaster: the Sheesh Mahal |
+| `wallpaper` | Edwardian lily-stripe wallpaper, peeling off the sandstone: the Durbar Wing |
 | `teak` | teak boards |
 
 ## Sets

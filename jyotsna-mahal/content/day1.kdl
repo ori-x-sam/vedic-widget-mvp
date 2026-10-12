@@ -13,7 +13,7 @@
 
 // The Raja's war-surplus jeep, with a third bench bolted on behind. Bhima drives; the Raja beside him; the guests
 // behind; Thistlewood on the rear bench, guest of honour, facing forward.
-place "jeep" set="jungle-road" light="day" {
+place "jeep" set="jungle-road" light="day" moving=#true {
     prop "jeep" at="0 0"
     sits "bhima" at="-0.4 -0.55" y=0.4 turn=0 model="bhima-driving"
     sits "raja" at="0.42 -0.55" y=0.4 turn=0
@@ -184,16 +184,4 @@ beat "bolt" scene="drinks" {
     line "narrator" "A pause. Then, slowly, a second bolt." if="suspicion>=5" sound="bolt-shut"
     line "narrator" "Bhima's footsteps go away down the corridor, soft as a cat's for so large a man."
     ends "night"
-}
-
-// ---------- the morning after Night 1 ----------
-
-scene "dawn-1" day=1 place="dawn" first="knock-1" name="Day 2 — The Knock"
-
-beat "knock-1" scene="dawn-1" {
-    line "narrator" "Knock." sound="knock"
-    line "narrator" "Knock."
-    line "narrator" "Knock. Soft, patient, never louder: the knock of a man who has knocked on the doors of this house for forty years and has never once been asked in."
-    line "narrator" "The man-eater has been dead since 1929. Somebody in this house pulled two claws from a paw with a pair of pliers. And at breakfast the Raja will ask how you slept."
-    ends "ending" ending="demo-end"
 }

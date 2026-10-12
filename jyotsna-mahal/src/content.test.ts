@@ -104,6 +104,7 @@ describe('content', () => {
     expect(bad).toEqual([]);
   });
   it('content files are named in FILES', () => {
-    expect(Object.keys(FILES).sort()).toEqual(['cast.kdl', 'day1.kdl', 'endings.kdl', 'models.kdl', 'night1.kdl', 'sounds.kdl', 'things.kdl']);
+    const KDL = import.meta.glob('../content/*.kdl', { query: '?raw', import: 'default', eager: true });
+    expect(Object.keys(FILES).sort()).toEqual(Object.keys(KDL).map((p) => p.split('/').pop()).sort());
   });
 });

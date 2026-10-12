@@ -167,7 +167,7 @@ describe('the night: the deduction and the bed', () => {
     s = G.interact(at(s, 'guest-bed'), 'guest-bed');
     expect(s.phase).toBe('reveal');
     s = G.afterReveal(s);
-    expect(s.talk!.scene).toBe('dawn-1');
+    expect(s.talk!.scene).toBe('morning-2');
   });
 });
 

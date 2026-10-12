@@ -81,6 +81,29 @@ const SURFACES: Record<string, () => Surface> = {
       for (let x = row % 2 ? SIZE_PX / 8 : 0; x < SIZE_PX; x += SIZE_PX / 4) { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + SIZE_PX / 8); g.stroke(); }
     }
   }, 41) }),
+  /** Mirror mosaic: tiny convex mirrors set in white plaster, each catching a glint (the Sheesh Mahal). */
+  mirror: () => ({ roughness: 0.18, repeatU: 0.8, map: canvas((g, rnd) => {
+    grain(g, rnd, token('--plaster'), token('--sandstone-dark'), 120, 6);
+    for (let i = 0; i < 9; i++) for (let j = 0; j < 9; j++) {
+      const x = (i + 0.5) * (SIZE_PX / 9), y = (j + 0.5) * (SIZE_PX / 9), r = SIZE_PX / 26;
+      g.fillStyle = hex(mix(token('--mirror'), token('--moon'), rnd() * 0.6)); g.globalAlpha = 0.85;
+      g.beginPath();
+      for (let k = 0; k < 8; k++) { const a = (k * Math.PI) / 4 + (i + j) * 0.2; g.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r); }
+      g.closePath(); g.fill();
+      g.fillStyle = '#ffffff'; g.globalAlpha = 0.5 * rnd(); g.fillRect(x - r * 0.3, y - r * 0.5, r * 0.25, r * 0.25);
+    }
+    g.globalAlpha = 1;
+  }, 61) }),
+  /** Edwardian wallpaper, a stripe of lilies, foxed and peeling off the sandstone (the Durbar Wing). */
+  wallpaper: () => ({ roughness: 0.85, repeatU: 1.2, map: canvas((g, rnd) => {
+    grain(g, rnd, token('--wallpaper'), token('--wallpaper-stripe'), 200, 10);
+    g.fillStyle = hex(token('--wallpaper-stripe')); g.globalAlpha = 0.55;
+    for (let x = 0; x < SIZE_PX; x += SIZE_PX / 4) g.fillRect(x, 0, SIZE_PX / 16, SIZE_PX);
+    for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) { g.beginPath(); g.ellipse((i + 0.6) * SIZE_PX / 4, (j + 0.5) * SIZE_PX / 4, 7, 12, 0.3, 0, Math.PI * 2); g.fill(); }
+    // Where it has peeled, the sandstone shows through.
+    g.globalAlpha = 1; g.fillStyle = hex(token('--sandstone'));
+    g.beginPath(); g.moveTo(SIZE_PX * 0.7, SIZE_PX); g.lineTo(SIZE_PX * 0.82, SIZE_PX * 0.72); g.lineTo(SIZE_PX * 0.95, SIZE_PX * 0.78); g.lineTo(SIZE_PX, SIZE_PX); g.closePath(); g.fill();
+  }, 71) }),
   /** Teak boards. */
   teak: () => ({ roughness: 0.7, repeatU: 1.4, map: canvas((g, rnd) => {
     grain(g, rnd, token('--teak'), token('--teak-dark'), 300, 3);

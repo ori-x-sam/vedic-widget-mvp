@@ -11,6 +11,7 @@
 import { C, get, nightOf, roomsOf, spotsIn, doorsOf } from './content';
 import * as Game from './game';
 import type { GameState } from './game';
+import { T } from './tuning';
 
 type Step = { label: string; next: GameState };
 
@@ -36,6 +37,17 @@ function openRooms(s: GameState): string[] {
   }
   return [...seen];
 }
+
+/** Every watch time (minutes) a condition in this night waits for. */
+function waitsFor(n: number): number[] {
+  const nt = nightOf(n), mins = new Set<number>();
+  const scan = (cs: { kind: string; min?: number }[]) => cs.forEach((c) => { if (c.kind === 'after') mins.add(c.min!); });
+  for (const c of nt.children) scan(c.does.if);
+  for (const r of roomsOf(n)) for (const sp of spotsIn(r.id)) for (const w of sp.children) if ('does' in w) scan(w.does.if); else if (w.word === 'pose') scan(w.if);
+  return [...mins].sort((a, b) => a - b);
+}
+/** The night clock's seconds at a watch time. */
+const toSeconds = (min: number, n: GameState['night'] & object) => (min - Game.watchMin({ ...n, clockS: 0 })) * (T.NIGHT_S / (T.DAWN_MIN - T.NIGHT_START_MIN));
 
 /** Stand him at a spot (the solver walks instantly; the stories walk for real). */
 function at(s: GameState, spotId: string): GameState {
@@ -64,6 +76,8 @@ function steps(s: GameState): Step[] {
   for (const [i, a] of s.items.entries()) for (const b of s.items.slice(i + 1)) out.push({ label: `combine ${a} + ${b}`, next: Game.combine(s, a, b) });
   const qs = Game.asks(s, ded);
   if (!s.flags.includes(ded) && qs.every((q) => q.open)) out.push({ label: `deduce ${ded}`, next: Game.confirm(s, ded, qs.map((q) => q.answer)) });
+  // Time passes: wait for each hour something in the night waits for (the moon's height).
+  for (const min of waitsFor(n.n)) if (Game.watchMin(n) < min) out.push({ label: `wait till ${Math.floor(min / 60) % 24}:${String(min % 60).padStart(2, '0')}`, next: Game.whens({ ...s, night: { ...n, clockS: toSeconds(min, n) } }) });
   // Being caught can happen at any moment: Bhima puts right what the night's on-caught says.
   out.push({ label: 'caught', next: Game.backToRoom(s) });
   return out;
@@ -71,6 +85,8 @@ function steps(s: GameState): Step[] {
 
 export type NightReport = {
   n: number; name: string; start: string;
+  /** The end of the night by its critical path: the state the next morning starts from. */
+  end: GameState | null;
   states: number; solvable: boolean;
   deadEnds: string[][];
   critical: string[];
@@ -134,7 +150,8 @@ export function solveNight(start: GameState, label = 'start'): NightReport {
   const spots = roomsOf(n).flatMap((r) => spotsIn(r.id).map((s) => s.id));
   const clues = Object.keys(C.clue).filter((c) => [...Object.values(C.spot)].some((sp) => roomsOf(n).some((r) => r.id === sp.room) && sp.children.some((w) => 'does' in w && w.does.clue.includes(c))));
   return {
-    n, name: nt.name, start: label, states: byKey.size, solvable: good.has(k0), deadEnds, critical,
+    n, name: nt.name, start: label, end: goals.length ? byKey.get(goals.reduce((a, b) => (path(a).length <= path(b).length ? a : b)))!.s : null,
+    states: byKey.size, solvable: good.has(k0), deadEnds, critical,
     threads: [...groups.map((g) => g.clues), ...(fromDay.length ? [fromDay.map((c) => `${c} (from the day)`)] : [])],
     unreachedSpots: spots.filter((s) => !touched.has(s)), unfoundClues: clues.filter((c) => !found.has(c)),
   };
@@ -160,6 +177,21 @@ export function dayOutcomes(start: GameState = Game.newGame()): { label: string;
     const b = get('beat', s.talk!.beat);
     if (b['timer-s']) walk(Game.tick(s, b['timer-s']), `${label} > (waits)`, depth + 1);
   };
-  walk(start, 'day 1', 0);
+  walk(start, `day ${start.day}`, 0);
   return [...out.values()];
+}
+
+/** The whole game: for each night, every way its day can end, starting the day from the end of the night before
+    (solved by its critical path, after the first way its own day ended). */
+export function campaign(): { n: number; starts: { label: string; s: GameState }[] }[] {
+  const out: { n: number; starts: { label: string; s: GameState }[] }[] = [];
+  let morning: GameState | null = Game.newGame();
+  for (let n = 1; morning && Object.values(C.night).some((x) => x.n === n); n++) {
+    const starts: { label: string; s: GameState }[] = dayOutcomes(morning).filter((o) => o.s.phase === 'night' && o.s.night?.n === n);
+    out.push({ n, starts });
+    const first: { label: string; s: GameState } | undefined = starts[0];
+    const end: GameState | null = first ? solveNight(first.s, first.label).end : null;
+    morning = end ? Game.afterReveal(end) : null;
+  }
+  return out;
 }

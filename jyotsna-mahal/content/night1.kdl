@@ -29,7 +29,7 @@
 // Positions inside a room are from the room's centre (x east, z south); headings are degrees, 0 north, 90 east.
 // Effects on any beat: gives takes sets unsets clue opens closes sound suspicion regard once minutes; if="..." gates it.
 
-night "night-1" n=1 name="The Bolted Door" moon=0.5 moon-alt=16 moon-az=252 start="guest-room" at="-0.4 0.9" turn=0 proves="staged-tiger" then="dawn-1" caught="caught-1" {
+night "night-1" n=1 name="The Bolted Door" moon=0.5 moon-alt=16 moon-az=252 start="guest-room" at="-0.4 0.9" turn=0 proves="staged-tiger" then="morning-2" caught="caught-1" {
     // A suspicious Raja has the door bolted twice.
     begins if="suspicion>=5" sets="bolted-twice"
     // Bhima walks him back and bolts him in again; what he carries and what he has learned stay with him.
@@ -232,7 +232,7 @@ deduction "staged-tiger" night=1 title="The man-eater of Chandragarh" reveal="Th
 // What each excuse costs depends on the day: "the moon" works if he told the Raja on the verandah that he photographs
 // the moon (told-moon). Whatever he says, Bhima walks him back and bolts him in (the night's on-caught).
 
-// The wing as it is, seen from wherever he was caught.
+// The wing as it is, seen from where he stands: for a scene met in the wing (caught, a conversation in the dark).
 place "caught" set="wing" light="night"
 
 scene "caught-1" day=1 place="caught" first="caught-1-lantern"

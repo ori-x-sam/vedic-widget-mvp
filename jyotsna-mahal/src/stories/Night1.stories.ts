@@ -286,7 +286,7 @@ export const BedEndsTheNight: Story = {
     await expect(run().phase).toBe('reveal');
     await expect(screenText()).toContain('The man-eater of Chandragarh');
     await key(' ');
-    await expect(run().talk?.scene).toBe('dawn-1');
+    await expect(run().talk?.scene).toBe('morning-2');
   },
 };
 

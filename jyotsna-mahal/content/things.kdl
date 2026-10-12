@@ -39,3 +39,39 @@ remark "combine-no" text="Those two have nothing to say to each other."
 // The controls, shown under the first night's title card.
 remark "controls" text="WASD to walk, the mouse to look (click to hold it, or drag). E to touch, F to photograph, Q for the candle, Tab for the casebook, the right button to peer."
 remark "deduction-wrong" text="No. Something in that doesn't hold, and I would rather know which before I say it aloud. Again, slowly."
+
+// ---------- Day 2 and Night 2 ----------
+
+item "soot-cloth" name="A sooty handkerchief" blurb="My second-best handkerchief, black with lamp soot. For reading, apparently."
+item "palm-leaf" name="A palm-leaf letter" blurb="A talapatra: a strip of dried palm leaf, incised with a stylus. Blank to the eye. The letters are cut, not written; they need something dark rubbed into them to be read."
+item "read-letter" name="The old Raja's letter" blurb="The palm leaf, rubbed with soot, the letters standing out black: a father's letter to a son, in Odia, in the old Raja's own hand."
+recipe "rub-the-leaf" from="palm-leaf soot-cloth" makes="read-letter" clue="malati-letter" says="You rub the soot into the leaf with your thumb, gently, the way the archive clerks in Calcutta do it. Letters come up out of the blank leaf like fish."
+
+clue "ghatak-sitting" page="testimony" title="Mr. Ghatak, sitting" text="On the night of the last shikar \"we were all very honest.\" His wife: \"Pitambar was so honest he could not stand up.\" She would not face the lens; she kept turning towards Mr. Sahukar."
+clue "sahukar-sitting" page="testimony" title="Mr. Sahukar, sitting" text="The forest lease had \"a sentimental difficulty, which has resolved itself.\" Mrs. Sahukar begged him not to speak about \"the driver.\" Nobody had mentioned the driver. She fainted on cue."
+clue "kotwal-necessary" page="testimony" title="Kotwal the mynah" text="Asked to say good morning, the Raja's mynah said \"Do the necessary,\" in the Raja's own voice, breath and cough and all. The Raja laughed a beat too long."
+clue "zenana-ghost" page="testimony" title="The gardener" text="The zenana has been empty twenty years. On moonlit nights the servants hear ankle bells on its roof: a dancer's ghost, waiting. The padlock on the zenana gate has been oiled this week."
+clue "mirror-inlay" page="note" title="The brass in the floor" text="In the Sheesh Mahal, a line of brass runs from the south window past three mirror stands to the north wall. At the first stand it bends left; at the second it runs straight; at the third it bends right."
+clue "wedding-fresco" page="evidence" title="The fresco in the beam" text="Lit only by a moonbeam off three mirrors: a wedding by a sacred fire. The old Raja, young; a dancer in a white sari with ankle bells. Under them, in Odia numerals, ୧୯୦୬: 1906."
+clue "odia-numerals" page="note" title="The slate" text="Odia numerals, from a child's slate: ୧ 1, ୨ 2, ୩ 3, ୪ 4, ୫ 5, ୬ 6, ୭ 7, ୮ 8, ୯ 9, ୦ 0."
+clue "numeral-shadow" page="evidence" title="The jaali's shadow" text="After half past one, the moon through the zenana court's great jaali writes three numerals on the marble: ୪ ୨ ୭. Four, two, seven."
+clue "circled-zero" page="note" title="A numeral in a ring" text="Beside the jaali's three numerals, a fourth, ୦, in a ring of shadow, apart. As if it belonged to another lock, and somebody wanted it remembered."
+clue "malati-met" page="testimony" title="Malati" text="Not a ghost: Sudam's mother, sixty, in white, living in the zenana since the old Raja died. She told Sudam last summer who his father was. He wanted only that the jungle never be sold, and told his brother so."
+clue "malati-letter" page="evidence" title="The old Raja's letter" text="To my son Sudam, born of my lawful wife Malati, married by fire and by the registrar in the year 1906: you are my elder son. What is mine is yours. The papers are where the gifts are kept. Do not let your brother know before you must."
+
+// ---------- Day 3 and Night 3 ----------
+
+item "record-key" name="The record room key" blurb="An old iron key on a faded ribbon, from inside Mr. Gladstone's head."
+item "dried-chilli" name="A dried chilli" blurb="A dried red chilli from the Dewan's tiffin. Small, wrinkled, and to a mynah, priceless."
+
+clue "pugmarks" page="evidence" title="The pugmarks" text="At the stream: a tigress and two cubs, and the same tigress's marks a month old. The forest guard: \"A mother, sahib. She has never come near men.\""
+clue "remains-place" page="testimony" title="Where they found him" text="The forest guard, at the clearing where Sudam's remains were found: \"No blood on the leaves. No drag marks. A tiger is not tidy. And the marks on him were all the same depth, like a comb.\""
+clue "blaze-marks" page="evidence" title="The blazes on the sal" text="Hundreds of sal trees blazed and numbered in red for felling. Mr. Sahukar: \"I had them marked in August. Before the difficulty.\""
+clue "dynamo-accounts" page="note" title="The electricity ledger" text="The Dewan's ledger of the dynamo's current. September, underlined twice in red: \"Larder circuit, night of the 11th-12th. One hour. Not authorised.\""
+clue "forest-receipts" page="evidence" title="The forest receipts" text="June: from D. Sahukar, \"Advance on the Chandragarh sal lease, Rs. 40,000,\" received in the Raja's own hand. The lease is unsigned; the money is spent."
+clue "unsigned-lease" page="evidence" title="The lease" text="A ninety-nine-year lease of the sal forest to D. Sahukar, stamped and ready. Unsigned on the line for the forest steward's consent. The forest steward was Kumar Sudam."
+clue "sudam-refusal" page="evidence" title="Sudam's letter" text="\"Brother, I will not sign. Sell the jungle and you sell the tigress and the doe and the men who live by them. I want nothing of yours. I want only this.\" 1st September 1946."
+clue "ball-values" page="note" title="The scoreboard" text="Red 1, yellow 2, green 3, brown 4, blue 5, pink 6, black 7."
+clue "annotated-pamphlet" page="evidence" title="Mr. Ghatak's pamphlet" text="\"On the Medicinal Relapse,\" by P. Ghatak, privately printed. In the margins, in the Raja's hand, underlinings and notes: \"Ghatak will say it is philosophy.\" \"Sahukar needs only a reason.\" \"Lilabati will supply it.\""
+clue "invitation-drafts" page="evidence" title="The invitation drafts" text="Four drafts of one invitation to a moonlight shikar, in the Raja's hand, the guest list crossed and recrossed until only the Ghataks and the Sahukars are left. Underlined: \"and S. to drive.\""
+clue "kotwal-mimicry" page="testimony" title="Kotwal, in the dark" text="Fed a chilli, Kotwal gave the shikar night in its own voices: Mrs. Sahukar, \"Hold him, he touched me!\"; Mr. Ghatak, \"A relapse, gentlemen!\"; blows; Mr. Sahukar, \"Into the larder with him. With the pig.\" Then the Raja, low, at four in the morning: \"No, Bhima. Give me the key. I'll go myself.\""

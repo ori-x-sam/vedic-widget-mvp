@@ -26,4 +26,7 @@ async function worker() {
   }
 }
 await Promise.all(Array.from({ length: Math.min(queue.length, Math.max(1, cpus().length - 1)) }, worker));
+// Vite caches import.meta.glob results by file content, not by folder: a new .glb would stay unseen by tests.
+import { rmSync } from 'node:fs';
+for (const d of ['node_modules/.vitest-cache', 'node_modules/.vite']) rmSync(d, { recursive: true, force: true });
 process.exit(failed ? 1 : 0);

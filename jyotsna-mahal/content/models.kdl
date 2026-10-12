@@ -54,3 +54,21 @@ model "cane-chair" body="--cane" cloth="--cushion"
 
 // ---------- in his hands ----------
 model "hands" body="--skin-thistlewood" cloth="--linen" trim="--teak-dark" glow="--flame"
+
+// ---------- Night 2: the zenana ----------
+model "mirror-panel" body="--silver" glow="--mirror" trim="--brass"
+model "fresco-panel" body="--plaster" cloth="--fresco" trim="--gilt"
+model "slate-stand" body="--teak" cloth="--slate" trim="--paper"
+model "dry-fountain" body="--marble" trim="--marble-vein"
+model "chhatri" body="--sandstone" trim="--marble"
+model "malati" body="--skin-malati" cloth="--white-sari" trim="--grey-hair" glow="--silver"
+
+// ---------- Night 3: the Dewan's rooms ----------
+model "bookcase" body="--teak" cloth="--ledger" trim="--paper"
+model "gladstone-bust" body="--marble-bust" trim="--teak-dark"
+model "writing-desk" body="--teak" trim="--brass" cloth="--paper"
+model "birdcage" body="--brass" cloth="--ink-faded" glow="--kotwal"
+model "file-boxes" body="--file-board" trim="--paper"
+model "scoreboard" body="--teak-dark" cloth="--ivory" trim="--brass"
+model "cue-cabinet" body="--teak" trim="--brass" cloth="--ivory"
+model "billiard-table" body="--teak-dark" cloth="--baize" trim="--ivory"

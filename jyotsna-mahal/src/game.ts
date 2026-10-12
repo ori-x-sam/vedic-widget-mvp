@@ -165,7 +165,7 @@ export function doorPlace(d: Door) {
 /** Where a spot stands now: its first `pose` whose condition holds, else its own place. */
 export function spotPose(s: GameState, sp: Spot) {
   const pose = sp.children.find((c): c is Extract<SpotWord, { word: 'pose' }> => c.word === 'pose' && holds(s, c.if));
-  return { at: pose?.at ?? sp.at, turn: pose?.turn ?? sp.turn, y: pose?.y ?? sp.y };
+  return { at: pose?.at ?? sp.at, turn: pose?.turn ?? (pose?.at ? 0 : sp.turn), y: pose?.y ?? sp.y };
 }
 
 function solids(s: GameState, n: number): { x: number; z: number; r: number }[] {

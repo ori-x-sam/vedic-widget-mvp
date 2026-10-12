@@ -146,15 +146,14 @@ export const CaughtTheTruth: Story = {
   },
 };
 
-export const DawnAndTheEndOfTheDemo: Story = {
-  render: () => stage(from('dawn-1')),
+export const TheKnockAndDayTwo: Story = {
+  render: () => stage(from('morning-2')),
   play: async ({ args }) => {
     if (!args.runInteraction) return;
     await ready();
     await expect(screenText()).toContain('Knock.');
     await readOn();
-    await expect(run().phase).toBe('end');
-    await expect(ui.getState().card?.title).toBe('End of the demo');
+    await expect(run().talk!.beat).toBe('hub-2');
   },
 };
 

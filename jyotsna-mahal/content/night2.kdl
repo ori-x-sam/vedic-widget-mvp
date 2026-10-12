@@ -1,0 +1,218 @@
+// NIGHT 2 — THE HOUSE OF MIRRORS. The zenana passage, the Sheesh Mahal, the zenana court and schoolroom, the roof.
+// The ghost set piece. Proves: Malati lives; Sudam was the old Raja's son.
+//
+// The chart:
+//
+//   ZENANA PASSAGE (start; the way back to bed) ─► SHEESH MAHAL and ─► ZENANA COURT (open to the sky; Bhima's round)
+//   SHEESH MAHAL
+//     the brass inlay on the floor tells how each mirror must turn ─► turn three mirrors ─► [when] the beam lights
+//     the fresco ─► wedding-fresco
+//   SCHOOLROOM (off the court): the slate teaches the Odia numerals ─► odia-numerals
+//                               a diya: hold a handkerchief over it ─► soot-cloth
+//   ZENANA COURT: after 1:30 the moon clears the wall ─► [when] the great jaali's shadow writes numerals on the
+//     marble ─► numeral-shadow (and a circled ୦, for later) ─► the roof stair's dials (Odia numerals) ─► ROOF
+//   ROOF: the ankle bells; a woman in white ─► [talk] Malati, alive ─► malati-met, gives the palm-leaf letter
+//   POCKETS: the palm-leaf letter + the soot-cloth ─► the letter read ─► malati-letter
+//   CASEBOOK: the deduction ─► the way back to bed ends the night
+//
+// Threads: the mirrors (fresco), the numerals (slate + shadow + dials ─► Malati), and the soot (schoolroom diya).
+// Words: as night1.kdl; and `when` (fires by itself), `talk` (a scene in the wing), `after:1:30`, room `open`.
+
+night "night-2" n=2 name="The House of Mirrors" moon=0.62 moon-alt=38 moon-az=225 start="zenana-passage" at="0 2.8" turn=0 proves="malati-lives" then="morning-3" caught="caught-2" {
+    // The moon climbs over the zenana wall: the great jaali writes on the court's marble.
+    when if="after:1:30" "The moon has cleared the zenana wall. In the court, the great jaali's shadow has stopped being a pattern and become writing." sets="numerals-showing" sound="ghungroo"
+    // The three mirrors turned as the inlay says: the beam crosses the hall.
+    when if="m1-left !m2-left !m2-right m3-right" "The moonbeam leaves the last mirror like a thrown knife and lands on the north wall. A fresco wakes up under it, colour by colour." sets="beam-crossing" clue="wedding-fresco" sound="proved"
+    on-caught unsets="beam-crossing"
+}
+
+// ---------- the floor plan ----------
+
+room "zenana-passage" night=2 name="The zenana passage" x=0 z=0 w=3 d=8 h=4.2 floor="sandstone" walls="sandstone" dark=0.75 {
+    jaali wall="west" at=-1 w=1 h=1.6 y=0.9
+    lamp at="1.2 3.4" y=1.0 kind="diya"
+}
+
+room "sheesh-mahal" night=2 name="The Sheesh Mahal" x=7 z=0 w=11 d=8 h=6 floor="marble" walls="mirror" dark=0.5 {
+    jaali wall="south" at=-3.5 w=1.4 h=2.4 y=0.9
+    prop "chandelier-dead" at="0 0" y=4.8
+}
+
+room "zenana-court" night=2 name="The zenana court" x=0 z=-9 w=10 d=10 h=5 floor="marble" walls="sandstone" dark=0.4 open=#true {
+    jaali wall="east" at=0 w=2.4 h=3 y=1.2
+    prop "dry-fountain" at="0 0" solid=0.9
+}
+
+room "schoolroom" night=2 name="The zenana schoolroom" x=-8 z=-9 w=6 d=6 h=4 floor="teak" walls="plaster" dark=0.8 {
+    jaali wall="west" at=0 w=1 h=1.4 y=1
+    lamp at="2.3 -2.3" y=0.9 kind="diya"
+}
+
+room "zenana-roof" night=2 name="The zenana roof" x=1 z=-16.5 w=8 d=5 h=1.1 floor="sandstone" walls="sandstone" dark=0.3 open=#true {
+    prop "chhatri" at="2.6 -1.2" solid=1.0
+}
+
+door "mirror-door" name="the Sheesh Mahal doorway" from="zenana-passage" wall="east" at=1 to="sheesh-mahal" w=1.4 h=2.8 open=#true arch=#true
+door "court-arch" name="the zenana arch" from="zenana-passage" wall="north" at=0 to="zenana-court" w=1.6 h=3 open=#true arch=#true
+door "school-arch" name="the schoolroom door" from="zenana-court" wall="west" at=0 to="schoolroom" w=1.2 h=2.4 open=#true arch=#true
+door "roof-stair" name="the roof stair" from="zenana-court" wall="north" at=1 to="zenana-roof"
+
+// ---------- the passage ----------
+
+spot "zenana-way-back" room="zenana-passage" name="the way back to your room" at="0 3.85" y=1.2 r=0.6 {
+    bed "Back along the corridor, into the room, the hook through the transom to drop the bolt home behind you. You lie down. Somewhere above the zenana, bells. Somewhere below them, a woman who is not a ghost."
+    look "The way back to the guest wing and your bolted door. Not yet: the bells are still up there."
+}
+
+spot "zenana-sign" room="zenana-passage" name="the painted lintel" at="0 -3.85" y=3 r=0.6 {
+    look "Over the arch to the zenana, a painted lintel: women at a window, and the moon, and a peacock that has lost its face to damp. Beyond it the bells, very faint, from somewhere above." sound="ghungroo"
+}
+
+// ---------- the Sheesh Mahal ----------
+
+spot "mirror-inlay" room="sheesh-mahal" name="the brass inlay" at="-3.5 1.5" y=0.1 r=0.9 {
+    look "A line of brass is set into the marble from the south window to the north wall, past three mirror stands. At the first stand it bends to the left. At the second it runs straight on. At the third it bends to the right. Somebody once lit this hall with one moonbeam." clue="mirror-inlay"
+}
+
+spot "mirror-1" room="sheesh-mahal" name="the first mirror" at="-2.5 0.5" y=1.2 r=0.6 model="mirror-panel" solid=0.4 {
+    pose if="m1-left" turn=315
+    pose if="m1-right" turn=45
+    look if="m1-left" "The first mirror creaks round to the right." unsets="m1-left" sets="m1-right" sound="punkah"
+    look if="m1-right" "The first mirror creaks back to face straight on." unsets="m1-right" sound="punkah"
+    look "The first mirror, in a frame of silver flowers, creaks round to the left." sets="m1-left" sound="punkah"
+}
+
+spot "mirror-2" room="sheesh-mahal" name="the second mirror" at="0.5 -1" y=1.2 r=0.6 model="mirror-panel" solid=0.4 {
+    pose if="m2-left" turn=315
+    pose if="m2-right" turn=45
+    look if="m2-left" "The second mirror creaks round to the right." unsets="m2-left" sets="m2-right" sound="punkah"
+    look if="m2-right" "The second mirror creaks back to face straight on." unsets="m2-right" sound="punkah"
+    look "The second mirror creaks round to the left." sets="m2-left" sound="punkah"
+}
+
+spot "mirror-3" room="sheesh-mahal" name="the third mirror" at="3 0.5" y=1.2 r=0.6 model="mirror-panel" solid=0.4 {
+    pose if="m3-left" turn=315
+    pose if="m3-right" turn=45
+    look if="m3-left" "The third mirror creaks round to the right." unsets="m3-left" sets="m3-right" sound="punkah"
+    look if="m3-right" "The third mirror creaks back to face straight on." unsets="m3-right" sound="punkah"
+    look "The third mirror creaks round to the left." sets="m3-left" sound="punkah"
+}
+
+spot "wedding-fresco" room="sheesh-mahal" name="the fresco" at="1 -3.85" y=2.6 r=1.2 model="fresco-panel" {
+    look if="beam-crossing" "In the beam: a wedding by a sacred fire. The groom is the old Raja, thirty years younger and already pleased with himself. The bride wears ankle bells and a white sari. Under them, in Odia numerals, a year: ୧୯୦୬." clue="wedding-fresco"
+    photo if="beam-crossing" "A plate of the fresco in its beam: the old Raja, a dancer, a sacred fire, a year." clue="wedding-fresco"
+    look "A fresco too dark to read, under centuries of mirror-glitter. Light would help. Not candlelight: it only makes the mirrors laugh."
+}
+
+// ---------- the schoolroom ----------
+
+spot "slate" room="schoolroom" name="the children's slate" at="-2.5 1" y=0.9 r=0.6 model="slate-stand" turn=90 {
+    look "A child's slate, chalked twenty years ago and never wiped: ୧ beside one mango, ୨ beside two, and so on to ୯ beside nine mangoes, and ୦ beside an empty basket. Somebody learned to count here." clue="odia-numerals"
+}
+
+spot "school-diya" room="schoolroom" name="the diya" at="2.3 -2.3" y=0.9 r=0.6 {
+    look if="!has:soot-cloth" "You hold your handkerchief over the diya until it comes away black with soot. Your mother would have had words." gives="soot-cloth"
+    look "The diya burns on, someone's offering, renewed tonight. Somebody comes here."
+}
+
+// ---------- the court ----------
+
+spot "numeral-shadow" room="zenana-court" name="the jaali's shadow" at="2.6 0" y=0.05 r=1.2 {
+    look if="numerals-showing" "On the marble, in moonlight sifted through the great jaali, three numerals stand clear of the pattern: ୪ ୨ ୭. Apart from them, a fourth in a ring of shadow: ୦." clue="numeral-shadow circled-zero"
+    look "Moonlight through the great jaali lies on the marble in a pattern of stars and lozenges. It looks unfinished, as if the moon were not yet high enough to say what it means."
+}
+
+spot "court-bells" room="zenana-court" name="the bells" at="1 -4.5" y=3 r=1.2 {
+    look "Ankle bells, from above the roof stair. They stop when you stop. They start when you move." sound="ghungroo"
+}
+
+spot "roof-dials" room="zenana-court" name="the roof stair door" at="1 -4.85" y=1.2 r=0.6 {
+    look if="roof-open" "The stair goes up into moonlight."
+    look if="knows:numeral-shadow" "A narrow door to the roof stair, with three brass dials engraved with Odia numerals. The servants say nobody has been up there for twenty years. The dials have been turned this week."
+    look "A narrow door to the roof stair, locked with three brass dials engraved with Odia numerals. Three numbers, then; and nothing in this court yet says which." sound="dial-rattle"
+    code "୦ ୧ ୨ ୩ ୪ ୫ ୬ ୭ ୮ ୯" dials=3 answer="୪ ୨ ୭" learns="slate numeral-shadow" if="knows:numeral-shadow" "Four, two, seven. The lock gives with a sound like a held breath let go, and the door swings up onto moonlight." opens="roof-stair" sets="roof-open" sound="lock-open"
+}
+
+// ---------- the roof ----------
+
+spot "malati" room="zenana-roof" name="the woman in white" at="2 0.5" y=1.3 r=0.9 model="malati" turn=200 solid=0.4 {
+    look if="knows:malati-met" "Malati watches the jungle. She does not need to watch you."
+    talk "malati-1" "A woman in a white sari stands by the chhatri with her back to you. She has heard you on the stair. She turns."
+}
+
+// ---------- Bhima's round ----------
+
+patrol "bhima-2" night=2 who="bhima" speed=0.9 {
+    stop "zenana-court" at="-3 2" wait=5
+    stop "zenana-court" at="3.5 2" wait=3
+    stop "zenana-court" at="3.5 -3" wait=4
+    stop "zenana-court" at="-3 -3" wait=3
+    stop "zenana-court" at="0 4.2" wait=0
+    stop "zenana-passage" at="0 -2" wait=6
+    stop "zenana-court" at="0 4.2" wait=0
+}
+
+// ---------- hints ----------
+
+hint "n2-mirrors" night=2 until="beam-crossing" after-s=180 text="Three mirrors and a line of brass in the floor. The brass is a set of instructions, written by somebody who did not trust his servants to read."
+hint "n2-shadow" night=2 until="numerals-showing" after-s=200 text="The jaali in the court makes a pattern, not a message. Not yet. The moon is still climbing; I could come back to it."
+hint "n2-numerals" night=2 until="roof-open" after-s=200 text="Odia numerals on the roof door. The children of the zenana learned them somewhere. A schoolroom, off the court."
+hint "n2-letter" night=2 until="knows:malati-letter" after-s=150 text="A palm leaf that looks blank. Talapatra are incised with a stylus and rubbed with soot to be read. Soot: a lamp would give it."
+hint "n2-deduce" night=2 until="malati-lives" after-s=240 text="The casebook's last page: who is the woman on the roof, whose son was Sudam, and what the fresco says the old Raja did."
+
+// ---------- the deduction ----------
+
+deduction "malati-lives" night=2 title="The ghost of the zenana" reveal="The ghost is a woman of sixty in a white sari, and the dead man was her son, and his father was the old Raja, who married her by a sacred fire in 1906 and had it painted where only the moon could see it. Sudam was not the palace driver. Sudam was the palace's elder son." question="If Sudam was the old Raja's son by a lawful wife, who in this house had most to lose by him?" {
+    ask "The woman on the zenana roof is" options="a ghost, as the servants say | Malati, alive" answer="Malati, alive" from="malati-met"
+    ask "Sudam was" options="a dancer's son, and no more | the old Raja's son" answer="the old Raja's son" from="malati-letter"
+    ask "The old Raja and Malati were" options="never married | married, in secret, in 1906" answer="married, in secret, in 1906" from="wedding-fresco malati-letter"
+}
+
+// ---------- Malati ----------
+
+scene "malati-1" day=2 place="caught" first="malati-1a"
+
+beat "malati-1a" scene="malati-1" {
+    line "narrator" "She is not young and not a ghost. Sixty, perhaps; tall, straight, in white, with ankle bells she has not bothered to take off. In the moonlight her face is a coin that has been in a great many pockets."
+    line "narrator" "\"You are the photographer,\" she says. \"Who is not a photographer.\""
+    choose "\"Inspector Thistlewood, Calcutta Police. I am here about your son.\"" go="malati-1b" regard=1
+    choose "\"I photograph the moon, madam. I'm sorry to have disturbed you.\"" go="malati-1c"
+}
+
+beat "malati-1b" scene="malati-1" {
+    line "narrator" "\"Then you are the first one,\" she says. \"The first in a month to say he was my son.\""
+    go "malati-1d"
+}
+
+beat "malati-1c" scene="malati-1" {
+    line "narrator" "\"Then photograph it,\" she says, \"and go to bed. No. You are not a photographer. Photographers do not come up a locked stair. You have come about my son.\""
+    go "malati-1d"
+}
+
+beat "malati-1d" scene="malati-1" {
+    line "narrator" "\"They told everyone I left. I did leave. I came back, when the old Raja died, to the only part of this house nobody would dare walk into. A ghost is very good protection, Inspector. Nobody asks a ghost for her ration card.\""
+    line "narrator" "\"Last summer I told Sudam who his father was. He laughed. He said he did not want to be a Raja, he only wanted the jungle never to be sold. He went and told his brother so. I think his brother did not hear the second half.\"" clue="malati-met"
+    line "narrator" "She puts a palm leaf into your hand: a talapatra, a strip of dry leaf, blank to look at. \"His father wrote it for him and gave it to me to keep. Read it, if you can read. Then go. The bells will stop when you have gone down.\"" gives="palm-leaf" sound="ghungroo"
+    ends "resume"
+}
+
+// ---------- caught ----------
+
+scene "caught-2" day=2 place="caught" first="caught-2a"
+
+beat "caught-2a" scene="caught-2" {
+    line "narrator" "The lantern. Bhima, in the zenana, where nobody goes, looking at you as if you had walked into a temple in your shoes."
+    choose "\"I was photographing the moon.\"" if="told-moon" go="caught-2-back"
+    choose "\"I was photographing the moon.\"" if="!told-moon" go="caught-2-back" suspicion=2
+    choose "\"I heard bells. I followed them.\"" go="caught-2-bells" suspicion=1
+}
+
+beat "caught-2-bells" scene="caught-2" {
+    line "narrator" "For a moment Bhima looks up, towards the roof. Then he looks at you, and says nothing, at length."
+    go "caught-2-back"
+}
+
+beat "caught-2-back" scene="caught-2" {
+    line "narrator" "He walks you back. The bolt slides home, and, tonight, he waits outside the door a long time before his footsteps go." sound="bolt-shut"
+    ends "back-to-room"
+}

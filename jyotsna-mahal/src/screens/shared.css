@@ -126,6 +126,21 @@
   --sari-border: #d02060;
   --bhima-cloth: #d8d0bc;
   --bhima-turban: #8a2a20;
+  --skin-malati: #8e6244;
+  --white-sari: #eceae4;
+  --grey-hair: #8c8a86;
+
+  /* ---------- the zenana ---------- */
+  --fresco: #3f6a6a;
+  --slate: #2a2e33;
+
+  /* ---------- the Durbar Wing ---------- */
+  --wallpaper: #6f6a52;
+  --wallpaper-stripe: #4f4a36;
+  --baize: #24503a;
+  --ivory: #e6dcc2;
+  --marble-bust: #d8d4cc;
+  --file-board: #8a6a3a;
 
   /* ---------- the look (view/look.ts): how the render sees the palette. Plain numbers; the unit is the name's last
      word (u = world units, s, deg, px, hz); no unit is a strength or a 0..1 amount. ---------- */
