@@ -36,4 +36,6 @@ remark "nothing" text="{name}. I look at it. It does not look back. Good."
 remark "photo-plain" text="A plate of {name}. The album will be grateful; the case will not."
 remark "code-wrong" text="The dials turn, the handle doesn't. Somewhere a dog dreams of me."
 remark "combine-no" text="Those two have nothing to say to each other."
+// The controls, shown under the first night's title card.
+remark "controls" text="WASD to walk, the mouse to look (click to hold it, or drag). E to touch, F to photograph, Q for the candle, Tab for the casebook, the right button to peer."
 remark "deduction-wrong" text="No. Something in that doesn't hold, and I would rather know which before I say it aloud. Again, slowly."

@@ -98,6 +98,18 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
     scene.background = new THREE.Color(token(night ? '--night-sky' : '--day-sky'));
   }
 
+  /** Put the eye where he stands and turn it where he looks (render and pick both start here). */
+  function aimCamera() {
+    const bob = Math.sin(look.walked * Math.PI * LOOK.BOB_HZ) * LOOK.BOB_U;
+    camera.position.set(eye.x, eye.y + bob, eye.z);
+    camera.rotation.set(0, 0, 0);
+    camera.rotateY(-(eye.turn * D2R + look.yaw));
+    camera.rotateX(look.pitch);
+    const fov = LOOK.CAMERA_FOV_DEG / (1 + look.zoom);
+    if (Math.abs(camera.fov - fov) > 0.01) { camera.fov = fov; camera.updateProjectionMatrix(); }
+    camera.updateMatrixWorld();
+  }
+
   return {
     camera, renderer,
     /** Match the view to the state (cheap when nothing changed). */
@@ -128,19 +140,14 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
     /** The spot under the middle of the eye, if one is in reach and no wall is in the way. */
     pick(maxU = 3.2): string | null {
       if (!wing) return null;
+      aimCamera();
       const ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2(0, 0), camera); ray.far = maxU;
       const hits = ray.intersectObjects([...wing.pickables, ...wing.occluders], false);
       const first = hits[0];
       return first && first.object.userData.spot ? (first.object.userData.spot as string) : null;
     },
     render() {
-      const bob = Math.sin(look.walked * Math.PI * LOOK.BOB_HZ) * LOOK.BOB_U;
-      camera.position.set(eye.x, eye.y + bob, eye.z);
-      camera.rotation.set(0, 0, 0);
-      camera.rotateY(-(eye.turn * D2R + look.yaw));
-      camera.rotateX(look.pitch);
-      const fov = LOOK.CAMERA_FOV_DEG / (1 + look.zoom);
-      if (Math.abs(camera.fov - fov) > 0.01) { camera.fov = fov; camera.updateProjectionMatrix(); }
+      aimCamera();
       renderer.render(scene, camera);
     },
     resize(cw: number, ch: number) {

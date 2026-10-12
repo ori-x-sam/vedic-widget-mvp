@@ -33,8 +33,11 @@ function jungleRoad(): Set {
   road.rotation.x = -Math.PI / 2; road.position.y = 0.01; road.receiveShadow = true;
   // The hill the doe stands at the foot of.
   const hill = new THREE.Mesh(new THREE.SphereGeometry(14, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: token('--sal-leaf'), roughness: 1 }));
-  hill.scale.y = 0.45; hill.position.set(-20, 0, -26); hill.receiveShadow = true;
-  root.add(ground, road, hill);
+  hill.scale.y = 0.45; hill.position.set(-9, 0, -28); hill.receiveShadow = true;
+  // The bank at the hill's foot the doe stands on, a little above the road so she shows over the guests' heads.
+  const bank = new THREE.Mesh(new THREE.SphereGeometry(4, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: token('--sal-leaf'), roughness: 1 }));
+  bank.scale.y = 0.14; bank.position.set(0.6, 0, -12.6); bank.receiveShadow = true;
+  root.add(ground, road, hill, bank);
   const rnd = mulberry(3), trees: Instance[] = [];
   for (let i = 0; i < 70; i++) {
     const side = i % 2 ? 1 : -1, t = place('sal-tree');

@@ -1,60 +1,42 @@
-# Starter
+# Jyotsna Mahal
 
-The game-bible foundation as a project you copy on day one: the declarative UI engine, the content loader, the game
-clock, the seeded RNG, the guard tests, the Storybook harness, the Blender model kit, and a tiny placeholder game
-that uses every layer once so the patterns are there to copy.
+*Seven nights to the full moon.* A first-person, campy mystery-horror game for the desktop browser, in Three.js:
+autumn 1946, Inspector Thistlewood of the Calcutta Police poses as a photographer in a moonlit Odia palace and has
+seven nights to prove the Raja's half-brother was murdered. What the game should be is in [`docs/brief.md`](docs/brief.md).
 
-## Start a game
+This is the **demo**: Day 1 (The Drive In) and Night 1 (The Bolted Door), built on the whole game's foundation.
 
-```sh
-cp -r <skill dir>/starter my-game && cd my-game && npm install
-npx playwright install chromium   # once per machine, for the story tests
-git init && git add -A && git commit -m "Start from the game-bible starter"
-```
-
-Then rename `"name"` in `package.json`, `META_KEY` in `src/store.ts` and the `<title>` in `index.html`.
+Built on the game-bible: TypeScript, Three for the world, Pixi for the screens, KDL for what things are
+(`content/*.kdl`), a CSS dialect for how they look (`src/screens/*.css`), Blender scripts for every model
+(`models/*.py`), and Storybook as the place where you and the agent look at the same thing. Every word the game
+knows is in the catalog, [`docs/declarative-ui.md`](docs/declarative-ui.md).
 
 ## Commands
 
 | Command | What it does |
 |---|---|
 | `npm run dev` | the game, live, with hot reload of screens' KDL and CSS |
-| `npm run storybook` | stories at http://localhost:6006 (MCP at `/mcp` for agents) |
-| `npm test` | unit tests: core, engine, content, guards, catalog drift |
-| `npm run test:stories` | every story's `play`, in headless Chromium |
+| `npm run storybook` | every room, puzzle state, conversation, screen and model at http://localhost:6006 |
+| `npm test` | unit tests: the rules, the solver, content integrity, screens, guards, models, catalog drift |
+| `npm run test:stories` | every story's play, in headless Chromium, through real input |
 | `npm run typecheck` | `tsc` |
 | `npm run build` | typecheck and build to `dist/` |
-| `npm run sim` | play whole games headless on the pure core |
-| `npm run shots -- <url> <out.png>` | a headless screenshot |
-| `npm run models [-- name]` | build `models/<name>.py` to `.glb` with headless Blender (`BLENDER` overrides the binary) |
+| `npm run sim` | the solver: plays every night after every way its day can end, and reports |
+| `npm run models [-- name]` | rebuild `models/<name>.py` to `.glb` with headless Blender (`BLENDER` overrides the binary) |
 
-## What's here
+Story tests and screenshots use Playwright's Chromium; set `CHROMIUM=/path/to/chromium` to use another.
 
-Foundation (keep; change only with a catalog row and a test):
+## Where your hands go
 
-- `src/decl/`: the declarative UI engine (`css.ts` pure, `engine.ts` Pixi) and its tests
-- `src/content-load.ts`: `loadKdl`, `combinators`, `tunedText`
-- `src/clock.ts`, `src/rng.ts`, `src/tokens.ts`, `src/view/look.ts`, `src/stage.ts`
-- guards: `src/core-purity.test.ts`, `src/screens/screen-imports.test.ts`, `src/screens/guards.test.ts`,
-  `src/catalog.test.ts` (keep `CORE` in the first two in step as core modules come and go)
-- `src/stories/stage.ts` (the story harness and tap driver), `.storybook/`
-- `scripts/`, `models/kit.py`, configs
-
-Placeholders (replace with your game):
-
-| File | The placeholder |
+| To change | Open |
 |---|---|
-| `src/game.ts`, `src/game.test.ts` | the rules: collect a thing, score its reward words, a fresh batch when the field is empty; the saved meta |
-| `src/rewards.ts` | one behaviour word, `points n` |
-| `src/tuning.ts` | the field size and batch size |
-| `src/content.ts`, `content/things.kdl` | one content kind, `thing` |
-| `src/store.ts`, `src/actions.ts`, `src/runtime.ts` | keep the shape, change the state and the actions |
-| `src/view/scene.ts` | a Three scene with a sphere per thing, reconciled by id |
-| `src/screens/title.*` | the one screen |
-| `src/screens/shared.*` | the palette, look tokens, one prefab (`btn`), one element (`meter`), one property (`tint`) |
-| `src/stories/Screens.stories.ts` | one story with a `play` |
-| `scripts/sim.ts` | a bot that always collects the first thing |
-| `docs/declarative-ui.md` | the catalog: engine rows stay, rows marked PLACEHOLDER go when their code does |
+| A room, a puzzle, a clue, a line of dialogue, a morning | `content/*.kdl` (one file per day and per night) |
+| The moon's colour, the lamps, the haze, exposure, every hue | the `:root` tokens in `src/screens/shared.css` (`--look-*` for the render) |
+| How suspicion rises and falls, the length of a night, Bhima's eyes | `src/tuning.ts` |
+| A sound | `content/sounds.kdl` |
+| A model's colours | `content/models.kdl`; its shape, `models/<name>.py` |
+| What a word means (`look`, `code`, `patrol`…) | the catalog, `docs/declarative-ui.md` |
+| What the game should be | `docs/brief.md` |
+| To see any of it | `npm run storybook` |
 
-There are no model scripts yet: the first `models/<name>.py` imports `kit` and follows the rig contract in its
-header. When the game loads models, add a loader and a test that checks every committed `.glb` against that contract.
+`reference/` (the source story) is ignored by git: it is someone else's book.

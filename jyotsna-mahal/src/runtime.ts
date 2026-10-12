@@ -74,7 +74,8 @@ export async function boot(el: HTMLElement): Promise<() => void> {
   const sc = (scene = createScene(el, w, h, Input.look));
   await initPixi(el, w, h);
 
-  let stepped = 0, bhimaStepped = new Map<string, number>(), lastTarget: string | null = null;
+  let stepped = 0;
+  const bhimaStepped = new Map<string, number>();
   const offTick = onTick((dt) => {
     const walked = Input.step(dt);
     if (ui.getState().screen === 'play' && !ui.getState().card && !ui.getState().casebook && !ui.getState().dials) Actions.tick(dt);
@@ -91,7 +92,7 @@ export async function boot(el: HTMLElement): Promise<() => void> {
     }
     // The toast and the noted line fade on their own (CSS); the target is whatever is under the eye.
     const target = r.phase === 'night' && !r.talk ? sc.pick() : null;
-    if (target !== lastTarget) { lastTarget = target; Actions.aim(target); }
+    if (target !== ui.getState().target) Actions.aim(target);
     return sc.tick(dt) || tickScreens(dt);
   });
   const stopClock = startClock(pixi.ticker, renderNow);

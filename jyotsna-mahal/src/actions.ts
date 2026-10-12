@@ -33,7 +33,7 @@ function react(prev: GameState, next: GameState, events: GameEvent[]) {
     if (e.type === 'save') game.setState({ save: { ...next, events: [] } });
     if (e.type === 'night-start') {
       const nt = nightOf(e.n);
-      patch.card = { kind: 'title', title: `Night ${nt.n}`, sub: nt.name, text: `${MOON(nt.moon)}. ${e.n === 1 ? 'WASD to walk, the mouse to look (click to hold it; or drag). E to touch, F to photograph, Q for the candle, Tab for the casebook, the right button to peer.' : ''}` };
+      patch.card = { kind: 'title', title: `Night ${nt.n}`, sub: nt.name, text: `${MOON(nt.moon)}. ${e.n === 1 ? get('remark', 'controls').text : ''}` };
       patch.answers = []; patch.held = null; patch.pick = null; patch.dials = null; patch.casebook = false;
     }
     if (e.type === 'night-end') {

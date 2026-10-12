@@ -22,7 +22,7 @@ place "jeep" set="jungle-road" light="day" {
     sits "mrs-sahukar" at="0.6 1.05" y=0.4 turn=20
     sits "sahukar" at="-0.62 1.05" y=0.4 turn=-20
     eye at="0 1.3" y=1.6 turn=0
-    prop "doe" at="-5 -12" turn=110 if="doe-showing"
+    prop "doe" at="0.6 -12" y=0.5 turn=270 if="doe-showing"
 }
 
 // The palace verandah at dusk: cane chairs, whisky, the jungle going violet below the ridge.

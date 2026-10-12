@@ -146,7 +146,7 @@
   --look-candle-light: 1.6;
   --look-candle-reach-u: 5;
   /* Bhima's lantern. */
-  --look-lantern-light: 9;
+  --look-lantern-light: 4;
   --look-lantern-reach-u: 8;
   /* How much flames flicker, 0..1. */
   --look-flicker: 0.18;

@@ -20,6 +20,28 @@ Homes:
 | Screens and their stacking | `src/runtime.ts` (import order = draw order) |
 | Modelling words | `models/kit.py` (the only module model scripts import) |
 
+## Tweak map
+
+Where each kind of change lives in this game, beyond the game-bible's own rows. Nothing a designer tweaks lives in `.ts`
+except where marked.
+
+| Change | Home |
+|---|---|
+| A room, its jaalis, props and lamps; a door; a spot and what it says and does | `content/night<n>.kdl` |
+| A day's scenes, places, beats, lines and choices | `content/day<n>.kdl` |
+| Bhima's round | `patrol` in `content/night<n>.kdl` |
+| A hint, and when it comes | `hint` in `content/night<n>.kdl` |
+| What proves a night: its questions and answers, its reveal and question | `deduction` in `content/night<n>.kdl` |
+| The cast and their dialogue colours | `content/cast.kdl` (names) and `--<id>` palette tokens; the `.who-<id>` rule in `screens/talk.css` |
+| An item, a recipe, a clue, a stock line (the controls card too) | `content/things.kdl` |
+| A sound | `content/sounds.kdl` |
+| A model's hues | `content/models.kdl`; its shape, `models/<id>.py` |
+| An ending's card | `content/endings.kdl` |
+| A surface's colours | palette tokens (`--marble`, `--sandstone`...); its pattern, `src/view/surfaces.ts` |
+| The moon's height and bearing on a night | `night ... moon-alt= moon-az=` |
+| The night's length, the knock, Bhima's eyes and pace, costs of wrong guesses, the marks' thresholds | `src/tuning.ts` |
+| Where a day set's scenery stands (the jungle road's trees, the verandah's arches) | `src/view/sets.ts` (**drift**: layout in a set builder; to move into content when a second set needs it) |
+
 ## How screens work
 
 A screen is `screens/<name>.kdl` (structure) + `.css` (look) + `.ts` (bindings only), made with `screenUi()` from

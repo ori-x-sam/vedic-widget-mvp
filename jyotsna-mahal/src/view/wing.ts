@@ -69,6 +69,8 @@ function wall(room: Room, side: WallSide): THREE.Mesh {
   if (side === 'east') { m.position.set(room.x + hw, 0, room.z - hd); m.rotation.y = -Math.PI / 2; }
   if (side === 'west') { m.position.set(room.x - hw, 0, room.z + hd); m.rotation.y = Math.PI / 2; }
   m.receiveShadow = m.castShadow = true;
+  // Walls stop light from either side: a moonbeam must not run on through the wall behind it.
+  (m.material as THREE.Material).shadowSide = THREE.DoubleSide;
   m.userData.occluder = true;
   return m;
 }
@@ -97,12 +99,22 @@ function wallPoint(room: Room, side: WallSide, at: number, y: number): THREE.Vec
 }
 
 /** The moon through one jaali: a spotlight that projects the lattice, and a faint shaft in the haze. */
-function moonThrough(room: Room, side: WallSide, at: number, y: number, w: number, h: number, dir: THREE.Vector3): THREE.Object3D | null {
+function moonThrough(room: Room, side: WallSide, at: number, y: number, w: number, h: number, dir: THREE.Vector3, rooms: Room[]): THREE.Object3D | null {
   if (NORMAL[side].dot(dir) <= 0.05) return null;
-  const g = new THREE.Group();
   const centre = wallPoint(room, side, at, y + h / 2);
-  // Where the ray through the jaali's middle meets the floor (or the far wall, whichever comes first, roughly).
-  const t = Math.min(centre.y / Math.max(0.05, dir.y), Math.max(room.w, room.d) * 1.2);
+  // The rest of the palace may stand between this jaali and the moon (a taller room next door): then no moon.
+  for (let t = 0.3; t < 30; t += 0.25) {
+    const p = centre.clone().addScaledVector(dir, t);
+    if (rooms.some((r) => r.id !== room.id && p.y < r.h && Math.abs(p.x - r.x) < r.w / 2 && Math.abs(p.z - r.z) < r.d / 2)) return null;
+  }
+  const g = new THREE.Group();
+  // Where the ray through the jaali's middle meets the floor or leaves the room, whichever comes first: the shaft
+  // ends there, so it never shows through a wall into the room beyond.
+  let t = 0.1;
+  for (const p = new THREE.Vector3(); t < 40; t += 0.05) {
+    p.copy(centre).addScaledVector(dir, -t);
+    if (p.y <= 0 || Math.abs(p.x - room.x) > room.w / 2 || Math.abs(p.z - room.z) > room.d / 2) break;
+  }
   const target = centre.clone().addScaledVector(dir, -t);
   const light = new THREE.SpotLight(token('--moon'), LOOK.MOON_LIGHT, 0, Math.atan2(Math.max(w, h) * 0.75, 7), 0.15, 0);
   light.position.copy(centre).addScaledVector(dir, 7);
@@ -112,7 +124,8 @@ function moonThrough(room: Room, side: WallSide, at: number, y: number, w: numbe
   light.shadow.bias = -0.0004;
   light.shadow.normalBias = 0.02;
   light.shadow.camera.near = 1;
-  light.shadow.camera.far = 7 + t + 4;
+  // Far enough to cover the whole wing: past the far plane a surface counts as unshadowed, and would be lit through walls.
+  light.shadow.camera.far = 60;
   g.add(light, light.target);
   // The shaft: a long thin box from the jaali along the ray, additive, barely there.
   const len = t;
@@ -190,17 +203,20 @@ export function buildWing(n: number) {
 
   for (const room of roomsOf(n)) {
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(room.w, room.d), surface(room.floor, room.w, room.d));
-    floor.rotation.x = -Math.PI / 2; floor.position.set(room.x, 0, room.z); floor.receiveShadow = true;
+    floor.rotation.x = -Math.PI / 2; floor.position.set(room.x, 0, room.z); floor.receiveShadow = floor.castShadow = true;
+    // The floor ends a moonbeam: light that reaches it goes no further.
+    (floor.material as THREE.Material).shadowSide = THREE.DoubleSide;
     floor.userData.occluder = true;
     const ceil = new THREE.Mesh(new THREE.PlaneGeometry(room.w, room.d), surface(room.walls, room.w, room.d));
     ceil.rotation.x = Math.PI / 2; ceil.position.set(room.x, room.h, room.z); ceil.receiveShadow = true; ceil.castShadow = true;
+    (ceil.material as THREE.Material).shadowSide = THREE.DoubleSide;
     (ceil.material as THREE.MeshStandardMaterial).color.multiplyScalar(0.6);
     root.add(floor, ceil);
     for (const side of ['north', 'south', 'east', 'west'] as WallSide[]) root.add(wall(room, side));
     for (const c of room.children) {
       if (c.word === 'jaali' || c.word === 'transom') {
         root.add(jaaliPane(room, c.wall, c.at, c.y, c.w, c.h));
-        if (c.word === 'jaali' && c.moon) { const m = moonThrough(room, c.wall, c.at, c.y, c.w, c.h, dir); if (m) root.add(m); }
+        if (c.word === 'jaali' && c.moon) { const m = moonThrough(room, c.wall, c.at, c.y, c.w, c.h, dir, roomsOf(n)); if (m) root.add(m); }
       }
       if (c.word === 'prop') { const p = place(c.model); p.root.position.set(room.x + c.at[0], c.y, room.z + c.at[1]); p.root.rotation.y = -c.turn * D2R; root.add(p.root); mixers.push(p); }
       if (c.word === 'lamp') { const f = flame(room.x + c.at[0], c.y, room.z + c.at[1], c.kind, true); root.add(f.group); flames.push(f.light); }
@@ -256,9 +272,10 @@ export function buildWing(n: number) {
         sp.at.set(room.x + p.at[0], 0, room.z + p.at[1]); sp.turn = p.turn;
         sp.proxy.position.set(sp.at.x, p.y, sp.at.z);
       }
-      if (nr) for (const w of nr.watch) {
-        const m = watchmen.get(w.id);
-        if (!m) continue;
+      for (const [id, m] of watchmen) {
+        const w = nr?.watch.find((x) => x.id === id);
+        m.inst.root.visible = m.lantern.visible = !!w;
+        if (!w) continue;
         m.inst.root.position.set(w.x, 0, w.z);
         m.inst.root.rotation.y = -w.face;
       }
