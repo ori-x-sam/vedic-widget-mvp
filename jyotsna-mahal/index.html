@@ -12,6 +12,9 @@
 <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Noto+Sans+Oriya&display=swap" rel="stylesheet" />
 <style>
   html, body { margin: 0; height: 100%; background: #07090f; overflow: hidden; touch-action: none; overscroll-behavior: none; user-select: none; -webkit-user-select: none; }
+  /* A phone held upright: the game is landscape, so ask for it turned. */
+  body::after { content: 'Turn your phone sideways to play'; display: none; position: fixed; inset: 0; z-index: 10; align-items: center; justify-content: center; padding: 24px; text-align: center; background: #07090f; color: #e9dfc6; font: 22px/1.4 'IM Fell English', Georgia, serif; letter-spacing: .5px; }
+  @media (orientation: portrait) and (pointer: coarse) { body::after { display: flex; } }
   #app { position: fixed; inset: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); overflow: hidden; }
 </style>
 </head>

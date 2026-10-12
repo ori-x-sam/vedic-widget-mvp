@@ -38,6 +38,12 @@
   /* Day: hot, white, close to overexposed. */
   --sun: #fff6e4;
   --day-sky: #f3efe2;
+  /* The day's haze on the far jungle, and the jungle floor: leaf litter and grass, and the red laterite road. */
+  --day-haze: #b9c4b4;
+  --grass: #3a4622;
+  --leaf-litter: #6a5232;
+  --laterite: #9a5236;
+  --undergrowth: #24361c;
   /* Dusk on the verandah. */
   --dusk-sun: #ff9a62;
   --dusk-sky: #6e5a7a;
@@ -197,6 +203,12 @@
   --look-mouse-deg-px: 0.14;
   /* The camera's flash: how long its white lasts. */
   --look-flash-s: 0.35;
+  /* The frame after the render: how much the brightest things bloom and from what brightness; the vignette and the
+     film grain, 0..1. */
+  --look-bloom: 0.55;
+  --look-bloom-threshold: 0.85;
+  --look-vignette: 0.55;
+  --look-grain: 0.018;
 }
 
 text { font-family: var(--body-font); font-color: var(--prompt); font-size: 14px }

@@ -3,11 +3,13 @@
 // frame. It reconciles against the game state every frame and decides nothing: where the eye looks comes from the
 // input module's scratch, hues from the palette (tokens.ts), light and feel from the look tokens (look.ts).
 import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { C, get, nightOf } from '../content';
 import { holds, type GameState } from '../game';
 import { token } from '../tokens';
 import { LOOK, SUN_DIR_XYZ } from './look';
 import { place, type Instance } from './models';
+import { createPost } from './post';
 import { buildSet, type Set } from './sets';
 import { buildWing, type Wing } from './wing';
 
@@ -18,7 +20,8 @@ export type Look = { yaw: number; pitch: number; walked: number; zoom: number };
 const D2R = Math.PI / 180;
 
 export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
-  const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+  // Antialiasing is the post chain's multisampled target (view/post.ts), not the canvas's.
+  const renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
   renderer.setSize(w, h);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -28,8 +31,14 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
   el.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(LOOK.CAMERA_FOV_DEG, w / h, 0.05, 400);
+  const camera = new THREE.PerspectiveCamera(LOOK.CAMERA_FOV_DEG, w / h, 0.05, 500);
   scene.add(camera);
+  const post = createPost(renderer, scene, camera, w, h);
+  // Soft light from all round for the day's sets (the sky's bounce); nights have none, only their own lamps.
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const daylight = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  pmrem.dispose();
+  let t = 0;
 
   // His hands: the candle stub in the left, the camera in the right; the candle's light goes where he goes.
   const hands = place('hands');
@@ -51,6 +60,7 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
   const hemi = new THREE.HemisphereLight(token('--moon'), token('--shadow'), LOOK.FILL_LIGHT);
   const sun = new THREE.DirectionalLight(token('--sun'), LOOK.SUN_LIGHT);
   sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.radius = 3; sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
   Object.assign(sun.shadow.camera, { left: -20, right: 20, top: 20, bottom: -20, near: 1, far: 120 });
   scene.add(hemi, sun, sun.target);
 
@@ -89,13 +99,19 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
     hemi.color.setHex(token(night ? '--moon' : wnt.light === 'dusk' ? '--dusk-sky' : '--day-sky'));
     hemi.groundColor.setHex(token(night ? '--shadow' : '--sandstone-dark'));
     const dark = night && s.night ? 1 - Math.min(...Object.values(C.room).filter((r) => r.night === s.night!.n).map((r) => r.dark)) : 0;
-    hemi.intensity = night ? LOOK.FILL_LIGHT * (0.4 + dark) : wnt.set === 'wing' ? LOOK.SUN_LIGHT * 0.6 : LOOK.FILL_LIGHT * 2.4;
+    hemi.intensity = night ? LOOK.FILL_LIGHT * (0.4 + dark) : wnt.set === 'wing' ? LOOK.SUN_LIGHT * 0.6 : LOOK.FILL_LIGHT * 1.2;
     sun.visible = !night && wnt.set !== 'wing';
     sun.intensity = wnt.light === 'dusk' ? LOOK.DUSK_LIGHT : LOOK.SUN_LIGHT;
     sun.color.setHex(token(wnt.light === 'dusk' ? '--dusk-sun' : '--sun'));
     if (wnt.light === 'dusk') sun.position.set(-8, 3, -10); else sun.position.set(...SUN_DIR_XYZ);
-    scene.fog = night ? new THREE.FogExp2(token('--shadow'), LOOK.HAZE) : null;
+    scene.fog = night ? new THREE.FogExp2(token('--shadow'), LOOK.HAZE) : new THREE.FogExp2(token(wnt.light === 'dusk' ? '--dusk-sky' : '--day-haze'), wnt.set === 'wing' ? 0 : 0.006);
     scene.background = new THREE.Color(token(night ? '--night-sky' : '--day-sky'));
+    scene.environment = night ? null : daylight;
+    if (night) post.bloom(LOOK.BLOOM, LOOK.BLOOM_THRESHOLD); else post.bloom(LOOK.BLOOM * 0.4, LOOK.BLOOM_THRESHOLD * 4);
+    scene.environmentIntensity = wnt.light === 'dusk' ? 0.25 : 0.45;
+    set?.light?.(sun.position.clone().normalize());
+    const dome = set?.root.getObjectByName('sky');
+    if (dome) dome.visible = !night;
   }
 
   /** Put the eye where he stands and turn it where he looks (render and pick both start here). */
@@ -132,6 +148,7 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
     flash() { flashT = LOOK.FLASH_S; },
     /** Animate the world (doors, poses, flames, the rolling jungle, the flash); true while a tween runs. */
     tick(dtS: number): boolean {
+      t += dtS;
       const busy = wing?.tick(dtS) ?? false;
       set?.tick(dtS, moving);
       for (const p of people) p.inst.mixer?.update(dtS);
@@ -152,10 +169,11 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
     },
     render() {
       aimCamera();
-      renderer.render(scene, camera);
+      post.render(t);
     },
     resize(cw: number, ch: number) {
       renderer.setSize(cw, ch);
+      post.resize(cw, ch);
       camera.aspect = cw / ch;
       camera.updateProjectionMatrix();
     },

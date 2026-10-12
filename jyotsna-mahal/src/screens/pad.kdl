@@ -1,0 +1,24 @@
+// On a phone, in landscape: the left thumb walks on a thumbstick that appears where it comes down; the right thumb
+// looks by dragging anywhere else, and presses the round button to touch what the eye is on (its word says what that
+// would do). Above it, small ones: photograph, the candle, the casebook, and put away what is in hand. Styled in
+// pad.css; bindings in pad.ts.
+prefab "pad" {
+    panel class="pad" {
+        stick class="pad-stick" x=(bind)"sx" y=(bind)"sy" dx=(bind)"dx" dy=(bind)"dy" live=(bind)"live" r=(bind)"r"
+        panel class="pad-right" {
+            panel class="pad-smalls" slot="smalls"
+            button class="pad-use" tap="use" {
+                disc class="pad-disc" lit=(bind)"lit"
+                text class="pad-use-label" bind="useLabel"
+            }
+        }
+    }
+}
+
+// One small round button.
+prefab "pad-small" {
+    button class="pad-small" tap="tap" {
+        disc class="pad-disc" lit=(bind)"lit"
+        text class="pad-small-label" bind="label"
+    }
+}

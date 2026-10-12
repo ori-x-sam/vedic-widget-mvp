@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { token } from '../tokens';
 import { mulberry } from './noise';
 
-const SIZE_PX = 256;
+const SIZE_PX = 512;
 const hex = (n: number) => `#${n.toString(16).padStart(6, '0')}`;
 const mix = (a: number, b: number, t: number) => {
   const ch = (s: number) => Math.round(((a >> s) & 255) * (1 - t) + ((b >> s) & 255) * t);
@@ -21,7 +21,7 @@ function canvas(paint: (g: CanvasRenderingContext2D, rnd: () => number) => void,
   const t = new THREE.CanvasTexture(c);
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 4;
+  t.anisotropy = 8;
   return t;
 }
 
@@ -37,7 +37,7 @@ function grain(g: CanvasRenderingContext2D, rnd: () => number, base: number, dar
   g.globalAlpha = 1;
 }
 
-type Surface = { map: THREE.Texture; roughness: number; repeatU: number };
+type Surface = { map: THREE.Texture; roughness: number; repeatU: number; bump?: number };
 
 /** Each surface word: its texture, how rough it is, and how many metres one tile of it covers. */
 const SURFACES: Record<string, () => Surface> = {
@@ -104,6 +104,35 @@ const SURFACES: Record<string, () => Surface> = {
     g.globalAlpha = 1; g.fillStyle = hex(token('--sandstone'));
     g.beginPath(); g.moveTo(SIZE_PX * 0.7, SIZE_PX); g.lineTo(SIZE_PX * 0.82, SIZE_PX * 0.72); g.lineTo(SIZE_PX * 0.95, SIZE_PX * 0.78); g.lineTo(SIZE_PX, SIZE_PX); g.closePath(); g.fill();
   }, 71) }),
+  /** The jungle floor: grass in tufts over fallen sal leaves. */
+  grass: () => ({ roughness: 1, repeatU: 3, bump: 2.5, map: canvas((g, rnd) => {
+    grain(g, rnd, token('--grass'), token('--jungle'), 1400, 14);
+    for (let i = 0; i < 260; i++) {
+      g.fillStyle = hex(mix(token('--leaf-litter'), token('--grass'), rnd() * 0.5)); g.globalAlpha = 0.25 + rnd() * 0.35;
+      g.beginPath(); g.ellipse(rnd() * SIZE_PX, rnd() * SIZE_PX, 3 + rnd() * 6, 1.5 + rnd() * 3, rnd() * Math.PI, 0, Math.PI * 2); g.fill();
+    }
+    g.lineWidth = 1;
+    for (let i = 0; i < 1800; i++) {
+      const x = rnd() * SIZE_PX, y = rnd() * SIZE_PX, l = 3 + rnd() * 7;
+      g.strokeStyle = hex(mix(token('--grass'), token('--sun'), rnd() * 0.25)); g.globalAlpha = 0.25 + rnd() * 0.3;
+      g.beginPath(); g.moveTo(x, y); g.lineTo(x + (rnd() - 0.5) * 4, y - l); g.stroke();
+    }
+    g.globalAlpha = 1;
+  }, 83) }),
+  /** The red laterite road: packed earth, two ruts, pebbles. */
+  laterite: () => ({ roughness: 0.95, repeatU: 4.2, bump: 3, map: canvas((g, rnd) => {
+    grain(g, rnd, token('--laterite'), token('--brick'), 1600, 8);
+    for (const x of [0.28, 0.72]) {
+      const rut = g.createLinearGradient((x - 0.08) * SIZE_PX, 0, (x + 0.08) * SIZE_PX, 0);
+      rut.addColorStop(0, 'rgba(0,0,0,0)'); rut.addColorStop(0.5, 'rgba(40,15,5,0.28)'); rut.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = rut; g.fillRect((x - 0.08) * SIZE_PX, 0, 0.16 * SIZE_PX, SIZE_PX);
+    }
+    for (let i = 0; i < 500; i++) {
+      g.fillStyle = hex(mix(token('--laterite'), token('--sun'), 0.2 + rnd() * 0.3)); g.globalAlpha = 0.3 + rnd() * 0.4;
+      g.beginPath(); g.arc(rnd() * SIZE_PX, rnd() * SIZE_PX, 0.8 + rnd() * 2, 0, Math.PI * 2); g.fill();
+    }
+    g.globalAlpha = 1;
+  }, 89) }),
   /** Teak boards. */
   teak: () => ({ roughness: 0.7, repeatU: 1.4, map: canvas((g, rnd) => {
     grain(g, rnd, token('--teak'), token('--teak-dark'), 300, 3);
@@ -125,7 +154,8 @@ export function surface(word: string, w: number, h: number): THREE.MeshStandardM
   const map = s.map.clone();
   map.repeat.set(w / s.repeatU, h / s.repeatU);
   map.needsUpdate = true;
-  return new THREE.MeshStandardMaterial({ map, roughness: s.roughness, metalness: 0 });
+  // The texture's own light and dark doubles as its relief, so grain, joints and ruts catch a grazing light.
+  return new THREE.MeshStandardMaterial({ map, bumpMap: map, bumpScale: s.bump ?? 1.2, roughness: s.roughness, metalness: 0 });
 }
 
 let jaali: THREE.CanvasTexture | null = null;

@@ -33,10 +33,14 @@ export type UiState = {
   card: Card;
   /** Bhima has seen him. */
   alarm: boolean;
+  /** Played by touch (a phone): the on-screen pad shows, and the screens say "tap" not "click". */
+  touch: boolean;
+  /** The walking thumbstick while a thumb is on it: its centre and the knob's offset, design px. */
+  stick: { x: number; y: number; dx: number; dy: number } | null;
 };
 export const initialUi: UiState = {
   screen: 'title', casebook: false, tab: 'evidence', entry: 0, held: null, pick: null, dials: null, answers: [],
-  toast: null, target: null, card: null, alarm: false,
+  toast: null, target: null, card: null, alarm: false, touch: false, stick: null,
 };
 
 function disk<T>(fn: (ls: Storage) => T): T | null {

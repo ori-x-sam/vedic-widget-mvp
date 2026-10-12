@@ -56,6 +56,28 @@ defineElement('patta-border', (_p, { w, h }) => {
   return c;
 });
 
+/** A round touch button's face: a dark glass disc with a brass ring, filling its box (a `button` around it takes the
+    tap). `disc lit=(bind)"on"`: lit is 1 when what it does is on offer (the use button over a spot). */
+defineElement('disc', ({ lit }, { w, h }) => {
+  const c = new Container(), g = new Graphics(), r = Math.min(w, h) / 2 - 1;
+  g.circle(w / 2, h / 2, r).fill({ color: token('--scrim'), alpha: 0.55 });
+  g.circle(w / 2, h / 2, r).stroke({ color: token(lit ? '--patta-ochre' : '--dim'), width: lit ? 2 : 1.2, alpha: lit ? 0.95 : 0.6 });
+  c.addChild(g);
+  return c;
+});
+
+/** The walking thumbstick: a ring where the thumb came down and a knob where it is now; at rest (`live` 0) a faint ring
+    where the left thumb goes. Fills its box (the whole screen); `x y` are the ring's centre, `dx dy` the knob's
+    offset, design px. */
+defineElement('stick', ({ x, y, dx, dy, live, r }, { w, h }) => {
+  const c = new Container(), g = new Graphics(), R = Number(r) || 52;
+  const cx = live ? Number(x) : Math.min(w * 0.16, 130), cy = live ? Number(y) : h - R - 28;
+  g.circle(cx, cy, R).fill({ color: token('--scrim'), alpha: live ? 0.35 : 0.18 }).stroke({ color: token('--paper'), width: 1.2, alpha: live ? 0.5 : 0.22 });
+  g.circle(cx + (Number(dx) || 0), cy + (Number(dy) || 0), R * 0.42).fill({ color: token('--paper'), alpha: live ? 0.45 : 0.18 });
+  c.addChild(g);
+  return c;
+});
+
 // ---------- the screen factory ----------
 
 const screens: ReturnType<typeof createUi>[] = [];

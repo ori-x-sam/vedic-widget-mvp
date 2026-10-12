@@ -15,6 +15,7 @@ import { createScene, type Scene } from './view/scene';
 import { tickScreens } from './screens/shared';
 // Screens stack in import order (each screenUi attaches to layers.ui as its module loads): later draws on top.
 import { drawHud } from './screens/hud';
+import { drawPad } from './screens/pad';
 import { drawTalk } from './screens/talk';
 import { drawCasebook } from './screens/casebook';
 import { drawDials } from './screens/dials';
@@ -26,6 +27,7 @@ export let scene: Scene | null = null;
 /** Draw every screen from the stores (each skips the render when its tree is unchanged). */
 export function drawScreens() {
   drawHud();
+  drawPad();
   drawTalk();
   drawCasebook();
   drawDials();
@@ -107,7 +109,9 @@ export async function boot(el: HTMLElement): Promise<() => void> {
     if (run.events !== lastEvents && run.events.length) { lastEvents = run.events; play(run, sc); }
   };
   const unsubs = [game.subscribe(drawScreens), ui.subscribe(drawScreens), game.subscribe(sync)];
-  const offInput = Input.listen(pixi.canvas);
+  // A thumb on a button (or a screen that swallows taps) is the screen's, not the look's or the thumbstick's.
+  const onUi = (cx: number, cy: number) => { const hit = pixi.renderer.events.rootBoundary.hitTest(cx, cy); return !!hit && hit !== pixi.stage; };
+  const offInput = Input.listen(pixi.canvas, onUi);
   const wake = () => Audio.wake();
   addEventListener('pointerdown', wake); addEventListener('keydown', wake);
 

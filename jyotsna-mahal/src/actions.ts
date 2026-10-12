@@ -5,7 +5,7 @@
 import { C, get, nightOf } from './content';
 import * as Game from './game';
 import type { GameEvent, GameState } from './game';
-import { game, initialUi, ui, type Tab } from './store';
+import { game, initialUi, ui, type Tab, type UiState } from './store';
 import { now } from './clock';
 
 const run = () => game.getState().run;
@@ -33,7 +33,7 @@ function react(prev: GameState, next: GameState, events: GameEvent[]) {
     if (e.type === 'save') game.setState({ save: { ...next, events: [] } });
     if (e.type === 'night-start') {
       const nt = nightOf(e.n);
-      patch.card = { kind: 'title', title: `Night ${nt.n}`, sub: nt.name, text: `${MOON(nt.moon)}. ${e.n === 1 ? get('remark', 'controls').text : ''}` };
+      patch.card = { kind: 'title', title: `Night ${nt.n}`, sub: nt.name, text: `${MOON(nt.moon)}. ${e.n === 1 ? get('remark', ui.getState().touch ? 'controls-touch' : 'controls').text : ''}` };
       patch.answers = []; patch.held = null; patch.pick = null; patch.dials = null; patch.casebook = false;
     }
     if (e.type === 'night-end') {
@@ -111,6 +111,13 @@ export function photograph() {
 }
 
 export const toggleCandle = () => commit(Game.toggleCandle(run()));
+
+// ---------- touch ----------
+
+/** A thumb has touched the screen: from now on the pad shows and the screens say "tap". */
+export const useTouch = () => { if (!ui.getState().touch) ui.setState({ touch: true }); };
+/** The walking thumbstick moved (or let go: null). */
+export const setStick = (stick: UiState['stick']) => ui.setState({ stick });
 
 // ---------- the casebook ----------
 

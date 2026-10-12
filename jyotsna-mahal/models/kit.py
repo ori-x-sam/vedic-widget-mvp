@@ -22,6 +22,30 @@ FPS = 30
 MATERIALS = {'body': (0.8, 0.8, 0.8, 1), 'trim': (0.25, 0.25, 0.3, 1), 'glow': (1, 1, 1, 1), 'cloth': (0.3, 0.3, 0.3, 1)}
 CLIPS = ('idle',)
 D = math.radians
+# Smoothness: every round shape gets at least this many sides, curved paths are smoothed through their points, and
+# bevels are rounded in this many steps. The scripts name the shape; the kit decides how finely it is cut.
+MIN_SEG = 24
+BEVEL_STEPS = 3
+PATH_STEPS = 4
+
+
+def _seg(seg, lo=MIN_SEG):
+    return max(lo, int(seg) * 2)
+
+
+def _catmull(pts, radii, steps=PATH_STEPS):
+    """A smooth path through the points (Catmull-Rom), with the radii eased between them; ends stay put."""
+    if len(pts) < 3: return pts, radii
+    out_p, out_r = [], []
+    for i in range(len(pts) - 1):
+        p0, p1, p2, p3 = pts[max(i - 1, 0)], pts[i], pts[i + 1], pts[min(i + 2, len(pts) - 1)]
+        for k in range(steps):
+            t = k / steps
+            t2, t3 = t * t, t * t * t
+            out_p.append(0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3))
+            out_r.append(radii[i] + (radii[i + 1] - radii[i]) * t)
+    out_p.append(pts[-1]); out_r.append(radii[-1])
+    return out_p, out_r
 
 
 def _reset():
@@ -51,7 +75,7 @@ def _obj(name, bm, mat):
     return ob
 
 
-def _bevel(bm, width, segments=1):
+def _bevel(bm, width, segments=BEVEL_STEPS):
     if width > 0:
         bmesh.ops.bevel(bm, geom=list(bm.edges) + list(bm.verts), offset=width, segments=segments, affect='EDGES', clamp_overlap=True)
 
@@ -74,6 +98,7 @@ def _skin(bm, rings, seg, caps=True):
 
 def lathe(name, profile, mat='body', seg=16, caps=True):
     """A body of revolution around Z: `profile` is [(radius, z), ...] bottom to top; radius 0 closes a pole."""
+    seg = _seg(seg)
     bm = bmesh.new()
     rings = []
     for r, z in profile:
@@ -90,6 +115,8 @@ def tube(name, pts, radii, mat='body', seg=8):
     limbs, branches, roots, pipes, tails, rags."""
     pts = [Vector(p) for p in pts]
     radii = list(radii) if isinstance(radii, (list, tuple)) else [radii] * len(pts)
+    pts, radii = _catmull(pts, radii)
+    seg = _seg(seg, 12)
     bm = bmesh.new()
     n = (pts[1] - pts[0]).normalized().orthogonal().normalized()
     rings = []
@@ -127,14 +154,14 @@ def box(name, size, mat='body', bevel=0.04):
 
 def ball(name, r, mat='body', seg=14, rings=9):
     bm = bmesh.new()
-    bmesh.ops.create_uvsphere(bm, u_segments=seg, v_segments=rings, radius=r)
+    bmesh.ops.create_uvsphere(bm, u_segments=_seg(seg), v_segments=_seg(rings, 14), radius=r)
     return _obj(name, bm, mat)
 
 
 def cone(name, r1, r2, depth, mat='body', seg=10, bevel=0.0):
     """Along +Z from 0 to `depth`, radius r1 at the base and r2 at the tip (r2 = r1 is a cylinder)."""
     bm = bmesh.new()
-    bmesh.ops.create_cone(bm, cap_ends=True, segments=seg, radius1=r1, radius2=r2, depth=depth)
+    bmesh.ops.create_cone(bm, cap_ends=True, segments=_seg(seg), radius1=r1, radius2=r2, depth=depth)
     bmesh.ops.translate(bm, vec=(0, 0, depth / 2), verts=bm.verts)
     _bevel(bm, bevel)
     return _obj(name, bm, mat)
@@ -142,7 +169,8 @@ def cone(name, r1, r2, depth, mat='body', seg=10, bevel=0.0):
 
 def torus(name, R, r, mat='glow', seg=24, sides=6):
     """A ring in the XY plane."""
-    return lathe(name, [(R + math.cos(a) * r, math.sin(a) * r) for a in (i / sides * math.tau for i in range(sides + 1))], mat, seg, caps=False)
+    sides = _seg(sides, 12)
+    return lathe(name, [(R + math.cos(a) * r, math.sin(a) * r) for a in (i / sides * math.tau for i in range(sides + 1))], mat, max(seg, 24), caps=False)
 
 
 # ---------- shaping ----------
@@ -453,7 +481,7 @@ def _occlusion(bvh, p, n):
     return hit / len(_AO_DIRS)
 
 
-def export(script, sharp_deg=40, seed=0):
+def export(script, sharp_deg=50, seed=0):
     """Paint every mesh and write `<script name>.glb` next to the script."""
     bpy.context.view_layer.update()
     meshes = [o for o in bpy.context.scene.objects if o.type == 'MESH']
@@ -500,7 +528,7 @@ def figure(height=1.7, girth=0.17, belly=0.0, shoulders=0.21, head=0.105, seated
         for side in (1, -1):
             obs.append(tube('thigh', [(0, side * 0.1, hip), (0.42, side * 0.11, hip + 0.02)], 0.075, 'cloth'))
             obs.append(tube('shin', [(0.42, side * 0.11, hip), (0.45, side * 0.11, 0.06)], 0.06, 'cloth'))
-            obs.append(at(box('foot', (0.22, 0.09, 0.07), 'trim'), (0.5, side * 0.11, 0.035)))
+            obs.append(_shoe((0.5, side * 0.11, 0.04)))
         if skirt:
             obs.append(at(lathe('lap', [(0, -0.02), (0.2 + skirt * 0.4, 0), (0.2 + skirt * 0.3, 0.12), (0.17, 0.2), (0, 0.22)], 'cloth', 16), (0.18, 0, hip - 0.12)))
     else:
@@ -508,17 +536,23 @@ def figure(height=1.7, girth=0.17, belly=0.0, shoulders=0.21, head=0.105, seated
             obs.append(lathe('skirt', [(0, 0.02), (girth + skirt, 0.02), (girth + skirt * 0.7, hip * 0.5), (girth * 1.05, hip), (0, hip + 0.02)], 'cloth', 18))
         for side in (1, -1):
             obs.append(tube('leg', [(0, side * girth * 0.5, hip), (0, side * girth * 0.55, 0.08)], [0.075, 0.055], 'cloth'))
-            obs.append(at(box('foot', (0.24, 0.09, 0.07), 'trim'), (0.06, side * girth * 0.55, 0.035)))
+            obs.append(_shoe((0.06, side * girth * 0.55, 0.04)))
     # Torso: hips to shoulders, with the belly out in front.
     torso = lathe('torso', [(0, hip - 0.03), (girth * 1.05, hip), (girth + belly * 0.6, hip + 0.12 * height), (girth * 0.95 + belly * 0.4, hip + 0.22 * height), (shoulders, shoulder - 0.02), (shoulders * 0.5, shoulder + 0.02), (0, neck)], 'cloth', 18)
     if belly:
         deform(torso, lambda v: Vector((v.x + belly * max(0, v.x) * 2.2 * math.exp(-((v.z - hip - 0.13 * height) / (0.13 * height)) ** 2), v.y, v.z)))
     obs.append(torso)
     obs.append(at(cone('neck', head * 0.42, head * 0.4, head * 0.6, 'body', 10), (0, 0, shoulder)))
-    hd = ball('head', head, 'body', 14, 10)
-    deform(hd, lambda v: Vector((v.x * 0.95, v.y * 0.86, v.z * 1.12)))
+    hd = ball('head', head, 'body', 16, 12)
+    deform(hd, lambda v: _face(v, head))
     obs.append(at(hd, (0.01, 0, hz)))
-    obs.append(at(ball('nose', head * 0.22, 'body', 8, 6), (head * 0.92, 0, hz - head * 0.05)))
+    nose = ball('nose', head * 0.2, 'body', 10, 8)
+    deform(nose, lambda v: Vector((v.x * 0.8, v.y * 0.75, v.z * 1.35)))
+    obs.append(at(nose, (head * 0.9, 0, hz - head * 0.12)))
+    for side in (1, -1):
+        ear = ball('ear', head * 0.2, 'body', 10, 8)
+        deform(ear, lambda v: Vector((v.x * 0.55, v.y * 0.35, v.z * 1.2)))
+        obs.append(at(ear, (-head * 0.05, side * head * 0.84, hz - head * 0.05)))
     # Hair or headgear.
     if hat == 'safa':
         obs.append(at(torus('safa', head * 0.92, head * 0.38, 'trim'), (0, 0, hz + head * 0.55), (0, -8, 0)))
@@ -529,10 +563,10 @@ def figure(height=1.7, girth=0.17, belly=0.0, shoulders=0.21, head=0.105, seated
     elif hat == 'turban':
         obs.append(at(lathe('turban', [(0, 0), (head * 1.15, 0), (head * 1.2, head * 0.5), (head * 0.9, head * 0.95), (0, head * 1.05)], 'trim', 16), (0, 0, hz + head * 0.3)))
     elif hat == 'bun':
-        obs.append(at(ball('hair', head * 1.04, 'trim', 12, 8), (-0.012, 0, hz + head * 0.12)))
+        obs.append(_hair(head, hz, 'trim'))
         obs.append(at(ball('bun', head * 0.5, 'trim', 10, 6), (-head * 1.0, 0, hz - head * 0.2)))
     else:
-        obs.append(at(ball('hair', head * 1.02, hair, 12, 8), (-0.015, 0, hz + head * 0.15)))
+        obs.append(_hair(head, hz, hair))
     # Arms.
     for side in (1, -1):
         sh = (0, side * shoulders * 0.95, shoulder - 0.04)
@@ -545,7 +579,9 @@ def figure(height=1.7, girth=0.17, belly=0.0, shoulders=0.21, head=0.105, seated
         else:
             el, hand = (0.02, side * (shoulders + 0.04), shoulder - 0.3), (0.06, side * (shoulders + 0.02), shoulder - 0.6)
         obs.append(tube('arm', [sh, el, hand], [0.055, 0.048, 0.04], 'cloth'))
-        obs.append(at(ball('hand', 0.045, 'body', 8, 6), hand))
+        mitt = ball('hand', 0.042, 'body', 10, 8)
+        deform(mitt, lambda v: Vector((v.x * 0.9, v.y * 0.6, v.z * 1.35)))
+        obs.append(at(mitt, hand))
     if arms == 'lantern':
         hx, hy, hzz = 0.38, -(shoulders + 0.04), hip + 0.12
         obs.append(tube('bail', [(hx, hy, hzz), (hx, hy, hzz - 0.1)], 0.006, 'trim'))
@@ -553,3 +589,36 @@ def figure(height=1.7, girth=0.17, belly=0.0, shoulders=0.21, head=0.105, seated
         obs.append(at(ball('lantern-flame', 0.045, 'glow', 8, 6), (hx, hy, hzz - 0.22)))
     return obs
 
+
+
+def _face(v, head):
+    """The head's shape: an egg, a little narrower than deep, with a brow, shallow eye sockets and a jaw, so the
+    cavity paint and the scene's light find a face in it. `v` is a vertex of a sphere of radius `head`, +X forward."""
+    v = Vector((v.x * 0.95, v.y * 0.86, v.z * 1.12))
+    u = v / head
+    # The jaw narrows below the mouth.
+    if u.z < -0.2: v.y *= 1 - 0.18 * (-0.2 - u.z)
+    for side in (1, -1):
+        # Eye sockets: a soft dent either side of the nose, under the brow.
+        d = math.exp(-(((u.y - side * 0.36) / 0.2) ** 2 + ((u.z - 0.12) / 0.16) ** 2)) * max(0, u.x)
+        v.x -= d * head * 0.09
+    # The brow ridge over them.
+    v.x += math.exp(-((u.z - 0.32) / 0.1) ** 2) * max(0, u.x) ** 3 * head * 0.05
+    return v
+
+
+def _hair(head, hz, mat):
+    """Hair as a cap over the crown and the back of the head, its line at the forehead and above the ears."""
+    cap = ball('hair', head * 1.06, mat, 16, 12)
+    deform(cap, lambda v: Vector((v.x * 0.97, v.y * 0.9, v.z * 1.12)))
+    rough(cap, head * 0.04, 22.0, 3)
+    cut(cap, lambda c: c.z > head * 0.38 - max(0, -c.x) * 1.1 + max(0, c.x) * 0.4)
+    shell(cap, head * 0.06)
+    return at(cap, (-0.01, 0, hz + head * 0.03))
+
+
+def _shoe(loc):
+    """A rounded shoe, toe forward."""
+    s = ball('foot', 0.05, 'trim', 12, 8)
+    deform(s, lambda v: Vector((v.x * 2.4 + 0.02, v.y * 0.95, max(-0.04, v.z * 0.8))))
+    return at(s, loc)

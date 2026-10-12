@@ -23,6 +23,11 @@ export const T = {
   BODY_U: 0.25,
   /** How far beyond a spot's own radius his hand reaches. */
   REACH_U: 1.4,
+  /** On a phone: the walking thumbstick's reach (design px; full pace at the rim) and its dead middle (0..1). */
+  STICK_R_PX: 52,
+  STICK_DEAD: 0.12,
+  /** On a phone: degrees the eye turns per design px a thumb drags. */
+  TOUCH_DEG_PX: 0.3,
 
   // ---------- the hidden marks ----------
   /** Where the marks start on the first morning. */

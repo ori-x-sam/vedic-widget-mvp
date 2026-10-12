@@ -20,6 +20,6 @@ export function drawTalk() {
     who, whoClass: line ? `who-${line.key}` : '',
     line: line?.text, lineClass: line?.key === 'narrator' ? 'narrator' : '',
     timed: !!b['timer-s'] && cs.length > 0, left: b['timer-s'] ? 1 - run.talk.t / b['timer-s'] : 0,
-    more: cs.length ? '' : 'click, or Space',
+    more: cs.length ? '' : u.touch ? 'tap' : 'click, or Space',
   }, { choices: cs.map((c, i) => use('choice', { key: `${run.talk!.beat}:${i}`, label: `${i + 1}.  ${c.text}`, tap: () => Actions.choose(i) })) }));
 }

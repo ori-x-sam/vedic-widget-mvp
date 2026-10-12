@@ -38,6 +38,7 @@ remark "code-wrong" text="The dials turn, the handle doesn't. Somewhere a dog dr
 remark "combine-no" text="Those two have nothing to say to each other."
 // The controls, shown under the first night's title card.
 remark "controls" text="WASD to walk, the mouse to look (click to hold it, or drag). E to touch, F to photograph, Q for the candle, Tab for the casebook, the right button to peer."
+remark "controls-touch" text="Left thumb to walk, right thumb to look. The round button touches what you are looking at; the small ones photograph, light the candle and open the casebook."
 remark "deduction-wrong" text="No. Something in that doesn't hold, and I would rather know which before I say it aloud. Again, slowly."
 
 // ---------- Day 2 and Night 2 ----------

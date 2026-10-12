@@ -20,7 +20,8 @@ prefab "casebook" {
                     panel class="cb-actions" slot="actions"
                 }
             }
-            text class="cb-close" "Tab or Esc to close"
+            text class="cb-close" if="closeHint" bind="closeHint"
+            panel class="cb-x" slot="x"
         }
     }
 }

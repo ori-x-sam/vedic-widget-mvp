@@ -24,4 +24,6 @@
 .cb-actions { flex-direction: row; gap: 8px; padding: 6px 0 0 0 }
 .cb-actions button { background-color: var(--paper); border-color: var(--pencil) }
 .cb-actions .shared-btn-label { font-color: var(--pencil); font-size: 13px }
+.cb-x { position: absolute; left: 676px; top: 330px }
+.cb-x button { height: 30px; padding: 0 12px; background-color: var(--patta-red); border-color: var(--patta-ochre) }
 .cb-close { position: absolute; left: 640px; top: 343px; font-size: 10px; font-color: var(--paper) }

@@ -50,6 +50,7 @@ model "mrs-sahukar" body="--skin-mrs-sahukar" cloth="--mrs-sahukar-sari" trim="-
 model "jeep" body="--jeep" trim="--iron" cloth="--canvas"
 model "doe" body="--chital" trim="--chital-dark" glow="--glass-eye"
 model "sal-tree" body="--sal-bark" cloth="--sal-leaf"
+model "scrub" body="--sal-bark" cloth="--undergrowth"
 model "cane-chair" body="--cane" cloth="--cushion"
 
 // ---------- in his hands ----------

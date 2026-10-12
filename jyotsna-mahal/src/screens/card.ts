@@ -11,5 +11,5 @@ if (import.meta.hot) import.meta.hot.accept(['./card.kdl?raw', './card.css?raw']
 export function drawCard() {
   const u = ui.getState();
   if (u.screen !== 'play' || !u.card) return cardUi.show(null);
-  cardUi.show(use('card', { kind: u.card.kind, title: u.card.title, sub: u.card.sub || undefined, text: u.card.text || undefined }));
+  cardUi.show(use('card', { kind: u.card.kind, title: u.card.title, sub: u.card.sub || undefined, text: u.card.text || undefined, more: u.touch ? 'tap to go on' : 'click, or any key' }));
 }

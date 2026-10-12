@@ -1,6 +1,6 @@
 // The model loader: every models/<id>.glb (built from models/<id>.py by `npm run models`), tinted from the palette
 // tokens content/models.kdl gives each of its four materials. Colour is value-painted into the vertices in Blender;
-// the hue multiplies it here, so a designer recolours a model in shared.css. `glow` is unlit.
+// the hue multiplies it here, so a designer recolours a model in shared.css. `glow` is unlit when its token is a light, else polished.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { C, get } from '../content';
@@ -11,14 +11,18 @@ const urlOf = (id: string) => URLS[`../../models/${id}.glb`];
 
 type Loaded = { scene: THREE.Object3D; clips: THREE.AnimationClip[] };
 const loaded = new Map<string, Loaded>();
+/** The glow tokens that are lights (flames, bulbs, a cigar's end): unlit, and bright enough to bloom. */
+const LIGHTS = new Set(['--flame', '--dynamo', '--cigar']);
 
 /** The materials a model's surfaces are named for, and how each is drawn. */
 function tinted(id: string, mat: THREE.Material): THREE.Material {
   const m = get('model', id), name = mat.name as 'body' | 'trim' | 'cloth' | 'glow';
   const tok = name === 'trim' ? m.trim : name === 'cloth' ? m.cloth : name === 'glow' ? m.glow : m.body;
   const colour = token(tok ?? m.body);
-  if (name === 'glow') return new THREE.MeshBasicMaterial({ color: colour, vertexColors: false, toneMapped: false });
-  return new THREE.MeshStandardMaterial({ color: colour, vertexColors: true, roughness: name === 'trim' ? 0.45 : name === 'cloth' ? 0.95 : 0.75, metalness: name === 'trim' ? 0.35 : 0 });
+  if (name === 'glow' && LIGHTS.has(tok ?? '')) return new THREE.MeshBasicMaterial({ color: colour, vertexColors: false, toneMapped: false });
+  // A glow that isn't a light (a mirror, silver, a glass eye, a jewel, zari): polished, and lit like everything else.
+  if (name === 'glow') { const metal = tok === '--mirror' || tok === '--silver'; return new THREE.MeshStandardMaterial({ color: colour, roughness: metal ? 0.06 : 0.18, metalness: metal ? 1 : 0.4 }); }
+  return new THREE.MeshStandardMaterial({ color: colour, vertexColors: true, roughness: name === 'trim' ? 0.55 : name === 'cloth' ? 0.95 : 0.7, metalness: name === 'trim' ? 0.2 : 0 });
 }
 
 /** Load every model the content names. Missing .glb files load as a labelled stand-in box (and a test fails). */

@@ -6,7 +6,7 @@ prefab "card" {
             text class="card-title" bind="title"
             text class="card-sub" if="sub" bind="sub"
             text class="card-text" if="text" bind="text"
-            text class="card-more" "click, or any key"
+            text class="card-more" bind="more"
         }
     }
 }

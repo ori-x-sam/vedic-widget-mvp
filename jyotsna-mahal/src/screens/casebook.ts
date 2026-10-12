@@ -61,5 +61,6 @@ export function drawCasebook() {
     const c = clues[u.entry];
     if (c) { head = get('clue', c).title; body = get('clue', c).text; } else empty = EMPTY[u.tab];
   }
-  casebookUi.show(use('casebook', { head, body, empty }, { tabs, index, asks, actions }));
+  const x = u.touch ? [btn('Close', () => Actions.closeCasebook(), '', 'close')] : [];
+  casebookUi.show(use('casebook', { head, body, empty, closeHint: u.touch ? undefined : 'Tab or Esc to close' }, { tabs, index, asks, actions, x }));
 }

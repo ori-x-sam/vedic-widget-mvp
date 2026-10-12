@@ -4,21 +4,49 @@
 //   verandah     the palace verandah on its ridge at dusk: marble, cusped arches, the jungle going violet below
 //   wing         tonight's wing (the night's own builder, view/wing.ts), for scenes set inside it
 import * as THREE from 'three';
+import { Sky } from 'three/addons/objects/Sky.js';
 import { token } from '../tokens';
 import { place, type Instance } from './models';
 import { mulberry } from './noise';
 import { surface } from './surfaces';
 
-export type Set = { root: THREE.Group; tick(dtS: number, moving: boolean): void };
+export type Set = { root: THREE.Group; tick(dtS: number, moving: boolean): void; light?(sunDir: THREE.Vector3): void };
 
-function sky(top: string, horizon: string): THREE.Mesh {
-  const c = document.createElement('canvas'); c.width = 4; c.height = 256;
-  const g = c.getContext('2d')!, grad = g.createLinearGradient(0, 0, 0, 256);
-  const hex = (t: string) => '#' + token(t).toString(16).padStart(6, '0');
-  grad.addColorStop(0, hex(top)); grad.addColorStop(0.55, hex(horizon)); grad.addColorStop(1, hex(horizon));
-  g.fillStyle = grad; g.fillRect(0, 0, 4, 256);
-  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
-  const m = new THREE.Mesh(new THREE.SphereGeometry(180, 24, 12), new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, fog: false }));
+/** An atmospheric sky (Rayleigh and Mie scattering) that follows the set's sun: hazy white noon, a violet dusk. */
+function atmosphere(dusk: boolean): { mesh: THREE.Mesh; aim(sunDir: THREE.Vector3): void } {
+  const sky = new Sky();
+  sky.scale.setScalar(450);
+  const u = sky.material.uniforms;
+  u.turbidity!.value = dusk ? 4 : 5;
+  u.rayleigh!.value = dusk ? 2.6 : 1.2;
+  u.mieCoefficient!.value = dusk ? 0.003 : 0.004;
+  u.mieDirectionalG!.value = dusk ? 0.72 : 0.8;
+  // The scattering model is physically bright; the game's exposure is tuned for its own lights, so the sky is scaled
+  // to sit under them. Clouds drift.
+  u.skyGain = { value: dusk ? 0.3 : 0.32 };
+  u.cloudCoverage!.value = dusk ? 0.35 : 0.45;
+  u.showSunDisc!.value = 0;
+  sky.material.fragmentShader = 'uniform float skyGain;\n' + sky.material.fragmentShader.replace('gl_FragColor = vec4( texColor, 1.0 );', 'gl_FragColor = vec4( min( texColor * skyGain, vec3( 1.6 ) ), 1.0 );');
+  sky.onBeforeRender = () => { u.time!.value = performance.now() / 1000; };
+  sky.userData.noPick = true;
+  sky.name = 'sky';
+  return { mesh: sky, aim: (d) => u.sunPosition!.value.copy(d) };
+}
+
+/** Low far hills all round, so the jungle meets a horizon; the haze fades them. */
+function hills(radius: number, y: number, seed: number): THREE.Mesh {
+  const rnd = mulberry(seed), n = 160, geo = new THREE.CylinderGeometry(radius, radius, 1, n, 1, true);
+  const pos = geo.attributes.position!;
+  const peaks = Array.from({ length: 7 }, () => [rnd() * Math.PI * 2, 6 + rnd() * 16, 0.2 + rnd() * 0.5] as const);
+  for (let i = 0; i < pos.count; i++) {
+    if (pos.getY(i) < 0) { pos.setY(i, y - 2); continue; }
+    const a = Math.atan2(pos.getZ(i), pos.getX(i));
+    let h = 4 + Math.sin(a * 5 + seed) * 1.5 + Math.sin(a * 13) * 0.7;
+    for (const [pa, ph, pw] of peaks) { const d = Math.atan2(Math.sin(a - pa), Math.cos(a - pa)); h += ph * Math.exp(-((d / pw) ** 2)); }
+    pos.setY(i, y + h);
+  }
+  geo.computeVertexNormals();
+  const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: token('--jungle'), roughness: 1, side: THREE.BackSide }));
   m.userData.noPick = true;
   return m;
 }
@@ -26,31 +54,46 @@ function sky(top: string, horizon: string): THREE.Mesh {
 /** The drive in: the road runs north (-z); trees roll south past the jeep while it moves. */
 function jungleRoad(): Set {
   const root = new THREE.Group();
-  root.add(sky('--day-sky', '--sun'));
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ color: token('--sal-leaf'), roughness: 1 }));
+  const air = atmosphere(false);
+  root.add(air.mesh, hills(220, 0, 5));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), surface('grass', 400, 400));
   ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true;
-  const road = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 400), new THREE.MeshStandardMaterial({ color: token('--brick'), roughness: 1 }));
+  const road = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 400), surface('laterite', 4.2, 400));
   road.rotation.x = -Math.PI / 2; road.position.y = 0.01; road.receiveShadow = true;
+  // The road's surface rolls under the jeep with the trees.
+  const roadMap = (road.material as THREE.MeshStandardMaterial).map!;
   // The hill the doe stands at the foot of.
-  const hill = new THREE.Mesh(new THREE.SphereGeometry(14, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: token('--sal-leaf'), roughness: 1 }));
+  const hill = new THREE.Mesh(new THREE.SphereGeometry(14, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2), surface('grass', 30, 30));
   hill.scale.y = 0.45; hill.position.set(-9, 0, -28); hill.receiveShadow = true;
   // The bank at the hill's foot the doe stands on, a little above the road so she shows over the guests' heads.
-  const bank = new THREE.Mesh(new THREE.SphereGeometry(4, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: token('--sal-leaf'), roughness: 1 }));
+  const bank = new THREE.Mesh(new THREE.SphereGeometry(4, 40, 16, 0, Math.PI * 2, 0, Math.PI / 2), surface('grass', 8, 8));
   bank.scale.y = 0.14; bank.position.set(0.6, 0, -12.6); bank.receiveShadow = true;
   root.add(ground, road, hill, bank);
   const rnd = mulberry(3), trees: Instance[] = [];
-  for (let i = 0; i < 70; i++) {
+  for (let i = 0; i < 90; i++) {
     const side = i % 2 ? 1 : -1, t = place('sal-tree');
-    t.root.position.set(side * (3.5 + rnd() * 14), 0, -150 + rnd() * 200);
+    t.root.position.set(side * (3.5 + rnd() * 22), 0, -150 + rnd() * 200);
     t.root.rotation.y = rnd() * Math.PI * 2;
     t.root.scale.setScalar(0.8 + rnd() * 0.6);
     root.add(t.root); trees.push(t);
   }
+  // Scrub and ferns under the sal, thick at the road's edge.
+  for (let i = 0; i < 90; i++) {
+    const side = i % 2 ? 1 : -1, b = place('scrub');
+    b.root.position.set(side * (2.6 + rnd() * 16), 0, -150 + rnd() * 200);
+    b.root.rotation.y = rnd() * Math.PI * 2;
+    b.root.scale.setScalar(0.7 + rnd() * 0.9);
+    root.add(b.root); trees.push(b);
+  }
+  // Only what stands near the road casts a shadow onto it; the rest is drawn once, not twice.
+  for (const t of trees) if (Math.abs(t.root.position.x) > 9) t.root.traverse((o) => { o.castShadow = false; });
   return {
     root,
+    light: air.aim,
     tick(dtS, moving) {
       if (!moving) return;
       for (const t of trees) { t.root.position.z += dtS * 7; if (t.root.position.z > 50) t.root.position.z -= 200; }
+      roadMap.offset.y -= (dtS * 7) / 4.2;
     },
   };
 }
@@ -58,7 +101,8 @@ function jungleRoad(): Set {
 /** The verandah: a marble floor, a row of cusped arches on sandstone piers facing out over the jungle. */
 function verandah(): Set {
   const root = new THREE.Group();
-  root.add(sky('--dusk-sky', '--dusk-sun'));
+  const air = atmosphere(true);
+  root.add(air.mesh, hills(200, -14, 9));
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(14, 8), surface('marble', 14, 8));
   floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true;
   const back = new THREE.Mesh(new THREE.PlaneGeometry(14, 5), surface('sandstone', 14, 5));
@@ -84,10 +128,10 @@ function verandah(): Set {
   // The jungle below the ridge.
   const rnd = mulberry(9);
   for (let i = 0; i < 40; i++) { const t = place('sal-tree'); t.root.position.set(-60 + rnd() * 120, -14, -20 - rnd() * 60); t.root.scale.setScalar(1.2 + rnd()); root.add(t.root); }
-  const below = new THREE.Mesh(new THREE.PlaneGeometry(400, 300), new THREE.MeshStandardMaterial({ color: token('--jungle'), roughness: 1 }));
+  const below = new THREE.Mesh(new THREE.PlaneGeometry(400, 300), surface('grass', 400, 300));
   below.rotation.x = -Math.PI / 2; below.position.set(0, -14, -100);
   root.add(below);
-  return { root, tick() {} };
+  return { root, tick() {}, light: air.aim };
 }
 
 const SETS: Record<string, () => Set> = { 'jungle-road': jungleRoad, verandah };

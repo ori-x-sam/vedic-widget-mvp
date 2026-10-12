@@ -34,8 +34,9 @@ export function drawHud() {
     dot: !u.casebook && !u.dials,
     toast: u.toast?.text, toastKey: `say${u.toast?.at ?? 0}`, toastKind: u.toast?.thought ? 'thought' : '',
     noted: undefined,
-    prompt: u.target && !u.casebook && !u.dials ? promptFor(run, u.target, u.held) : undefined,
-    held: u.held ? `In hand: ${get('item', u.held).name}   (R to put it away)` : '',
-    keys: `F photograph   Q ${run.night.candle ? 'snuff the candle' : 'light the candle'}   Tab casebook`,
+    // On a phone the pad's round button says what touching would do; the prompt only names the thing.
+    prompt: u.target && !u.casebook && !u.dials ? (u.touch ? get('spot', u.target).name : promptFor(run, u.target, u.held)) : undefined,
+    held: u.held ? `In hand: ${get('item', u.held).name}${u.touch ? '' : '   (R to put it away)'}` : '',
+    keys: u.touch ? '' : `F photograph   Q ${run.night.candle ? 'snuff the candle' : 'light the candle'}   Tab casebook`,
   }));
 }

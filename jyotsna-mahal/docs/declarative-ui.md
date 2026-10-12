@@ -124,6 +124,8 @@ Built-ins (engine) and game-defined (`defineProp` in shared.ts).
 | `meter` | `meter value=(bind)"fill"`: a fill of `w * value` (0..1), coloured by `tint` (the doe's timer) |
 | `watch` | `watch minutes=(bind)"min"`: Thistlewood's pocket watch, hands at that many minutes after midnight |
 | `patta-border` | fills its box with a pattachitra border (red band, ochre rules, petal teeth): the casebook's page |
+| `disc` | `disc lit=(bind)"on"`: a round touch button's face (dark glass, brass ring when lit), filling its box |
+| `stick` | `stick x= y= dx= dy= live= r=`: the walking thumbstick (ring and knob), filling its box; a faint ring at rest |
 
 ## Shared prefabs
 
@@ -163,6 +165,11 @@ UI colours, the two lights, surfaces, things, beasts and the cast. Models name t
 | `--dynamo` | the dynamo's bulbs (Night 5) |
 | `--sun` | the day's sun |
 | `--day-sky` | the day sky |
+| `--day-haze` | the day's haze over the far jungle |
+| `--grass` | grass on the jungle floor |
+| `--leaf-litter` | dry sal leaves on the jungle floor |
+| `--laterite` | the red laterite road |
+| `--undergrowth` | ferns and scrub under the sal |
 | `--dusk-sun` | the low sun on the verandah |
 | `--dusk-sky` | the dusk sky |
 | `--jungle` | the sal jungle around the palace, at night |
@@ -298,6 +305,10 @@ Plain numbers, the unit the name's last word (`u`, `s`, `deg`, `px`, `hz`); no u
 | `--look-bob-hz` | steps per second of the bob |
 | `--look-mouse-deg-px` | degrees the eye turns per pixel of mouse |
 | `--look-flash-s` | how long the camera's flash lasts |
+| `--look-bloom` | how strongly flames, bulbs and the moon bloom |
+| `--look-bloom-threshold` | how bright a thing must be to bloom |
+| `--look-vignette` | the film grade: vignette and split toning, 0..1 |
+| `--look-grain` | film grain, 0..1 |
 
 ## Behaviour words
 
@@ -448,6 +459,8 @@ What a room's `floor=` and `walls=` name. Painted from the palette.
 | `mirror` | mirror mosaic in white plaster: the Sheesh Mahal |
 | `wallpaper` | Edwardian lily-stripe wallpaper, peeling off the sandstone: the Durbar Wing |
 | `teak` | teak boards |
+| `grass` | the jungle floor: grass and fallen sal leaves |
+| `laterite` | the red laterite road, rutted |
 
 ## Sets
 
@@ -523,6 +536,7 @@ In draw order (later on top). Each is `screens/<name>.kdl` + `.css` + `.ts` (bin
 | Screen | Use |
 |---|---|
 | `hud` | the night: the eye's dot, what E would do, his last remark or thought, what he holds, the pocket watch, the red edge when seen |
+| `pad` | on a phone: the walking thumbstick, the round touch button and the small ones (photograph, candle, casebook, put away) |
 | `talk` | a scene's lines and choices (the doe's timer) |
 | `casebook` | the notebook: evidence, plates, testimony, notes, thoughts, pockets (hold, put together), the case (the deduction) |
 | `dials` | a lock of dials: turn each, try the handle |
