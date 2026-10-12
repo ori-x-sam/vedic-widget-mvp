@@ -1,0 +1,10 @@
+node_modules
+dist
+storybook-static
+*.log
+scripts/tmp
+models/__pycache__
+shots/
+
+# The story in reference/ is someone else's book: never commit it.
+reference/
