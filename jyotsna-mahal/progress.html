@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Jyotsna Mahal — progress</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap" rel="stylesheet" />
+<style>
+  :root { --ink: #07090f; --paper: #e9dfc4; --moon: #b9cdf2; --ochre: #c98f2b; --red: #a8322a; --dim: #8a8f9c; }
+  body { margin: 0; background: var(--ink); color: var(--paper); font: 17px/1.5 "IM Fell English", Georgia, serif; }
+  main { max-width: 1120px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-family: "IM Fell English SC", Georgia, serif; color: var(--moon); letter-spacing: .3em; font-weight: 400; font-size: 34px; margin: 0; }
+  h2 { font-family: "IM Fell English SC", Georgia, serif; color: var(--ochre); font-weight: 400; letter-spacing: .12em; margin-top: 40px; border-bottom: 1px solid #2a2f3a; }
+  .sub { color: var(--dim); margin-top: 4px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
+  figure { margin: 0; }
+  figure img { width: 100%; display: block; border: 1px solid #2a2f3a; }
+  figcaption { color: var(--dim); font-size: 14px; margin-top: 4px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  td, th { border-bottom: 1px solid #1c2130; padding: 5px 8px; text-align: left; vertical-align: top; }
+  th { color: var(--ochre); font-weight: 400; }
+  code, pre { font-family: ui-monospace, monospace; font-size: 13px; color: var(--moon); }
+  pre { background: #0d111b; padding: 12px; overflow-x: auto; }
+  .ok { color: #9fd49a; } .no { color: var(--red); }
+</style>
+</head>
+<body>
+<main>
+  <h1>JYOTSNA MAHAL</h1>
+  <div class="sub">Progress · the demo: Day 1, The Drive In, and Night 1, The Bolted Door · first-pass art</div>
+
+  <h2>Where it stands</h2>
+  <table>
+    <tr><th>Part</th><th>State</th></tr>
+    <tr><td>Foundation: the vocabulary</td><td class="ok">done: 18 content kinds, their words and effects, conditions, surfaces, sets, instruments, the <code>figure</code> modelling word; catalog with drift tests</td></tr>
+    <tr><td>Core rules and the solver</td><td class="ok">done: day beats with timers, walking, touching, photographs, dials, combining, the deduction, the bed, the dawn knock, hints, Bhima's patrol/alert/chase/catch, saves</td></tr>
+    <tr><td>Shell</td><td class="ok">done: first-person Three view, moonlight through jaalis, flames, the lantern under doors, synthesised sound, six screens</td></tr>
+    <tr><td>Models</td><td class="ok">37 Blender scripts, first pass (proportions and silhouettes)</td></tr>
+    <tr><td>Day 1 and Night 1 content</td><td class="ok">done</td></tr>
+    <tr><td>Stories (real input)</td><td>see the report: every room, every puzzle state, every conversation, the watchman, the whole night end to end</td></tr>
+    <tr><td>Days and nights 2–7</td><td class="no">not started: waiting on the demo's green light</td></tr>
+  </table>
+
+  <h2>The day</h2>
+  <div class="grid">
+    <figure><img src="progress/01-title.png" alt="Title screen" /><figcaption>The title, over the jungle road.</figcaption></figure>
+    <figure><img src="progress/02-jeep.png" alt="The jeep" /><figcaption>The drive in: Bhima drives, the Raja beside him, the guests behind, Thistlewood on the third bench.</figcaption></figure>
+    <figure><img src="progress/03-doe.png" alt="The doe" /><figcaption>The doe at the bend: shoot, spare, or hesitate while the red timer drains.</figcaption></figure>
+    <figure><img src="progress/04-verandah.png" alt="The verandah" /><figcaption>Drinks on the verandah at dusk, under cusped arches.</figcaption></figure>
+  </div>
+
+  <h2>The night</h2>
+  <div class="grid">
+    <figure><img src="progress/05-guest-room.png" alt="Guest room" /><figcaption>The guest room: the moon through the west jaali lays its stars on the floor and the almirah.</figcaption></figure>
+    <figure><img src="progress/06-transom.png" alt="The door and transom" /><figcaption>The bolted door and the jaali transom above it, by candlelight.</figcaption></figure>
+    <figure><img src="progress/07-corridor.png" alt="Corridor" /><figcaption>The guest corridor towards the gallery arch.</figcaption></figure>
+    <figure><img src="progress/08-gallery.png" alt="Trophy gallery" /><figcaption>The trophy gallery: heads on the north wall, moonlight from the south jharokhas.</figcaption></figure>
+    <figure><img src="progress/09-man-eater.png" alt="The man-eater" /><figcaption>The "man-eater" on its frame, the stuffed bear to hide behind, the storeroom door beyond.</figcaption></figure>
+    <figure><img src="progress/10-storeroom.png" alt="Storeroom" /><figcaption>The storeroom: the rack of old skins, the bench with the paw.</figcaption></figure>
+    <figure><img src="progress/11-casebook.png" alt="Casebook" /><figcaption>The casebook, in a pattachitra border.</figcaption></figure>
+    <figure><img src="progress/12-reveal.png" alt="Reveal" /><figcaption>The night's reveal, and its question.</figcaption></figure>
+  </div>
+
+  <h2>The solver, Night 1</h2>
+  <pre>Day 1 ends 18 distinct ways; Night 1 is solvable after every one of them, with no dead ends.
+critical path: 16 touches (17 when the Raja bolts the door twice)
+threads converging on the deduction: 4
+  [photo-man-eater] [new-plaque] [pulled-claws, taxidermy-book] [sudam-vanished (from the day)]
+states explored: 2190 (3278 bolted twice)</pre>
+
+  <h2>Try it</h2>
+  <pre>cd jyotsna-mahal && npm install
+npm run dev          # the game
+npm run storybook    # every room, puzzle state and conversation
+npm run sim          # the solver's report</pre>
+</main>
+</body>
+</html>
