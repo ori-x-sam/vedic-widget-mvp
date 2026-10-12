@@ -8,3 +8,4 @@ shots/
 
 # The story in reference/ is someone else's book: never commit it.
 reference/
+dist-page

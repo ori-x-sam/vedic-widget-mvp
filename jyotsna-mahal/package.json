@@ -13,7 +13,8 @@
     "typecheck": "tsc",
     "sim": "node scripts/run.mjs scripts/sim.ts",
     "shots": "node scripts/shots.mjs",
-    "models": "node scripts/models.mjs"
+    "models": "node scripts/models.mjs",
+    "build:page": "tsc && INLINE=1 vite build && node scripts/page.mjs"
   },
   "dependencies": {
     "kdljs": "^0.3.0",
