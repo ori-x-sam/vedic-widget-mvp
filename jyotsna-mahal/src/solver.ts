@@ -25,8 +25,9 @@ const READ_SEEN = new Set([
   ...Object.values(C.night).flatMap((nt) => nt.children.flatMap((c) => c.does.if.flatMap((t) => (t.kind === 'flag' ? [t.name] : [])))),
 ].filter((f) => f.startsWith('seen:')));
 
-/** What the night's progress is, ignoring where he stands, what time it is, and sights nothing reads. */
-const keyOf = (s: GameState) => JSON.stringify([s.phase, s.talk && [s.talk.beat, s.talk.at], s.counts, s.flags.filter((f) => !f.startsWith('seen:') || READ_SEEN.has(f)).sort(), [...s.items].sort(), [...s.clues].sort(), [...s.fired].sort(), [...(s.night?.doors ?? [])].sort()]);
+/** What the night's progress is, ignoring where he stands, sights nothing reads, and the time except which of the
+    night's waited-for watch times have passed. */
+const keyOf = (s: GameState) => JSON.stringify([s.phase, s.night && waitsFor(s.night.n).filter((m) => Game.watchMin(s.night!) >= m), s.talk && [s.talk.beat, s.talk.at], s.counts, s.flags.filter((f) => !f.startsWith('seen:') || READ_SEEN.has(f)).sort(), [...s.items].sort(), [...s.clues].sort(), [...s.fired].sort(), [...(s.night?.doors ?? [])].sort()]);
 
 /** Rooms he can walk to through open doors. */
 function openRooms(s: GameState): string[] {
@@ -40,12 +41,17 @@ function openRooms(s: GameState): string[] {
 }
 
 /** Every watch time (minutes) a condition in this night waits for. */
+const waits = new Map<number, number[]>();
 function waitsFor(n: number): number[] {
+  const known = waits.get(n);
+  if (known) return known;
   const nt = nightOf(n), mins = new Set<number>();
   const scan = (cs: { kind: string; min?: number }[]) => cs.forEach((c) => { if (c.kind === 'after') mins.add(c.min!); });
   for (const c of nt.children) scan(c.does.if);
   for (const r of roomsOf(n)) for (const sp of spotsIn(r.id)) for (const w of sp.children) if ('does' in w) scan(w.does.if); else if (w.word === 'pose') scan(w.if);
-  return [...mins].sort((a, b) => a - b);
+  const out = [...mins].sort((a, b) => a - b);
+  waits.set(n, out);
+  return out;
 }
 /** The night clock's seconds at a watch time. */
 const toSeconds = (min: number, n: GameState['night'] & object) => (min - Game.watchMin({ ...n, clockS: 0 })) * (T.NIGHT_S / (T.DAWN_MIN - T.NIGHT_START_MIN));
@@ -127,7 +133,13 @@ export function solveNight(start: GameState, label = 'start'): NightReport {
   const good = new Set(goals), stack = [...goals];
   for (let k; (k = stack.pop()); ) for (const p of back.get(k) ?? []) if (!good.has(p)) { good.add(p); stack.push(p); }
   const path = (k: string) => { const out: string[] = []; for (let c: string | null = k; c; c = byKey.get(c)!.from) out.unshift(byKey.get(c)!.via); return out.slice(1); };
-  const deadEnds = [...byKey.keys()].filter((k) => !good.has(k) && byKey.get(k)!.s.phase !== 'end').slice(0, 5).map(path);
+  // States already committed to an ending (a wrong accusation laid, the shikar accepted): every way on ends the game.
+  const ended = new Set([...byKey.keys()].filter((k) => byKey.get(k)!.s.phase === 'end'));
+  for (let grew = true; grew; ) {
+    grew = false;
+    for (const [k, ns] of edges) if (!ended.has(k) && ns.some((nk) => nk !== k) && ns.every((nk) => nk === k || ended.has(nk))) { ended.add(k); grew = true; }
+  }
+  const deadEnds = [...byKey.keys()].filter((k) => !good.has(k) && !ended.has(k)).slice(0, 5).map(path);
   const critical = goals.length ? path(goals.reduce((a, b) => (path(a).length <= path(b).length ? a : b))) : [];
 
   // Threads: the shortest way to each clue the deduction needs, minus what every one of those ways shares (getting

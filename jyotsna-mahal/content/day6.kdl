@@ -1,8 +1,86 @@
-// DAY 6 — THE WATERFALL PICNIC. (Being written.)
+// DAY 6 — THE WATERFALL PICNIC. The guests begin to unravel. Two of three: Mr. Ghatak on ghosts; Mrs. Sahukar by the
+// water; Bhima and the hamper, the last chance to earn or lose his regard. Clues: ghost-lecture, lilabati-water.
+
+place "waterfall" set="jungle-road" light="day" {
+    sits "ghatak" at="-1.6 -1.2" turn=140
+    sits "mrs-ghatak" at="-2.2 0.2" turn=100
+    sits "sahukar" at="1.6 -1.2" turn=220
+    sits "mrs-sahukar" at="2.1 0.2" turn=260
+    sits "raja" at="0 -2" turn=180
+    sits "bhima" at="3 -3" turn=210
+    eye at="0 1" y=1.4 turn=0
+}
 
 scene "morning-6" day=6 place="breakfast" first="knock-6" name="Day 6 — The Waterfall Picnic"
 
 beat "knock-6" scene="morning-6" {
-    line "narrator" "Knock. Knock. Knock."
+    line "narrator" "Knock. Knock. Knock. Bhima stands in the doorway longer than he needs to, and looks at you as if he were reading a ledger."
+    line "raja" "A picnic! At the waterfall! We shall eat on the grass like peasants and drink like Rajas." if="suspicion<=5" sound="laugh"
+    line "raja" "A picnic, Mr. Thistlewood. You will sit by me, again. You are such good company. You notice so much." if="suspicion>=6"
+    does resets="slots"
+    go "picnic-6"
+}
+
+scene "picnic-scene" day=6 place="waterfall" first="picnic-6"
+
+beat "picnic-6" scene="picnic-scene" {
+    line "narrator" "The waterfall comes down a black cliff into a pool the colour of strong tea. Durries on the rocks, hampers, a gramophone, and the guests, who have stopped pretending to enjoy themselves and are now only pretending to be at ease."
+    go "hub-6"
+}
+
+beat "hub-6" scene="picnic-scene" {
+    line "narrator" "The afternoon is long and green." if="slots<2"
+    line "narrator" "The light goes. The Raja wants to be home before dark. Nobody says why." if="slots>=2"
+    choose "Listen to Mr. Ghatak on ghosts." if="!heard-ghosts slots<2" go="ghosts" sets="heard-ghosts"
+    choose "Sit with Mrs. Sahukar by the water." if="!sat-water slots<2" go="water" sets="sat-water"
+    choose "Help Bhima with the hampers." if="!helped-bhima slots<2" go="hampers" sets="helped-bhima"
+    choose "Go home." if="slots>=2" go="evening-6"
+}
+
+beat "ghosts" scene="picnic-scene" {
+    does adds="slots"
+    line "ghatak" "Ghosts, Mr. Thistlewood, are a scientific impossibility. The dead do not walk. The dead do not knock. The dead do not wear ankle bells. I have written a pamphlet."
+    line "mrs-ghatak" "He has written a pamphlet."
+    line "ghatak" "Superstition is merely guilt in fancy dress, and I have nothing to feel guilty about, child, nothing at all, so I shall walk back to the jeep with Mr. Thistlewood, as it happens to be getting dark."
+    line "narrator" "He takes your arm for the walk back and does not let go of it, though it is broad daylight, until the jeep." clue="ghost-lecture"
+    go "hub-6"
+}
+
+beat "water" scene="picnic-scene" {
+    does adds="slots"
+    line "mrs-sahukar" "Mr. Thistlewood. Is it true the dead can't hear?"
+    line "narrator" "She is not looking at you. She is looking at the water, where her face is."
+    line "mrs-sahukar" "I only said he touched me. I didn't say what to do. They did that. I only said it. A woman can say things. He smiled at me, you see, as if I were a child who had said something sweet."
+    line "narrator" "Then she remembers who you are, and faints, efficiently, onto the durrie." clue="lilabati-water" sound="flutter"
+    go "hub-6"
+}
+
+beat "hampers" scene="picnic-scene" {
+    does adds="slots"
+    line "narrator" "Bhima is loading the hampers alone while two bearers watch. You take the other end of the biggest. He looks at you for a long moment over it."
+    line "narrator" "Mr. Ghatak, passing, says something to the younger bearer about servants who are slow, and cuffs him, lightly, the way you might cuff a dog, and laughs."
+    choose "Tell Mr. Ghatak, pleasantly, to apologise to the boy." go="hampers-stand" regard=2 suspicion=1
+    choose "Laugh, to keep the peace." go="hampers-laugh" regard=-2
+    choose "Say nothing, and carry the hamper." go="hampers-quiet" regard=1
+}
+
+beat "hampers-stand" scene="picnic-scene" {
+    line "narrator" "Mr. Ghatak apologises to the boy, in the manner of a man paying a bill he disputes. The boy does not know where to look. Bhima does: at you."
+    go "hub-6"
+}
+
+beat "hampers-laugh" scene="picnic-scene" {
+    line "narrator" "You laugh. Mr. Ghatak is pleased. The boy rubs his ear. Bhima puts the hamper into the jeep and does not look at you again all afternoon."
+    go "hub-6"
+}
+
+beat "hampers-quiet" scene="picnic-scene" {
+    line "narrator" "You carry the hamper to the jeep, and the next one. Bhima says nothing. At the jeep he takes your end from you, gently, as if you had carried it far enough."
+    go "hub-6"
+}
+
+beat "evening-6" scene="picnic-scene" {
+    line "narrator" "Home before dark. At dinner nobody mentions the moon, which is nearly full and is the only thing anybody is thinking about. Tomorrow is Kumar Purnima."
+    line "narrator" "Bhima bolts your door. Tonight he does not walk the guest wing. Tonight his lantern goes the other way: across the inner court, to his lodge, and to the stepwell." sound="bolt-shut"
     ends "night"
 }

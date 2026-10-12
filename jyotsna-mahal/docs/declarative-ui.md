@@ -257,6 +257,13 @@ UI colours, the two lights, surfaces, things, beasts and the cast. Models name t
 | `--ash` | the ash pit |
 | `--velvet-red` | the gaddi's velvet |
 | `--wax` | wax cylinders |
+| `--tin-green` | Bhima's tin trunk |
+| `--rust` | rusted iron: sluice wheels, Sudam's rifle |
+| `--well-water` | the stepwell's black water |
+| `--pomfret-suit` | Mr. Pomfret's tropical suit |
+| `--skin-pomfret` | Mr. Pomfret |
+| `--pomfret-hair` | Mr. Pomfret's hair |
+| `--cummerbund` | crimson-and-gold dinner silk |
 
 ## Look
 

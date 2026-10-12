@@ -23,3 +23,9 @@ beat "shikar-2" scene="midnight-shikar" {
     line "narrator" "The jackals, behind the palace, laugh and laugh." sound="jackals"
     ends "ending" ending="shikar-end"
 }
+
+// ---------- Night 7: the three accusations ----------
+
+ending "full-moon" title="The Full Moon" text="The Raja of Chandragarh was deposed by order of the Political Department, and tried at Cuttack. The sal forest was never sold."
+ending "jackals" title="The Jackals Laugh" text="The guests were tried for assault. The Raja sent a souvenir album of Kumar Purnima to every one of them, beautifully bound."
+ending "necessary" title="The Necessary" text="Bhima was hanged at Cuttack in the spring. The Raja's next shikar party was the largest Chandragarh had ever seen."

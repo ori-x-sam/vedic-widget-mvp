@@ -15,10 +15,12 @@
 .cb-empty { width: 270px; text-wrap: wrap; font-size: 13px; font-color: var(--dim) }
 .cb-head { width: 420px; text-wrap: wrap; font-family: var(--title-font); font-size: 17px; font-color: var(--pencil) }
 .cb-body { width: 420px; text-wrap: wrap; font-size: 14px; line-height: 18px; font-color: var(--pencil) }
-.cb-asks { gap: 6px }
+.cb-asks { gap: 4px }
 .cb-ask { gap: 1px }
 .cb-ask-q { width: 420px; text-wrap: wrap; font-size: 13px; font-color: var(--patta-red) }
-.cb-ask-opts { gap: 1px }
+.cb-ask-opts { width: 420px; flex-direction: row; flex-wrap: wrap; gap: 2px 4px }
+.cb-ask-opts .shared-row { height: 19px; padding: 0 6px }
+.cb-ask-opts .shared-row-label { font-size: 13px }
 .cb-actions { flex-direction: row; gap: 8px; padding: 6px 0 0 0 }
 .cb-actions button { background-color: var(--paper); border-color: var(--pencil) }
 .cb-actions .shared-btn-label { font-color: var(--pencil); font-size: 13px }

@@ -43,7 +43,7 @@ export function drawCasebook() {
   } else if (u.tab === 'deduction') {
     const ded = nightOf(run.night.n).proves, d = get('deduction', ded), qs = Game.asks(run, ded), done = run.flags.includes(ded);
     head = d.title;
-    body = done ? `${d.reveal}\n\nAnd: ${d.question}` : qs.every((q) => q.open) ? 'All of it at once, or none of it. Then bed.' : 'Not enough yet. Each question opens when I have what it needs.';
+    body = done ? `${d.reveal}\n\nAnd: ${d.question}` : qs.every((q) => q.open) ? 'All of it at once, or none of it.' : 'Not enough yet. Each question opens when I have what it needs.';
     if (!done) {
       asks = qs.map((q, qi) => use('ask', { key: `ask-${qi}`, q: q.open ? q.text + '…' : `${q.text}… (I don't know enough yet.)` }, {
         opts: q.open ? q.options.map((o) => row(o, () => Actions.answer(qi, o), u.answers[qi] === o ? 'on' : '', `opt-${qi}-${o}`)) : [],

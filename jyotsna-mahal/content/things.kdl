@@ -103,3 +103,21 @@ clue "cylinder-speed" page="note" title="The cylinder box" text="Every cylinder 
 clue "confession" page="evidence" title="The old Raja's voice" text="\"I, Chandrasekhar Singh Deo, Raja of Chandragarh, set down that on the ninth of February 1906 I married Malati, dancer, by fire and before the registrar at Cuttack, and that our son Sudam is my eldest son and my heir. I have not the courage to say it aloud. I have made a machine say it for me.\""
 clue "durbar-programme" page="note" title="The lantern programme" text="\"THE DELHI DURBAR, 1911, IN TWENTY-FOUR SLIDES. I. The Procession. II. The Elephants. III. The Pavilion. IV. The King-Emperor.\""
 clue "slides-digits" page="evidence" title="The last slide" text="Scratched into the black border of the last durbar slide, in the old Raja's hand: ୧ ୯, \"the first two.\" One, nine. The first two of something."
+
+// ---------- Day 6 and Night 6: the waterfall, the stepwell ----------
+item "trunk-key" name="A small brass key" blurb="From the nail behind Bhima's lantern hook. Small enough to be a child's, or a trunk's."
+clue "ghost-lecture" page="testimony" title="Mr. Ghatak on ghosts" text="\"Superstition is merely guilt in fancy dress, and I have nothing to feel guilty about.\" He would not walk back to the jeep alone, in daylight."
+clue "lilabati-water" page="testimony" title="Mrs. Sahukar, by the water" text="\"I only said he touched me. I didn't say what to do. They did that.\" Then she fainted, efficiently."
+clue "sluice-order" page="note" title="Bhima's sluice chart" text="\"To let the water down: upper first. Then lower. Then middle. Never the middle before the lower.\""
+clue "tin-trunk" page="evidence" title="Bhima's exercise book" text="Forty years of the house's orders, in a watchman's hand. The last entry: \"12th Sept. Raja Sahib at breakfast: the rogue in the larder, do the necessary. Done. Nullah. Claws. Plaque ordered.\""
+clue "claws-rifle" page="evidence" title="The bottom of the stepwell" text="In the silt where the water was: Sudam's rifle, S. carved in the stock, and in oilcloth two old tiger's claws, the two from the gallery paw."
+clue "bhima-confession" page="testimony" title="Bhima" text="\"He was alive when they left. I know the marks of hands. At breakfast the Raja said: the rogue in the larder, do the necessary. I opened it. The boy was dead. I carried him to the nullah.\""
+
+// ---------- Day 7 and Night 7: Kumar Purnima ----------
+item "toshakhana-key" name="The toshakhana key" blurb="A long key with a tassel of faded gold thread, from the Raja's own key ring. Where the gifts are kept."
+clue "pomfret-terms" page="testimony" title="Major Pomfret's terms" text="\"I cannot accuse a ruling prince on ghosts and mynah birds, Thistlewood. Paper. Bring me paper, and a case I can put in a letter to Delhi.\""
+clue "raja-keys" page="note" title="The Raja's keys" text="While his valet dressed him the Raja hung his key ring on the stag's foot by his dressing mirror, and never once looked away from it."
+clue "moondial-digit" page="evidence" title="The moondial" text="At the full moon's height the gnomon's shadow falls across the moondial's last line, and the brass there is engraved, very small: ୬. \"The last.\""
+clue "torn-cummerbund" page="photograph" title="Plate: the cummerbund" text="In the Raja's dressing room, put away and not sent to the dhobi: a crimson-and-gold silk cummerbund, torn at the edge, threads pulled. The thread on the larder bolt came from here."
+clue "marriage-certificate" page="evidence" title="The marriage certificate" text="Registrar, Cuttack, 9th February 1906: Chandrasekhar Singh Deo, Raja of Chandragarh, to Malati, by fire and by law. Witnessed. Stamped."
+clue "old-raja-will" page="evidence" title="The old Raja's will" text="\"To my eldest son, Sudam, born of my lawful wife Malati, the gaddi of Chandragarh, the palace, and the sal forest entire, which is never to be sold.\" Signed, and sealed, and hidden."

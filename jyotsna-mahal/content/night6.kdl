@@ -1,0 +1,153 @@
+// NIGHT 6 — WHAT BHIMA CARRIED. The watchman's lodge and the stepwell. Proves: the cover-up.
+//
+// The chart:
+//
+//   BHIMA'S LODGE (start; the way back): the lantern nail ─► the trunk key ─► the tin trunk ─► tin-trunk
+//                                         the monsoon chart on the wall ─► the sluice order
+//   STEPWELL HEAD (open): the sluice wheels, "upper, lower, middle" ─► the water drops, landing by landing
+//     ─► LANDING ONE ─► LANDING TWO ─► THE BOTTOM (each a floor lower)
+//   THE BOTTOM: the claws and Sudam's rifle in the silt ─► claws-rifle
+//               Bhima: high regard (2 or more) ─► [talk] he sits and confesses ─► bhima-confession
+//                      low regard ─► [talk] he comes up the steps at you, and you run
+//   CASEBOOK: the deduction (with or without his confession) ─► the way back
+//
+// Threads: the trunk (nail ─► key ─► trunk) and the stepwell (chart ─► sluices ─► bottom). Bhima is the third.
+
+night "night-6" n=6 name="What Bhima Carried" moon=0.95 moon-alt=60 moon-az=150 start="bhima-lodge" at="0 1.5" turn=0 proves="the-cover-up" then="morning-7" caught="caught-6" {
+}
+
+room "bhima-lodge" night=6 name="Bhima's lodge" x=0 z=0 w=5 d=5 h=3.2 floor="brick" walls="plaster" dark=0.85 {
+    jaali wall="west" at=0 w=0.8 h=0.8 y=1.6
+    prop "charpoy" at="-1.4 0.8" turn=0 solid=0.6
+    lamp at="1.8 -2" y=1.1 kind="diya"
+}
+
+room "stepwell-head" night=6 name="The stepwell" x=0 z=-6.5 w=7 d=8 h=1.2 floor="sandstone" walls="sandstone" dark=0.3 open=#true {
+    prop "stepwell-water" at="0 -2" y=-0.4 if="!sluices-open"
+}
+
+room "landing-1" night=6 name="The first landing" x=0 z=-14 w=6 d=7 h=3 y=-2.5 floor="sandstone" walls="sandstone" dark=0.45 open=#true {
+}
+
+room "landing-2" night=6 name="The second landing" x=0 z=-21 w=5 d=7 h=3 y=-5 floor="sandstone" walls="sandstone" dark=0.6 open=#true {
+}
+
+room "stepwell-bottom" night=6 name="The bottom of the stepwell" x=0 z=-27.5 w=5 d=6 h=3 y=-7.5 floor="brick" walls="sandstone" dark=0.75 open=#true {
+    prop "stepwell-water" at="0 1.6" y=0.02
+}
+
+door "lodge-door" name="the lodge door" from="bhima-lodge" wall="north" at=0 to="stepwell-head" open=#true
+door "stair-1" name="the first flight" from="stepwell-head" wall="north" at=0 to="landing-1" w=2 h=3 arch=#true
+door "stair-2" name="the second flight" from="landing-1" wall="north" at=0 to="landing-2" w=2 h=3 arch=#true
+door "stair-3" name="the last flight" from="landing-2" wall="north" at=0 to="stepwell-bottom" w=2 h=3 arch=#true
+
+// ---------- the lodge ----------
+
+spot "lodge-way-back" room="bhima-lodge" name="the way back to your room" at="0 2.35" y=1.2 r=0.6 {
+    bed "You go back across the court, wet to the knees, and sit on your bed in the dark with your shoes in your hand. Somewhere across the court a man of seventy is sitting on a step, in the water, with his lantern out."
+    look "The way back. Not yet."
+}
+
+spot "lantern-nail" room="bhima-lodge" name="the lantern hook" at="2.35 0.8" y=1.7 r=0.5 {
+    look if="!has:trunk-key !trunk-open" "An iron hook by the door, where the lantern hangs when Bhima sleeps. On the nail behind it, out of sight unless you look for it, a small brass key." gives="trunk-key"
+    look "The empty hook. His lantern is out with him tonight."
+}
+
+spot "monsoon-chart" room="bhima-lodge" name="the chart on the wall" at="-2.35 -1" y=1.6 r=0.6 model="calendar-print" turn=90 {
+    look "Pinned to the plaster, in a careful hand, Bhima's own chart for the stepwell's sluices, for the monsoon: \"To let the water down: upper first. Then lower. Then middle. Never the middle before the lower, or the landings flood back.\"" clue="sluice-order"
+}
+
+spot "tin-trunk" room="bhima-lodge" name="Bhima's tin trunk" at="1.2 1.6" y=0.4 r=0.6 model="tin-trunk" solid=0.45 {
+    use "trunk-key" "The little key turns. Inside, folded with great care: a red turban he no longer wears, the old Raja's photograph in a tin frame, and a school exercise book." takes="trunk-key" sets="trunk-open" clue="tin-trunk" sound="lock-open"
+    look if="trunk-open" "Forty years of the house's unpleasant business, in a schoolboy's exercise book, in a watchman's hand."
+    look "A tin trunk painted green, with a brass padlock. Everything Bhima owns, under a charpoy. Not everything: everything he keeps."
+}
+
+// ---------- the stepwell ----------
+
+spot "sluice-wheels" room="stepwell-head" name="the sluice wheels" at="2.6 2.5" y=1 r=0.7 model="sluice-wheels" turn=270 solid=0.4 {
+    look if="sluices-open" "The water is down. The steps go into the dark, landing after landing."
+    look "Three iron wheels on the stepwell's lip, for the three sluices: upper, middle, lower. The water stands black to the first landing. Turned in the wrong order, Bhima's chart says, the landings flood back."
+    code "upper middle lower" dials=3 answer="upper lower middle" learns="monsoon-chart" wrong="You turn the wheels. Somewhere below, a gurgle, a rush, and the black water climbs back up the steps to where it was. Wrong order. The chart on Bhima's wall knows better." "Upper. Lower. Middle. The water drops with a long sucking sigh, landing by landing, and the steps come up out of it shining, all the way down to the bottom." opens="stair-1 stair-2 stair-3" sets="sluices-open" sound="drag"
+}
+
+spot "stepwell-shrine" room="landing-1" name="the niche" at="2.85 0" y=1.2 r=0.6 {
+    look "A small niche in the stepwell's wall, with a carved goddess of the waters, worn smooth by a hundred years of hands. Someone has left a marigold here tonight, still fresh. You leave it be."
+}
+
+spot "landing-steps" room="landing-2" name="the steps" at="0 -3" y=0.3 r=1 {
+    look "The steps are slick with silt the water left behind. Below, at the bottom, a lantern burns, low, on a step. Beside it, a very large man, sitting very still."
+}
+
+spot "claws-and-rifle" room="stepwell-bottom" name="the silt" at="-1.2 1" y=0.2 r=0.8 {
+    look "In the silt at the bottom of the stepwell, where the water has gone: a rifle, rusted, with S. carved in the stock, and, in a twist of oilcloth, two tiger's claws, long and yellow and old. The two from the paw in the gallery storeroom." clue="claws-rifle"
+    photo "The rifle, the claws, the silt." clue="claws-rifle"
+}
+
+spot "bhima-bottom" room="stepwell-bottom" name="Bhima" at="1 -1.5" y=1.2 r=0.9 model="bhima" turn=180 solid=0.45 {
+    look if="met-bhima" "Bhima sits on the step with his lantern, and looks at the water."
+    talk "bhima-confesses" if="regard>=2 !met-bhima" "Bhima does not get up. He looks at you, and then at the place beside him on the step."
+    talk "bhima-rises" if="!met-bhima" "Bhima gets up."
+}
+
+// ---------- no round tonight: Bhima is in the stepwell. A suspicious Raja's man walks the court. ----------
+
+patrol "bearer-6" night=6 who="bhima" speed=0.7 if="suspicion>=6" {
+    stop "stepwell-head" at="-2.5 3" wait=6
+    stop "stepwell-head" at="2.5 3" wait=6
+}
+
+hint "n6-key" night=6 until="trunk-open" after-s=180 text="Bhima keeps one thing near his lantern at night. Look where the lantern hangs."
+hint "n6-sluice" night=6 until="sluices-open" after-s=200 text="Three sluice wheels, and a chart on Bhima's wall for the monsoon."
+hint "n6-deduce" night=6 until="the-cover-up" after-s=240 text="The case: who carried Sudam into the jungle, what made the marks, and why."
+
+deduction "the-cover-up" night=6 title="What Bhima carried" reveal="The house told Bhima to do the necessary, as it has told him for forty years, and he did it: he carried the old Raja's son into the jungle in the dark, marked him with a dead tiger's claws, and let the palace announce a man-eater. Then he threw the claws and the rifle into the water and sat by it every night since." question="He was told to do the necessary. Who told him, and what had the teller already done, at ten past four?" {
+    ask "Sudam was carried into the jungle by" options="the guests | Bhima" answer="Bhima" from="tin-trunk claws-rifle"
+    ask "The tiger's marks on him were made with" options="a tigress's teeth | the claws from the gallery paw" answer="the claws from the gallery paw" from="claws-rifle"
+    ask "Bhima did it because" options="he killed Sudam himself | the Raja told him to do the necessary" answer="the Raja told him to do the necessary" from="tin-trunk"
+}
+
+// ---------- Bhima at the bottom ----------
+
+scene "bhima-confesses" day=6 place="caught" first="bhima-c1"
+
+beat "bhima-c1" scene="bhima-confesses" {
+    does sets="met-bhima"
+    line "narrator" "You sit beside him on the wet step. For a long time he says nothing. Then he speaks, in a low voice, in good English, the English of a man who learned it from an old Raja forty years ago and has had nobody to speak it to since."
+    line "bhima" "At breakfast he said to me, Bhima, the rogue in the larder: do the necessary. I went. I opened it. The boy was dead. Not by the guests. They had hurt him, but he was alive when they left. I know the marks of hands."
+    line "bhima" "I carried him to the nullah. I did the claws. I did the old skin and the plaque. I have done the necessary for this house since I was twenty. He was the old Raja's son. I carried him as I carried him when he was a child."
+    line "narrator" "He holds out his lantern to you, as if you might want it, and then sets it down again on the step." clue="bhima-confession" regard=1
+    ends "resume"
+}
+
+scene "bhima-rises" day=6 place="caught" first="bhima-r1"
+
+beat "bhima-r1" scene="bhima-rises" {
+    does sets="met-bhima"
+    line "narrator" "Bhima gets up. He is two metres tall, and wet to the chest, and he comes up the steps towards you without hurrying, the lantern held low."
+    choose "Run." go="bhima-r2"
+    choose "Stand your ground, and say Sudam's name." go="bhima-r3" regard=1
+}
+
+beat "bhima-r2" scene="bhima-rises" {
+    line "narrator" "You run, up the slick steps, landing by landing, and do not look back until the top. When you do, the lantern is still at the bottom. He never left it. He only wanted you gone."
+    ends "resume"
+}
+
+beat "bhima-r3" scene="bhima-rises" {
+    line "narrator" "\"Sudam.\" He stops, three steps below you, so that for once your eyes are level with his. Then he turns and goes back down to his lantern, and sits, and you understand that this is all you will have from him tonight."
+    ends "resume"
+}
+
+scene "caught-6" day=6 place="caught" first="caught-6a"
+
+beat "caught-6a" scene="caught-6" {
+    line "narrator" "Not Bhima: one of the Raja's men, with a lantern and a lathi and no manners."
+    choose "\"I was photographing the moon. It's nearly full.\"" if="told-moon" go="caught-6-back" suspicion=1
+    choose "\"I was lost.\"" go="caught-6-back" suspicion=2
+}
+
+beat "caught-6-back" scene="caught-6" {
+    line "narrator" "He marches you back, and bolts you in, and reports you, you have no doubt, by breakfast." sound="bolt-shut"
+    ends "back-to-room"
+}

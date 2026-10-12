@@ -1,0 +1,211 @@
+// NIGHT 7 — THE FULL MOON. The feast court, the Raja's private wing, the toshakhana, the roof. Proves: the accusation.
+//
+// The chart:
+//
+//   FEAST COURT (start; open to the sky): Major Pomfret (the case is laid before him: the bed of this night);
+//     the Raja at the pasha board ─► [talk] dice under the full moon (lose gracefully, or don't)
+//   FEAST COURT ─► the roof stair ─► ROOF: the moondial, read after one o'clock at the full moon's height ─► ୬
+//   FEAST COURT ─► the private corridor (a bearer's round; a curtained alcove)
+//     ─► DRESSING ROOM: the stag's foot ─► the toshakhana key; the cummerbund, torn ─► torn-cummerbund
+//     ─► the toshakhana door (the key) ─► TOSHAKHANA: the iron safe, four Odia dials
+//          ─► ୧ ୯ ୦ ୬ (the fresco's year; the slide's first two, the jaali's circled zero, the moondial's last)
+//          ─► marriage-certificate, old-raja-will
+//   CASEBOOK: the accusation, five questions at once ─► Major Pomfret ─► the finale
+//   Before it is proved, Pomfret will hear a smaller case: the guests alone (The Jackals Laugh) or Bhima alone
+//   (The Necessary). Both end the game.
+//
+// Threads: the roof (moon ─► dial digit), the dressing room (key; cummerbund), converging on the safe.
+
+night "night-7" n=7 name="The Full Moon" moon=1 moon-alt=50 moon-az=180 start="feast-court" at="0 3.5" turn=0 proves="the-accusation" then="finale" caught="caught-7" {
+}
+
+room "feast-court" night=7 name="The great court" x=0 z=0 w=12 d=10 h=1.2 floor="marble" walls="sandstone" dark=0.2 open=#true {
+    prop "rug" at="-2.5 -1.5" turn=0
+    prop "rug" at="2.5 -1.5" turn=0
+    lamp at="-5.5 -4.5" y=1.25 kind="diya"
+    lamp at="5.5 -4.5" y=1.25 kind="diya"
+    lamp at="-5.5 4.5" y=1.25 kind="diya"
+    lamp at="5.5 4.5" y=1.25 kind="diya"
+}
+
+room "roof-stair" night=7 name="The roof stair" x=-3 z=-7 w=2.5 d=4 h=6 floor="sandstone" walls="plaster" dark=0.8 {
+}
+
+room "palace-roof" night=7 name="The palace roof" x=-3 z=-13.5 w=10 d=9 h=1.1 floor="sandstone" walls="sandstone" dark=0.15 open=#true {
+    prop "chhatri" at="-3.8 -3.2" solid=1.0
+    prop "chhatri" at="3.8 -3.2" solid=1.0
+}
+
+room "private-corridor" night=7 name="The Raja's corridor" x=8 z=0 w=4 d=10 h=4 floor="marble" walls="wallpaper" dark=0.75 {
+    lamp at="1.6 -4.5" y=1.6 kind="hanging"
+}
+
+room "dressing-room" night=7 name="The Raja's dressing room" x=13 z=2.5 w=6 d=5 h=4 floor="teak" walls="wallpaper" dark=0.8 {
+    jaali wall="east" at=0 w=1 h=1.4 y=1.4
+    prop "rug" at="0 0" turn=90
+}
+
+room "toshakhana" night=7 name="The toshakhana" x=13 z=-2.5 w=6 d=5 h=4 floor="marble" walls="plaster" dark=0.95 {
+}
+
+door "stair-door" name="the roof stair" from="feast-court" wall="north" at=-3 to="roof-stair" w=1.4 h=2.4 open=#true arch=#true
+door "roof-door" name="the roof" from="roof-stair" wall="north" at=0 to="palace-roof" w=1.4 h=2.4 open=#true arch=#true
+door "corridor-arch" name="the Raja's corridor" from="feast-court" wall="east" at=0 to="private-corridor" w=1.6 h=2.8 open=#true arch=#true
+door "dressing-door" name="the dressing room door" from="private-corridor" wall="east" at=2.5 to="dressing-room" open=#true
+door "toshakhana-door" name="the toshakhana door" from="private-corridor" wall="east" at=-2.5 to="toshakhana"
+
+// ---------- the feast court ----------
+
+spot "pomfret" room="feast-court" name="Major Pomfret" at="-2.5 -2.5" y=1.5 r=0.9 model="pomfret" turn=180 solid=0.4 {
+    bed "You go to Major Pomfret, where he sits on his bolster pretending to enjoy the kheer, and you sit down beside him, and open your casebook on the durrie."
+    talk "pomfret-7" "Major Pomfret looks up from the kheer with the expression of a man who hopes you have come to talk about cricket."
+}
+
+spot "raja-pasha" room="feast-court" name="the Raja at the pasha board" at="2.5 -2.5" y=1.2 r=0.9 model="raja" turn=180 solid=0.5 {
+    look if="played-pasha" "The Raja throws the cowries for somebody else now, and laughs, and watches you over the board."
+    talk "pasha-7" "The Raja looks up from the pasha board. \"Mr. Thistlewood! Sit. Throw.\""
+}
+
+spot "feast-dishes" room="feast-court" name="the feast" at="0 -1" y=0.4 r=1 {
+    look "Pakhala, kheer in silver bowls for the moon, a whole roast goat with its head on. No boar. Mr. Ghatak eats nothing, and drinks everything, and keeps looking at the larder side of the court."
+}
+
+spot "guests-7" room="feast-court" name="the guests" at="0 -4.2" y=1.2 r=1 {
+    look "The guests, in silk, under the full moon. Mrs. Sahukar has her back to the moon. Mr. Sahukar is telling Major Pomfret about timber. Mrs. Ghatak is watching her husband drink, and counting."
+}
+
+// ---------- the roof ----------
+
+spot "moondial" room="palace-roof" name="the moondial" at="0 0" y=1 r=0.8 model="moondial" turn=0 solid=0.5 {
+    look if="after:1:00" "The moon stands at its height, full, and the moondial's gnomon throws a shadow as sharp as a sundial's. It falls across the last line, where the brass is engraved, very small: ୬. Under it, in the old Raja's hand: \"the last.\"" clue="moondial-digit"
+    look "A marble moondial among the chhatris, a brass gnomon, hour lines for the night. The moon is not yet high enough to throw a shadow worth reading. After one o'clock, perhaps, at its height."
+}
+
+spot "roof-parapet" room="palace-roof" name="the parapet" at="0 4.2" y=1.1 r=0.8 {
+    look "The whole palace below you, white in the moonlight: the court and the feast, the zenana's dark roof, the stepwell like a well of ink, the kitchen garden walls. And beyond them, the sal, to the hills."
+}
+
+// ---------- the Raja's corridor and dressing room ----------
+
+spot "corridor-curtain" room="private-corridor" name="the curtained alcove" at="-1.6 3" y=1.2 r=0.6 model="curtain-alcove" turn=90 {
+    hide "You step behind the curtain. Silk this time, and attar, and the smell of the Raja's cigars."
+}
+
+spot "stag-foot" room="dressing-room" name="the stag's foot by the mirror" at="-1 -2.35" y=1.6 r=0.5 {
+    look if="!has:toshakhana-key !toshakhana-open" "A mounted stag's foot by the mirror, a hook for keys. Tonight the Raja wears the ring at the feast, all but one: a long key with a gold tassel, left on its hook, because one does not carry the toshakhana key to dinner." gives="toshakhana-key" sound="pick-up"
+    look "The stag's foot, and its empty hook."
+}
+
+spot "cummerbund" room="dressing-room" name="the crimson cummerbund" at="2 -2" y=1 r=0.6 model="cummerbund" turn=180 {
+    look "Folded away at the back of the almirah, not sent to the dhobi: a crimson-and-gold silk cummerbund. The edge is torn, threads pulled out of it, at about the height of a larder bolt." clue="torn-cummerbund"
+    photo "The torn cummerbund, crimson and gold." clue="torn-cummerbund"
+}
+
+spot "dressing-mirror" room="dressing-room" name="the dressing mirror" at="0 -2.35" y=1.5 r=0.6 model="dressing-table" turn=180 solid=0.4 {
+    look "A long Belgian mirror, so that a Raja can see all of himself at once. The man in it is fifty, tired, in borrowed dinner clothes, and is the only person in this palace who wants to know."
+}
+
+// ---------- the toshakhana ----------
+
+spot "toshakhana-lock" room="private-corridor" name="the toshakhana door" at="1.85 -2.5" y=1.2 r=0.6 {
+    use "toshakhana-key" "The tasselled key turns twice. The toshakhana door swings in on a smell of camphor and silver polish." takes="toshakhana-key" opens="toshakhana-door" sets="toshakhana-open" sound="lock-open"
+    look if="toshakhana-open" "The toshakhana stands open."
+    look "\"TOSHAKHANA\" in brass over a teak door. Where the gifts are kept. Locked, and the key is not on this side of it."
+}
+
+spot "gift-shelves" room="toshakhana" name="the gifts" at="-2.85 0" y=1.4 r=0.8 {
+    look "Shelves of the gifts of a hundred years: a silver elephant from a Maharaja, a clock from a Viceroy, a cut-glass bowl from Birmingham with the price still on it. And in the corner, the iron safe."
+}
+
+spot "iron-safe" room="toshakhana" name="the iron safe" at="2 -1.5" y=0.8 r=0.6 model="iron-safe" turn=270 solid=0.5 {
+    look if="safe-open" "The safe is open and empty, and its papers are in your casebook."
+    look if="knows:moondial-digit" "Four brass dials in Odia numerals. A year, perhaps: the year the old Raja would want remembered. Two digits from a slide, one from a ring of shadow, one from the moon."
+    look "An iron safe, Chubb of London, with four brass dials engraved with Odia numerals. Somebody has scratched a crescent moon beside the last dial."
+    code "୦ ୧ ୨ ୩ ୪ ୫ ୬ ୭ ୮ ୯" dials=4 answer="୧ ୯ ୦ ୬" learns="moondial" if="knows:wedding-fresco knows:moondial-digit" wrong="The handle will not move. Not that year." "One, nine, nought, six. 1906. The handle turns, and the door comes open on its weight, and inside, in oilcloth, two papers, as the old Raja left them." sets="safe-open" clue="marriage-certificate old-raja-will" sound="lock-open"
+}
+
+// ---------- a bearer in the Raja's corridor ----------
+
+patrol "bearer-7" night=7 who="bhima" speed=0.6 {
+    stop "private-corridor" at="0 -4" wait=6
+    stop "private-corridor" at="0 4" wait=6
+}
+
+patrol "bearer-7b" night=7 who="bhima" speed=0.7 if="suspicion>=6" {
+    stop "feast-court" at="4.5 -3" wait=4
+    stop "feast-court" at="4.5 3" wait=4
+}
+
+hint "n7-moon" night=7 until="knows:moondial-digit" after-s=240 text="The moondial on the roof only speaks at the full moon's height. After one o'clock."
+hint "n7-key" night=7 until="toshakhana-open" after-s=200 text="The Raja hung his keys by the dressing mirror this morning, and watched them. Not all of them go to dinner."
+hint "n7-safe" night=7 until="safe-open" after-s=300 text="Four Odia numerals: the year in the zenana fresco. The slide had the first two, the jaali a circled nought, the moondial the last."
+hint "n7-deduce" night=7 until="the-accusation" after-s=240 text="The accusation: who beat him, who killed him, who hid him, what they ate, and why. Then Major Pomfret."
+
+deduction "the-accusation" night=7 title="The accusation" reveal="The guests beat him and threw him in the larder beside a pig, and roasted the pig, and drove away. At ten past four the Raja came down in his dinner silk and opened the larder and switched on the light, and when he switched it off his brother was dead. At breakfast he told Bhima to do the necessary, and Bhima did. And Sudam died because he was the heir." question="Lay it before Major Pomfret, under the full moon." {
+    ask "Sudam was beaten by" options="the guests | the Raja | Bhima" answer="the guests" from="scratches coat-button kotwal-mimicry"
+    ask "Sudam was killed by" options="the guests | the Raja | Bhima | a tiger" answer="the Raja" from="circuit-log silk-thread torn-cummerbund"
+    ask "His body was carried to the jungle and marked as a tiger's kill by" options="the Raja | Bhima | the guests" answer="Bhima" from="tin-trunk claws-rifle"
+    ask "In the kitchen garden that night, the guests ate" options="Sudam | the boar from the larder" answer="the boar from the larder" from="boar-tusks menu-slate"
+    ask "Sudam died because" options="he insulted Mrs. Sahukar | he would not sell the forest | he was the heir, by marriage and will" answer="he was the heir, by marriage and will" from="marriage-certificate old-raja-will"
+}
+
+// ---------- Major Pomfret, before the case is proved ----------
+
+scene "pomfret-7" day=7 place="caught" first="pomfret-7a"
+
+beat "pomfret-7a" scene="pomfret-7" {
+    line "pomfret" "Thistlewood. Well? Have you anything for me? Paper, man. Not ghosts."
+    choose "\"The guests did it. They beat him and locked him in the larder.\"" go="pomfret-guests"
+    choose "\"Bhima carried him into the jungle and made the tiger's marks.\"" go="pomfret-bhima"
+    choose "\"Not yet, Major. Enjoy your kheer.\"" go="pomfret-later"
+}
+
+beat "pomfret-guests" scene="pomfret-7" {
+    line "pomfret" "The guests? Good God. Well. That's a thing a man can put in a letter." 
+    ends "ending" ending="jackals"
+}
+
+beat "pomfret-bhima" scene="pomfret-7" {
+    line "pomfret" "The watchman? Well. Old retainers. It happens."
+    ends "ending" ending="necessary"
+}
+
+beat "pomfret-later" scene="pomfret-7" {
+    line "pomfret" "Don't be long. The Raja has asked me to throw the dice with him at three, and I'm told nobody beats him."
+    ends "resume"
+}
+
+// ---------- dice with the Raja ----------
+
+scene "pasha-7" day=7 place="caught" first="pasha-1"
+
+beat "pasha-1" scene="pasha-7" {
+    does sets="played-pasha"
+    line "raja" "Pasha, Mr. Thistlewood, on Kumar Purnima, as my forefathers played it. Cowries. Throw. Under the full moon, nothing that is lost is lost for ever. That is the saying."
+    line "narrator" "The cowries skitter over the cloth. You are ahead. A glance at the Raja's face says you should not stay ahead." sound="dial-rattle"
+    choose "Lose, gracefully." go="pasha-lose" suspicion=-2
+    choose "Win." go="pasha-win" suspicion=1
+}
+
+beat "pasha-lose" scene="pasha-7" {
+    line "raja" "Ha! The camera is a better friend to you than the cowries. Go, go, photograph my moon." sound="laugh"
+    ends "resume"
+}
+
+beat "pasha-win" scene="pasha-7" {
+    line "raja" "You win. How unusual. Nobody wins in Chandragarh, Mr. Thistlewood. Remember it." sound="laugh-long"
+    ends "resume"
+}
+
+scene "caught-7" day=7 place="caught" first="caught-7a"
+
+beat "caught-7a" scene="caught-7" {
+    line "narrator" "A bearer, in the Raja's livery, with a lantern and very good manners and a lathi."
+    choose "\"I was looking for the light. For the album.\"" go="caught-7-back" suspicion=1
+    choose "\"I was lost.\"" go="caught-7-back" suspicion=2
+}
+
+beat "caught-7-back" scene="caught-7" {
+    line "narrator" "He walks you back to the feast, very politely, and says something to the Raja's ear, and the Raja looks at you across the court and raises his glass."
+    ends "back-to-room"
+}

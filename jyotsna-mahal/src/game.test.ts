@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { C, get } from './content';
 import * as G from './game';
 import type { GameState } from './game';
-import { dayOutcomes, solveNight } from './solver';
+import { campaign, dayOutcomes, solveNight } from './solver';
 import { T } from './tuning';
 
 /** Play the day by always taking choice `pick` (or the first), until the night starts. */
@@ -275,4 +275,19 @@ describe('the solver', () => {
   it('the content ids it relies on exist', () => {
     expect(C.scene[G.PEAK_SCENE]).toBeDefined();
   });
+  it('the whole campaign: every night is solvable from the night before, and the last one ends on the full moon', () => {
+    const nights = campaign();
+    expect(nights.map((x) => x.n)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+    let last: GameState | null = null;
+    for (const { n, starts } of nights) {
+      expect(starts.length, `night ${n}`).toBeGreaterThan(0);
+      const r = solveNight(starts[0]!.s, starts[0]!.label);
+      expect(r.solvable, `night ${n}`).toBe(true);
+      expect(r.deadEnds, `night ${n}`).toEqual([]);
+      last = r.end;
+    }
+    let s = G.afterReveal(last!);
+    for (let i = 0; i < 40 && s.phase !== 'end'; i++) s = G.next(s);
+    expect([s.phase, s.ending]).toEqual(['end', 'full-moon']);
+  }, 120_000);
 });

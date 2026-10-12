@@ -1,0 +1,118 @@
+// DAY 7 — KUMAR PURNIMA. Major Pomfret arrives. The palace dresses for the full moon; the Raja is generous or
+// dangerous by his suspicion. Two of three: meet Pomfret off the Cuttack road (his terms); photograph the Raja dressing
+// (where his keys hang); help Jagu with the kheer (the feast's seating). Clues: pomfret-terms, raja-keys.
+
+place "arrival" set="verandah" light="day" {
+    sits "raja" at="0 -1.6" turn=180
+    sits "pomfret" at="1.4 -1.2" turn=230
+    sits "bhima" at="3.2 -2.6" turn=200
+    eye at="0 1.0" y=1.4 turn=0
+}
+
+place "feast" set="verandah" light="night" {
+    prop "cane-chair" at="-1.6 -0.9" turn=120
+    prop "cane-chair" at="-1.9 0.3" turn=95
+    prop "cane-chair" at="1.9 0.3" turn=265
+    sits "raja" at="0 -1.6" turn=180
+    sits "ghatak" at="-1.6 -0.9" turn=120
+    sits "mrs-ghatak" at="-1.9 0.3" turn=95
+    sits "pomfret" at="1.4 -1.2" turn=230
+    sits "sahukar" at="1.9 0.3" turn=265
+    sits "bhima" at="3.2 -2.6" turn=200
+    eye at="0 1.0" y=1.2 turn=0
+}
+
+scene "morning-7" day=7 place="arrival" first="knock-7" name="Day 7 — Kumar Purnima"
+
+beat "knock-7" scene="morning-7" {
+    line "narrator" "Knock. Knock. Knock. Bhima stands in the door with his lantern out, though it is morning, and says nothing, at length, and goes."
+    line "raja" "Kumar Purnima, Mr. Thistlewood! The full moon! Tonight we feast on the court, and dice till dawn, and the Political Agent will see how a Raja keeps the moon." if="suspicion<=5" sound="laugh"
+    line "raja" "Kumar Purnima, Mr. Thistlewood. Tonight you will sit where I can see you. You will photograph my moon. And then, I think, you will be going home." if="suspicion>=6" sound="laugh-long"
+    does resets="slots"
+    go "hub-7"
+}
+
+beat "hub-7" scene="morning-7" {
+    line "narrator" "Bunting, marigolds, a hundred diyas on the parapets waiting for dark." if="slots<2"
+    line "narrator" "The sun goes down red over the sal, and the moon comes up behind the palace, enormous, and the whole court turns to look at it." if="slots>=2"
+    choose "Meet Major Pomfret off the Cuttack road." if="!met-pomfret slots<2" go="pomfret-7" sets="met-pomfret"
+    choose "Photograph the Raja dressing for the feast." if="!saw-dressing slots<2" go="dressing-7" sets="saw-dressing"
+    choose "Help Jagu with the kheer." if="!helped-jagu slots<2" go="kheer-7" sets="helped-jagu"
+    choose "Go down to the feast." if="slots>=2" go="evening-7"
+}
+
+beat "pomfret-7" scene="morning-7" {
+    does adds="slots"
+    line "narrator" "A dusty Humber, a flag the size of a handkerchief, and Major Reginald Pomfret, Political Agent, unfolding from it like a deckchair."
+    line "pomfret" "Thistlewood. Photographing, I'm told. Splendid. Keep your voice down. The Raja is a ruling prince with a seventeen-gun salute and a very old friend of the Resident's."
+    line "pomfret" "I'll say it once. I cannot accuse a ruling prince on ghosts and mynah birds. Paper, man. Bring me paper, and a case I can put in a letter to Delhi, or bring me nothing at all." clue="pomfret-terms"
+    go "hub-7"
+}
+
+beat "dressing-7" scene="morning-7" {
+    does adds="slots"
+    line "raja" "Photograph me dressing? Ha! Like the Emperor at Versailles. Come." if="suspicion<=5"
+    line "raja" "You wish to photograph me dressing. How very thorough you are. Come, then. Watch." if="suspicion>=6" suspicion=1
+    line "narrator" "His dressing room is all mirrors and camphor. A valet winds a safa round his head. Before the valet touches him the Raja takes the key ring from his belt and hangs it on a mounted stag's foot by the mirror, and he does not once look away from it." clue="raja-keys"
+    line "narrator" "\"The crimson cummerbund, Hukum?\" says the valet. \"No,\" says the Raja, too quickly. \"The gold.\""
+    go "hub-7"
+}
+
+beat "kheer-7" scene="morning-7" {
+    does adds="slots"
+    line "narrator" "Jagu stirs a cauldron of kheer the size of a bathtub, for the moon, which must be offered something sweet and white. He lets you stir. He does not let you stir wrong."
+    line "jagu" "Tonight the Raja sits on the court with the Sahib from Cuttack, and plays pasha with him, and wins. He always wins. A guest who loses at pasha to the Raja, Sahib, goes home to his bed."
+    line "narrator" "He means it as advice." suspicion=-1
+    go "hub-7"
+}
+
+beat "evening-7" scene="morning-7" {
+    line "narrator" "The feast is laid on the great court under the full moon: durries, bolsters, a hundred diyas, the guests in silk, Major Pomfret in a dinner jacket that has been to Simla. The Raja calls for the pasha board."
+    line "narrator" "Nobody bolts your door tonight. Tonight there is no door: the whole palace is awake, and looking at the moon, and you are a photographer, and may go where the light is." sound="chime"
+    ends "night"
+}
+
+// ---------- the finale: the case laid before Major Pomfret (after the night's reveal) ----------
+
+scene "finale" day=7 place="feast" first="finale-1" name="The Full Moon"
+
+beat "finale-1" scene="finale" {
+    line "narrator" "You lay it before Major Pomfret on the durrie between the dishes, one paper at a time, in the light of the moon: the plates, the log, the certificate, the will."
+    line "narrator" "The guests beat Sudam and threw him in the larder with a pig. They ate the pig. At ten past four the Raja came down in his dinner silk and switched on the light and opened the larder, and when he switched it off fifty-five minutes later his brother was dead. At breakfast he told Bhima to do the necessary."
+    line "bhima" "Yes." if="knows:bhima-confession"
+    line "narrator" "And Sudam died because he was the heir: the old Raja's lawful eldest son, by a fire and a registrar at Cuttack, with the gaddi and the forest left to him in his father's hand."
+    line "pomfret" "Good God."
+    line "raja" "Mr. Thistlewood. What a photographer you are." sound="laugh-long"
+    line "narrator" "The Raja laughs a beat too long, and then another, and then he stops, and in the silence the jackals are the only thing laughing in Chandragarh."
+    go "finale-2"
+}
+
+beat "finale-2" scene="finale" {
+    line "narrator" "The jeep leaves at dawn, with a police lorry behind it from Cuttack. At the roadside, by the last of the palace walls, a woman in a white sari stands and watches it go, and lifts her hand."
+    line "narrator" "At the jungle's edge a doe steps out of the sal with a fawn at her heels, and looks at the jeep, and is not afraid of it." if="spared-doe"
+    line "narrator" "At the jungle's edge, something moves in the sal and is gone before you can see what it was." if="!spared-doe"
+    line "narrator" "And behind you, very faint, from the zenana roof, where nobody has been for twenty years: ankle bells." sound="ghungroo"
+    ends "ending" ending="full-moon"
+}
+
+// ---------- the wrong accusations, laid before Pomfret early ----------
+
+scene "accuse-guests" day=7 place="feast" first="jackals-1" name="The Jackals Laugh"
+
+beat "jackals-1" scene="accuse-guests" {
+    line "narrator" "You tell Major Pomfret what the guests did: the accusation, the beating, the larder, the pig."
+    line "raja" "Monsters! In my house! Under my roof! Major, I am in Mr. Thistlewood's debt for ever." sound="laugh"
+    line "narrator" "The guests are taken away in the Political Agent's Humber, Mrs. Sahukar fainting into a constable. You are thanked, and photographed, with your arm in the Raja's, and driven to the railway at Cuttack in the Raja's own jeep."
+    line "narrator" "Behind the palace, the jackals laugh and laugh." sound="jackals"
+    ends "ending" ending="jackals"
+}
+
+scene "accuse-bhima" day=7 place="feast" first="necessary-1" name="The Necessary"
+
+beat "necessary-1" scene="accuse-bhima" {
+    line "narrator" "You tell Major Pomfret that Bhima carried Sudam into the jungle and made the marks of a tiger on him."
+    line "narrator" "Bhima does not argue. He sets down his lantern, and holds out his wrists to the constable, and looks at the Raja, once."
+    line "raja" "Old servants. They will do anything for a house. Anything at all." sound="laugh"
+    line "narrator" "The Raja's hand lands on your shoulder, warm and heavy and friendly, and stays there."
+    ends "ending" ending="necessary"
+}

@@ -93,7 +93,9 @@ export async function boot(el: HTMLElement): Promise<() => void> {
     // The toast and the noted line fade on their own (CSS); the target is whatever is under the eye.
     const target = r.phase === 'night' && !r.talk ? sc.pick() : null;
     if (target !== ui.getState().target) Actions.aim(target);
-    return sc.tick(dt) || tickScreens(dt);
+    // Both always tick: the screens' tweens must run while the 3D is moving too.
+    const moving = sc.tick(dt);
+    return tickScreens(dt) || moving;
   });
   const stopClock = startClock(pixi.ticker, renderNow);
   const render3d = () => sc.render();

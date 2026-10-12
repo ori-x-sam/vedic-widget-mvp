@@ -21,6 +21,9 @@ import night4Kdl from '../content/night4.kdl?raw';
 import day5Kdl from '../content/day5.kdl?raw';
 import night5Kdl from '../content/night5.kdl?raw';
 import day6Kdl from '../content/day6.kdl?raw';
+import night6Kdl from '../content/night6.kdl?raw';
+import day7Kdl from '../content/day7.kdl?raw';
+import night7Kdl from '../content/night7.kdl?raw';
 import endingsKdl from '../content/endings.kdl?raw';
 
 // ---------- small value parsers ----------
@@ -338,7 +341,7 @@ export type Content = { [K in keyof Kinds]: Record<string, z.output<Kinds[K]>> }
 /** Every content file, by name (the name is only for error messages). */
 export const FILES: Record<string, string> = {
   'cast.kdl': castKdl, 'things.kdl': thingsKdl, 'sounds.kdl': soundsKdl, 'models.kdl': modelsKdl,
-  'day1.kdl': day1Kdl, 'night1.kdl': night1Kdl, 'day2.kdl': day2Kdl, 'night2.kdl': night2Kdl, 'day3.kdl': day3Kdl, 'night3.kdl': night3Kdl, 'day4.kdl': day4Kdl, 'night4.kdl': night4Kdl, 'day5.kdl': day5Kdl, 'night5.kdl': night5Kdl, 'day6.kdl': day6Kdl,
+  'day1.kdl': day1Kdl, 'night1.kdl': night1Kdl, 'day2.kdl': day2Kdl, 'night2.kdl': night2Kdl, 'day3.kdl': day3Kdl, 'night3.kdl': night3Kdl, 'day4.kdl': day4Kdl, 'night4.kdl': night4Kdl, 'day5.kdl': day5Kdl, 'night5.kdl': night5Kdl, 'day6.kdl': day6Kdl, 'night6.kdl': night6Kdl, 'day7.kdl': day7Kdl, 'night7.kdl': night7Kdl,
   'endings.kdl': endingsKdl,
 };
 

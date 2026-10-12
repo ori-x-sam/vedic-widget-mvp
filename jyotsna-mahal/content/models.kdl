@@ -92,3 +92,14 @@ model "cylinder-case" body="--teak" cloth="--wax" trim="--paper"
 model "phonograph" body="--teak" trim="--brass" cloth="--wax"
 model "magic-lantern" body="--brass" trim="--iron" glow="--dynamo"
 model "lantern-screen" body="--paper" trim="--teak-dark"
+
+// ---------- Night 6: the stepwell ----------
+model "tin-trunk" body="--tin-green" trim="--brass" cloth="--paper"
+model "sluice-wheels" body="--rust" trim="--iron"
+model "stepwell-water" body="--well-water" glow="--mirror"
+
+// ---------- Day 7 and Night 7: the full moon ----------
+model "pomfret" body="--skin-pomfret" cloth="--pomfret-suit" trim="--pomfret-hair"
+model "moondial" body="--marble" trim="--brass" cloth="--marble-vein"
+model "iron-safe" body="--iron" trim="--brass" cloth="--paper"
+model "cummerbund" body="--cummerbund" trim="--gilt"

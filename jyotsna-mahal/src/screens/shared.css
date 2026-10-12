@@ -150,6 +150,15 @@
   --velvet-red: #7a1e22;
   --wax: #6a4a2a;
 
+  /* ---------- the stepwell and the full moon ---------- */
+  --tin-green: #3e5a44;
+  --rust: #7a3e22;
+  --well-water: #14242a;
+  --pomfret-suit: #8a7a5a;
+  --skin-pomfret: #e0b898;
+  --pomfret-hair: #b8b0a0;
+  --cummerbund: #9a1a2a;
+
   /* ---------- the look (view/look.ts): how the render sees the palette. Plain numbers; the unit is the name's last
      word (u = world units, s, deg, px, hz); no unit is a strength or a 0..1 amount. ---------- */
   /* Tone-mapping exposure by light: night, dusk, day (day is close to overexposed, so nights feel colder). */
