@@ -3,8 +3,12 @@
 // critical path, how many threads converge on the deduction, and what nobody can reach.
 import { campaign, solveNight } from '../src/solver';
 
+declare const process: { argv: string[] };
+/** `npm run sim -- 4` reports only Night 4 (the nights before it are still solved, once, to reach its morning). */
+const only = process.argv[2] ? Number(process.argv[2]) : null;
 let bad = 0;
 for (const { n, starts } of campaign()) {
+  if (only !== null && n !== only) continue;
   console.log(`\n=== Night ${n}: its day ends ${starts.length} distinct way(s) ===`);
   const seen = new Set<string>();
   for (const o of starts) {
@@ -23,4 +27,4 @@ for (const { n, starts } of campaign()) {
   const first = starts[0];
   if (first) console.log(`  a critical path: ${solveNight(first.s, first.label).critical.join(' > ')}`);
 }
-if (bad) { console.log(`\n${bad} start(s) can't be finished.`); (globalThis as { process?: { exitCode: number } }).process!.exitCode = 1; }
+if (bad) { console.log(`\n${bad} start(s) can't be finished.`); (process as unknown as { exitCode: number }).exitCode = 1; }

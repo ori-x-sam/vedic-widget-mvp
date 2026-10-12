@@ -75,3 +75,31 @@ clue "ball-values" page="note" title="The scoreboard" text="Red 1, yellow 2, gre
 clue "annotated-pamphlet" page="evidence" title="Mr. Ghatak's pamphlet" text="\"On the Medicinal Relapse,\" by P. Ghatak, privately printed. In the margins, in the Raja's hand, underlinings and notes: \"Ghatak will say it is philosophy.\" \"Sahukar needs only a reason.\" \"Lilabati will supply it.\""
 clue "invitation-drafts" page="evidence" title="The invitation drafts" text="Four drafts of one invitation to a moonlight shikar, in the Raja's hand, the guest list crossed and recrossed until only the Ghataks and the Sahukars are left. Underlined: \"and S. to drive.\""
 clue "kotwal-mimicry" page="testimony" title="Kotwal, in the dark" text="Fed a chilli, Kotwal gave the shikar night in its own voices: Mrs. Sahukar, \"Hold him, he touched me!\"; Mr. Ghatak, \"A relapse, gentlemen!\"; blows; Mr. Sahukar, \"Into the larder with him. With the pig.\" Then the Raja, low, at four in the morning: \"No, Bhima. Give me the key. I'll go myself.\""
+
+// ---------- Day 4 and Night 4 ----------
+
+item "kitchen-key" name="The kitchen key" blurb="A long iron key, left under my plate by a man who did not look back. Jagu's."
+item "larder-key" name="The larder key" blurb="A heavy iron key from the bottom of the spice box, wrapped in a clean cloth, as if it had to be kept clean."
+item "shovel" name="A shovel" blurb="The gardener's shovel. My mother would ask what an Inspector of Police wants with a shovel at three in the morning. So would I."
+
+clue "jagu-proverb" page="testimony" title="Jagu" text="\"A guest who eats pakhala means to stay. A guest who means to stay should not ask questions in the kitchen.\" And: \"A kind guest should sleep at night, sahib. All night.\""
+clue "alibis" page="testimony" title="The alibis" text="Mrs. Ghatak: \"We all went to bed at midnight. Pitambar says so. Dibakar says so.\" Mrs. Sahukar: \"I was in bed by ten.\" Kotwal remembers it otherwise, in all their voices."
+clue "pancha-phutana" page="note" title="Pancha phutana" text="Jagu's board: into the hot oil, first mustard, then cumin, then fennel, then fenugreek, last nigella."
+clue "menu-slate" page="evidence" title="The menu slate" text="\"11th Sept. Raja Sahib's guests. WILD BOAR, roasted whole in the garden. Pakhala. Kheer.\" Below, crossed out and written again: \"the pig from the larder.\""
+clue "scratches" page="evidence" title="Inside the larder door" text="Scratches on the inside of the larder door at the height of a man's hands. Nails, not claws: long ones, then short ones, then very short ones. He was alive in there, and for a long time."
+clue "coat-button" page="evidence" title="A button" text="A horn button from a man's coat, khaki thread still through it, in the crack of the larder floor. The forest steward wore khaki."
+clue "silk-thread" page="photograph" title="Plate: the bolt" text="Caught on the edge of the larder bolt: a thread of crimson and gold silk. Not shikar clothes. Dinner clothes: a cummerbund."
+clue "boar-tusks" page="evidence" title="The ash pit" text="Under a month's grey ash in the kitchen garden: bones, and a boar's jaw with both tusks. They roasted a pig."
+
+// ---------- Day 5 and Night 5 ----------
+
+item "drive-belt" name="The drive belt" blurb="A great loop of greasy leather, heavier than it looks, and it looks heavy."
+item "wax-cylinder" name="A wax cylinder" blurb="A brown wax cylinder in a cardboard tube, labelled in a dead man's hand: \"Not to be played. C.S.D.\" The old Raja: Chandrasekhar Singh Deo."
+
+clue "camera-manual" page="note" title="The Ensign manual" text="For portraits in strong light, a slow plate: a fast one fogs. For a large dark interior, a wide lens, stopped down, and a long exposure, with nobody moving."
+clue "dynamo-lecture" page="testimony" title="The Dewan on the dynamo" text="\"First the steam valve, slowly. Then the drive belt onto the flywheel; the boys take it off at night. Then the starting lever. Always in that order.\" And: some fool ran the larder circuit for an hour last month, without authority."
+clue "circuit-log" page="evidence" title="The circuit log" text="The dynamo house's log, 12th September 1946: \"04:10. Larder circuit ON. 05:05. OFF.\" Initialled not by the engineer but B.N.S.D.: Bhairab Narayan Singh Deo."
+clue "cylinder-speed" page="note" title="The cylinder box" text="Every cylinder in the music room labelled in the same hand: \"Recorded at one hundred and sixty revolutions.\""
+clue "confession" page="evidence" title="The old Raja's voice" text="\"I, Chandrasekhar Singh Deo, Raja of Chandragarh, set down that on the ninth of February 1906 I married Malati, dancer, by fire and before the registrar at Cuttack, and that our son Sudam is my eldest son and my heir. I have not the courage to say it aloud. I have made a machine say it for me.\""
+clue "durbar-programme" page="note" title="The lantern programme" text="\"THE DELHI DURBAR, 1911, IN TWENTY-FOUR SLIDES. I. The Procession. II. The Elephants. III. The Pavilion. IV. The King-Emperor.\""
+clue "slides-digits" page="evidence" title="The last slide" text="Scratched into the black border of the last durbar slide, in the old Raja's hand: ୧ ୯, \"the first two.\" One, nine. The first two of something."

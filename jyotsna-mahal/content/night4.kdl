@@ -1,0 +1,176 @@
+// NIGHT 4 — WHAT WAS ROASTED. The servants' passage, the kitchen, the larder, the ice room, the walled kitchen
+// garden. The horror peak. Proves: they ate the boar; Sudam was alive in the larder; someone came back.
+//
+// The chart:
+//
+//   SERVANTS' PASSAGE (start; the way back) ─► KITCHEN by its door (Jagu's key from Day 4) or the coal chute (always;
+//     slow and filthy) ─► KITCHEN
+//   PASSAGE ─► WALLED KITCHEN GARDEN (open to the sky)
+//   KITCHEN: Jagu's recipe board teaches pancha phutana in the order it goes in the oil ─► the spice-box lock
+//            ─► the larder key; the menu slate ─► menu-slate
+//   GARDEN: the shed ─► a shovel ─► dig the ash pit ─► boar-tusks
+//   LARDER (the key): scratches inside the door ─► scratches; a coat button ─► coat-button;
+//                     the bolt, photographed ─► silk-thread; [when] a knocking from the ice room
+//   ICE ROOM (off the kitchen): the knocking; the answer is ridiculous
+//   CASEBOOK: the deduction ─► the way back
+//
+// Threads: the spice box (recipe ─► dials ─► larder), the garden (shed ─► shovel ─► ash pit), the menu slate.
+
+night "night-4" n=4 name="What Was Roasted" moon=0.78 moon-alt=48 moon-az=175 start="servants-passage" at="0 2.6" turn=0 proves="what-was-roasted" then="morning-5" caught="caught-4" {
+    when if="larder-open seen:larder-scratches" "From the ice room, through two walls: a knock. A pause. A knock. Soft, patient, never louder." sets="ice-knocking" sound="knock"
+}
+
+room "servants-passage" night=4 name="The servants' passage" x=0 z=0 w=3 d=7 h=3.6 floor="brick" walls="plaster" dark=0.85 {
+    lamp at="-1.2 2.8" y=1.0 kind="diya"
+}
+
+room "kitchen" night=4 name="The palace kitchen" x=6 z=0 w=9 d=7 h=4.5 floor="brick" walls="plaster" dark=0.8 {
+    jaali wall="south" at=2 w=1.2 h=1.2 y=1.6
+    prop "chulha" at="2.5 2.6" solid=0.9
+    lamp at="-3.8 -2.8" y=1.1 kind="diya"
+}
+
+room "larder" night=4 name="The game larder" x=6 z=-5.5 w=5 d=4 h=3.4 floor="brick" walls="plaster" dark=0.97 {
+    prop "meat-hooks" at="0 -1.2"
+}
+
+room "ice-room" night=4 name="The ice room" x=12.5 z=0 w=4 d=4 h=3.4 floor="brick" walls="plaster" dark=0.95 {
+    prop "ice-machine" at="0.8 -0.8" solid=0.7
+}
+
+room "kitchen-garden" night=4 name="The walled kitchen garden" x=0 z=-9.5 w=7 d=12 h=3.2 floor="brick" walls="brick" dark=0.35 open=#true {
+    prop "garden-shed" at="-3.4 -4.4" turn=90 solid=0.9
+}
+
+door "kitchen-door" name="the kitchen door" from="servants-passage" wall="east" at=0 to="kitchen"
+door "garden-arch" name="the garden gate" from="servants-passage" wall="north" at=0 to="kitchen-garden" w=1.4 h=2.6 open=#true arch=#true
+door "larder-door" name="the larder door" from="kitchen" wall="north" at=0 to="larder"
+door "ice-door" name="the ice room door" from="kitchen" wall="east" at=0 to="ice-room"
+
+// ---------- the passage ----------
+
+spot "passage-way-back" room="servants-passage" name="the way back to your room" at="0 3.35" y=1.2 r=0.6 {
+    bed "You go back the way the servants go, which nobody in this house has ever thought of as a way. In your room, in the dark, you can still smell the ash pit on your hands."
+    look "The way back. Not yet."
+}
+
+spot "kitchen-lock" room="servants-passage" name="the kitchen door" at="1.35 0" y=1.2 r=0.6 {
+    use "kitchen-key" "Jagu's key. The kitchen door opens on the smell of mustard oil and old smoke." opens="kitchen-door" takes="kitchen-key" sets="kitchen-open" sound="lock-open"
+    look if="kitchen-open" "The kitchen stands open."
+    look "The kitchen door, locked. Jagu keeps the key on a string round his neck, and sleeps on his back, they say, to keep it safe."
+}
+
+spot "coal-chute" room="servants-passage" name="the coal chute" at="-1.35 -1.5" y=0.6 r=0.6 {
+    look if="kitchen-open" "The coal chute, which you need never see again."
+    look "A coal chute, its hatch on a rusted hinge. It must come out in the kitchen. You fold up a fussy man of fifty and go down it head first, and come out black, twenty minutes later, beside the stove, and unbolt the kitchen door from inside." opens="kitchen-door" sets="kitchen-open" minutes=20 sound="drag"
+}
+
+// ---------- the kitchen ----------
+
+spot "recipe-board" room="kitchen" name="Jagu's recipe board" at="-4.35 0" y=1.6 r=0.6 model="menu-slate" turn=90 {
+    look "Jagu's board, in chalk, for the new boy: \"PANCHA PHUTANA. Into the hot oil: first mustard, until it jumps. Then cumin. Then fennel. Then fenugreek, only a little, it is bitter like a mother-in-law. Last, nigella.\"" clue="pancha-phutana"
+}
+
+spot "spice-box" room="kitchen" name="the spice box" at="-1 -3.2" y=1 r=0.6 model="spice-box" turn=180 solid=0.4 {
+    look if="spice-open" "The spice box stands open: five little brass bowls, and the hollow where the larder key lay."
+    look "A brass masala dabba as big as a hatbox, padlocked with five little brass dials, each engraved with a spice. The larder key, Jagu told the new boy, lives \"with the five.\""
+    code "mustard cumin fennel fenugreek nigella turmeric chilli" dials=5 answer="mustard cumin fennel fenugreek nigella" learns="recipe-board" "Mustard, cumin, fennel, fenugreek, nigella: the order they go into the oil. The lid lifts. Under the bowls, wrapped in a clean cloth, a heavy iron key." gives="larder-key" sets="spice-open" sound="lock-open"
+}
+
+spot "menu-slate" room="kitchen" name="the menu slate" at="1.5 -3.35" y=1.7 r=0.6 model="menu-slate" turn=180 {
+    look "A slate by the larder door, never wiped. In Jagu's hand: \"11th Sept. Raja Sahib's guests. WILD BOAR, roasted whole in the garden. Pakhala. Kheer.\" And underneath, smaller, crossed out and written again: \"the pig from the larder.\"" clue="menu-slate"
+}
+
+spot "chulha" room="kitchen" name="the stove" at="2.5 1.8" y=0.8 r=0.7 {
+    look "The great clay chulha, cold. Nothing was cooked in here on the night of the shikar. The fire was outside, in the garden, where the guests could dance round it."
+}
+
+spot "larder-lock" room="kitchen" name="the larder door" at="0 -3.3" y=1.2 r=0.6 {
+    use "larder-key" "The key turns. The bolt draws back. Nobody in this house has opened this door since the eleventh of September, and you can feel the house not wanting you to." opens="larder-door" sets="larder-open" takes="larder-key" sound="bolt-open"
+    look if="larder-open" "The larder stands open. Cold comes out of it like breath."
+    look "An iron door, painted white once. A heavy bolt on the outside. A padlock on the bolt. Under the lock, scratched into the paint, a single word in Odia that someone has tried to rub out."
+}
+
+spot "ice-room-door" room="kitchen" name="the ice room door" at="4.35 0" y=1.2 r=0.6 {
+    look if="ice-knocking !ice-open" "You open the ice room door. The knocking is a goat. Somebody's goat, tied to the ice machine, butting it, gently and regularly, with enormous patience. It looks at you. It goes on knocking." opens="ice-door" sets="ice-open" sound="laugh"
+    look if="ice-open" "The goat. Still knocking."
+    look "The ice room door, shut. The Raja's ice machine is in there, the Dewan said, the only one in the Orissa States."
+}
+
+// ---------- the larder ----------
+
+spot "larder-scratches" room="larder" name="the inside of the door" at="0 1.85" y=1.2 r=0.7 {
+    look "On the inside of the larder door, at the height of a man's hands, the paint is scored with scratches. Nails, not claws. Long ones, then short ones, then very short ones." clue="scratches"
+    photo "The flash, on the scratches. You will look at this plate for the rest of your life." clue="scratches"
+}
+
+spot "larder-button" room="larder" name="the floor" at="-1.5 0.6" y=0.1 r=0.7 {
+    look "Swept, nearly. In the crack between two bricks: a horn button from a man's coat, with a thread of khaki still through it. The forest steward wore khaki." clue="coat-button"
+}
+
+spot "larder-bolt" room="larder" name="the bolt" at="0.6 1.85" y=1.3 r=0.5 {
+    look "From inside you can see the back of the bolt through a gap in the door. Something is caught on its edge, catching the candle. Too small to make out. A lens would make it out."
+    photo "The flash finds it: a thread of silk, crimson and gold, caught on the bolt's edge. Not the kind of silk anyone wears to a shikar. The kind a man wears to dinner." clue="silk-thread" sound="shutter"
+}
+
+spot "larder-switch" room="larder" name="the light switch" at="2.35 1" y=1.4 r=0.5 {
+    look "A brass switch on the wall, and a bare bulb on a flex. The larder is on the dynamo's circuit. Somebody wanted to see in here, once, at night."
+}
+
+// ---------- the garden ----------
+
+spot "garden-shed" room="kitchen-garden" name="the garden shed" at="-3.4 -4.4" y=1 r=0.9 {
+    look if="!has:shovel !dug-ash" "The gardener's shed: pots, twine, a mongoose skull on a nail, and a shovel." gives="shovel"
+    look "The shed, the pots, the mongoose, regarding you."
+}
+
+spot "ash-pit" room="kitchen-garden" name="the ash pit" at="1 -1" y=0.2 r=1.2 model="ash-pit" {
+    use "shovel" "You dig. The ash is a month old, and greasy, and goes down further than it should. Bones. You keep digging, with your heart in your mouth and your mouth shut. Then: a jawbone, long, with two curved tusks in it. A boar. A pig. Only a pig. You laugh out loud, alone in the moonlight, and the jackals laugh with you." clue="boar-tusks" sets="dug-ash" takes="shovel" sound="jackals"
+    look if="dug-ash" "The pit, opened. A pig's jaw grinning on the ash."
+    look "A pit of grey ash in the middle of the vegetable beds, where the fire was. Nothing has grown back around it. Something to dig with, then."
+}
+
+// ---------- Bhima ----------
+
+patrol "bhima-4" night=4 who="bhima" speed=0.85 {
+    stop "kitchen-garden" at="-2 3" wait=4
+    stop "kitchen-garden" at="2.5 -3" wait=6
+    stop "kitchen-garden" at="-2 3" wait=0
+    stop "servants-passage" at="0 -1" wait=5
+}
+
+patrol "bearer-4" night=4 who="bhima" speed=0.7 if="suspicion>=6" {
+    stop "kitchen" at="-3 1.5" wait=8
+    stop "kitchen" at="3 1.5" wait=8
+}
+
+hint "n4-in" night=4 until="kitchen-open" after-s=150 text="The kitchen door is locked, and Jagu keeps his key. But coal has to get to the stove somehow."
+hint "n4-spice" night=4 until="spice-open" after-s=200 text="Five dials, seven spices. Jagu wrote down for his new boy what goes in the oil, and in what order."
+hint "n4-dig" night=4 until="dug-ash" after-s=220 text="The ash pit wants digging, and gardeners keep shovels."
+hint "n4-bolt" night=4 until="knows:silk-thread" after-s=220 text="Something caught on the larder bolt, too small for the eye. The camera's lens is better than mine."
+hint "n4-deduce" night=4 until="what-was-roasted" after-s=240 text="The case: what was roasted, whether Sudam was alive in the larder, and who came back to the bolt in silk."
+
+deduction "what-was-roasted" night=4 title="What was roasted" reveal="They ate a pig. They beat a man and locked him in the dark beside it, and danced, and ate, and slept, and drove away, and told each other ever since that it was a dream. He was alive behind that door. He scratched at it until his nails went. Somebody came back to that bolt in a silk cummerbund." question="Who switched on the larder light, and when?" {
+    ask "In the garden that night, they roasted" options="Kumar Sudam | the boar from the larder" answer="the boar from the larder" from="boar-tusks menu-slate"
+    ask "When the guests drove away, Sudam was" options="already dead | alive, in the larder" answer="alive, in the larder" from="scratches coat-button"
+    ask "Someone came back to the larder bolt wearing" options="khaki, like Sudam | silk, like a man at dinner" answer="silk, like a man at dinner" from="silk-thread"
+}
+
+scene "caught-4" day=4 place="caught" first="caught-4a"
+
+beat "caught-4a" scene="caught-4" {
+    line "narrator" "The lantern. Here, of all places. Bhima looks at the larder, at you, at the larder."
+    choose "\"Jagu's pakhala. I was hungry.\"" if="jagu-trust" go="caught-4-back"
+    choose "\"I was looking for the tiger.\"" go="caught-4-back" suspicion=2
+    choose "\"Somebody was alive in there, Bhima.\"" go="caught-4-truth" suspicion=1 regard=1
+}
+
+beat "caught-4-truth" scene="caught-4" {
+    line "narrator" "Bhima closes his eyes. When he opens them he has decided not to have heard you. It costs him something; you can see it go."
+    go "caught-4-back"
+}
+
+beat "caught-4-back" scene="caught-4" {
+    line "narrator" "He walks you back. The bolt slides home." sound="bolt-shut"
+    ends "back-to-room"
+}

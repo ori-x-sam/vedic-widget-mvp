@@ -72,3 +72,23 @@ model "file-boxes" body="--file-board" trim="--paper"
 model "scoreboard" body="--teak-dark" cloth="--ivory" trim="--brass"
 model "cue-cabinet" body="--teak" trim="--brass" cloth="--ivory"
 model "billiard-table" body="--teak-dark" cloth="--baize" trim="--ivory"
+
+// ---------- Night 4: the kitchens ----------
+model "chulha" body="--clay" trim="--soot" glow="--flame"
+model "menu-slate" body="--slate" trim="--teak" cloth="--paper"
+model "spice-box" body="--brass" trim="--brass-new" cloth="--turmeric"
+model "meat-hooks" body="--iron" trim="--teak-dark"
+model "ice-machine" body="--iron" trim="--brass" cloth="--paper"
+model "garden-shed" body="--teak" trim="--iron" cloth="--jute"
+model "ash-pit" body="--ash" trim="--soot" cloth="--ivory"
+
+// ---------- Night 5: the Durbar Wing ----------
+model "throne" body="--velvet-red" trim="--gilt" cloth="--velvet-red"
+model "dynamo" body="--iron" trim="--brass" cloth="--trunk-leather" glow="--dynamo"
+model "valve-wheel" body="--wrong" trim="--iron"
+model "lever-panel" body="--iron" trim="--brass" glow="--dynamo"
+model "display-case" body="--teak" glow="--mirror" trim="--gilt" cloth="--velvet"
+model "cylinder-case" body="--teak" cloth="--wax" trim="--paper"
+model "phonograph" body="--teak" trim="--brass" cloth="--wax"
+model "magic-lantern" body="--brass" trim="--iron" glow="--dynamo"
+model "lantern-screen" body="--paper" trim="--teak-dark"

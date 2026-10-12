@@ -1,0 +1,8 @@
+// DAY 6 — THE WATERFALL PICNIC. (Being written.)
+
+scene "morning-6" day=6 place="breakfast" first="knock-6" name="Day 6 — The Waterfall Picnic"
+
+beat "knock-6" scene="morning-6" {
+    line "narrator" "Knock. Knock. Knock."
+    ends "night"
+}

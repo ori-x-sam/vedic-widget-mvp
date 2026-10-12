@@ -22,6 +22,7 @@ const READ_SEEN = new Set([
     ...('does' in w ? w.does.if : w.word === 'pose' ? w.if : []).flatMap((t) => (t.kind === 'flag' ? [t.name] : [])),
   ])),
   ...Object.values(C.hint).flatMap((h) => h.until.flatMap((t) => (t.kind === 'flag' ? [t.name] : []))),
+  ...Object.values(C.night).flatMap((nt) => nt.children.flatMap((c) => c.does.if.flatMap((t) => (t.kind === 'flag' ? [t.name] : [])))),
 ].filter((f) => f.startsWith('seen:')));
 
 /** What the night's progress is, ignoring where he stands, what time it is, and sights nothing reads. */

@@ -251,6 +251,12 @@ UI colours, the two lights, surfaces, things, beasts and the cast. Models name t
 | `--ivory` | billiard balls, piano keys |
 | `--marble-bust` | Mr. Gladstone |
 | `--file-board` | file boxes |
+| `--clay` | the chulha's clay |
+| `--soot` | soot and char |
+| `--turmeric` | turmeric in the spice box |
+| `--ash` | the ash pit |
+| `--velvet-red` | the gaddi's velvet |
+| `--wax` | wax cylinders |
 
 ## Look
 
@@ -367,7 +373,7 @@ The first word whose condition holds answers a touch, in file order, so write th
 | `look` | `look "text"` + effects: touched with empty hands |
 | `use` | `use "item" "text"` + effects: touched with that item in hand |
 | `photo` | `photo "text"` + effects: photographed |
-| `code` | `code "faces" dials= answer= learns="spots" "text"` + effects: dials; the right order fires it; `learns` names the spots that teach it |
+| `code` | `code "faces" dials= answer= learns="spots" wrong="text" "text"` + effects: dials; the right order fires it; `learns` names the spots that teach it; `wrong` is what a wrong turn says |
 | `hide` | `hide "text"`: out of the watchman's sight until he moves |
 | `bed` | `bed "text"`: ends the night, once its deduction is proved |
 | `talk` | `talk "scene" "text"` + effects: begins a scene with someone met in the wing; it ends with `ends "resume"` |

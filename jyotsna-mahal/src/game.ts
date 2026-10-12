@@ -399,7 +399,7 @@ export function enterCode(s: GameState, spotId: string, faces: string[]): GameSt
   const hit = beatFor(s, spotId, ['code']);
   if (!hit || hit.c.word !== 'code') return s;
   if (faces.join(' ') !== hit.c.answer.join(' ')) {
-    s = remark(s, 'code-wrong', get('spot', spotId).name);
+    s = hit.c.wrong ? say(s, hit.c.wrong) : remark(s, 'code-wrong', get('spot', spotId).name);
     return { ...s, night: { ...s.night!, clockS: s.night!.clockS + T.WRONG_CODE_MIN * secondsPerMinute() }, events: [...s.events, { type: 'sound', id: 'dial-rattle' }] };
   }
   return whens(apply(say(s, hit.c.text), hit.c.does, hit.key));

@@ -1,0 +1,63 @@
+// DAY 5 — THE RAJA'S MACHINES. The knock, then two of three: read the camera manual in your trunk; billiards and
+// cigars with the Raja, who tests his photographer on lenses and plates (the manual has the answers); or the Dewan on
+// the dynamo, with terrible pride. Clues: camera-manual, dynamo-lecture.
+
+scene "morning-5" day=5 place="breakfast" first="knock-5" name="Day 5 — The Raja's Machines"
+
+beat "knock-5" scene="morning-5" {
+    line "narrator" "Knock. Knock. Knock. The moon is past half and the palace is getting ready to be looked at: bunting, brass polish, a man on a ladder dusting the Durbar Wing's chandeliers one crystal at a time."
+    line "raja" "Today I show you my father's machines, Mr. Thistlewood. The age of electricity! It came to Chandragarh before it came to Cuttack." if="suspicion<=5" sound="laugh"
+    line "raja" "Today, Mr. Thistlewood, I will ask you about photography. You will enjoy that. A man enjoys talking about his profession." if="suspicion>=6"
+    does resets="slots"
+    go "hub-5"
+}
+
+beat "hub-5" scene="morning-5" {
+    line "narrator" "The morning is yours, and then the afternoon." if="slots<2"
+    line "narrator" "The day has gone. The dynamo, they say, will run tonight for the first time since the old Raja died: the bunting needs lights." if="slots>=2"
+    choose "Read the camera manual in your trunk." if="!read-manual slots<2" go="manual" sets="read-manual"
+    choose "Billiards and cigars with the Raja." if="!played-billiards slots<2" go="billiards" sets="played-billiards"
+    choose "Let the Dewan explain the dynamo." if="!heard-dewan slots<2" go="dewan-5" sets="heard-dewan"
+    choose "Dress for dinner." if="slots>=2" go="evening-5"
+}
+
+beat "manual" scene="morning-5" {
+    does adds="slots"
+    line "narrator" "The Ensign manual, in its waxed paper, never opened since the shop. You read it the way you would read a suspect's diary." clue="camera-manual"
+    line "narrator" "Focal length, aperture, plate speed. A photographer's whole religion, in forty pages, with diagrams of a man in a bowler hat photographing a cathedral."
+    go "hub-5"
+}
+
+beat "billiards" scene="morning-5" {
+    does adds="slots"
+    line "narrator" "The billiard room by day: the dust sheet gone, the old Raja's frame swept away, cigars the length of a forearm."
+    line "raja" "Tell me, Mr. Thistlewood. For a portrait in this light, what plate do you use?"
+    choose "\"A slow plate, Your Highness. In this light a fast one fogs.\"" if="knows:camera-manual" go="billiards-2" suspicion=-1
+    choose "\"A fast one. Speed is everything in my line.\"" go="billiards-2" suspicion=2
+    choose "\"Whatever the shop gives me.\"" go="billiards-2" suspicion=1
+}
+
+beat "billiards-2" scene="morning-5" {
+    line "raja" "And the lens. For my durbar hall, which is very large, and very dark?"
+    choose "\"A wide lens, stopped down, and a long exposure. Nobody may move.\"" if="knows:camera-manual" go="billiards-3" suspicion=-1
+    choose "\"A long lens, to bring Your Highness closer.\"" go="billiards-3" suspicion=1
+}
+
+beat "billiards-3" scene="morning-5" {
+    line "raja" "Nobody may move! Ha! In my hall, nobody ever moves. My father saw to that." sound="laugh-long"
+    line "narrator" "He pots the black with a shot that would be illegal in Calcutta, and looks at you to see if you will say so."
+    go "hub-5"
+}
+
+beat "dewan-5" scene="morning-5" {
+    does adds="slots"
+    line "dewan" "The dynamo, Mr. Thistlewood, is a machine of perfect moral character. Every unit it makes is entered. Every unit used is accounted for. As Mr. Gladstone said, there is no waste in a well-kept ledger."
+    line "dewan" "To start her: first the steam valve, slowly, or she bangs. Then the drive belt onto the flywheel, which the boys take off at night or they steal it. Then the starting lever, and pray. In that order. Always in that order." clue="dynamo-lecture"
+    line "dewan" "Some fool ran the larder circuit for an hour last month without authority. I have underlined it twice. In red."
+    go "hub-5"
+}
+
+beat "evening-5" scene="morning-5" {
+    line "narrator" "Dinner, drinks, the bolt. Across the courtyard the Durbar Wing stands dark, its chandeliers waiting. Somewhere inside it a dead man recorded his voice and never let anyone play it." sound="bolt-shut"
+    ends "night"
+}

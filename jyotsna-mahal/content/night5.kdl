@@ -1,0 +1,175 @@
+// NIGHT 5 — THE OLD RAJA'S VOICE. The durbar hall, the dynamo house, the music room, the lantern theatre. The
+// BioShock Infinite showpiece. Proves: someone was at the larder at 4:10; the secret marriage, and the will.
+//
+// The chart:
+//
+//   DURBAR HALL (start; the way back) ─► DYNAMO HOUSE, MUSIC ROOM, LANTERN THEATRE (all open)
+//   DYNAMO HOUSE: the steam valve ─► the belt hook (the drive belt) ─► onto the flywheel ─► the starting lever
+//     ─► [when] the dynamo runs: bulbs and chandeliers come up over the durbar hall, one by one
+//     the circuit log ─► circuit-log (4:10 a.m., the larder circuit, initials B.N.S.D.)
+//   DURBAR HALL: the display case's electric latch opens with the dynamo ─► the wax cylinder
+//   MUSIC ROOM: the cylinder box says the speed ─► the phonograph's governor (wrong speeds: chipmunk, demon)
+//     ─► confession
+//   LANTERN THEATRE (the dynamo): the programme card gives the order ─► the slides ─► slides-digits (୧ ୯)
+//   CASEBOOK: the deduction ─► the way back
+//
+// Threads: the dynamo (valve ─► belt ─► lever), which opens two more: the cylinder (case ─► governor) and the
+// slides; and the circuit log, readable by candle from the start.
+
+night "night-5" n=5 name="The Old Raja's Voice" moon=0.86 moon-alt=55 moon-az=160 start="durbar-hall" at="0 4" turn=0 proves="old-raja-voice" then="morning-6" caught="caught-5" {
+    when if="valve-open belt-on lever-pulled" "The dynamo coughs, catches, and roars. Across the courtyard the bulbs in the Durbar Wing come up one by one, too bright, greenish, never quite steady, and the chandeliers wake over the durbar hall like a crowd getting to its feet." sets="dynamo-on" sound="proved"
+}
+
+room "durbar-hall" night=5 name="The durbar hall" x=0 z=0 w=14 d=10 h=8 floor="marble" walls="wallpaper" dark=0.6 {
+    jaali wall="south" at=-4.5 w=1.6 h=3.4 y=1
+    jaali wall="south" at=4.5 w=1.6 h=3.4 y=1
+    prop "chandelier-dead" at="-3 0" y=6.6
+    prop "chandelier-dead" at="3 0" y=6.6
+    prop "throne" at="0 -4.2" turn=180 solid=0.9
+    lamp at="-3 0" y=5.6 kind="bulb" if="dynamo-on"
+    lamp at="3 0" y=5.6 kind="bulb" if="dynamo-on"
+    lamp at="0 -3" y=3 kind="bulb" if="dynamo-on"
+}
+
+room "dynamo-house" night=5 name="The dynamo house" x=10 z=0 w=6 d=7 h=5 floor="brick" walls="brick" dark=0.85 {
+    jaali wall="east" at=0 w=1 h=1.4 y=2
+    prop "dynamo" at="0.5 -1.5" solid=1.2
+    lamp at="-2 2.5" y=2.6 kind="bulb" if="dynamo-on"
+}
+
+room "music-room" night=5 name="The music room" x=0 z=-9 w=8 d=8 h=5 floor="teak" walls="wallpaper" dark=0.8 {
+    jaali wall="west" at=0 w=1.2 h=2.2 y=1
+    lamp at="0 0" y=3 kind="bulb" if="dynamo-on"
+}
+
+room "lantern-theatre" night=5 name="The magic-lantern theatre" x=-10 z=0 w=6 d=8 h=5 floor="teak" walls="wallpaper" dark=0.9 {
+    prop "lantern-screen" at="-2.85 0" turn=90
+    lamp at="2 3" y=2.6 kind="bulb" if="dynamo-on"
+}
+
+door "dynamo-arch" name="the passage to the dynamo house" from="durbar-hall" wall="east" at=0 to="dynamo-house" w=1.6 h=3 open=#true arch=#true
+door "music-arch" name="the music room doors" from="durbar-hall" wall="north" at=0 to="music-room" w=2 h=3.2 open=#true arch=#true
+door "theatre-arch" name="the lantern theatre doors" from="durbar-hall" wall="west" at=0 to="lantern-theatre" w=1.6 h=3 open=#true arch=#true
+
+spot "durbar-way-back" room="durbar-hall" name="the way back to your room" at="0 4.85" y=1.2 r=0.6 {
+    bed "You leave the dynamo running. Let them wonder who. From your bed you can see the Durbar Wing's windows burning green across the courtyard, and hear, very faintly, a dead man's voice in your head, at the right speed."
+    look "The way back. Not yet: the old Raja has not finished speaking."
+}
+
+// ---------- the dynamo house ----------
+
+spot "steam-valve" room="dynamo-house" name="the steam valve" at="-2.2 -2.9" y=1.3 r=0.6 model="valve-wheel" turn=180 {
+    look if="valve-open" "The valve is open. The boiler mutters to itself."
+    look "A red iron wheel on the steam pipe. You turn it slowly, the way the Dewan said, and the pipes knock and hiss and settle into a mutter." sets="valve-open" sound="punkah"
+}
+
+spot "belt-hook" room="dynamo-house" name="the belt hook" at="2.85 2" y=1.5 r=0.6 {
+    look if="!has:drive-belt !belt-on" "On a hook by the door, where the boys hang it at night so it won't be stolen: the drive belt, a great loop of greasy leather." gives="drive-belt"
+    look "An empty hook."
+}
+
+spot "flywheel" room="dynamo-house" name="the flywheel" at="0.5 -0.2" y=1.1 r=0.8 {
+    use "drive-belt" "You heave the belt over the flywheel and onto the dynamo's pulley. It is like dressing an elephant." takes="drive-belt" sets="belt-on" sound="drag"
+    look if="belt-on" "The belt is on, taut from flywheel to pulley."
+    look "The dynamo's flywheel, taller than you, and the pulley it should drive, with nothing between them."
+}
+
+spot "start-lever" room="dynamo-house" name="the starting lever" at="2.6 -1.5" y=1.1 r=0.6 model="lever-panel" turn=270 {
+    look if="dynamo-on" "The lever is home. The dynamo roars. Every bulb in the wing is burning your secret into the night."
+    look if="valve-open belt-on" "You pull the starting lever, and pray." sets="lever-pulled" sound="bolt-lift"
+    look if="!valve-open" "You pull the lever. Nothing: there is no steam. The Dewan's order, first the valve."
+    look "You pull the lever. The flywheel turns, and turns nothing. The belt, then."
+}
+
+spot "circuit-log" room="dynamo-house" name="the circuit log" at="-2.2 2.2" y=1 r=0.6 model="writing-desk" turn=90 solid=0.5 {
+    look "The dynamo house's circuit log, a column for every circuit, a line for every switching. September the 12th: \"04:10. Larder circuit ON.\" Then: \"05:05. OFF.\" Initialled, not by the engineer: B.N.S.D." clue="circuit-log"
+    photo "A plate of the log's page: 04:10, larder circuit, B.N.S.D." clue="circuit-log"
+}
+
+spot "gauges" room="dynamo-house" name="the gauges" at="0.5 -3.35" y=2 r=0.6 {
+    look if="dynamo-on" "Every needle trembling in the green. A machine of perfect moral character."
+    look "Brass gauges: steam, volts, amperes. Every needle on nought."
+}
+
+// ---------- the durbar hall ----------
+
+spot "display-case" room="durbar-hall" name="the display case" at="-5 -4.5" y=1.1 r=0.7 model="display-case" turn=180 solid=0.5 {
+    look if="dynamo-on !has:wax-cylinder !played-cylinder" "With a click the case's electric latch lets go. Inside, among the old Raja's durbar medals, a wax cylinder in a cardboard tube: \"Not to be played. C.S.D.\"" gives="wax-cylinder" sound="lock-open"
+    look if="has:wax-cylinder" "The empty place where the cylinder lay."
+    look if="played-cylinder" "The empty place where the cylinder lay."
+    look "A glass case of the old Raja's durbar medals, and, at the back, a cardboard tube. The case has no keyhole: an electric latch, dead. Everything in this wing waits on the dynamo."
+}
+
+spot "throne" room="durbar-hall" name="the gaddi" at="0 -4.2" y=1 r=0.9 {
+    look "The gaddi, the throne, in red velvet worn pink where a hundred years of Rajas have sat on it. In front of it, a footstool, and in the footstool's velvet a small burn, the size of a cigar end."
+}
+
+// ---------- the music room ----------
+
+spot "cylinder-box" room="music-room" name="the cylinder box" at="-3 -3.6" y=1 r=0.6 model="cylinder-case" turn=180 solid=0.4 {
+    look "A box of wax cylinders, each labelled: \"Shehnai, recorded at Puri.\" \"The Rani's song.\" All of them, in the same hand: \"Recorded at one hundred and sixty revolutions.\"" clue="cylinder-speed"
+}
+
+spot "phonograph" room="music-room" name="the phonograph" at="1.5 -3.4" y=1.1 r=0.7 model="phonograph" turn=180 solid=0.5 {
+    look if="played-cylinder" "The phonograph, silent. You will hear that voice again whether it plays or not."
+    look if="!has:wax-cylinder" "A great Edison phonograph with a brass horn like a lily, and a governor dial for the speed. Nothing on the mandrel."
+    look "You slide the cylinder onto the mandrel. The governor dial wants setting: too slow and too fast both lie."
+    code "80 120 160 200" dials=1 answer="160" learns="cylinder-box" if="has:wax-cylinder" wrong="You crank it and drop the needle. The dead Raja's voice comes out of the horn wrong: a chipmunk confessing, or a demon gargling, by turns. The jackals outside take it personally." "A hundred and sixty. Hiss, crackle, and then a voice, old and clear and close: \"I, Chandrasekhar Singh Deo, Raja of Chandragarh, set down that on the ninth of February 1906 I married Malati, dancer, by fire and before the registrar at Cuttack, and that our son Sudam is my eldest son and my heir. I have not the courage to say it aloud. I have made a machine say it for me.\"" takes="wax-cylinder" sets="played-cylinder" clue="confession" sound="proved"
+}
+
+// ---------- the lantern theatre ----------
+
+spot "programme" room="lantern-theatre" name="the programme card" at="2.85 -2" y=1.4 r=0.6 model="calendar-print" turn=270 {
+    look "A printed programme, framed: \"THE DELHI DURBAR, 1911, IN TWENTY-FOUR SLIDES. I. The Procession. II. The Elephants. III. The Pavilion. IV. The King-Emperor.\"" clue="durbar-programme"
+}
+
+spot "magic-lantern" room="lantern-theatre" name="the magic lantern" at="1.5 0" y=1.2 r=0.7 model="magic-lantern" turn=270 solid=0.5 {
+    look if="slides-done" "The lantern hums. On the screen, ୧ ୯, in the old Raja's hand."
+    look if="!dynamo-on" "A great brass magic lantern with an electric arc lamp, dead. A tray of four glass slides beside it, in no order at all."
+    look "The arc lamp fizzes alive on the dynamo's current. The slides wait in their tray, in no order at all."
+    code "procession elephants pavilion king" dials=4 answer="procession elephants pavilion king" learns="programme" if="dynamo-on" "Procession, elephants, pavilion, King-Emperor: the 1911 durbar marches across the screen, crowds and elephants and pavilions, a whole optimistic age. On the last slide, scratched into the glass's black border, in the old Raja's hand: ୧ ୯, and \"the first two.\"" sets="slides-done" clue="slides-digits" sound="shutter"
+}
+
+// ---------- Bhima ----------
+
+patrol "bhima-5" night=5 who="bhima" speed=0.9 {
+    stop "durbar-hall" at="-5 2" wait=4
+    stop "durbar-hall" at="5 2" wait=4
+    stop "durbar-hall" at="5 -2" wait=2
+    stop "durbar-hall" at="-5 -2" wait=2
+}
+
+patrol "bearer-5" night=5 who="bhima" speed=0.7 if="suspicion>=6" {
+    stop "music-room" at="-2 1" wait=6
+    stop "music-room" at="2 1" wait=6
+}
+
+hint "n5-dynamo" night=5 until="dynamo-on" after-s=200 text="Everything in this wing waits on the dynamo. Steam, belt, lever: the Dewan would say there is an order to everything."
+hint "n5-cylinder" night=5 until="played-cylinder" after-s=240 text="The cylinders in the music room are all labelled with the speed they were made at."
+hint "n5-slides" night=5 until="slides-done" after-s=240 text="Four slides of the 1911 durbar, and a programme card on the wall that says what order they go in."
+hint "n5-deduce" night=5 until="old-raja-voice" after-s=240 text="The case: who switched on the larder light at 4:10, what the old Raja confessed, and who was his heir."
+
+deduction "old-raja-voice" night=5 title="The old Raja's voice" reveal="At ten past four on the morning after the shikar, while the guests slept off their pig, someone with the Raja's initials switched on the light in the larder where his half-brother lay, and switched it off fifty-five minutes later. And the old Raja's machine says what he never could: that Sudam was his lawful eldest son, and his heir." question="If Sudam was the heir, where are the papers that make him so? \"Where the gifts are kept,\" the letter said." {
+    ask "At 4:10 a.m. after the shikar, the larder light was switched on by" options="Bhima, on his round | someone who initials B.N.S.D." answer="someone who initials B.N.S.D." from="circuit-log"
+    ask "The old Raja's cylinder says Malati was" options="his mistress | his lawful wife" answer="his lawful wife" from="confession"
+    ask "By his father's word, the heir of Chandragarh was" options="Bhairab, the Rani's son | Sudam, the elder son" answer="Sudam, the elder son" from="confession"
+}
+
+scene "caught-5" day=5 place="caught" first="caught-5a"
+
+beat "caught-5a" scene="caught-5" {
+    line "narrator" "The lantern, unnecessary now, in a hall full of electric light."
+    choose "\"I was photographing the chandeliers. The Raja wants them in the album.\"" if="dynamo-on" go="caught-5-back"
+    choose "\"I was photographing the moon.\"" if="told-moon" go="caught-5-back" suspicion=1
+    choose "\"I heard the old Raja's voice.\"" go="caught-5-voice" suspicion=1 regard=1
+}
+
+beat "caught-5-voice" scene="caught-5" {
+    line "narrator" "Bhima's hand, holding the lantern, tightens until the bail creaks. \"He was a great man,\" he says. It is the first thing you have heard him say. \"Go to bed, sahib.\""
+    go "caught-5-back"
+}
+
+beat "caught-5-back" scene="caught-5" {
+    line "narrator" "The bolt slides home." sound="bolt-shut"
+    ends "back-to-room"
+}

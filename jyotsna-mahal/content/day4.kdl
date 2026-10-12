@@ -1,8 +1,84 @@
-// DAY 4 — LUNCHEON AND CARDS. (Being written.)
+// DAY 4 — LUNCHEON AND CARDS. The knock, a long luncheon on the terrace, then two of three: Jagu's pakhala (win his
+// trust and he lets the kitchen key fall where you can find it), cards with the Raja, or Mrs. Ghatak's gossip.
+// Gives: kitchen-key (with Jagu's trust; otherwise Night 4 has the coal chute). Clues: alibis, jagu-proverb.
 
 scene "morning-4" day=4 place="breakfast" first="knock-4" name="Day 4 — Luncheon and Cards"
 
 beat "knock-4" scene="morning-4" {
-    line "narrator" "Knock. Knock. Knock."
+    line "narrator" "Knock. Knock. Knock. Then, unusually, a fourth, softer, as if Bhima had thought of something and decided against it."
+    line "raja" "Luncheon on the terrace, Mr. Thistlewood! Jagu has outdone himself. Jagu always outdoes himself. It is the only thing he is afraid of." if="suspicion<=5" sound="laugh"
+    line "raja" "Luncheon, Mr. Thistlewood. Sit by me. I like to watch a man eat." if="suspicion>=6"
+    line "narrator" "The terrace: white cloth, silver, the heat standing on the marble like a guest who will not sit down. Mrs. Sahukar has a parasol and a fan and a smelling bottle, and uses all three."
+    does resets="slots"
+    go "hub-4"
+}
+
+beat "hub-4" scene="morning-4" {
+    line "narrator" "The luncheon goes on. And on." if="slots<2"
+    line "narrator" "The shadows have come round under the table. The Raja is asleep in his chair, with his mouth open and his rings on." if="slots>=2"
+    choose "Eat Jagu's pakhala, and talk to Jagu." if="!ate-pakhala slots<2" go="pakhala" sets="ate-pakhala"
+    choose "Play cards with the Raja." if="!played-cards slots<2" go="cards" sets="played-cards"
+    choose "Sit with Mrs. Ghatak." if="!sat-mrs-ghatak slots<2" go="mrs-ghatak-4" sets="sat-mrs-ghatak"
+    choose "Let the afternoon end." if="slots>=2" go="evening-4"
+}
+
+beat "pakhala" scene="morning-4" {
+    does adds="slots"
+    line "narrator" "Jagu the khansama brings you pakhala himself: cold rice in water, with a fried fish, a green chilli, and a pickle. He stands at your elbow, small and quick and terrified, while you eat it."
+    line "jagu" "A guest who eats pakhala, sahib, is a guest who means to stay. My mother said so. A guest who means to stay should not ask questions in the kitchen."
+    choose "\"The pickle is your mother's too, I think.\"" go="pakhala-right" regard=1
+    choose "\"Excellent. What did you cook for the shikar party?\"" go="pakhala-wrong" suspicion=1
+    choose "\"Delicious. My compliments.\"" go="pakhala-plain"
+}
+
+beat "pakhala-right" scene="morning-4" {
+    line "jagu" "My mother's. Thirty years in a jar. Nobody has asked."
+    line "narrator" "He takes away your plate. Under it, when he has gone, is a long iron key, which was not there before. Jagu does not look back." gives="kitchen-key" sets="jagu-trust" clue="jagu-proverb"
+    go "hub-4"
+}
+
+beat "pakhala-wrong" scene="morning-4" {
+    line "jagu" "Food, sahib. I cooked food. A cook cooks what he is given."
+    line "narrator" "He goes so quickly the water in your bowl shivers. Across the terrace the Raja has noticed, and goes on noticing." clue="jagu-proverb"
+    go "hub-4"
+}
+
+beat "pakhala-plain" scene="morning-4" {
+    line "jagu" "Sahib is kind. A kind guest should sleep at night, sahib. All night. Every night." clue="jagu-proverb"
+    go "hub-4"
+}
+
+beat "cards" scene="morning-4" {
+    does adds="slots"
+    line "narrator" "Cards: the Raja, Mr. Sahukar, and you, for annas a point. The Raja cheats with tremendous openness. Mr. Sahukar lets him. Halfway through, you could win."
+    choose "Lose, gracefully." go="cards-lose" suspicion=-2
+    choose "Win." go="cards-win" suspicion=1
+}
+
+beat "cards-lose" scene="morning-4" {
+    line "raja" "Ha! The Englishman cannot shoot and he cannot play. What can you do, Mr. Thistlewood?" sound="laugh"
+    line "thistlewood" "Photograph, Your Highness. And lose."
+    line "raja" "And lose! Bhima, the man is a philosopher. Give him a cigar." sound="laugh-long"
+    go "hub-4"
+}
+
+beat "cards-win" scene="morning-4" {
+    line "narrator" "You lay down the winning hand. There is a pause long enough to boil an egg in."
+    line "raja" "So. You can play, when you want to. I shall remember what you want to do, Mr. Thistlewood." sound="laugh-long"
+    go "hub-4"
+}
+
+beat "mrs-ghatak-4" scene="morning-4" {
+    does adds="slots"
+    line "mrs-ghatak" "You are interested in the shikar party, Mr. Thistlewood. Everybody is interested in a party they were not invited to."
+    line "mrs-ghatak" "We all went to bed at midnight. Pitambar says so. Dibakar says so. Lilabati says so, when she is conscious."
+    line "mrs-sahukar" "I was in bed by ten. I had a headache. I always have a headache."
+    line "narrator" "Mrs. Sahukar swoons, on cue, onto Mr. Sahukar, who catches her without looking up from his cards. Mrs. Ghatak watches him catch her. Her eyes are closed; she watches anyway." clue="alibis" sound="flutter"
+    go "hub-4"
+}
+
+beat "evening-4" scene="morning-4" {
+    line "narrator" "Dinner is a boar, roasted, carved by the Raja himself. Mrs. Sahukar does not eat. Mr. Ghatak eats twice, loudly, and talks about the medicinal relapse with his mouth full. Nobody looks at the meat."
+    line "narrator" "Bhima bolts you in. Tonight: the servants' passage, the kitchens, the larder nobody opens, the walled garden where the fire was." sound="bolt-shut"
     ends "night"
 }
