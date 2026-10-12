@@ -142,6 +142,9 @@
   /* A lamp's or diya's amber pool: strength and reach. */
   --look-flame-light: 2.2;
   --look-flame-reach-u: 4.5;
+  /* The dynamo's bulbs: too bright, and they reach further than a flame. */
+  --look-bulb-light: 6;
+  --look-bulb-reach-u: 9;
   /* Thistlewood's candle stub. */
   --look-candle-light: 1.6;
   --look-candle-reach-u: 5;

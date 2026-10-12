@@ -110,6 +110,9 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
     camera.updateMatrixWorld();
   }
 
+  /** Does the scene under way put the eye somewhere of its own (a place with an `eye`)? */
+  const wantsEye = (s: GameState) => { const sc = s.talk && get('scene', s.talk.scene); return !!sc && get('place', sc.place).children.some((c) => c.word === 'eye'); };
+
   return {
     camera, renderer,
     /** Match the view to the state (cheap when nothing changed). */
@@ -122,7 +125,7 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
       const flame = hands.root.getObjectByName('flame');
       if (flame) flame.visible = candle.visible;
       hands.root.visible = !s.talk;
-      if (s.night && !s.talk) eye = { x: s.night.x, y: LOOK.EYE_HEIGHT_U, z: s.night.z, turn: 0 };
+      if (s.night && (!s.talk || !wantsEye(s))) eye = { x: s.night.x, y: (wing?.floorAt(s.night.x, s.night.z) ?? 0) + LOOK.EYE_HEIGHT_U, z: s.night.z, turn: 0 };
     },
     /** A flash: the camera's magnesium, for a moment. */
     flash() { flashT = LOOK.FLASH_S; },

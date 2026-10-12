@@ -75,6 +75,8 @@ export type GameState = {
   /** Thistlewood's thoughts (hints) in the order he had them: the casebook keeps them. */
   thoughts: string[];
   marks: Marks;
+  /** Counters content keeps (`adds="slots"`, `slots<2`): how many of a day's engagements he has spent. */
+  counts: Record<string, number>;
   talk: Talk | null;
   night: NightRun | null;
   events: GameEvent[];
@@ -82,7 +84,7 @@ export type GameState = {
 
 const base = (): GameState => ({
   day: 1, phase: 'day', ending: null, flags: [], items: [], clues: [], fired: [], thoughts: [],
-  marks: { suspicion: T.SUSPICION_START, regard: T.REGARD_START }, talk: null, night: null, events: [],
+  marks: { suspicion: T.SUSPICION_START, regard: T.REGARD_START }, counts: {}, talk: null, night: null, events: [],
 });
 
 /** The first morning: Day 1's first scene. */
@@ -102,7 +104,8 @@ export function holds(s: GameState, conds: Cond[]): boolean {
     if (c.kind === 'flag') return s.flags.includes(c.name) !== c.not;
     if (c.kind === 'has') return s.items.includes(c.item) !== c.not;
     if (c.kind === 'knows') return s.clues.includes(c.clue) !== c.not;
-    const v = s.marks[c.mark];
+    if (c.kind === 'after') return (!!s.night && watchMin(s.night) >= c.min) !== c.not;
+    const v = c.kind === 'mark' ? s.marks[c.mark] : s.counts[c.name] ?? 0;
     return c.op === '>=' ? v >= c.n : c.op === '<=' ? v <= c.n : c.op === '>' ? v > c.n : v < c.n;
   });
 }
@@ -121,6 +124,12 @@ function apply(s: GameState, e: Effects, key?: string): GameState {
   const flags = add(drop(s.flags, e.unsets), e.sets);
   const clues = add(s.clues, e.clue);
   const marks = e.marks.reduce((m, r) => r(m), s.marks);
+  let counts = s.counts;
+  if (e.adds.length || e.resets.length) {
+    counts = { ...counts };
+    for (const c of e.resets) counts[c] = 0;
+    for (const c of e.adds) counts[c] = (counts[c] ?? 0) + 1;
+  }
   let night = s.night;
   if (night) {
     const progressed = items.length > s.items.length || flags.length !== s.flags.length || clues.length > s.clues.length;
@@ -129,7 +138,7 @@ function apply(s: GameState, e: Effects, key?: string): GameState {
     for (const id of e.closes) if (night.doors.includes(id)) ev.push({ type: 'door', id, open: false });
     night = { ...night, doors, sinceProgressS: progressed ? 0 : night.sinceProgressS, clockS: night.clockS + e.minutes * secondsPerMinute() };
   }
-  return { ...s, items, flags, clues, marks, night, fired: e.once && key ? add(s.fired, [key]) : s.fired, events: ev };
+  return { ...s, items, flags, clues, marks, counts, night, fired: e.once && key ? add(s.fired, [key]) : s.fired, events: ev };
 }
 
 const say = (s: GameState, text: string): GameState => ({ ...s, events: [...s.events, { type: 'said', text }] });
@@ -270,14 +279,15 @@ export function choose(s: GameState, i: number): GameState {
   if (!c) return s;
   s = apply(s, c.does);
   if (c.go) return enterBeat(s, c.go);
-  if (c.ends) return endScene(s, c.ends as 'night');
+  if (c.ends) return endScene(s, c.ends as 'night' | 'resume' | 'ending');
   return resolve(s, beatOf(s.talk!.beat));
 }
 
-function endScene(s: GameState, how: 'night' | 'back-to-room' | 'morning' | 'ending', ending?: string): GameState {
+function endScene(s: GameState, how: 'night' | 'back-to-room' | 'morning' | 'resume' | 'ending', ending?: string): GameState {
   s = { ...s, talk: null };
   if (how === 'night') return startNight(s, s.day);
   if (how === 'back-to-room') return backToRoom(s);
+  if (how === 'resume') return whens({ ...s, phase: 'night' });
   if (how === 'morning') return enterScene({ ...s, day: s.day + 1, phase: 'day', night: null }, firstScene(s.day + 1));
   return { ...s, phase: 'end', ending: ending ?? 'the-end', night: null, events: [...s.events, { type: 'ending', id: ending ?? 'the-end' }] };
 }
@@ -286,7 +296,7 @@ function endScene(s: GameState, how: 'night' | 'back-to-room' | 'morning' | 'end
 
 export function startNight(s: GameState, n: number): GameState {
   const nt = nightOf(n), room = get('room', nt.start);
-  const watch = Object.values(C.patrol).filter((p) => p.night === n).map((p): Watchman => {
+  const watch = Object.values(C.patrol).filter((p) => p.night === n && holds(s, p.if ?? [])).map((p): Watchman => {
     const st = p.children[0]!, r = get('room', st.room);
     return { id: p.id, x: r.x + st.at[0], z: r.z + st.at[1], face: 0, leg: 1 % p.children.length, wait: st.wait, mode: 'patrol', t: 0, lastX: 0, lastZ: 0, trail: [] };
   });
@@ -334,7 +344,7 @@ export function reachable(s: GameState, spotId: string, extra = 0): boolean {
   return Math.hypot(room.x + p.at[0] - n.x, room.z + p.at[1] - n.z) <= sp.r + T.REACH_U + extra;
 }
 
-type Verb = 'look' | 'use' | 'photo' | 'code' | 'hide' | 'bed';
+type Verb = 'look' | 'use' | 'photo' | 'code' | 'hide' | 'bed' | 'talk';
 /** The beat a touch would fire: the first of `verbs` (with `item` for use) whose condition holds and isn't spent. */
 export function beatFor(s: GameState, spotId: string, verbs: Verb[], item?: string) {
   const sp = get('spot', spotId);
@@ -356,12 +366,13 @@ export function interact(s: GameState, spotId: string, item?: string): GameState
   if (item && !s.items.includes(item)) return s;
   const sp = get('spot', spotId);
   s = { ...s, flags: add(s.flags, [`seen:${spotId}`]) };
-  const hit = beatFor(s, spotId, item ? ['use'] : ['look', 'hide', 'bed'], item);
+  const hit = beatFor(s, spotId, item ? ['use'] : ['look', 'hide', 'bed', 'talk'], item);
   if (!hit) return item ? remark(s, 'wrong-item', sp.name) : remark(s, 'nothing', sp.name);
   s = apply(say(s, hit.c.text), hit.c.does, hit.key);
   if (hit.c.word === 'hide') s = { ...s, night: { ...s.night!, hidden: spotId } };
-  if (hit.c.word === 'bed') s = { ...s, phase: 'reveal', events: [...s.events, { type: 'night-end', n: s.night!.n }] };
-  return s;
+  if (hit.c.word === 'bed') return { ...s, phase: 'reveal', events: [...s.events, { type: 'night-end', n: s.night!.n }] };
+  if (hit.c.word === 'talk') return enterScene(s, hit.c.key!);
+  return whens(s);
 }
 
 /** Photograph a spot (the camera reaches further than a hand). */
@@ -372,7 +383,7 @@ export function photograph(s: GameState, spotId: string): GameState {
   s = { ...s, flags: add(s.flags, [`seen:${spotId}`]), events: [{ type: 'photo', spot: spotId }] };
   const hit = beatFor(s, spotId, ['photo']);
   if (!hit) return remark(s, 'photo-plain', sp.name);
-  return apply(say(s, hit.c.text), hit.c.does, hit.key);
+  return whens(apply(say(s, hit.c.text), hit.c.does, hit.key));
 }
 
 /** The dials a spot carries, if any (what the code screen shows). */
@@ -391,7 +402,7 @@ export function enterCode(s: GameState, spotId: string, faces: string[]): GameSt
     s = remark(s, 'code-wrong', get('spot', spotId).name);
     return { ...s, night: { ...s.night!, clockS: s.night!.clockS + T.WRONG_CODE_MIN * secondsPerMinute() }, events: [...s.events, { type: 'sound', id: 'dial-rattle' }] };
   }
-  return apply(say(s, hit.c.text), hit.c.does, hit.key);
+  return whens(apply(say(s, hit.c.text), hit.c.does, hit.key));
 }
 
 /** Put two things from the pockets together. */
@@ -400,12 +411,24 @@ export function combine(s: GameState, a: string, b: string): GameState {
   if (!s.items.includes(a) || !s.items.includes(b) || a === b) return s;
   const r = Object.values(C.recipe).find((x) => x.from.includes(a) && x.from.includes(b));
   if (!r) return remark(s, 'combine-no');
-  const eff: Effects = { if: [], gives: [r.makes], takes: [a, b], sets: [], unsets: [], clue: [], opens: [], closes: [], sound: r.sound, marks: [], once: false, minutes: 0 };
-  return apply(say(s, r.says), eff);
+  const eff: Effects = { if: [], gives: [r.makes], takes: [a, b], sets: [], unsets: [], clue: r.clue ?? [], opens: [], closes: [], sound: r.sound, marks: [], once: false, minutes: 0, adds: [], resets: [] };
+  return whens(apply(say(s, r.says), eff));
 }
 
 export const toggleCandle = (s: GameState): GameState =>
   roaming(s) ? { ...fresh(s), night: { ...s.night!, candle: !s.night!.candle, hidden: s.night!.candle ? s.night!.hidden : null }, events: [{ type: 'sound', id: s.night!.candle ? 'snuff' : 'match' }] } : s;
+
+/** The night's `when` words whose condition now holds fire, once each, by themselves. */
+export function whens(s: GameState): GameState {
+  if (!s.night) return s;
+  const nt = nightOf(s.night.n);
+  nt.children.forEach((c, i) => {
+    const key = `${nt.id}#${i}`;
+    if (c.word !== 'when' || s.fired.includes(key) || !holds(s, c.does.if)) return;
+    s = apply(say(s, c.text), { ...c.does, once: true }, key);
+  });
+  return s;
+}
 
 // ---------- the casebook's deduction ----------
 
@@ -429,7 +452,9 @@ export function confirm(s: GameState, dedId: string, answers: string[]): GameSta
 /** After the reveal card: the night's following scene. */
 export function afterReveal(s: GameState): GameState {
   if (s.phase !== 'reveal') return s;
-  return enterScene({ ...fresh(s), phase: 'day' }, nightOf(s.night!.n).then);
+  const n = s.night!.n;
+  s = enterScene({ ...fresh(s), phase: 'day', day: n + 1, counts: {} }, nightOf(n).then);
+  return { ...s, events: [...s.events, { type: 'save' }] };
 }
 
 // ---------- time: the clock, the knock, the hints, the watchman ----------
@@ -461,10 +486,11 @@ export function tick(s: GameState, dtS: number): GameState {
     n = { ...n, knocks: n.knocks + 1 };
     marks = { ...marks, suspicion: Math.min(T.SUSPICION_PEAK - 1, marks.suspicion + T.KNOCK_SUSPICION) };
   }
-  s = { ...s, night: n, marks };
+  s = whens({ ...s, night: n, marks });
   // A thought, when stuck long enough on something not yet done.
   const hint = Object.values(C.hint).find((h) => h.night === n.n && !n.hints.includes(h.id) && n.sinceProgressS >= h['after-s'] && !holds(s, h.until));
   if (hint) { s = { ...s, thoughts: [...s.thoughts, hint.text], night: { ...s.night!, hints: [...n.hints, hint.id], sinceProgressS: 0 } }; ev.push({ type: 'hint', id: hint.id, text: hint.text }); }
+  if (s.events.length) ev.push(...s.events);
   // The watchmen.
   let caught: string | null = null;
   const watch = s.night!.watch.map((w) => {
@@ -541,6 +567,7 @@ export const SaveSchema = z.object({
   day: z.number().int().positive(), phase: z.enum(['day', 'night', 'reveal', 'end']), ending: z.string().nullable(),
   flags: Ids, items: Ids, clues: Ids, fired: Ids, thoughts: Ids,
   marks: z.object({ suspicion: z.number(), regard: z.number() }),
+  counts: z.record(z.string(), z.number()).default({}),
   talk: z.object({ scene: z.string(), beat: z.string(), at: z.number().int(), t: z.number(), said: z.number().int() }).nullable(),
   night: z.object({ n: z.number().int(), x: z.number(), z: z.number(), candle: z.boolean(), hidden: z.string().nullable(), clockS: z.number(), quarters: z.number().int(), knocks: z.number().int(), sinceProgressS: z.number(), doors: Ids, hints: Ids, watch: z.array(WatchSave), caught: z.number().int() }).nullable(),
 });

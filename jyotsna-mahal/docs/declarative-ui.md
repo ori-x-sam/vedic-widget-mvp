@@ -262,6 +262,8 @@ Plain numbers, the unit the name's last word (`u`, `s`, `deg`, `px`, `hz`); no u
 | `--look-candle-reach-u` | how far the candle reaches |
 | `--look-lantern-light` | Bhima's lantern's strength |
 | `--look-lantern-reach-u` | how far the lantern reaches |
+| `--look-bulb-light` | a dynamo bulb's strength |
+| `--look-bulb-reach-u` | how far a bulb reaches |
 | `--look-flicker` | how much flames flicker, 0..1 |
 | `--look-sun-light` | the day's sun |
 | `--look-sun-dir` | `x y z` towards the sun |
@@ -293,7 +295,7 @@ file lists its words.
 |---|---|
 | `person` | `person "id" name= short= paint="--token" sound=`: someone who speaks; `narrator` and `thistlewood` are people too |
 | `item` | `item "id" name= blurb=`: something for the pockets |
-| `recipe` | `recipe "id" from="a b" makes="item" says= sound=`: two items put together make a third |
+| `recipe` | `recipe "id" from="a b" makes="item" says= sound= clue=`: two items put together make a third (and may tell him something) |
 | `clue` | `clue "id" page="evidence|photograph|testimony|note" title= text=`: a casebook entry |
 | `remark` | `remark "id" text=`: Thistlewood's stock line for a touch with no script (`wrong-item`, `nothing`, `photo-plain`, `code-wrong`, `combine-no`, `deduction-wrong`); `{name}` is the spot's name |
 | `sound` | `sound "id" play="instrument" hz= gain= len= times= gap=`: a sound, from one instrument |
@@ -302,10 +304,10 @@ file lists its words.
 | `place` | `place "id" set= light="day|dusk|night" { place words }`: where a scene happens |
 | `beat` | `beat "id" scene= timer-s= timeout="beat" { beat words }`: lines, then choices or what comes next |
 | `night` | `night "id" n= name= moon= moon-alt= moon-az= start="room" at= turn= proves="deduction" then="scene" caught="scene" { night words }` |
-| `room` | `room "id" night= name= x= z= w= d= h= floor="surface" walls="surface" dark= { room words }`: a room on the floor plan, centre and size in metres |
+| `room` | `room "id" night= name= x= z= w= d= h= y= open= floor="surface" walls="surface" dark= { room words }`: a room on the floor plan, centre and size in metres; `y` its floor's height, `open` no ceiling |
 | `door` | `door "id" name= from="room" wall= at= to="room" w= h= open= arch=`: a door in a wall of `from`, onto `to` |
 | `spot` | `spot "id" room= name= at="x z" y= r= model= turn= solid= { spot words }`: something to touch, photograph, work, hide in or sleep on |
-| `patrol` | `patrol "id" night= who= speed= { stop "room" at= wait= }`: the watchman's round, looping |
+| `patrol` | `patrol "id" night= who= speed= if= { stop "room" at= wait= }`: a watchman's round, looping; only on nights its `if` holds at the start |
 | `hint` | `hint "id" night= until="condition" after-s= text=`: a thought, after that long without progress while `until` doesn't hold |
 | `deduction` | `deduction "id" night= title= reveal= question= { ask ... }`: the casebook page that proves the night |
 | `ending` | `ending "id" title= text=`: an end card |
@@ -326,7 +328,7 @@ file lists its words.
 | `choose` | `choose "text" go="beat"` (or `ends=`) + effects: a choice |
 | `does` | `does` + effects: effects as the beat reaches it, no text |
 | `go` | `go "beat" if=`: after the last line (no choices), the first `go` or `ends` that holds |
-| `ends` | `ends "night|back-to-room|morning|ending" ending="id" if=`: the scene ends |
+| `ends` | `ends "night|back-to-room|resume|morning|ending" ending="id" if=`: the scene ends (`resume`: back to walking the wing) |
 
 ## Night words
 
@@ -334,6 +336,7 @@ file lists its words.
 |---|---|
 | `begins` | effects when the night starts |
 | `on-caught` | effects when Bhima walks him back |
+| `when` | `when if=... "text"` + effects: fires once, by itself, the moment its condition holds |
 
 ## Room words
 
@@ -341,8 +344,8 @@ file lists its words.
 |---|---|
 | `jaali` | `jaali wall= at= w= h= y= moon=`: a pierced stone window; the moon shines through it when it faces the moon |
 | `transom` | `transom wall= at= w= h= y=`: a jaali over a door |
-| `prop` | `prop "model" at= turn= y= solid=`: scenery; `solid` blocks walking within that radius |
-| `lamp` | `lamp at= y= kind="diya|hanging|candle"`: a flame's amber pool |
+| `prop` | `prop "model" at= turn= y= solid= if=`: scenery; `solid` blocks walking within that radius; shown while `if` holds |
+| `lamp` | `lamp at= y= kind="diya|hanging|candle|bulb" if=`: a flame's amber pool (`bulb`: the dynamo's light), lit while `if` holds |
 
 ## Spot words
 
@@ -356,6 +359,7 @@ The first word whose condition holds answers a touch, in file order, so write th
 | `code` | `code "faces" dials= answer= learns="spots" "text"` + effects: dials; the right order fires it; `learns` names the spots that teach it |
 | `hide` | `hide "text"`: out of the watchman's sight until he moves |
 | `bed` | `bed "text"`: ends the night, once its deduction is proved |
+| `talk` | `talk "scene" "text"` + effects: begins a scene with someone met in the wing; it ends with `ends "resume"` |
 | `pose` | `pose if= at= turn= y=`: where the spot stands once the condition holds |
 
 ## Deduction words
@@ -383,6 +387,8 @@ Props on any beat word, choice, line or spot word.
 | `regard` | behaviour word: Bhima's regard |
 | `once` | `once=#true`: fires once, then the next word answers |
 | `minutes` | watch minutes it costs |
+| `adds` | counters raised by one (`adds="slots"`: a day's engagement spent) |
+| `resets` | counters back to nought |
 
 ## Conditions
 
@@ -394,6 +400,8 @@ Props on any beat word, choice, line or spot word.
 | `has:item` | the item is in the pockets |
 | `knows:clue` | the clue is in the casebook |
 | `suspicion>=n` | the Raja's suspicion is at least n (also `<=`, `>`, `<`; and `regard`) |
+| `slots<n` | a counter (any name `adds` raises) compared the same way |
+| `after:1:30` / `!after:1:30` | the pocket watch has passed 1:30 a.m. / hasn't (the moon at a height) |
 
 ## Content helpers
 

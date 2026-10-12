@@ -23,22 +23,30 @@ const xz = z.string().regex(/^-?[\d.]+ -?[\d.]+$/, 'a position like "1.5 -2"').t
 const token = z.string().regex(/^--[\w-]+$/, 'a palette token like "--teak"');
 const wall = z.enum(['north', 'south', 'east', 'west']);
 
-// ---------- conditions: `if="door-open !bolted-twice has:hairpin knows:new-plaque suspicion>=5"`, every term must hold ----------
+// ---------- conditions: `if="door-open !bolted-twice has:hairpin knows:new-plaque suspicion>=5 slots<2 after:1:30"`,
+// every term must hold ----------
 
+type Op = '>=' | '<=' | '>' | '<';
 export type Cond =
   | { kind: 'flag'; name: string; not: boolean }
   | { kind: 'has'; item: string; not: boolean }
   | { kind: 'knows'; clue: string; not: boolean }
-  | { kind: 'mark'; mark: 'suspicion' | 'regard'; op: '>=' | '<=' | '>' | '<'; n: number };
+  | { kind: 'mark'; mark: 'suspicion' | 'regard'; op: Op; n: number }
+  | { kind: 'count'; name: string; op: Op; n: number }
+  | { kind: 'after'; min: number; not: boolean };
 
 const cond = z.string().transform((src, ctx): Cond[] => src.split(/\s+/).filter(Boolean).flatMap((term): Cond[] => {
-  const m = /^(suspicion|regard)(>=|<=|>|<)(-?\d+)$/.exec(term);
-  if (m) return [{ kind: 'mark', mark: m[1] as 'suspicion' | 'regard', op: m[2] as '>=', n: Number(m[3]) }];
+  const m = /^([a-z][\w-]*)(>=|<=|>|<)(-?\d+)$/.exec(term);
+  if (m && (m[1] === 'suspicion' || m[1] === 'regard')) return [{ kind: 'mark', mark: m[1], op: m[2] as Op, n: Number(m[3]) }];
+  if (m) return [{ kind: 'count', name: m[1]!, op: m[2] as Op, n: Number(m[3]) }];
   const not = term.startsWith('!'), bare = not ? term.slice(1) : term;
+  // after:1:30 holds once the pocket watch has passed 1:30 a.m. (hours before noon are the small hours of the night).
+  const t = /^after:(\d{1,2}):(\d\d)$/.exec(bare);
+  if (t) { const h = Number(t[1]); return [{ kind: 'after', min: (h < 12 ? h + 24 : h) * 60 + Number(t[2]), not }]; }
   if (bare.startsWith('has:')) return [{ kind: 'has', item: bare.slice(4), not }];
   if (bare.startsWith('knows:')) return [{ kind: 'knows', clue: bare.slice(6), not }];
   if (/^[\w:.-]+$/.test(bare)) return [{ kind: 'flag', name: bare, not }];
-  ctx.issues.push({ code: 'custom', message: `condition "${term}": expected flag, !flag, has:item, knows:clue or suspicion>=n`, input: src });
+  ctx.issues.push({ code: 'custom', message: `condition "${term}": expected flag, !flag, has:item, knows:clue, after:H:MM, suspicion>=n or counter<n`, input: src });
   return [];
 }));
 
@@ -47,6 +55,7 @@ const cond = z.string().transform((src, ctx): Cond[] => src.split(/\s+/).filter(
 export type Effects = {
   if: Cond[]; gives: string[]; takes: string[]; sets: string[]; unsets: string[]; clue: string[];
   opens: string[]; closes: string[]; sound?: string; marks: Reward[]; once: boolean; minutes: number;
+  adds: string[]; resets: string[];
 };
 
 const EFFECT_PROPS = {
@@ -55,6 +64,7 @@ const EFFECT_PROPS = {
   opens: ids.optional(), closes: ids.optional(), sound: z.string().optional(),
   suspicion: z.number().optional(), regard: z.number().optional(),
   once: z.boolean().optional(), minutes: z.number().optional(),
+  adds: ids.optional(), resets: ids.optional(),
 };
 type EffectIn = { [K in keyof typeof EFFECT_PROPS]?: z.output<(typeof EFFECT_PROPS)[K]> };
 
@@ -64,6 +74,7 @@ function effects(p: EffectIn): Effects {
   return {
     if: p.if ?? [], gives: p.gives ?? [], takes: p.takes ?? [], sets: p.sets ?? [], unsets: p.unsets ?? [], clue: p.clue ?? [],
     opens: p.opens ?? [], closes: p.closes ?? [], sound: p.sound, marks, once: p.once ?? false, minutes: p.minutes ?? 0,
+    adds: p.adds ?? [], resets: p.resets ?? [],
   };
 }
 export const EFFECT_WORDS = Object.keys(EFFECT_PROPS);
@@ -109,7 +120,7 @@ export const PersonSchema = z.strictObject({
 export const ItemSchema = z.strictObject({ id: z.string(), name: z.string(), blurb: z.string(), children: z.array(z.never()).length(0) });
 
 /** Two items in the pockets become a third: `recipe "bend-hairpin" from="hairpin tripod-leg" makes="bolt-hook" says="..."`. */
-export const RecipeSchema = z.strictObject({ id: z.string(), makes: z.string(), from: ids.refine((l) => l.length === 2, 'two items'), says: z.string(), sound: z.string().optional(), children: z.array(z.never()).length(0) });
+export const RecipeSchema = z.strictObject({ id: z.string(), makes: z.string(), from: ids.refine((l) => l.length === 2, 'two items'), says: z.string(), sound: z.string().optional(), clue: ids.optional(), children: z.array(z.never()).length(0) });
 
 export const PAGES = ['evidence', 'photograph', 'testimony', 'note'] as const;
 export const ClueSchema = z.strictObject({ id: z.string(), page: z.enum(PAGES), title: z.string(), text: z.string(), children: z.array(z.never()).length(0) });
@@ -181,8 +192,9 @@ export const BeatSchema = z.strictObject({
     does: z.strictObject({ args: z.tuple([]), props: z.strictObject(EFFECT_PROPS) }).transform(({ props }) => ({ does: effects(props) })),
     /** `go "beat"`: after the last line, the next beat (first one whose `if` holds). */
     go: z.strictObject({ args: z.tuple([z.string()]), props: z.strictObject({ if: cond.optional() }) }).transform(({ args, props }) => ({ to: args[0]!, if: props.if ?? [] })),
-    /** `ends "night"`: after the last line the scene ends: `night` (tonight's wing), `back-to-room`, `ending` (the game ends). */
-    ends: z.strictObject({ args: z.tuple([z.enum(['night', 'back-to-room', 'morning', 'ending'])]), props: z.strictObject({ if: cond.optional(), ending: z.string().optional() }) }).transform(({ args, props }) => ({ how: args[0]!, if: props.if ?? [], ending: props.ending })),
+    /** `ends "night"`: after the last line the scene ends: `night` (tonight's wing), `back-to-room` (caught), `resume`
+        (a scene met in the wing: back to walking it), `ending` (the game ends). */
+    ends: z.strictObject({ args: z.tuple([z.enum(['night', 'back-to-room', 'morning', 'resume', 'ending'])]), props: z.strictObject({ if: cond.optional(), ending: z.string().optional() }) }).transform(({ args, props }) => ({ how: args[0]!, if: props.if ?? [], ending: props.ending })),
   }),
 });
 
@@ -203,6 +215,9 @@ export const NightSchema = z.strictObject({
     begins: z.strictObject({ args: z.tuple([]), props: z.strictObject(EFFECT_PROPS) }).transform(({ props }) => ({ does: effects(props) })),
     /** `on-caught closes=... unsets=...`: what Bhima puts right when he walks the player back to the start. */
     'on-caught': z.strictObject({ args: z.tuple([]), props: z.strictObject(EFFECT_PROPS) }).transform(({ props }) => ({ does: effects(props) })),
+    /** `when if="m1 m2 m3" "text" sets=...`: fires once, by itself, the moment its condition holds (a beam that lands
+        once three mirrors are turned, a jaali's shadow at the moon's height). */
+    when: said(false),
   }),
 });
 
@@ -215,15 +230,19 @@ export const RoomSchema = z.strictObject({
   floor: z.string(), walls: z.string(),
   /** How lit the room is without a candle, 0..1 (moonlight through its windows does the rest). */
   dark: z.number().min(0).max(1).default(0.5),
+  /** The floor's height, u: a stepwell's landings go down, a roof goes up. */
+  y: z.number().default(0),
+  /** Open to the sky: no ceiling (a roof, a courtyard). */
+  open: z.boolean().default(false),
   children: words('room word', {
     /** `jaali wall="east" at=0 w=1.2 h=1.6 y=0.8`: a pierced stone window the moon shines through. */
     jaali: z.strictObject({ args: z.tuple([]), props: ARCH.extend({ moon: z.boolean().default(true) }) }).transform(({ props }) => props),
     /** `transom wall="north" at=0 w=1.2 h=0.5 y=2.6`: a jaali over a door. */
     transom: z.strictObject({ args: z.tuple([]), props: ARCH }).transform(({ props }) => props),
     /** `prop "charpoy" at="x z" turn=deg y=0 solid=r`: scenery; `solid` blocks walking within r. */
-    prop: z.strictObject({ args: z.tuple([z.string()]), props: z.strictObject({ at: xz, turn: z.number().default(0), y: z.number().default(0), solid: z.number().optional() }) }).transform(({ args, props }) => ({ model: args[0]!, ...props })),
-    /** `lamp at="x z" y=2 kind="diya"`: a flame's amber pool. */
-    lamp: z.strictObject({ args: z.tuple([]), props: z.strictObject({ at: xz, y: z.number(), kind: z.enum(['diya', 'hanging', 'candle']).default('diya') }) }).transform(({ props }) => props),
+    prop: z.strictObject({ args: z.tuple([z.string()]), props: z.strictObject({ at: xz, turn: z.number().default(0), y: z.number().default(0), solid: z.number().optional(), if: cond.optional() }) }).transform(({ args, props }) => ({ model: args[0]!, ...props, if: props.if ?? [] })),
+    /** `lamp at="x z" y=2 kind="diya" if=...`: a flame's amber pool (`bulb`: the dynamo's light), lit while `if` holds. */
+    lamp: z.strictObject({ args: z.tuple([]), props: z.strictObject({ at: xz, y: z.number(), kind: z.enum(['diya', 'hanging', 'candle', 'bulb']).default('diya'), if: cond.optional() }) }).transform(({ props }) => ({ ...props, if: props.if ?? [] })),
   }),
 });
 
@@ -259,6 +278,8 @@ export const SpotSchema = z.strictObject({
     hide: said(false),
     /** `bed "text"`: lie down: the night ends (only once its deduction is proved: use if=). */
     bed: said(false),
+    /** `talk "scene" "text"`: touching it begins a scene (someone met in the dark); the scene ends with `resume`. */
+    talk: said(true),
     /** `pose if="trunk-at-door" at="x z" turn=deg`: where it stands once the condition holds. */
     pose: z.strictObject({ args: z.tuple([]), props: z.strictObject({ if: cond, at: xz, turn: z.number().default(0), y: z.number().optional() }) }).transform(({ props }) => props),
   }),
@@ -267,6 +288,8 @@ export const SpotSchema = z.strictObject({
 /** The watchman's round: `stop "room" at="x z" wait=s` in order, looping. */
 export const PatrolSchema = z.strictObject({
   id: z.string(), night: z.number().int(), who: z.string(),
+  /** Only on the round when this holds at the night's start (a suspicious Raja sends a second lantern). */
+  if: cond.optional(),
   /** Walking speed, u/s. */
   speed: z.number().positive(),
   children: words('patrol word', {

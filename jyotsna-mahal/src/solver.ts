@@ -24,7 +24,7 @@ const READ_SEEN = new Set([
 ].filter((f) => f.startsWith('seen:')));
 
 /** What the night's progress is, ignoring where he stands, what time it is, and sights nothing reads. */
-const keyOf = (s: GameState) => JSON.stringify([s.phase, s.flags.filter((f) => !f.startsWith('seen:') || READ_SEEN.has(f)).sort(), [...s.items].sort(), [...s.clues].sort(), [...s.fired].sort(), [...(s.night?.doors ?? [])].sort()]);
+const keyOf = (s: GameState) => JSON.stringify([s.phase, s.talk && [s.talk.beat, s.talk.at], s.counts, s.flags.filter((f) => !f.startsWith('seen:') || READ_SEEN.has(f)).sort(), [...s.items].sort(), [...s.clues].sort(), [...s.fired].sort(), [...(s.night?.doors ?? [])].sort()]);
 
 /** Rooms he can walk to through open doors. */
 function openRooms(s: GameState): string[] {
@@ -46,6 +46,12 @@ function at(s: GameState, spotId: string): GameState {
 /** Every touch available in a state. */
 function steps(s: GameState): Step[] {
   const out: Step[] = [];
+  // In a scene met in the wing: every choice on offer, or the next line.
+  if (s.talk) {
+    const cs = Game.choices(s);
+    if (cs.length) return cs.map((c, i) => ({ label: `choose ${c.text.slice(0, 30)}`, next: Game.choose(s, i) }));
+    return [{ label: 'read on', next: Game.next(s) }];
+  }
   const n = s.night!, ded = nightOf(n.n).proves;
   for (const room of openRooms(s)) for (const sp of spotsIn(room)) {
     const here = at(s, sp.id);
@@ -84,6 +90,7 @@ export function solveNight(start: GameState, label = 'start'): NightReport {
   while (q.length) {
     const k = q.shift()!, { s } = byKey.get(k)!;
     if (s.phase === 'reveal') { goals.push(k); continue; }
+    if (s.phase === 'end') continue; // an ending reached mid-night (the midnight shikar): not a soft-lock, not a solve
     const nexts: string[] = [];
     for (const st of steps(s)) {
       if (st.label.startsWith('look ') || st.label.startsWith('use ') || st.label.startsWith('photograph ') || st.label.startsWith('dial ')) {
@@ -103,7 +110,7 @@ export function solveNight(start: GameState, label = 'start'): NightReport {
   const good = new Set(goals), stack = [...goals];
   for (let k; (k = stack.pop()); ) for (const p of back.get(k) ?? []) if (!good.has(p)) { good.add(p); stack.push(p); }
   const path = (k: string) => { const out: string[] = []; for (let c: string | null = k; c; c = byKey.get(c)!.from) out.unshift(byKey.get(c)!.via); return out.slice(1); };
-  const deadEnds = [...byKey.keys()].filter((k) => !good.has(k)).slice(0, 5).map(path);
+  const deadEnds = [...byKey.keys()].filter((k) => !good.has(k) && byKey.get(k)!.s.phase !== 'end').slice(0, 5).map(path);
   const critical = goals.length ? path(goals.reduce((a, b) => (path(a).length <= path(b).length ? a : b))) : [];
 
   // Threads: the shortest way to each clue the deduction needs, minus what every one of those ways shares (getting

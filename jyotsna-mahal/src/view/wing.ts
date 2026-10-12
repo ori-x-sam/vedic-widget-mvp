@@ -3,8 +3,8 @@
 // which shines through every jaali that faces it as a patterned shaft. sync() reconciles it against the game state by
 // id each frame: doors swing, the trunk walks to the door, Bhima walks his round. Nothing here decides anything.
 import * as THREE from 'three';
-import { C, get, nightOf, roomsOf, spotsIn, doorsOf, type Room, type Door } from '../content';
-import { doorPlace, spotPose, type GameState } from '../game';
+import { C, get, nightOf, roomsOf, spotsIn, doorsOf, type Cond, type Room, type Door } from '../content';
+import { doorPlace, holds, roomAt, spotPose, type GameState } from '../game';
 import { token } from '../tokens';
 import { LOOK } from './look';
 import { jaaliPattern, surface } from './surfaces';
@@ -64,10 +64,10 @@ function wall(room: Room, side: WallSide): THREE.Mesh {
   const m = new THREE.Mesh(new THREE.ShapeGeometry(shape, 8), surface(room.walls, 1, 1));
   const hw = room.w / 2 - WALL_INSET_U, hd = room.d / 2 - WALL_INSET_U;
   // Each wall's local +X runs along it left to right as seen from inside, +Y up, +Z into the room.
-  if (side === 'north') { m.position.set(room.x - hw, 0, room.z - hd); }
-  if (side === 'south') { m.position.set(room.x + hw, 0, room.z + hd); m.rotation.y = Math.PI; }
-  if (side === 'east') { m.position.set(room.x + hw, 0, room.z - hd); m.rotation.y = -Math.PI / 2; }
-  if (side === 'west') { m.position.set(room.x - hw, 0, room.z + hd); m.rotation.y = Math.PI / 2; }
+  if (side === 'north') { m.position.set(room.x - hw, room.y, room.z - hd); }
+  if (side === 'south') { m.position.set(room.x + hw, room.y, room.z + hd); m.rotation.y = Math.PI; }
+  if (side === 'east') { m.position.set(room.x + hw, room.y, room.z - hd); m.rotation.y = -Math.PI / 2; }
+  if (side === 'west') { m.position.set(room.x - hw, room.y, room.z + hd); m.rotation.y = Math.PI / 2; }
   m.receiveShadow = m.castShadow = true;
   // Walls stop light from either side: a moonbeam must not run on through the wall behind it.
   (m.material as THREE.Material).shadowSide = THREE.DoubleSide;
@@ -91,7 +91,8 @@ function jaaliPane(room: Room, side: WallSide, at: number, y: number, w: number,
 }
 
 /** A point on a wall's plane: `at` along it from the wall's middle (room coordinates), at height y. */
-function wallPoint(room: Room, side: WallSide, at: number, y: number): THREE.Vector3 {
+function wallPoint(room: Room, side: WallSide, at: number, yIn: number): THREE.Vector3 {
+  const y = room.y + yIn;
   if (side === 'north') return new THREE.Vector3(room.x + at, y, room.z - room.d / 2);
   if (side === 'south') return new THREE.Vector3(room.x + at, y, room.z + room.d / 2);
   if (side === 'east') return new THREE.Vector3(room.x + room.w / 2, y, room.z + at);
@@ -105,7 +106,7 @@ function moonThrough(room: Room, side: WallSide, at: number, y: number, w: numbe
   // The rest of the palace may stand between this jaali and the moon (a taller room next door): then no moon.
   for (let t = 0.3; t < 30; t += 0.25) {
     const p = centre.clone().addScaledVector(dir, t);
-    if (rooms.some((r) => r.id !== room.id && p.y < r.h && Math.abs(p.x - r.x) < r.w / 2 && Math.abs(p.z - r.z) < r.d / 2)) return null;
+    if (rooms.some((r) => r.id !== room.id && p.y > r.y && p.y < r.y + r.h && Math.abs(p.x - r.x) < r.w / 2 && Math.abs(p.z - r.z) < r.d / 2)) return null;
   }
   const g = new THREE.Group();
   // Where the ray through the jaali's middle meets the floor or leaves the room, whichever comes first: the shaft
@@ -113,7 +114,7 @@ function moonThrough(room: Room, side: WallSide, at: number, y: number, w: numbe
   let t = 0.1;
   for (const p = new THREE.Vector3(); t < 40; t += 0.05) {
     p.copy(centre).addScaledVector(dir, -t);
-    if (p.y <= 0 || Math.abs(p.x - room.x) > room.w / 2 || Math.abs(p.z - room.z) > room.d / 2) break;
+    if (p.y <= room.y || Math.abs(p.x - room.x) > room.w / 2 || Math.abs(p.z - room.z) > room.d / 2) break;
   }
   const target = centre.clone().addScaledVector(dir, -t);
   const light = new THREE.SpotLight(token('--moon'), LOOK.MOON_LIGHT, 0, Math.atan2(Math.max(w, h) * 0.75, 7), 0.15, 0);
@@ -195,6 +196,8 @@ export type Wing = ReturnType<typeof buildWing>;
 
 export function buildWing(n: number) {
   const mixers: Instance[] = [];
+  /** Lamps and props that are there only while a condition holds (the dynamo's bulbs, a lit chandelier). */
+  const shown: { obj: THREE.Object3D; cond: Cond[] }[] = [];
   const root = new THREE.Group();
   const dir = moonDir(n);
   const pickables: THREE.Object3D[] = [];
@@ -203,23 +206,29 @@ export function buildWing(n: number) {
 
   for (const room of roomsOf(n)) {
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(room.w, room.d), surface(room.floor, room.w, room.d));
-    floor.rotation.x = -Math.PI / 2; floor.position.set(room.x, 0, room.z); floor.receiveShadow = floor.castShadow = true;
+    floor.rotation.x = -Math.PI / 2; floor.position.set(room.x, room.y, room.z); floor.receiveShadow = floor.castShadow = true;
     // The floor ends a moonbeam: light that reaches it goes no further.
     (floor.material as THREE.Material).shadowSide = THREE.DoubleSide;
     floor.userData.occluder = true;
     const ceil = new THREE.Mesh(new THREE.PlaneGeometry(room.w, room.d), surface(room.walls, room.w, room.d));
-    ceil.rotation.x = Math.PI / 2; ceil.position.set(room.x, room.h, room.z); ceil.receiveShadow = true; ceil.castShadow = true;
+    ceil.rotation.x = Math.PI / 2; ceil.position.set(room.x, room.y + room.h, room.z); ceil.receiveShadow = true; ceil.castShadow = true;
     (ceil.material as THREE.Material).shadowSide = THREE.DoubleSide;
     (ceil.material as THREE.MeshStandardMaterial).color.multiplyScalar(0.6);
-    root.add(floor, ceil);
+    root.add(floor);
+    if (!room.open) root.add(ceil);
     for (const side of ['north', 'south', 'east', 'west'] as WallSide[]) root.add(wall(room, side));
     for (const c of room.children) {
       if (c.word === 'jaali' || c.word === 'transom') {
         root.add(jaaliPane(room, c.wall, c.at, c.y, c.w, c.h));
         if (c.word === 'jaali' && c.moon) { const m = moonThrough(room, c.wall, c.at, c.y, c.w, c.h, dir, roomsOf(n)); if (m) root.add(m); }
       }
-      if (c.word === 'prop') { const p = place(c.model); p.root.position.set(room.x + c.at[0], c.y, room.z + c.at[1]); p.root.rotation.y = -c.turn * D2R; root.add(p.root); mixers.push(p); }
-      if (c.word === 'lamp') { const f = flame(room.x + c.at[0], c.y, room.z + c.at[1], c.kind, true); root.add(f.group); flames.push(f.light); }
+      if (c.word === 'prop') { const p = place(c.model); p.root.position.set(room.x + c.at[0], room.y + c.y, room.z + c.at[1]); p.root.rotation.y = -c.turn * D2R; root.add(p.root); mixers.push(p); if (c.if.length) shown.push({ obj: p.root, cond: c.if }); }
+      if (c.word === 'lamp') {
+        const f = flame(room.x + c.at[0], room.y + c.y, room.z + c.at[1], c.kind, c.kind !== 'bulb');
+        if (c.kind === 'bulb') { f.light.color.setHex(token('--dynamo')); f.light.intensity = LOOK.BULB_LIGHT; f.light.distance = LOOK.BULB_REACH_U; (f.group.children[1] as THREE.Mesh).material = new THREE.MeshBasicMaterial({ color: token('--dynamo'), toneMapped: false }); }
+        root.add(f.group); flames.push(f.light);
+        if (c.if.length) shown.push({ obj: f.group, cond: c.if });
+      }
     }
   }
 
@@ -239,7 +248,7 @@ export function buildWing(n: number) {
     proxy.userData.spot = sp.id;
     root.add(proxy);
     pickables.push(proxy);
-    spots.set(sp.id, { inst, proxy, at: new THREE.Vector3(room.x + sp.at[0], 0, room.z + sp.at[1]), turn: sp.turn });
+    spots.set(sp.id, { inst, proxy, at: new THREE.Vector3(room.x + sp.at[0], room.y, room.z + sp.at[1]), turn: sp.turn });
   }
 
   // Bhima, with his lantern: its light casts shadows, so it shows under a closed door and not through a wall.
@@ -261,24 +270,28 @@ export function buildWing(n: number) {
   const base = flames.map((f) => f.intensity);
   let t = 0;
 
+  /** The floor's height under a point (a stepwell's landings, a roof). */
+  const floorAt = (x: number, z: number) => { const id = roomAt(n, x, z); return id ? get('room', id).y : 0; };
+
   return {
-    root, pickables, occluders,
+    root, pickables, occluders, floorAt,
     /** Match the wing to the state: doors, poses, the watchmen. */
     sync(s: GameState) {
       const nr = s.night;
       for (const [id, leaf] of leaves) leaf.open = nr?.doors.includes(id) ? 1 : 0;
       for (const [id, sp] of spots) {
         const def = get('spot', id), p = spotPose(s, def), room = get('room', def.room);
-        sp.at.set(room.x + p.at[0], 0, room.z + p.at[1]); sp.turn = p.turn;
-        sp.proxy.position.set(sp.at.x, p.y, sp.at.z);
+        sp.at.set(room.x + p.at[0], room.y, room.z + p.at[1]); sp.turn = p.turn;
+        sp.proxy.position.set(sp.at.x, room.y + p.y, sp.at.z);
       }
       for (const [id, m] of watchmen) {
         const w = nr?.watch.find((x) => x.id === id);
         m.inst.root.visible = m.lantern.visible = !!w;
         if (!w) continue;
-        m.inst.root.position.set(w.x, 0, w.z);
+        m.inst.root.position.set(w.x, floorAt(w.x, w.z), w.z);
         m.inst.root.rotation.y = -w.face;
       }
+      for (const x of shown) x.obj.visible = holds(s, x.cond);
     },
     /** Animate: doors swing towards open or shut, the trunk slides to its pose, flames flicker. */
     tick(dtS: number) {
@@ -315,10 +328,11 @@ export function buildWing(n: number) {
     bolt.position.set(d.w - 0.12, 1.1, 0.05);
     swing.add(board, bolt);
     pivot.add(swing);
-    if (d.wall === 'north') pivot.position.set(p.x - d.w / 2, 0, p.z);
-    if (d.wall === 'south') { pivot.position.set(p.x + d.w / 2, 0, p.z); pivot.rotation.y = Math.PI; }
-    if (d.wall === 'east') { pivot.position.set(p.x, 0, p.z - d.w / 2); pivot.rotation.y = -Math.PI / 2; }
-    if (d.wall === 'west') { pivot.position.set(p.x, 0, p.z + d.w / 2); pivot.rotation.y = Math.PI / 2; }
+    const fy = get('room', d.from).y;
+    if (d.wall === 'north') pivot.position.set(p.x - d.w / 2, fy, p.z);
+    if (d.wall === 'south') { pivot.position.set(p.x + d.w / 2, fy, p.z); pivot.rotation.y = Math.PI; }
+    if (d.wall === 'east') { pivot.position.set(p.x, fy, p.z - d.w / 2); pivot.rotation.y = -Math.PI / 2; }
+    if (d.wall === 'west') { pivot.position.set(p.x, fy, p.z + d.w / 2); pivot.rotation.y = Math.PI / 2; }
     out.set(d.id, { pivot: swing, open: 0 });
     return pivot;
   }
