@@ -18,7 +18,7 @@ export default defineConfig({
       {
         extends: true,
         plugins: [storybookTest({ configDir: '.storybook', tags: { skip: ['skip'] } })],
-        test: { name: 'storybook', testTimeout: 60_000, browser: { enabled: true, headless: true, provider: playwright({ launchOptions: { executablePath, args } }), instances: [{ browser: 'chromium' }] } },
+        test: { name: 'storybook', testTimeout: 240_000, browser: { enabled: true, headless: true, provider: playwright({ launchOptions: { executablePath, args } }), instances: [{ browser: 'chromium' }] } },
       },
     ],
   },

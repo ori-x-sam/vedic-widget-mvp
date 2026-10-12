@@ -97,6 +97,8 @@ export async function key(k: string, holdMs = 0) {
   if (holdMs) advance(holdMs);
   dispatchEvent(new KeyboardEvent('keyup', { key: k, bubbles: true }));
   settle();
+  // Let the page breathe: test timeouts and console output need a macrotask to get through.
+  await new Promise((r) => setTimeout(r, 0));
 }
 
 /** Turn the head by dragging the mouse across the middle of the view. */
@@ -160,8 +162,9 @@ function solidsIn(roomId: string) {
 }
 
 /** Walk to a point in the same room, stepping round any furniture in the way. */
-async function walkRound(x: number, z: number, roomId: string) {
+async function walkRound(x: number, z: number, roomId: string, depth = 0) {
   const n = me();
+  if (depth > 6) throw new Error(`walkRound: stuck going to ${x}, ${z}`);
   for (const o of solidsIn(roomId)) {
     // Closest approach of the straight line to the obstacle.
     const dx = x - n.x, dz = z - n.z, len2 = dx * dx + dz * dz || 1, t = Math.max(0, Math.min(1, ((o.x - n.x) * dx + (o.z - n.z) * dz) / len2));
@@ -171,7 +174,7 @@ async function walkRound(x: number, z: number, roomId: string) {
       const ax = o.x + px * side * (o.r + 0.35), az = o.z + pz * side * (o.r + 0.35);
       await walkTo(ax - (dx / len) * (o.r + 0.3), az - (dz / len) * (o.r + 0.3), 0.25);
       await walkTo(ax + (dx / len) * (o.r + 0.3), az + (dz / len) * (o.r + 0.3), 0.25);
-      return walkRound(x, z, roomId);
+      return walkRound(x, z, roomId, depth + 1);
     }
   }
   await walkTo(x, z, 0.2);
@@ -182,7 +185,7 @@ export async function goTo(spotId: string, standU = 0.95) {
   const sp = get('spot', spotId), room = get('room', sp.room), p = spotPose(game.getState().run, sp);
   const sx = room.x + p.at[0], sz = room.z + p.at[1];
   const here = roomAt(me().n, me().x, me().z)!;
-  if (here !== sp.room) for (const [x, z] of route(here, sp.room)) await walkTo(x, z, 0.2);
+  if (here !== sp.room) for (const [x, z] of route(here, sp.room)) { const r = roomAt(me().n, me().x, me().z) ?? here; await walkRound(x, z, r); }
   const s = game.getState().run, toMid = Math.atan2(room.x - sx, room.z - sz);
   const tries = Array.from({ length: 16 }, (_, i) => toMid + ((i % 2 ? 1 : -1) * Math.ceil(i / 2) * Math.PI) / 8);
   const a = tries.find((t) => { const x = sx + Math.sin(t) * standU, z = sz + Math.cos(t) * standU; return Game.standable(s, x, z) && roomAt(s.night!.n, x, z) === sp.room && Game.clear(s, x, z, sx, sz); }) ?? toMid;
