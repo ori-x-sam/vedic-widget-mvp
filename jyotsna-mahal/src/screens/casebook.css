@@ -1,0 +1,25 @@
+/* The casebook (casebook.kdl): ink on foxed paper inside a red-and-ochre border. Sizes are design px. */
+.cb { width: 100%; height: 100%; align-items: center; justify-content: center; background-color: var(--scrim); pointer-events: auto }
+.cb-book { width: 780px; height: 366px; animation: cb-in .22s ease-out }
+@keyframes cb-in { from { opacity: 0; scale: .97 } }
+.cb-border { position: absolute; left: 0; top: 0; width: 100%; height: 100% }
+.cb-pages { position: absolute; left: 16px; top: 16px; width: 748px; height: 318px; flex-direction: row }
+.cb-left { width: 300px; height: 100%; padding: 4px 10px; gap: 6px }
+.cb-spine { width: 1px; height: 100%; background-color: var(--paper-shade) }
+.cb-right { flex-grow: 1; flex-shrink: 1; height: 100%; padding: 6px 14px; gap: 7px }
+.cb-owner { font-family: var(--title-font); font-size: 10px; letter-spacing: 1px; font-color: var(--patta-red) }
+.cb-tabs { flex-direction: row; flex-wrap: wrap; gap: 2px }
+.cb-tabs .shared-row { height: 20px; padding: 0 4px }
+.cb-tabs .shared-row-label { font-size: 12px }
+.cb-index { gap: 1px }
+.cb-empty { width: 270px; text-wrap: wrap; font-size: 13px; font-color: var(--dim) }
+.cb-head { width: 420px; text-wrap: wrap; font-family: var(--title-font); font-size: 17px; font-color: var(--pencil) }
+.cb-body { width: 420px; text-wrap: wrap; font-size: 14px; line-height: 18px; font-color: var(--pencil) }
+.cb-asks { gap: 6px }
+.cb-ask { gap: 1px }
+.cb-ask-q { width: 420px; text-wrap: wrap; font-size: 13px; font-color: var(--patta-red) }
+.cb-ask-opts { gap: 1px }
+.cb-actions { flex-direction: row; gap: 8px; padding: 6px 0 0 0 }
+.cb-actions button { background-color: var(--paper); border-color: var(--pencil) }
+.cb-actions .shared-btn-label { font-color: var(--pencil); font-size: 13px }
+.cb-close { position: absolute; left: 640px; top: 343px; font-size: 10px; font-color: var(--paper) }

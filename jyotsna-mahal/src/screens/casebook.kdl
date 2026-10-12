@@ -1,0 +1,34 @@
+// The casebook: a Raj-era police notebook with a pattachitra border. Left page: the tabs and an index of the entries
+// on the open page; right page: the chosen entry, or the pockets' item and what can be done with it, or the night's
+// deduction, its questions and their answers. Styled in casebook.css; bindings in casebook.ts.
+prefab "casebook" {
+    panel class="cb" {
+        panel class="cb-book" {
+            patta-border class="cb-border"
+            panel class="cb-pages" {
+                panel class="cb-left" {
+                    text class="cb-owner" "CASEBOOK · A. THISTLEWOOD · CALCUTTA POLICE (S.B.)"
+                    panel class="cb-tabs" slot="tabs"
+                    panel class="cb-index" slot="index"
+                    text class="cb-empty" if="empty" bind="empty"
+                }
+                panel class="cb-spine"
+                panel class="cb-right" {
+                    text class="cb-head" bind="head"
+                    text class="cb-body" bind="body"
+                    panel class="cb-asks" slot="asks"
+                    panel class="cb-actions" slot="actions"
+                }
+            }
+            text class="cb-close" "Tab or Esc to close"
+        }
+    }
+}
+
+// One of the deduction's questions, its options as a row each.
+prefab "ask" {
+    panel class="cb-ask" {
+        text class="cb-ask-q" bind="q"
+        panel class="cb-ask-opts" slot="opts"
+    }
+}

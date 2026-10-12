@@ -1,0 +1,27 @@
+// A lock of dials (a `code` on a spot): each dial shows a face and turns up or down; the handle tries them.
+// Styled in dials.css; bindings in dials.ts.
+prefab "dials" {
+    panel class="dl" {
+        panel class="dl-plate" {
+            text class="dl-name" bind="name"
+            text class="dl-text" bind="text"
+            panel class="dl-row" slot="dials"
+            panel class="dl-buttons" slot="buttons"
+        }
+    }
+}
+
+// One dial: up, its face, down.
+prefab "dial" {
+    panel class="dl-dial" {
+        button class="dl-turn" tap="up" {
+            text class="dl-arrow" "▲"
+        }
+        panel class="dl-face" {
+            text class="dl-face-label" bind="face"
+        }
+        button class="dl-turn" tap="down" {
+            text class="dl-arrow" "▼"
+        }
+    }
+}

@@ -1,0 +1,12 @@
+// A card over everything: a day's or night's title, a night's reveal and its question, an ending. Any key or click
+// dismisses it. Styled in card.css; bindings in card.ts.
+prefab "card" {
+    panel class="card" bind-class="kind" {
+        panel class="card-box" {
+            text class="card-title" bind="title"
+            text class="card-sub" if="sub" bind="sub"
+            text class="card-text" if="text" bind="text"
+            text class="card-more" "click, or any key"
+        }
+    }
+}

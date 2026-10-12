@@ -1,59 +1,156 @@
-// The 3D view: a Three scene under the Pixi canvas. It reconciles one mesh per thing against the game state by id,
-// the way the UI engine reconciles by key: new ids get a mesh, gone ids lose theirs. Hues come from the palette
-// (tokens.ts), light and camera from the look tokens (look.ts); nothing here decides anything about the game.
-// PLACEHOLDER meshes: swap the spheres for models/*.glb built by `npm run models` when the game has models.
+// The 3D view: one Three scene under the Pixi canvas, showing whatever the state is in: a day scene's set (jeep,
+// verandah) with its people, or a night's wing, seen through Thistlewood's eyes with his hands at the bottom of the
+// frame. It reconciles against the game state every frame and decides nothing: where the eye looks comes from the
+// input module's scratch, hues from the palette (tokens.ts), light and feel from the look tokens (look.ts).
 import * as THREE from 'three';
-import { thingDef } from '../content';
-import type { GameState } from '../game';
+import { C, get, nightOf } from '../content';
+import { holds, type GameState } from '../game';
 import { token } from '../tokens';
-import { T } from '../tuning';
-import { KEY_DIR_XYZ, LOOK } from './look';
+import { LOOK, SUN_DIR_XYZ } from './look';
+import { place, type Instance } from './models';
+import { buildSet, type Set } from './sets';
+import { buildWing, type Wing } from './wing';
 
 export type Scene = ReturnType<typeof createScene>;
+/** Where the eye looks: written by the input module (yaw rad, 0 north; pitch rad, up positive) and by stories. */
+export type Look = { yaw: number; pitch: number; walked: number; zoom: number };
 
-/** The field lies on the XZ plane; the game's (x, y) is Three's (x, z). */
-export function createScene(el: HTMLElement, w: number, h: number) {
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+const D2R = Math.PI / 180;
+
+export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
+  const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
   renderer.setSize(w, h);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = LOOK.EXPOSURE;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
   Object.assign(renderer.domElement.style, { position: 'absolute', inset: '0' });
   el.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(token('--ink'));
-  const camera = new THREE.PerspectiveCamera(LOOK.CAMERA_FOV_DEG, w / h, 0.1, 200);
-  camera.position.set(0, Math.cos(LOOK.CAMERA_TILT_RAD) * LOOK.CAMERA_DIST_U, Math.sin(LOOK.CAMERA_TILT_RAD) * LOOK.CAMERA_DIST_U);
-  camera.lookAt(0, 0, 0);
+  const camera = new THREE.PerspectiveCamera(LOOK.CAMERA_FOV_DEG, w / h, 0.05, 400);
+  scene.add(camera);
 
-  scene.add(new THREE.HemisphereLight(token('--light'), token('--ink'), LOOK.FILL_LIGHT));
-  const key = new THREE.DirectionalLight(token('--light'), LOOK.KEY_LIGHT);
-  key.position.set(...KEY_DIR_XYZ);
-  scene.add(key);
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(T.FIELD_W_U, T.FIELD_H_U), new THREE.MeshStandardMaterial({ color: token('--floor') }));
-  floor.rotation.x = -Math.PI / 2;
-  scene.add(floor);
+  // His hands: the candle stub in the left, the camera in the right; the candle's light goes where he goes.
+  const hands = place('hands');
+  // The hands model is built around the eye (models/hands.py): its origin is the camera.
+  hands.root.position.set(0, 0, 0);
+  hands.root.traverse((o) => { o.castShadow = false; o.userData.noPick = true; });
+  camera.add(hands.root);
+  const candle = new THREE.PointLight(token('--flame'), LOOK.CANDLE_LIGHT, LOOK.CANDLE_REACH_U, 1.5);
+  candle.position.set(-0.22, -0.18, -0.45);
+  camera.add(candle);
+  // The flash: a white sheet in front of the eye, and a burst of light.
+  const flashSheet = new THREE.Mesh(new THREE.PlaneGeometry(4, 4), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthTest: false, toneMapped: false }));
+  flashSheet.position.z = -0.2; flashSheet.renderOrder = 999;
+  camera.add(flashSheet);
+  const flashLight = new THREE.PointLight(0xffffff, 0, 12, 1.2);
+  camera.add(flashLight);
+  let flashT = 0;
 
-  const meshes = new Map<number, THREE.Mesh>();
+  const hemi = new THREE.HemisphereLight(token('--moon'), token('--shadow'), LOOK.FILL_LIGHT);
+  const sun = new THREE.DirectionalLight(token('--sun'), LOOK.SUN_LIGHT);
+  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+  Object.assign(sun.shadow.camera, { left: -20, right: 20, top: 20, bottom: -20, near: 1, far: 120 });
+  scene.add(hemi, sun, sun.target);
+
+  let showing = '';
+  let set: Set | null = null, wing: Wing | null = null, world: THREE.Group | null = null;
+  let people: { inst: Instance; who: string }[] = [];
+  let props: { inst: Instance; cond: Parameters<typeof holds>[1] }[] = [];
+  let eye = { x: 0, y: LOOK.EYE_HEIGHT_U, z: 0, turn: 0 };
+  let moving = false;
+
+  /** What the state shows: a place's set, or a night's wing. */
+  function want(s: GameState): { key: string; set: string; light: 'day' | 'dusk' | 'night'; place: string | null } {
+    const sc = s.talk ? get('scene', s.talk.scene) : null, pl = sc ? get('place', sc.place) : null;
+    if (pl && pl.set !== 'wing') return { key: `place:${pl.id}`, set: pl.set, light: pl.light, place: pl.id };
+    const n = s.night?.n ?? s.day;
+    return { key: `wing:${n}:${pl?.light ?? 'night'}`, set: 'wing', light: pl?.light ?? 'night', place: pl?.id ?? null };
+  }
+
+  function build(s: GameState) {
+    const wnt = want(s);
+    if (wnt.key === showing) return;
+    showing = wnt.key;
+    if (world) scene.remove(world);
+    world = new THREE.Group(); set = null; wing = null; people = []; props = [];
+    if (wnt.set === 'wing') { wing = buildWing(s.night?.n ?? s.day); world.add(wing.root); }
+    else { set = buildSet(wnt.set); world.add(set.root); }
+    if (wnt.place) for (const c of get('place', wnt.place).children) {
+      if (c.word === 'eye') eye = { x: c.at[0], y: c.y, z: c.at[1], turn: c.turn };
+      if (c.word === 'sits' && C.model[c.model]) { const p = place(c.model); p.root.position.set(c.at[0], c.y, c.at[1]); p.root.rotation.y = -c.turn * D2R; world.add(p.root); people.push({ inst: p, who: c.who }); }
+      if (c.word === 'prop') { const p = place(c.model); p.root.position.set(c.at[0], c.y, c.at[1]); p.root.rotation.y = -c.turn * D2R; world.add(p.root); props.push({ inst: p, cond: c.if }); }
+    }
+    scene.add(world);
+    // Light.
+    const night = wnt.light === 'night';
+    renderer.toneMappingExposure = night ? LOOK.EXPOSURE : wnt.light === 'dusk' ? LOOK.DUSK_EXPOSURE : LOOK.DAY_EXPOSURE;
+    hemi.color.setHex(token(night ? '--moon' : wnt.light === 'dusk' ? '--dusk-sky' : '--day-sky'));
+    hemi.groundColor.setHex(token(night ? '--shadow' : '--sandstone-dark'));
+    const dark = night && s.night ? 1 - Math.min(...Object.values(C.room).filter((r) => r.night === s.night!.n).map((r) => r.dark)) : 0;
+    hemi.intensity = night ? LOOK.FILL_LIGHT * (0.4 + dark) : wnt.set === 'wing' ? LOOK.SUN_LIGHT * 0.6 : LOOK.FILL_LIGHT * 2.4;
+    sun.visible = !night && wnt.set !== 'wing';
+    sun.intensity = wnt.light === 'dusk' ? LOOK.DUSK_LIGHT : LOOK.SUN_LIGHT;
+    sun.color.setHex(token(wnt.light === 'dusk' ? '--dusk-sun' : '--sun'));
+    if (wnt.light === 'dusk') sun.position.set(-8, 3, -10); else sun.position.set(...SUN_DIR_XYZ);
+    scene.fog = night ? new THREE.FogExp2(token('--shadow'), LOOK.HAZE) : null;
+    scene.background = new THREE.Color(token(night ? '--night-sky' : '--day-sky'));
+  }
+
   return {
-    /** Match the meshes to the state's things by id. */
+    camera, renderer,
+    /** Match the view to the state (cheap when nothing changed). */
     sync(s: GameState) {
-      const live = new Set(s.things.map((t) => t.id));
-      for (const [id, m] of meshes) if (!live.has(id)) { scene.remove(m); m.geometry.dispose(); (m.material as THREE.Material).dispose(); meshes.delete(id); }
-      for (const t of s.things) {
-        if (meshes.has(t.id)) continue;
-        const d = thingDef(t.kind), m = new THREE.Mesh(new THREE.SphereGeometry(d.r, 24, 16), new THREE.MeshStandardMaterial({ color: token(d.paint) }));
-        m.position.set(t.x, d.r, t.y);
-        scene.add(m);
-        meshes.set(t.id, m);
-      }
+      build(s);
+      wing?.sync(s);
+      for (const p of props) p.inst.root.visible = holds(s, p.cond);
+      moving = !s.flags.includes('doe-showing');
+      candle.visible = !!s.night?.candle && s.phase === 'night';
+      const flame = hands.root.getObjectByName('flame');
+      if (flame) flame.visible = candle.visible;
+      hands.root.visible = !s.talk;
+      if (s.night && !s.talk) eye = { x: s.night.x, y: LOOK.EYE_HEIGHT_U, z: s.night.z, turn: 0 };
     },
-    render: () => renderer.render(scene, camera),
+    /** A flash: the camera's magnesium, for a moment. */
+    flash() { flashT = LOOK.FLASH_S; },
+    /** Animate the world (doors, poses, flames, the rolling jungle, the flash); true while a tween runs. */
+    tick(dtS: number): boolean {
+      const busy = wing?.tick(dtS) ?? false;
+      set?.tick(dtS, moving);
+      for (const p of people) p.inst.mixer?.update(dtS);
+      if (flashT > 0) { flashT = Math.max(0, flashT - dtS); }
+      const f = flashT / LOOK.FLASH_S;
+      (flashSheet.material as THREE.MeshBasicMaterial).opacity = f * 0.85;
+      flashLight.intensity = f * 40;
+      return busy || flashT > 0;
+    },
+    /** The spot under the middle of the eye, if one is in reach and no wall is in the way. */
+    pick(maxU = 3.2): string | null {
+      if (!wing) return null;
+      const ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2(0, 0), camera); ray.far = maxU;
+      const hits = ray.intersectObjects([...wing.pickables, ...wing.occluders], false);
+      const first = hits[0];
+      return first && first.object.userData.spot ? (first.object.userData.spot as string) : null;
+    },
+    render() {
+      const bob = Math.sin(look.walked * Math.PI * LOOK.BOB_HZ) * LOOK.BOB_U;
+      camera.position.set(eye.x, eye.y + bob, eye.z);
+      camera.rotation.set(0, 0, 0);
+      camera.rotateY(-(eye.turn * D2R + look.yaw));
+      camera.rotateX(look.pitch);
+      const fov = LOOK.CAMERA_FOV_DEG / (1 + look.zoom);
+      if (Math.abs(camera.fov - fov) > 0.01) { camera.fov = fov; camera.updateProjectionMatrix(); }
+      renderer.render(scene, camera);
+    },
     resize(cw: number, ch: number) {
       renderer.setSize(cw, ch);
       camera.aspect = cw / ch;
       camera.updateProjectionMatrix();
     },
+    /** For stories: the night under view. */
+    showingKey: () => showing,
   };
 }
+
+export const nightName = (n: number) => nightOf(n).name;

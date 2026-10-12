@@ -1,0 +1,28 @@
+// The night's heads-up: as little as can be. A dot where the eye looks; under it, what E would do there, small and
+// quiet; Thistlewood's last remark or thought above that; what he holds, bottom left; his pocket watch, top right; a
+// red edge when Bhima has seen him. Styled in hud.css; bindings in hud.ts.
+prefab "hud" {
+    panel class="hud" {
+        panel class="hud-alarm" if="alarm"
+        panel class="hud-top" {
+            panel class="hud-watch-box" if="watch" {
+                watch class="hud-watch" minutes=(bind)"minutes"
+                text class="hud-time" bind="time"
+            }
+        }
+        panel class="hud-middle" {
+            panel class="hud-dot" if="dot"
+        }
+        panel class="hud-bottom" {
+            panel class="hud-say" if="toast" key=(bind)"toastKey" {
+                text class="hud-toast" bind-class="toastKind" bind="toast"
+            }
+            text class="hud-noted" if="noted" bind="noted"
+            text class="hud-prompt" if="prompt" bind="prompt"
+            panel class="hud-hand" {
+                text class="hud-held" bind="held"
+                text class="hud-keys" bind="keys"
+            }
+        }
+    }
+}

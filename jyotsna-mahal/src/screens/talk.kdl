@@ -1,0 +1,23 @@
+// A day scene's dialogue, or a night's scene (caught by Bhima): who speaks, what they say, and the choices when they
+// come. The narrator's prose has no name. A timed choice shows its timer draining. Styled in talk.css; bindings in
+// talk.ts. Each speaker's name is coloured by a class `who-<id>` (talk.css) from their palette token.
+prefab "talk" {
+    panel class="talk" {
+        panel class="talk-box" {
+            text class="talk-who" bind-class="whoClass" if="who" bind="who"
+            text class="talk-line" bind-class="lineClass" if="line" bind="line"
+            panel class="talk-choices" slot="choices"
+            panel class="talk-timer" if="timed" {
+                meter class="talk-timer-fill" value=(bind)"left"
+            }
+            text class="talk-more" if="more" bind="more"
+        }
+    }
+}
+
+// One choice: its number and its words.
+prefab "choice" {
+    button class="talk-choice" tap="tap" {
+        text class="talk-choice-label" bind="label"
+    }
+}

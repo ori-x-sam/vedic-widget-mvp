@@ -1,0 +1,27 @@
+/* Dialogue (talk.kdl): a dark band low on the frame, a printed-page feel. Sizes are design px, times in s. */
+.talk { width: 100%; height: 100%; justify-content: flex-end; align-items: center; padding: 0 0 18px 0 }
+.talk-box { width: 640px; padding: 14px 22px 12px 22px; gap: 6px; background-color: var(--scrim); border-color: var(--patta-ochre); border-width: 1px; opacity: .93; animation: talk-in .25s ease-out }
+@keyframes talk-in { from { opacity: 0; translate: 0 8 } }
+.talk-who { font-family: var(--title-font); font-size: 15px; letter-spacing: 2px; font-color: var(--paper) }
+.talk-line { width: 596px; text-wrap: wrap; font-size: 16px; line-height: 21px; font-color: var(--paper) }
+.talk-line.narrator { font-color: var(--ink-faded) }
+.talk-choices { gap: 4px; padding: 4px 0 0 0 }
+.talk-choice { width: 596px; height: 28px; align-items: flex-start; padding: 0 8px; background-color: var(--scrim); border-color: var(--dim); border-width: 0 }
+.talk-choice:hover { border-width: 1px; border-color: var(--patta-ochre) }
+.talk-choice-label { font-size: 15px; font-color: var(--patta-ochre) }
+.talk-timer { width: 596px; height: 3px; background-color: var(--shadow) }
+.talk-timer-fill { width: 100%; height: 100%; tint: var(--wrong) }
+.talk-more { font-size: 11px; font-color: var(--dim); text-align: right; width: 596px }
+
+/* Each speaker's name in their colour. */
+.who-thistlewood { font-color: var(--linen) }
+.who-raja { font-color: var(--raja) }
+.who-ghatak { font-color: var(--ghatak) }
+.who-mrs-ghatak { font-color: var(--mrs-ghatak) }
+.who-sahukar { font-color: var(--sahukar) }
+.who-mrs-sahukar { font-color: var(--mrs-sahukar) }
+.who-bhima { font-color: var(--bhima) }
+.who-jagu { font-color: var(--jagu) }
+.who-dewan { font-color: var(--dewan) }
+.who-kotwal { font-color: var(--kotwal) }
+.who-pomfret { font-color: var(--pomfret) }
