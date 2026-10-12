@@ -1,0 +1,20 @@
+// The cast: everyone who speaks.
+//   person "id" name="Full name" short="What the dialogue box calls them" paint="--token" sound="sound id"
+// `paint` colours their name in dialogue (a palette token in src/screens/shared.css). `sound` is their signature
+// non-verbal sound (content/sounds.kdl), played with their first line in a beat. Lines name them by id:
+//   line "raja" "..."
+// `narrator` is the prose between lines; `thistlewood` is the player.
+
+person "narrator" name="" short="" paint="--ink-faded"
+person "thistlewood" name="Inspector Ambrose Thistlewood" short="Thistlewood" paint="--linen"
+
+person "raja" name="Raja Bhairab Narayan Singh Deo" short="Raja Sahib" paint="--raja" sound="laugh"
+person "ghatak" name="Mr. Pitambar Ghatak, B.A. (Oxon., not completed)" short="Mr. Ghatak" paint="--ghatak" sound="harrumph"
+person "mrs-ghatak" name="Mrs. Sarojini Ghatak" short="Mrs. Ghatak" paint="--mrs-ghatak" sound="sniff"
+person "sahukar" name="Mr. Dibakar Sahukar" short="Mr. Sahukar" paint="--sahukar" sound="cigar"
+person "mrs-sahukar" name="Mrs. Lilabati Sahukar" short="Mrs. Sahukar" paint="--mrs-sahukar" sound="flutter"
+person "bhima" name="Bhima, the chowkidar" short="Bhima" paint="--bhima" sound="lantern-creak"
+person "jagu" name="Jagu, the khansama" short="Jagu" paint="--jagu"
+person "dewan" name="The Dewan" short="The Dewan" paint="--dewan"
+person "kotwal" name="Kotwal, the hill mynah" short="Kotwal" paint="--kotwal" sound="whistle"
+person "pomfret" name="Major Reginald Pomfret" short="Major Pomfret" paint="--pomfret"

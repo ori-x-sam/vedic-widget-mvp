@@ -1,0 +1,56 @@
+// Every model the view loads: models/<id>.py builds models/<id>.glb (`npm run models`), and these are the palette
+// tokens its four materials are tinted with (src/screens/shared.css :root). Colour is value-painted into the model's
+// vertices in Blender; the hue comes from here, so a designer recolours a model without opening Blender.
+//   model "id" body="--token" trim="--token" cloth="--token" glow="--token" scale=1
+// Materials a model doesn't use can be left out.
+
+// ---------- the guest room ----------
+model "charpoy" body="--teak" trim="--teak-dark" cloth="--jute"
+model "steamer-trunk" body="--trunk-canvas" trim="--brass" cloth="--trunk-leather"
+model "punkah" body="--teak" cloth="--punkah-cloth" trim="--brass"
+model "punkah-cleat" body="--teak-dark" cloth="--jute" trim="--brass"
+model "dressing-table" body="--teak" trim="--brass" glow="--mirror" cloth="--paper"
+model "almirah" body="--teak" trim="--brass"
+model "rug" body="--rug" cloth="--rug-border"
+
+// ---------- the corridor ----------
+model "pillar" body="--sandstone" trim="--sandstone-dark"
+model "door-leaf" body="--teak" trim="--brass"
+model "calendar-print" body="--paper" cloth="--oleograph" trim="--brass"
+model "curtain-alcove" body="--sandstone" cloth="--curtain"
+
+// ---------- the trophy gallery ----------
+model "trophy-leopard" body="--leopard" trim="--teak-dark" glow="--glass-eye" cloth="--brass"
+model "trophy-boar" body="--boar" trim="--teak-dark" glow="--glass-eye" cloth="--brass"
+model "trophy-gaur" body="--gaur" trim="--teak-dark" glow="--glass-eye" cloth="--brass"
+model "trophy-bear" body="--bear" trim="--teak-dark" glow="--glass-eye" cloth="--brass"
+model "tiger-frame" body="--tiger" trim="--teak" glow="--glass-eye" cloth="--tiger-stripe"
+model "plaque-stand" body="--teak-dark" trim="--brass-new"
+model "photo-table" body="--teak" trim="--silver" cloth="--velvet"
+model "portrait" body="--portrait" trim="--gilt" cloth="--achkan"
+model "bear-standing" body="--bear" trim="--teak-dark" glow="--glass-eye"
+model "chandelier-dead" body="--brass" trim="--brass" glow="--crystal"
+model "tiger-rug" body="--tiger" cloth="--tiger-stripe" glow="--glass-eye"
+
+// ---------- the storeroom ----------
+model "skin-rack" body="--teak-dark" cloth="--old-skin" trim="--brass"
+model "workbench" body="--teak" trim="--iron" cloth="--tiger"
+model "ledger-shelf" body="--teak" cloth="--ledger" trim="--paper"
+
+// ---------- the people ----------
+model "bhima" body="--skin-bhima" cloth="--bhima-cloth" trim="--bhima-turban" glow="--flame"
+model "bhima-driving" body="--skin-bhima" cloth="--bhima-cloth" trim="--bhima-turban"
+model "raja" body="--skin-raja" cloth="--achkan" trim="--safa" glow="--jewel"
+model "ghatak" body="--skin-ghatak" cloth="--ghatak-suit" trim="--moustache"
+model "mrs-ghatak" body="--skin-mrs-ghatak" cloth="--mrs-ghatak-sari" trim="--moustache" glow="--sari-border-dark"
+model "sahukar" body="--skin-sahukar" cloth="--sahukar-suit" trim="--topi" glow="--cigar"
+model "mrs-sahukar" body="--skin-mrs-sahukar" cloth="--mrs-sahukar-sari" trim="--moustache" glow="--sari-border"
+
+// ---------- the day ----------
+model "jeep" body="--jeep" trim="--iron" cloth="--canvas"
+model "doe" body="--chital" trim="--chital-dark" glow="--glass-eye"
+model "sal-tree" body="--sal-bark" cloth="--sal-leaf"
+model "cane-chair" body="--cane" cloth="--cushion"
+
+// ---------- in his hands ----------
+model "hands" body="--skin-thistlewood" cloth="--linen" trim="--teak-dark" glow="--flame"

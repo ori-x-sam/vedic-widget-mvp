@@ -1,0 +1,271 @@
+// NIGHT 1 — THE BOLTED DOOR. The guest wing: guest room, corridor, trophy gallery, gallery storeroom.
+// Teaches the camera, the casebook, the watchman and the knock. Proves: the tiger story is staged.
+//
+// The chart (also drawn in the night's story):
+//
+//   GUEST ROOM, bolted from outside
+//     punkah rope ─► hairpin ─┐
+//     trunk ─► tripod leg ────┴─► [pockets: combine] bolt hook ─┐
+//     trunk ─► walk it to the door ─────────────────────────────┴─► door, through the transom ─► CORRIDOR
+//   CORRIDOR (Bhima's round; a curtained alcove to hide in) ─► archway ─► GALLERY
+//   GALLERY (Bhima's round; a stuffed bear to hide behind)
+//     four trophy plaques give years ─► storeroom dials "in the order of their falling" ─► STOREROOM
+//     the man-eater: look ─► the-man-eater; photograph ─► photo-man-eater (stencil C.G. 29/4)
+//     the man-eater's plaque ─► new-plaque (with the Raja's "eleventh of September" from Day 1)
+//     the cut photograph (optional: the sixth man)
+//   STOREROOM: register ─► taxidermy-book; paw ─► pulled-claws (photo: photo-paw); rack ─► dust-outline (optional)
+//   CASEBOOK: the deduction (three asks, confirmed together) ─► the bed ends the night ─► reveal and question
+//
+// Three threads after the door: the dials (plaques ─► storeroom), the man-eater itself, and the day's testimony.
+//
+// Words (catalog: docs/declarative-ui.md):
+//   night "id" n= name= moon=fullness moon-alt=deg moon-az=deg start="room" at="x z" turn=deg proves="deduction" then="scene" caught="scene"
+//   room "id" night= name= x= z= w= d= h= floor="surface" walls="surface" dark=0..1 { jaali, transom, prop, lamp }
+//   door "id" name= from="room" wall= at= to="room" w= h= open= arch=
+//   spot "id" room= name= at="x z" y= r= model= turn= solid= { look, use, photo, code, hide, bed, pose }
+//   patrol "id" night= who= speed=u/s { stop "room" at="x z" wait=s }
+//   hint "id" night= until="condition" after-s= text=
+//   deduction "id" night= title= reveal= question= { ask "text" options="a | b" answer= from="clues" }
+// Positions inside a room are from the room's centre (x east, z south); headings are degrees, 0 north, 90 east.
+// Effects on any beat: gives takes sets unsets clue opens closes sound suspicion regard once minutes; if="..." gates it.
+
+night "night-1" n=1 name="The Bolted Door" moon=0.5 moon-alt=16 moon-az=252 start="guest-room" at="-0.4 0.9" turn=0 proves="staged-tiger" then="dawn-1" caught="caught-1" {
+    // A suspicious Raja has the door bolted twice.
+    begins if="suspicion>=5" sets="bolted-twice"
+    // Bhima walks him back and bolts him in again; what he carries and what he has learned stay with him.
+    on-caught closes="guest-door" unsets="door-open first-bolt-up"
+}
+
+// ---------- the floor plan ----------
+
+room "guest-room" night=1 name="The guest room" x=0 z=0 w=4.4 d=5 h=4.2 floor="marble" walls="plaster" dark=0.55 {
+    jaali wall="west" at=0.4 w=1.3 h=1.7 y=0.8
+    transom wall="north" at=0 w=1.1 h=0.45 y=2.6
+    lamp at="-1.7 -1.7" y=1.0 kind="diya"
+    prop "almirah" at="1.85 -0.6" turn=270 solid=0.55
+    prop "rug" at="0 0.4"
+}
+
+room "corridor" night=1 name="The guest corridor" x=2 z=-4 w=12 d=3 h=4.6 floor="sandstone" walls="sandstone" dark=0.75 {
+    jaali wall="west" at=0 w=1.2 h=1.8 y=0.8
+    lamp at="5.2 -1.2" y=1.1 kind="diya"
+    prop "pillar" at="-1 -1.25"
+    prop "pillar" at="3 -1.25"
+}
+
+room "gallery" night=1 name="The trophy gallery" x=14 z=-4 w=12 d=6 h=6 floor="marble" walls="sandstone" dark=0.6 {
+    jaali wall="south" at=-4 w=1.4 h=2.4 y=0.9
+    jaali wall="south" at=0.3 w=1.4 h=2.4 y=0.9
+    jaali wall="south" at=4.4 w=1.4 h=2.4 y=0.9
+    lamp at="-5.6 -2.6" y=1.6 kind="diya"
+    prop "chandelier-dead" at="0 0" y=4.8
+    prop "tiger-rug" at="-2.6 0.8" turn=200
+}
+
+room "storeroom" night=1 name="The gallery storeroom" x=22.5 z=-4 w=5 d=4 h=3.4 floor="brick" walls="plaster" dark=0.95 {
+    jaali wall="south" at=-1.2 w=0.6 h=0.5 y=2.3
+}
+
+door "guest-door" name="the guest room door" from="guest-room" wall="north" at=0 to="corridor"
+door "gallery-arch" name="the gallery arch" from="corridor" wall="east" at=0 to="gallery" w=1.8 h=3.2 open=#true arch=#true
+door "storeroom-door" name="the storeroom door" from="gallery" wall="east" at=0 to="storeroom"
+
+// ---------- the guest room ----------
+
+spot "bolted-door" room="guest-room" name="the door" at="0 -2.3" y=1.3 r=0.6 {
+    look if="door-open" "The corridor beyond is dark and smells of lamp oil and old roses."
+    use "bolt-hook" if="trunk-at-door bolted-twice !first-bolt-up" "You climb onto the trunk, feed the hook through the jaali and lift. One bolt slides back. One remains. The Raja is a thorough host." sets="first-bolt-up" sound="bolt-lift"
+    use "bolt-hook" if="trunk-at-door" "You climb onto the trunk, feed the hook through the jaali, find the knob and lift. The bolt slides back with a sound like a cough in church. The door breathes open." opens="guest-door" sets="door-open" sound="bolt-open"
+    use "bolt-hook" "The hook would reach, if I could reach the transom. It is a foot above my best effort. Something to stand on, then."
+    use "tripod-leg" "Long enough, and blunt as a bishop. The knob of the bolt wants a hook."
+    use "hairpin" "The hairpin would lift the bolt nicely, were I nine feet tall."
+    look if="bolted-twice" "Bolted from outside. Twice: I heard the second one go home after a pause, the way a man adds a word he has thought better of. Through the jaali transom above the door, two brass knobs gleam in the corridor's lamplight." clue="bolted-in"
+    look "Bolted from outside, \"because of the tiger.\" Through the jaali transom above the door, high up, the bolt's brass knob gleams in the corridor's lamplight. A long way up for a hand." clue="bolted-in"
+}
+
+spot "punkah" room="guest-room" name="the punkah" at="0 0.2" y=3.3 r=1.0 model="punkah" {
+    look if="has:hairpin" "The punkah hangs still again, its fringe empty of secrets."
+    look "A punkah of faded red cloth on a wooden beam, its fringe stirring in no wind at all. Something in the fringe glints. Far too high to reach; its rope runs to a cleat on the wall."
+}
+
+spot "punkah-rope" room="guest-room" name="the punkah rope" at="-2.05 -0.9" y=1.3 r=0.5 model="punkah-cleat" turn=90 {
+    look "You give the rope a pull. The punkah heaves across the ceiling like a sigh, and something drops from its fringe and rings on the marble. A hairpin, enamelled with a blue butterfly." gives="hairpin" sound="punkah" once=#true
+    look "The punkah swings, and creaks, and swings. The room is no cooler and no wiser."  sound="punkah"
+}
+
+spot "trunk" room="guest-room" name="your steamer trunk" at="1.3 1.6" y=0.4 r=0.6 model="steamer-trunk" turn=90 solid=0.45 {
+    pose if="trunk-at-door" at="0.85 -2.05" turn=0
+    look "Your steamer trunk: plates, chemicals, eleven shirts, and the tripod, strapped into the lid. You unscrew one brass leg. Fifty inches, drawn out." gives="tripod-leg" sound="unscrew" once=#true
+    look if="!trunk-at-door" "You put your shoulder to the trunk and walk it across the marble to the door, one corner at a time. It complains the whole way. Marble carries a complaint." sets="trunk-at-door" sound="drag"
+    look "It will hold a fussy man of fifty. Probably."
+}
+
+spot "dressing-table" room="guest-room" name="the dressing table" at="-1.6 -1.7" y=1.0 r=0.5 model="dressing-table" turn=180 solid=0.45 {
+    look "A card propped against the mirror: \"With the compliments of His Highness. Breakfast at eight. For your safety the guest wing is secured at night.\" In the mirror, a fussy man of fifty, holding a card." clue="bolted-in"
+    photo "The flash fills the mirror and comes straight back at you. The album will have a portrait of the photographer, startled."
+}
+
+spot "guest-window" room="guest-room" name="the window" at="-2.05 0.4" y=1.6 r=0.6 {
+    look "The jaali is too fine for a cat, let alone an inspector. Through it: the jungle, black-green, silver at the edges, and the half moon going down in the west. Somewhere out there the jackals are discussing something."
+    photo "A long exposure of the half moon through the jaali. If anyone asks, I photograph the moon."
+}
+
+spot "guest-bed" room="guest-room" name="the bed" at="-1.2 1.2" y=0.5 r=0.8 model="charpoy" solid=0.6 {
+    bed "You lie down in your clothes, shoes and all, and listen to the house. Somewhere a door. Somewhere the jackals. Somewhere, very far off, a tiger that is not dead at all, or a very good imitation."
+    look "A charpoy strung with jute, too short by a foot, as the beds of the East always are for the men of the West. Not yet. Not with the thing half-seen."
+}
+
+// ---------- the corridor ----------
+
+spot "sahukar-door" room="corridor" name="the Sahukars' door" at="-4.5 1.45" y=1.3 r=0.5 model="door-leaf" {
+    look "Behind this door Mr. Sahukar is telling his wife, at length, that she is the moon. Mrs. Sahukar tells him to put out the lamp, he is keeping the moon awake."
+}
+
+spot "ghatak-door" room="corridor" name="the Ghataks' door" at="3.6 1.45" y=1.3 r=0.5 model="door-leaf" {
+    look "Mr. Ghatak snores in paragraphs, with footnotes. Between paragraphs, Mrs. Ghatak can be heard not sleeping."
+}
+
+spot "calendar" room="corridor" name="the calendar" at="1 -1.45" y=1.7 r=0.4 model="calendar-print" turn=180 {
+    look "An oleograph calendar from a Calcutta biscuit company: a goddess on a lotus, holding a tin of Marie biscuits. It still shows September. Somebody stopped turning it."
+}
+
+spot "corridor-alcove" room="corridor" name="the curtained alcove" at="-3 -1.2" y=1.2 r=0.6 model="curtain-alcove" turn=180 {
+    hide "You step behind the curtain. It smells of moth and old smoke and, faintly, of somebody's attar. You make yourself as small as a man of fifty can."
+}
+
+// ---------- the trophy gallery ----------
+
+spot "trophy-leopard" room="gallery" name="the leopard" at="-4.5 -2.85" y=2.4 r=0.8 model="trophy-leopard" turn=180 {
+    look "A leopard's head, mid-snarl, on teak. The brass plaque: \"Leopard. Shot by H.H. the late Raja Sahib, 1924.\"" clue="old-plaques"
+}
+
+spot "trophy-boar" room="gallery" name="the boar" at="-1.5 -2.85" y=2.2 r=0.8 model="trophy-boar" turn=180 {
+    look "A wild boar's head, tusks like a moustache waxed by an enemy. The plaque: \"Wild boar. Taken on foot by Kumar Sudam, 1938.\" The only plaque in the gallery that names the hunter without a title." clue="old-plaques"
+}
+
+spot "trophy-gaur" room="gallery" name="the gaur" at="1.5 -2.85" y=2.6 r=0.9 model="trophy-gaur" turn=180 {
+    look "A gaur's head the size of an armchair, with the patient eyes of a cow in a tram queue. The plaque: \"Gaur. Shot by H.H. the late Raja Sahib, 1912.\"" clue="old-plaques"
+}
+
+spot "trophy-bear" room="gallery" name="the sloth bear" at="4.5 -2.85" y=2.3 r=0.8 model="trophy-bear" turn=180 {
+    look "A sloth bear's head, its long lip curled as if at a bad joke. The plaque: \"Sloth bear. Shot by H.H. the late Raja Sahib, 1919.\"" clue="old-plaques"
+}
+
+spot "man-eater" room="gallery" name="the man-eater" at="1 0.2" y=1.0 r=1.2 model="tiger-frame" solid=1.0 turn=180 {
+    look "The man-eater of Chandragarh, stretched on a frame of teak as if leaping at the window. Glass eyes, a snarl the taxidermist was proud of. Up close, in the moonlight, the fur is wrong: bald in places, and tracked with moth." clue="the-man-eater"
+    photo "The flash goes off like a slap. On the ground glass, the hide is all bald patches and moth tracks, and on the underside, where nobody looks, a stencilled number: C.G. 29/4." clue="photo-man-eater" sound="shutter"
+}
+
+spot "man-eater-plaque" room="gallery" name="the man-eater's plaque" at="1 1.45" y=0.6 r=0.5 model="plaque-stand" turn=180 {
+    look "\"The Man-eater of Chandragarh. Shot by His Highness, 16th September 1946. Avenged.\" The brass is bright as a new anna; the engraver's burr still catches a fingernail." clue="new-plaque"
+}
+
+spot "shikar-photos" room="gallery" name="the shikar photographs" at="-5.4 2.3" y=0.95 r=0.6 model="photo-table" solid=0.45 turn=90 {
+    look "Silver frames, a dozen of them, of men standing on dead animals. The newest is last month's party on the palace steps: the Raja, the Ghataks, the Sahukars, and a dead chital. A sixth man has been cut out with scissors, neatly, leaving a man-shaped window onto the velvet behind." clue="cut-photograph"
+    photo "A photograph of a photograph, with a hole in it the shape of a man."
+}
+
+spot "old-raja" room="gallery" name="the old Raja's portrait" at="-5.9 -1.6" y=2.6 r=0.8 model="portrait" turn=90 {
+    look "The old Raja in his 1911 durbar dress, painted in Calcutta by a man who was paid by the jewel. He has the eyes of an accountant who has found a mistake in your favour and is deciding whether to mention it."
+}
+
+spot "stuffed-bear" room="gallery" name="the stuffed bear" at="5.2 2.3" y=1.2 r=0.7 model="bear-standing" solid=0.5 turn=315 {
+    hide "You fold yourself into the shadow behind the bear. It has been dead since 1922 and still smells faintly of bear."
+}
+
+spot "storeroom-dials" room="gallery" name="the storeroom door" at="5.8 0" y=1.2 r=0.6 {
+    look if="storeroom-open" "The storeroom stands open, breathing camphor."
+    look "A low teak door with a brass plate: \"IN THE ORDER OF THEIR FALLING.\" Beneath it, four brass dials, each engraved with the same four beasts: gaur, bear, leopard, boar."
+    code "gaur bear leopard boar" dials=4 answer="gaur bear leopard boar" learns="trophy-gaur trophy-bear trophy-leopard trophy-boar" "Gaur, bear, leopard, boar: 1912, 1919, 1924, 1938. Something inside the door goes clunk, very satisfied with itself, and the door swings in on a breath of camphor." opens="storeroom-door" sets="storeroom-open" sound="lock-open"
+}
+
+// ---------- the storeroom ----------
+
+spot "skin-rack" room="storeroom" name="the rack of skins" at="0 -1.6" y=1.4 r=0.9 model="skin-rack" turn=180 {
+    look "Old skins hang from a rack like coats nobody will claim: a leopard gone bald, a bear with one ear. Between them, a clean oblong in the dust where one hung until lately." clue="dust-outline"
+}
+
+spot "workbench" room="storeroom" name="the workbench" at="1.95 0.4" y=0.95 r=0.7 model="workbench" turn=270 solid=0.5 {
+    look "A taxidermist's bench. On it, a mounted tiger's paw with two claws missing, the sockets pale and fresh. Beside it, a pair of pliers with tiger hair still in the jaws." clue="pulled-claws"
+    photo "The paw, the empty sockets, the pliers. In the flash the glass eyes on the shelf above seem to look up." clue="photo-paw" sound="shutter"
+}
+
+spot "taxidermy-register" room="storeroom" name="the register" at="-1.5 1.75" y=1.0 r=0.6 model="ledger-shelf" turn=0 solid=0.4 {
+    look "The old Raja's register of skins, in his own neat hand. You turn to 29/4: \"Tigress, old. Died in the Mahanadi floods, 1929. Moth in the hide. Not fit for display: storeroom.\"" clue="taxidermy-book"
+}
+
+// ---------- Bhima's round ----------
+
+patrol "bhima-1" night=1 who="bhima" speed=0.9 {
+    stop "gallery" at="4 0" wait=6
+    stop "gallery" at="1 -2" wait=0
+    stop "gallery" at="-4 0" wait=2
+    stop "gallery" at="-5.6 0" wait=0
+    stop "corridor" at="4.5 0" wait=0
+    stop "corridor" at="-2 0.5" wait=7
+    stop "corridor" at="-5.2 0" wait=4
+    stop "corridor" at="4.5 0" wait=0
+    stop "gallery" at="-5.6 0" wait=0
+    stop "gallery" at="1 2" wait=0
+}
+
+// ---------- Thistlewood thinking aloud ----------
+
+hint "n1-door-1" night=1 until="door-open" after-s=90 text="The bolt is outside, but its knob shows through the jaali over the door. A hand won't reach that far. My hand is not the only thing in this room."
+hint "n1-door-2" night=1 until="door-open" after-s=150 text="A hook, something long to hold it with, and something to stand on. Something glinted in the punkah's fringe. The tripod is in my trunk."
+hint "n1-hook" night=1 until="has:bolt-hook" after-s=120 text="The hairpin and the tripod leg. In the casebook (Tab), under Pockets, two things can be made into one."
+hint "n1-gallery" night=1 until="seen:man-eater" after-s=150 text="The palace's tiger is on show in the trophy gallery. Bhima's round goes through it: I should go when his lantern has gone the other way."
+hint "n1-dials-1" night=1 until="storeroom-open" after-s=150 text="The storeroom's dials are beasts. So are the trophies, and every trophy has a plaque."
+hint "n1-dials-2" night=1 until="storeroom-open" after-s=240 text="\"In the order of their falling.\" The plaques give the years. Earliest first."
+hint "n1-photo" night=1 until="knows:photo-man-eater" after-s=200 text="The moonlight hides what a flash would show. Anything I photograph goes into the casebook. (F raises the camera.)"
+hint "n1-deduce" night=1 until="staged-tiger" after-s=240 text="The casebook's last page wants the evidence laid down together: when the man-eater died, when its plaque was made, and what marked Sudam."
+
+// ---------- the deduction ----------
+
+deduction "staged-tiger" night=1 title="The man-eater of Chandragarh" reveal="There was no man-eater. There was a tigress dead these seventeen years, a plaque engraved five days after Sudam vanished, and somebody in this house with a pair of pliers. A palace does not stage a tiger for a man the jungle killed." question="Who pulled two claws from a dead tiger's paw, and where are they now?" {
+    ask "The man-eater on the frame died" options="on the 16th of September, as its plaque says | in 1929, in the Mahanadi floods" answer="in 1929, in the Mahanadi floods" from="photo-man-eater taxidermy-book"
+    ask "Its plaque was engraved" options="when the tiger was shot | after Sudam vanished, for show" answer="after Sudam vanished, for show" from="new-plaque sudam-vanished"
+    ask "The marks on Sudam's body were made by" options="a tiger | claws pulled from a mounted paw" answer="claws pulled from a mounted paw" from="pulled-claws"
+}
+
+// ---------- caught: the excuse ----------
+// What each excuse costs depends on the day: "the moon" works if he told the Raja on the verandah that he photographs
+// the moon (told-moon). Whatever he says, Bhima walks him back and bolts him in (the night's on-caught).
+
+// The wing as it is, seen from wherever he was caught.
+place "caught" set="wing" light="night"
+
+scene "caught-1" day=1 place="caught" first="caught-1-lantern"
+
+beat "caught-1-lantern" scene="caught-1" {
+    line "narrator" "The lantern finds you. Bhima says nothing. He waits, enormous, with the light held low, while you think of a reason."
+    choose "\"I was photographing the moon.\"" if="told-moon" go="caught-1-moon"
+    choose "\"I was photographing the moon.\"" if="!told-moon" go="caught-1-moon-new" suspicion=2
+    choose "\"I was looking for the... the necessary.\"" go="caught-1-necessary" suspicion=1
+    choose "\"I couldn't sleep. I wanted to see the tiger that took Kumar Sudam.\"" go="caught-1-truth" suspicion=1 regard=1
+}
+
+beat "caught-1-moon" scene="caught-1" {
+    line "narrator" "Bhima looks at the camera, at the window, at you. He nods once, as if a guest who photographs the moon at two in the morning were only a guest. The Raja did say."
+    go "caught-1-back"
+}
+
+beat "caught-1-moon-new" scene="caught-1" {
+    line "narrator" "Bhima looks at the camera. He looks at the shuttered windows. He looks at you for a long time, and you hear how it will sound at breakfast."
+    go "caught-1-back"
+}
+
+beat "caught-1-necessary" scene="caught-1" {
+    line "narrator" "Bhima lifts the lantern and points, without a word, back the way you came: to the room that has, as you knew perfectly well, its own."
+    go "caught-1-back"
+}
+
+beat "caught-1-truth" scene="caught-1" {
+    line "narrator" "Something moves in Bhima's face, deep down, like a fish under a pond. Then it is gone, and he is only a watchman with a lantern."
+    go "caught-1-back"
+}
+
+beat "caught-1-back" scene="caught-1" {
+    line "narrator" "He walks you back to the guest room, holding the lantern low, and waits until you are inside. The bolt slides home." sound="bolt-shut"
+    ends "back-to-room"
+}

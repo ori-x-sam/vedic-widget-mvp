@@ -1,0 +1,26 @@
+// The endings: the scenes that end the game, and the cards shown after them.
+//   ending "id" title="..." text="..."      the end card for `ends "ending" ending="id"`
+// The midnight shikar plays whenever the Raja's suspicion reaches its peak (tuning.ts SUSPICION_PEAK), at the next
+// beat: it is the scene named `midnight-shikar`.
+
+ending "demo-end" title="End of the demo" text="Day 2, The Sittings, and Night 2, The House of Mirrors, come next: six more nights to the full moon."
+ending "shikar-end" title="The Midnight Shikar" text="The guests were very complimentary about the meat."
+
+// ---------- the midnight shikar ----------
+
+scene "midnight-shikar" day=0 place="verandah" first="shikar-1" name="The Midnight Shikar"
+
+beat "shikar-1" scene="midnight-shikar" {
+    line "raja" "Mr. Thistlewood! You cannot sleep, I am told. Neither can I. Neither can the tiger. Come: a midnight shikar, just the two of us and Bhima. You will photograph it. By moonlight. You like the moon."
+    line "narrator" "The Raja laughs. It goes on a beat too long. It goes on another beat after that." sound="laugh-long"
+    go "shikar-2"
+}
+
+beat "shikar-2" scene="midnight-shikar" {
+    line "narrator" "Breakfast. The guests are in good spirits. There is meat, which is unusual for breakfast, and the Raja carves it himself."
+    line "ghatak" "Excellent. Gamey. A relapse into savagery, Raja Sahib, is good for the digestion. I have written a pamphlet."
+    line "mrs-sahukar" "Where is Mr. Thistlewood? He promised to photograph me."
+    line "narrator" "Beside her plate, propped against the marmalade, the menu card is in the Raja's own hand."
+    line "narrator" "The jackals, behind the palace, laugh and laugh." sound="jackals"
+    ends "ending" ending="shikar-end"
+}

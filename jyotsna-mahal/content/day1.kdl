@@ -1,0 +1,199 @@
+// DAY 1 — THE DRIVE IN. The jeep through the jungle, the doe, the arrival, drinks on the verandah, the bolt.
+// Sets for the nights ahead: shot-doe / spared-doe / hesitated, told-moon (an excuse that works on Night 1), and the
+// two hidden marks. Gives the camera and the candle, and the Raja's testimony about the date (sudam-vanished).
+//
+// Words (catalog: docs/declarative-ui.md):
+//   scene "id" day= place="place" first="beat" name="Title card"
+//   place "id" set="jungle-road|verandah|wing" light="day|dusk|night" { sits "who" at="x z" turn= y=; prop "model" at= turn= y= if=; eye at= y= turn= }
+//   beat "id" scene= timer-s= timeout="beat" { line "who" "text"; choose "text" go="beat"; does ...; go "beat"; ends "night" }
+// Effects on lines and choices: sets clue gives sound suspicion regard (and the rest); if="..." gates a line or choice.
+// The Raja's suspicion starts at 3 (tuning.ts); at 5 the door is bolted twice tonight.
+
+// ---------- places ----------
+
+// The Raja's war-surplus jeep, with a third bench bolted on behind. Bhima drives; the Raja beside him; the guests
+// behind; Thistlewood on the rear bench, guest of honour, facing forward.
+place "jeep" set="jungle-road" light="day" {
+    prop "jeep" at="0 0"
+    sits "bhima" at="-0.4 -0.55" y=0.4 turn=0 model="bhima-driving"
+    sits "raja" at="0.42 -0.55" y=0.4 turn=0
+    sits "ghatak" at="-0.42 0.25" y=0.4 turn=0
+    sits "mrs-ghatak" at="0.42 0.25" y=0.4 turn=0
+    sits "mrs-sahukar" at="0.6 1.05" y=0.4 turn=20
+    sits "sahukar" at="-0.62 1.05" y=0.4 turn=-20
+    eye at="0 1.3" y=1.6 turn=0
+    prop "doe" at="-5 -12" turn=110 if="doe-showing"
+}
+
+// The palace verandah at dusk: cane chairs, whisky, the jungle going violet below the ridge.
+place "verandah" set="verandah" light="dusk" {
+    prop "cane-chair" at="0 -1.6" turn=180
+    prop "cane-chair" at="-1.6 -0.9" turn=120
+    prop "cane-chair" at="-1.9 0.3" turn=95
+    prop "cane-chair" at="1.6 -0.9" turn=240
+    prop "cane-chair" at="1.9 0.3" turn=265
+    sits "raja" at="0 -1.6" y=0 turn=180
+    sits "ghatak" at="-1.6 -0.9" y=0 turn=120
+    sits "mrs-ghatak" at="-1.9 0.3" y=0 turn=95
+    sits "sahukar" at="1.6 -0.9" y=0 turn=240
+    sits "mrs-sahukar" at="1.9 0.3" y=0 turn=265
+    sits "bhima" at="3.2 -2.6" y=0 turn=200
+    eye at="0 1.0" y=1.2 turn=0
+}
+
+// The guest room at dawn, from the bed.
+place "dawn" set="wing" light="day" {
+    eye at="-1.2 1.2" y=0.9 turn=10
+}
+
+// ---------- the drive ----------
+
+scene "drive-in" day=1 place="jeep" first="drive-1" name="Day 1 — The Drive In"
+
+beat "drive-1" scene="drive-in" {
+    does gives="camera candle"
+    line "narrator" "Chandragarh, in the Orissa States. The fourth of October, 1946. Forty miles of sal jungle, and the jeep has complained about every one of them."
+    line "raja" "Mr. Thistlewood! Look at it! Sal, sal, sal, all the way to the sky. My father used to say a forest is a cathedral. My father had never been inside a cathedral."
+    line "ghatak" "A cathedral, Raja Sahib, is only a forest that has been civilised. And a forest is a cathedral that has kept its claws."
+    line "mrs-ghatak" "Pitambar has kept his claws too. He clips them on Sundays."
+    line "sahukar" "Timber. Pure timber. Every one of those trees is a rupee, standing up. In these matters I am a wolf, Mr. Thistlewood. A wolf."
+    line "narrator" "Mr. Sahukar parks his cigar in the corner of his mouth and looks round the jeep to see that the wolf has been appreciated."
+    line "mrs-sahukar" "Dibakar, please, no wolves. I shall dream of them."
+    line "sahukar" "You shall dream of me, my moon. My little moon."
+    line "narrator" "Bhima drives. He is the largest man you have ever seen behind a steering wheel and the quietest; the jeep goes round the bends as if he were carrying it in his arms."
+    go "drive-2"
+}
+
+beat "drive-2" scene="drive-in" {
+    line "raja" "You will photograph everything, yes? The forest, the palace, the moon, my good self. Kumar Purnima is six nights away. The album must make me look like a king."
+    choose "\"Your Highness hardly needs a camera for that.\"" go="drive-flatter" suspicion=-1
+    choose "\"I photograph what's in front of me, Your Highness.\"" go="drive-plain"
+}
+
+beat "drive-flatter" scene="drive-in" {
+    line "raja" "Ha! Ha ha! You hear, Ghatak? An Englishman with manners. They are dying out, like the cheetah."
+    line "ghatak" "The cheetah, Raja Sahib, is dying out because it has manners. Nature rewards the impolite. I have written a pamphlet."
+    line "mrs-ghatak" "He has written a pamphlet."
+    go "doe"
+}
+
+beat "drive-plain" scene="drive-in" {
+    line "raja" "Then I shall stand in front of you. Constantly." sound="laugh-long"
+    line "narrator" "Behind you, a jackal somewhere in the trees appears to agree. It is a long way to the palace."  sound="jackals"
+    go "doe"
+}
+
+beat "doe" scene="drive-in" timer-s=12 timeout="doe-gone" {
+    does sets="doe-showing" sound="brakes"
+    line "narrator" "At a bend the jeep stops. Down the slope, at the foot of the hill, a chital doe stands in the long grass. She is heavy with a fawn, and she has not seen you."
+    line "raja" "There! Bhima, the rifle. No, no, not for me. For our guest. Our guest of honour takes the first shot. That is how it is done in Chandragarh."
+    line "narrator" "The rifle is in your hands before you have agreed to anything. It is warm from the rack and smells of oil and of the Raja's attar."
+    line "mrs-sahukar" "Is she going to die? Oh, don't tell me. Tell me afterwards."
+    choose "Raise the rifle, and fire." go="doe-shot" sets="shot-doe" unsets="doe-showing" regard=-2 suspicion=-1
+    choose "Lower the rifle." go="doe-spared" sets="spared-doe" unsets="doe-showing" regard=2 suspicion=1
+}
+
+beat "doe-gone" scene="drive-in" {
+    does sets="hesitated" unsets="doe-showing"
+    line "narrator" "You hold the rifle. You go on holding it. The doe lifts her head, looks at the jeep as if it were the weather, and steps into the jungle."
+    line "raja" "Too slow! Too slow, Mr. Thistlewood. In Chandragarh a man who thinks too long gets eaten." sound="laugh"
+    line "mrs-ghatak" "Or invited to dinner."
+    go "arrive"
+}
+
+beat "doe-shot" scene="drive-in" {
+    does sound="rifle"
+    line "narrator" "The shot goes round the hills twice before it leaves. When you look again there is only grass, and a shape in the grass you decide not to look at."
+    line "raja" "Bravo! BRAVO! A shikari! I knew it from his hat!" sound="laugh-long"
+    line "narrator" "Bhima takes the rifle from you without a word. He does not look at you. He looks at the grass, for a long moment, and then he drives on."
+    go "arrive"
+}
+
+beat "doe-spared" scene="drive-in" {
+    line "narrator" "You lower the rifle. The doe lifts her head, looks at the jeep as if it were the weather, and walks into the jungle with her fawn inside her."
+    line "mrs-sahukar" "He let it go! He let it go, and now it will have its baby, and the baby will look at me!"
+    line "narrator" "Mrs. Sahukar has hysterics, which take the form of fainting onto her husband, who catches her as if they had rehearsed it."
+    line "raja" "You are a sentimental man, Mr. Thistlewood."
+    line "raja" "We had a man like that."
+    line "narrator" "The Raja laughs. The laugh goes on a beat too long, then stops, and the jungle comes in to fill the space it leaves." sound="laugh-long"
+    line "narrator" "In the driver's seat, Bhima turns his head and looks at you. Only for a moment."
+    go "arrive"
+}
+
+// ---------- the verandah ----------
+
+scene "drinks" day=1 place="verandah" first="arrive" name="Day 1 — The Verandah"
+
+beat "arrive" scene="drinks" {
+    line "narrator" "Jyotsna Mahal stands on its ridge like a wedding cake left out in the rain: pink sandstone, white marble, little domes along the roof like cups set out for guests. At one end an Edwardian wing in red brick has been bolted on, as if the palace had bought a hat."
+    line "raja" "Welcome! Welcome to the Moonlight Palace! Drinks! The verandah! The sun is going down, and it is a crime to watch it sober."
+    line "narrator" "Whisky in cut glass. The jungle going violet below the ridge. The guests arranged in cane chairs like a photograph nobody has taken yet."
+    line "raja" "You know what we celebrate, Mr. Thistlewood? Kumar Purnima. The moon comes full, the girls sing to it, and the whole state plays at dice. And this year—"
+    line "raja" "This year we have also shot a tiger!" sound="laugh"
+    line "ghatak" "A man-eater, Lilabati, child, a real one. Do stop trembling. It is quite dead. It is in the gallery, with its mouth open."
+    line "raja" "It took my half-brother. Sudam. The best shot in these hills. Taken on the night of the last full moon. The eleventh of September." clue="sudam-vanished"
+    line "raja" "The eleventh of September."
+    line "narrator" "He says it the second time to the moon, which is coming up half-made over the trees. Nobody says anything at all."
+    line "mrs-ghatak" "Such a waste. He was a very handsome driver."
+    go "verandah-2"
+}
+
+beat "verandah-2" scene="drinks" {
+    line "raja" "But! Enough. Tell me, Mr. Thistlewood. When there are no kings about, what do you photograph?"
+    choose "\"The moon, mostly. Night plates; long exposures.\"" go="verandah-moon" sets="told-moon"
+    choose "\"Architecture. Your palace has a great deal of it.\"" go="verandah-arch" suspicion=-1
+    choose "\"Your brother. Did he ever sit for a photograph?\"" go="verandah-direct" suspicion=2
+}
+
+beat "verandah-moon" scene="drinks" {
+    line "raja" "The moon! A romantic! Then you have come to the right palace in the right week." sound="laugh"
+    line "ghatak" "The moon, sir, is the one thing in India the British have not yet taxed." sound="jackals"
+    line "sahukar" "Give them time."
+    line "narrator" "Mr. Sahukar looks round. Everyone has appreciated it, except you, who are British, and the moon."
+    go "verandah-3"
+}
+
+beat "verandah-arch" scene="drinks" {
+    line "raja" "A great deal of it! You hear, Ghatak? He means it is too big. The Englishman thinks my house is too big!" sound="laugh-long"
+    line "mrs-ghatak" "It is too big. One keeps meeting people in it."
+    go "verandah-3"
+}
+
+beat "verandah-direct" scene="drinks" {
+    line "narrator" "The Raja's glass stops halfway to his mouth."
+    line "raja" "My brother did not like cameras. He said they take something away."
+    line "raja" "Ha. Ha ha. Ha." sound="laugh-long"
+    line "narrator" "Mrs. Ghatak opens her eyes, which she rarely does, and looks at you as if you had trodden in something on the stair."
+    go "verandah-3"
+}
+
+beat "verandah-3" scene="drinks" {
+    line "narrator" "Far off, somewhere in the black of the trees, a tiger roars. Everyone on the verandah hears it. Everyone decides that they did not." sound="roar-far"
+    line "mrs-sahukar" "Was that a—"
+    line "raja" "The jungle, my dear. The jungle clearing its throat." sound="laugh"
+    line "narrator" "Behind the palace the jackals begin, a whole chorus of them, as if someone had said something very funny indeed." sound="jackals"
+    line "raja" "And now, bed! Bhima will see you to the guest wing. We bolt it at night, Mr. Thistlewood, you understand. Because of the tiger."
+    line "thistlewood" "The tiger Your Highness shot?"
+    line "raja" "Because of the tiger."
+    go "bolt"
+}
+
+beat "bolt" scene="drinks" {
+    line "narrator" "Bhima walks you to your room with his lantern held low, as if he were showing the floor the way. The guest room is cool and smells of camphor and old marble. Your trunk is at the foot of the bed."
+    line "narrator" "The door closes. Outside, a bolt slides home." sound="bolt-shut"
+    line "narrator" "A pause. Then, slowly, a second bolt." if="suspicion>=5" sound="bolt-shut"
+    line "narrator" "Bhima's footsteps go away down the corridor, soft as a cat's for so large a man."
+    ends "night"
+}
+
+// ---------- the morning after Night 1 ----------
+
+scene "dawn-1" day=1 place="dawn" first="knock-1" name="Day 2 — The Knock"
+
+beat "knock-1" scene="dawn-1" {
+    line "narrator" "Knock." sound="knock"
+    line "narrator" "Knock."
+    line "narrator" "Knock. Soft, patient, never louder: the knock of a man who has knocked on the doors of this house for forty years and has never once been asked in."
+    line "narrator" "The man-eater has been dead since 1929. Somebody in this house pulled two claws from a paw with a pair of pliers. And at breakfast the Raja will ask how you slept."
+    ends "ending" ending="demo-end"
+}

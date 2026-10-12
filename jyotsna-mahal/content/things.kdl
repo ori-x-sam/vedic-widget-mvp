@@ -1,15 +1,39 @@
-// The things scattered on the field. PLACEHOLDER: replace with your game's content.
-//   thing "id" name="Shown name" r=<radius, u> paint="--token" { reward words }
-// `paint` is a palette token in src/screens/shared.css :root. Reward words go one per line inside the braces; what each
-// does is in src/rewards.ts and the catalog (docs/declarative-ui.md, ## Behaviour words):
-//   points n    collecting it scores n points
+// What Thistlewood can carry, make, learn and say without a script.
+//   item "id" name="..." blurb="..."                     something for the pockets
+//   recipe "id" from="a b" makes="item" says="..." sound="..."   two items put together become a third
+//   clue "id" page="evidence|photograph|testimony|note" title="..." text="..."   a casebook entry
+//   remark "id" text="..."                                a stock line; {name} is the spot's name
+// Items and clues are given by effects on spots, lines and choices (gives="hairpin", clue="new-plaque").
 
-// Big and cheap.
-thing "orb" name="Orb" r=0.5 paint="--thing-orb" {
-    points 1
-}
+// ---------- items ----------
 
-// Small and worth more.
-thing "gem" name="Gem" r=0.3 paint="--thing-gem" {
-    points 5
-}
+item "camera" name="The camera" blurb="A folding plate camera, mahogany and brass. The album is the reason I am here, the Raja believes. Press F to raise it."
+item "candle" name="Candle stub and matches" blurb="Two inches of tallow and eleven matches. Press Q to light or snuff it. Light is how one is seen."
+item "hairpin" name="A hairpin" blurb="A lady's hairpin, enamelled with a blue butterfly. Not mine. The bearer said this room was Mrs. Sahukar's until the guests were moved about. Nobody said why they were moved."
+item "tripod-leg" name="A tripod leg" blurb="One brass leg of my tripod, fifty inches drawn out. The other two lean in the trunk like a pair of sulking cranes."
+item "bolt-hook" name="A bolt hook" blurb="A hairpin bent into a hook and bound to a tripod leg with a bootlace. Fifty inches of ingenuity. My mother would have called it vandalism."
+
+recipe "make-bolt-hook" from="hairpin tripod-leg" makes="bolt-hook" sound="bend" says="You bend the hairpin into a hook and lash it to the tip of the tripod leg with a bootlace. It is not elegant. It is long."
+
+// ---------- clues ----------
+
+clue "sudam-vanished" page="testimony" title="The Raja on his brother" text="Kumar Sudam, the Raja's half-brother, was taken by a man-eater on the night of the last full moon: the eleventh of September. He said it twice, the second time to the moon."
+clue "bolted-in" page="note" title="The bolt" text="The guest wing is bolted from outside at night, \"because of the tiger.\" A tiger that is, I am told, already dead."
+clue "the-man-eater" page="evidence" title="The man-eater" text="The tiger that took Kumar Sudam, mounted on a frame in the trophy gallery. Glass eyes, a snarl the taxidermist was proud of, and moth in the hide. Moth works slowly. Moth does not work in a month."
+clue "photo-man-eater" page="photograph" title="Plate 1: the man-eater, close" text="The flash shows what the moonlight hid: bald patches, moth tracks in the fur, and on the underside of the hide a stencilled number: C.G. 29/4. Fresh tigers are not numbered."
+clue "new-plaque" page="evidence" title="The plaque" text="\"The Man-eater of Chandragarh. Shot by His Highness, 16th September 1946. Avenged.\" The brass is bright as a new anna. Five days after Sudam vanished. The palace was very quick to avenge him."
+clue "old-plaques" page="note" title="The roll of honour" text="Gaur, 1912. Sloth bear, 1919. Leopard, 1924. Wild boar, 1938, \"taken on foot by Kumar Sudam.\" The old Raja shot three of them; his other son shot the fourth, and was the only one named for it."
+clue "taxidermy-book" page="evidence" title="The taxidermist's book" text="The old Raja's register of skins. \"29/4. Tigress, old. Died in the Mahanadi floods, 1929. Moth in the hide. Not fit for display: storeroom.\" The man-eater has been dead for seventeen years."
+clue "dust-outline" page="evidence" title="A clean oblong" text="On the storeroom's rack of skins, a clean oblong in the dust where one hung until lately. The dust has had a month to begin again, no more."
+clue "pulled-claws" page="evidence" title="The paw" text="A mounted tiger's paw on the workbench, with two claws missing. The sockets are pale and fresh, and a pair of pliers lies beside it with tiger hair still in the jaws. Somebody needed claws, and needed them without a tiger."
+clue "photo-paw" page="photograph" title="Plate 2: the paw and the pliers" text="The paw, the empty sockets, the pliers. The flash made the glass eyes on the shelf above look up."
+clue "cut-photograph" page="evidence" title="The shikar photograph" text="The hunting party of last month on the palace steps: the Raja, the Ghataks, the Sahukars, rifles and a dead chital. A sixth man has been cut out with scissors, neatly, leaving a man-shaped window onto the frame's velvet."
+
+// ---------- Thistlewood's stock lines ----------
+
+remark "wrong-item" text="No. Not with that. Not even I am that optimistic."
+remark "nothing" text="{name}. I look at it. It does not look back. Good."
+remark "photo-plain" text="A plate of {name}. The album will be grateful; the case will not."
+remark "code-wrong" text="The dials turn, the handle doesn't. Somewhere a dog dreams of me."
+remark "combine-no" text="Those two have nothing to say to each other."
+remark "deduction-wrong" text="No. Something in that doesn't hold, and I would rather know which before I say it aloud. Again, slowly."

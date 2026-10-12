@@ -1,0 +1,59 @@
+// Every sound in the game, synthesised in code: each is a composition of one instrument from src/audio.ts.
+//   sound "id" play="instrument" hz=<base pitch, Hz> gain=<0..1> len=<one hit, s> times=<hits> gap=<s from one hit to the next>
+// Instruments: knock thud noise howl roar bell chime click laugh sniff puff flutter shot drone creak scrape whistle tone
+// Content names sounds by id: `sound="bolt-open"` on a beat, `sound="laugh"` on a person.
+
+// ---------- the signatures ----------
+
+// The knock: soft, three times, never louder. Dawn. The game's signature.
+sound "knock" play="knock" hz=95 gain=0.55 len=0.18 times=3 gap=1.1
+// The jackals behind the palace: the laugh track.
+sound "jackals" play="howl" hz=620 gain=0.32 len=1.6 times=4 gap=0.5
+// A tiger, very far off. Never seen.
+sound "roar-far" play="roar" hz=70 gain=0.4 len=2.4
+// The Durbar Wing clock, one strike.
+sound "chime" play="chime" hz=392 gain=0.3 len=2.2
+// The ghost's ankle bells.
+sound "ghungroo" play="bell" hz=2600 gain=0.18 len=0.25 times=6 gap=0.22
+
+// ---------- people ----------
+
+sound "laugh" play="laugh" hz=150 gain=0.45 len=0.16 times=4 gap=0.23
+// The Raja's laugh when he is afraid: a beat too long.
+sound "laugh-long" play="laugh" hz=140 gain=0.5 len=0.17 times=9 gap=0.25
+sound "harrumph" play="puff" hz=180 gain=0.35 len=0.35
+sound "sniff" play="sniff" hz=3000 gain=0.3 len=0.22 times=2 gap=0.08
+sound "cigar" play="puff" hz=500 gain=0.25 len=0.6
+sound "flutter" play="flutter" hz=2400 gain=0.22 len=0.5
+sound "lantern-creak" play="creak" hz=300 gain=0.2 len=0.4
+sound "whistle" play="whistle" hz=1800 gain=0.25 len=0.5 times=2 gap=0.1
+// Bhima, seeing a light where there should be none.
+sound "who" play="thud" hz=60 gain=0.5 len=0.5
+
+// ---------- things ----------
+
+sound "bolt-shut" play="scrape" hz=900 gain=0.5 len=0.45
+sound "bolt-lift" play="scrape" hz=1200 gain=0.4 len=0.3
+sound "bolt-open" play="scrape" hz=1100 gain=0.5 len=0.5
+sound "lock-open" play="click" hz=700 gain=0.55 len=0.08 times=3 gap=0.12
+sound "dial-rattle" play="click" hz=1500 gain=0.35 len=0.04 times=5 gap=0.05
+sound "punkah" play="creak" hz=180 gain=0.3 len=1.2
+sound "unscrew" play="click" hz=2200 gain=0.25 len=0.03 times=6 gap=0.07
+sound "drag" play="scrape" hz=220 gain=0.45 len=1.4
+sound "bend" play="creak" hz=1400 gain=0.2 len=0.3
+sound "shutter" play="click" hz=1800 gain=0.45 len=0.05 times=2 gap=0.09
+sound "match" play="noise" hz=2500 gain=0.3 len=0.35
+sound "snuff" play="puff" hz=900 gain=0.2 len=0.2
+sound "brakes" play="scrape" hz=1600 gain=0.3 len=0.9
+sound "rifle" play="shot" hz=120 gain=0.7 len=1.8
+sound "page" play="noise" hz=5000 gain=0.15 len=0.18
+sound "pick-up" play="click" hz=900 gain=0.2 len=0.05
+sound "proved" play="tone" hz=294 gain=0.25 len=2.5
+sound "footstep" play="thud" hz=110 gain=0.12 len=0.08
+sound "bhima-step" play="thud" hz=70 gain=0.22 len=0.12
+
+// ---------- under the night ----------
+
+// A tanpura-like drone, and the crickets.
+sound "night-drone" play="drone" hz=73.4 gain=0.08 len=8
+sound "crickets" play="noise" hz=4200 gain=0.035 len=8
