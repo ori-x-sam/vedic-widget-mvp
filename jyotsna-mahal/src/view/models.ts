@@ -3,6 +3,7 @@
 // the hue multiplies it here, so a designer recolours a model in shared.css. `glow` is unlit when its token is a light, else polished.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { C, get } from '../content';
 import { token } from '../tokens';
 
@@ -27,7 +28,8 @@ function tinted(id: string, mat: THREE.Material): THREE.Material {
 
 /** Load every model the content names. Missing .glb files load as a labelled stand-in box (and a test fails). */
 export async function loadModels(): Promise<void> {
-  const loader = new GLTFLoader();
+  // The models are packed by gltfpack (scripts/models.mjs): meshopt-compressed and quantised.
+  const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
   await Promise.all(Object.keys(C.model).map(async (id) => {
     const url = urlOf(id);
     if (!url) { loaded.set(id, { scene: standIn(), clips: [] }); return; }

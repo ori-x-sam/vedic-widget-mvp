@@ -170,7 +170,7 @@
   /* Tone-mapping exposure by light: night, dusk, day (day is close to overexposed, so nights feel colder). */
   --look-exposure: 1.25;
   --look-dusk-exposure: 1.1;
-  --look-day-exposure: 1.55;
+  --look-day-exposure: 1.35;
   /* The moon as a key light through the jaalis, and its patterned shafts in the haze. */
   --look-moon-light: 7;
   --look-moon-shaft: 0.05;
