@@ -1,6 +1,6 @@
 // Foundation guards: vocabulary is defined in one home, colours in one palette.
 import { describe, expect, it } from 'vitest';
-import { THINGS } from '../content';
+import { C } from '../content';
 import { TOKENS } from '../tokens';
 
 const SRC = import.meta.glob<string>(['../**/*.ts', '!../**/*.test.ts', '!../stories/**'], { query: '?raw', import: 'default', eager: true });
@@ -28,6 +28,10 @@ describe('foundation guards', () => {
     expect(dupes).toEqual([]);
   });
   it('every paint in the content is a palette token', () => {
-    expect(Object.values(THINGS).filter((t) => !(t.paint in TOKENS)).map((t) => `${t.id}: ${t.paint}`)).toEqual([]);
+    const paints = [
+      ...Object.values(C.person).map((p) => [p.id, p.paint] as const),
+      ...Object.values(C.model).flatMap((m) => [m.body, m.trim, m.cloth, m.glow].flatMap((t) => (t ? [[m.id, t] as const] : []))),
+    ];
+    expect(paints.filter(([, t]) => !(t in TOKENS)).map(([id, t]) => `${id}: ${t}`)).toEqual([]);
   });
 });
