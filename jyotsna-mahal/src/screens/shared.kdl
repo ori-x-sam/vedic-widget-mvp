@@ -7,3 +7,10 @@ prefab "btn" {
         text class="shared-btn-label" bind="label"
     }
 }
+
+// A line in a list: row(label, tap, state?) in shared.ts. `state` becomes classes (on, new, off).
+prefab "row" {
+    button class="shared-row" bind-class="state" tap="tap" {
+        text class="shared-row-label" bind="label"
+    }
+}

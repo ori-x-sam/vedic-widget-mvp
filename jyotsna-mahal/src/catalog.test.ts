@@ -12,6 +12,10 @@ import { PROPS } from './decl/css';
 import { REWARDS } from './rewards';
 import { TOKENS } from './tokens';
 import { LOOK_KEYS, lookToken } from './view/look';
+import { EFFECT_WORDS } from './content';
+import { SURFACE_WORDS } from './view/surfaces';
+import { SET_WORDS } from './view/sets';
+import { INSTRUMENT_WORDS } from './audio';
 import './screens/shared'; // registers the game's properties
 
 /** The backticked first-column names of the table under `## title`. */
@@ -36,5 +40,9 @@ describe('the catalog matches the code', () => {
   it('content kinds', () => same('Content kinds', all(contentTs, /loadKdl\(\w+, \{ ([^}]+) \}/g).flatMap((kinds) => kinds.split(',').map((k) => k.split(':')[0]!.trim()))));
   it('content helpers', () => same('Content helpers', all(contentLoadTs, /^export function (\w+)/gm)));
   it('modelling kit', () => same('Modelling kit', all(kitPy, /^def ([a-z]\w*)\(/gm)));
+  it('effect words', () => same('Effect words', EFFECT_WORDS));
+  it('surfaces', () => same('Surfaces', SURFACE_WORDS));
+  it('sets', () => same('Sets', SET_WORDS));
+  it('instruments', () => same('Instruments', INSTRUMENT_WORDS));
   it('screens, in draw order', () => expect(section('Screens')).toEqual(all(runtimeTs, /^import \{ draw\w+ \} from '\.\/screens\/([\w-]+)';/gm)));
 });

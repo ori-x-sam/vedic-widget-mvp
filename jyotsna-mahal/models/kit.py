@@ -11,7 +11,8 @@
 #     straps, rims), `glow` (unlit, blooms, in the palette colour) or `cloth` (the body colour darkened, rough, woven).
 #     Colour is value-painted into the vertices here (top light, cavity shadow, edge highlight, brush noise, warm lights
 #     and cool shadows); hue comes from CSS.
-#   - Animations are NLA tracks named `idle` (loops), `attack` (one shot) and `die` (one shot, ends collapsed).
+#   - Animations are NLA tracks. Every model has `idle` (loops); a model may add its own named clips (a door's `open`,
+#     a man's `walk`), which the view plays by name.
 #   - Everything hangs under one empty called `rig`, so a clip can move the whole model.
 import bpy, bmesh, math, os, sys
 from mathutils import Vector, Matrix, Euler, noise
@@ -19,7 +20,7 @@ from mathutils.bvhtree import BVHTree
 
 FPS = 30
 MATERIALS = {'body': (0.8, 0.8, 0.8, 1), 'trim': (0.25, 0.25, 0.3, 1), 'glow': (1, 1, 1, 1), 'cloth': (0.3, 0.3, 0.3, 1)}
-CLIPS = ('idle', 'attack', 'die')
+CLIPS = ('idle',)
 D = math.radians
 
 
@@ -362,7 +363,7 @@ def spin(ob, clip, period, turns=1, axis=2, ccw=True):
 
 def still(ob, clips=CLIPS):
     """Scenery's clips: an imperceptible settle in each of `clips` (the glTF exporter drops a clip that doesn't move,
-    and the rig contract wants all three)."""
+    and the rig contract wants `idle`)."""
     for c in clips:
         key(ob, c, [(0, {}), (0.5, {'rot': (0.3, 0, 0)}), (1.0, {})])
 
@@ -424,9 +425,9 @@ def _paint(ob, zmin, zmax, seed, bvh):
             val = 0.55 + 0.45 * max(0, n.z) + 0.1 * noise.noise(p * 4 + Vector((seed, 0, 0)))
             attr.data[i].color = (min(1, val * 1.05), min(1, val), min(1, val * 0.97), 1)
             continue
-        # The game's camera looks down, so most of the value has to live in how much a surface faces up: tops bright,
-        # flanks falling off to dark rims (that is what gives a sphere its volume from above), undersides darkest.
-        val = 0.16 + 0.26 * h + 0.55 * max(0, n.z) ** 1.5 - 0.1 * max(0, -n.z)
+        # The game is seen in the first person, at eye height, under real lights: the paint only hints at the light
+        # (tops a little brighter, undersides a little darker) and leaves most of the shading to the scene.
+        val = 0.5 + 0.14 * h + 0.22 * max(0, n.z) ** 1.5 - 0.12 * max(0, -n.z)
         c = max(-1, min(1, cav[i] * 4))
         val += -0.3 * c if c < 0 else -0.35 * c  # convex edges catch light, cavities shadow
         val += 0.12 * noise.noise(p * 3.5 + Vector((seed, seed, 0))) + 0.06 * noise.noise(p * 11)
@@ -471,10 +472,84 @@ def export(script, sharp_deg=40, seed=0):
         _smooth_normals(o, sharp_deg)
         _paint(o, min(zs), max(zs), seed, bvh)
     clips = {t.name for o in bpy.context.scene.objects if o.animation_data for t in o.animation_data.nla_tracks}
-    if clips != set(CLIPS): raise SystemExit(f'clips must be {CLIPS}, got {sorted(clips)}')
+    if not set(CLIPS) <= clips: raise SystemExit(f'clips must include {CLIPS}, got {sorted(clips)}')
     out = os.path.splitext(os.path.abspath(script))[0] + '.glb'
     bpy.ops.export_scene.gltf(filepath=out, export_format='GLB', export_animation_mode='NLA_TRACKS', export_vertex_color='ACTIVE',
                               export_texcoords=False, export_extras=False, export_yup=True, export_apply=True, export_materials='EXPORT',
                               export_force_sampling=False, export_optimize_animation_size=True)
     tris = sum(len(p.vertices) - 2 for o in meshes for p in o.data.polygons)
     print(f'MODEL {os.path.basename(out)}: {len(meshes)} parts, {tris} tris, {os.path.getsize(out) // 1024} KB')
+
+
+# ---------- people: a stylised figure, readable by silhouette across a dark hall ----------
+
+def figure(height=1.7, girth=0.17, belly=0.0, shoulders=0.21, head=0.105, seated=False, skirt=0.0, hat=None,
+           arms='down', hair='trim'):
+    """A theatre-poster person, built from lathes and tubes, standing on z=0 facing +X (seated: on a seat 0.45 high,
+    feet on the floor in front). `girth` is the waist's radius, `belly` how far it bulges forward, `skirt` a sari's or
+    achkan's flare at the hem (0 none: trousers or a dhoti), `hat` one of None, 'safa', 'topi', 'turban', 'bun',
+    `arms` one of 'down', 'lap', 'lantern' (right hand out, holding one), 'wheel' (both forward). Materials: skin is
+    `body`, dress is `cloth`, hat and hair `trim`, a lantern's flame `glow`. Returns the objects, for `part()`."""
+    obs = []
+    hip = 0.47 * height if not seated else 0.47
+    shoulder = hip + 0.33 * height
+    neck = shoulder + 0.03 * height
+    hz = neck + head * 1.15
+    # Legs (or a skirt over them).
+    if seated:
+        for side in (1, -1):
+            obs.append(tube('thigh', [(0, side * 0.1, hip), (0.42, side * 0.11, hip + 0.02)], 0.075, 'cloth'))
+            obs.append(tube('shin', [(0.42, side * 0.11, hip), (0.45, side * 0.11, 0.06)], 0.06, 'cloth'))
+            obs.append(at(box('foot', (0.22, 0.09, 0.07), 'trim'), (0.5, side * 0.11, 0.035)))
+        if skirt:
+            obs.append(at(lathe('lap', [(0, -0.02), (0.2 + skirt * 0.4, 0), (0.2 + skirt * 0.3, 0.12), (0.17, 0.2), (0, 0.22)], 'cloth', 16), (0.18, 0, hip - 0.12)))
+    else:
+        if skirt:
+            obs.append(lathe('skirt', [(0, 0.02), (girth + skirt, 0.02), (girth + skirt * 0.7, hip * 0.5), (girth * 1.05, hip), (0, hip + 0.02)], 'cloth', 18))
+        for side in (1, -1):
+            obs.append(tube('leg', [(0, side * girth * 0.5, hip), (0, side * girth * 0.55, 0.08)], [0.075, 0.055], 'cloth'))
+            obs.append(at(box('foot', (0.24, 0.09, 0.07), 'trim'), (0.06, side * girth * 0.55, 0.035)))
+    # Torso: hips to shoulders, with the belly out in front.
+    torso = lathe('torso', [(0, hip - 0.03), (girth * 1.05, hip), (girth + belly * 0.6, hip + 0.12 * height), (girth * 0.95 + belly * 0.4, hip + 0.22 * height), (shoulders, shoulder - 0.02), (shoulders * 0.5, shoulder + 0.02), (0, neck)], 'cloth', 18)
+    if belly:
+        deform(torso, lambda v: Vector((v.x + belly * max(0, v.x) * 2.2 * math.exp(-((v.z - hip - 0.13 * height) / (0.13 * height)) ** 2), v.y, v.z)))
+    obs.append(torso)
+    obs.append(at(cone('neck', head * 0.42, head * 0.4, head * 0.6, 'body', 10), (0, 0, shoulder)))
+    hd = ball('head', head, 'body', 14, 10)
+    deform(hd, lambda v: Vector((v.x * 0.95, v.y * 0.86, v.z * 1.12)))
+    obs.append(at(hd, (0.01, 0, hz)))
+    obs.append(at(ball('nose', head * 0.22, 'body', 8, 6), (head * 0.92, 0, hz - head * 0.05)))
+    # Hair or headgear.
+    if hat == 'safa':
+        obs.append(at(torus('safa', head * 0.92, head * 0.38, 'trim'), (0, 0, hz + head * 0.55), (0, -8, 0)))
+        obs.append(at(lathe('safa-crown', [(0, 0), (head * 0.95, 0), (head * 0.85, head * 0.6), (0, head * 0.85)], 'trim', 16), (0, 0, hz + head * 0.45)))
+        obs.append(tube('safa-tail', [(-head * 0.8, 0, hz + head * 0.7), (-head * 1.6, 0, hz - head * 0.6), (-head * 1.7, 0, hz - head * 2.2)], [0.03, 0.025, 0.02], 'trim'))
+    elif hat == 'topi':
+        obs.append(at(lathe('topi', [(0, 0), (head * 1.75, 0), (head * 1.6, head * 0.12), (head * 1.0, head * 0.35), (head * 0.85, head * 0.95), (0, head * 1.1)], 'trim', 18), (0, 0, hz + head * 0.35)))
+    elif hat == 'turban':
+        obs.append(at(lathe('turban', [(0, 0), (head * 1.15, 0), (head * 1.2, head * 0.5), (head * 0.9, head * 0.95), (0, head * 1.05)], 'trim', 16), (0, 0, hz + head * 0.3)))
+    elif hat == 'bun':
+        obs.append(at(ball('hair', head * 1.04, 'trim', 12, 8), (-0.012, 0, hz + head * 0.12)))
+        obs.append(at(ball('bun', head * 0.5, 'trim', 10, 6), (-head * 1.0, 0, hz - head * 0.2)))
+    else:
+        obs.append(at(ball('hair', head * 1.02, hair, 12, 8), (-0.015, 0, hz + head * 0.15)))
+    # Arms.
+    for side in (1, -1):
+        sh = (0, side * shoulders * 0.95, shoulder - 0.04)
+        if arms == 'lap' or (seated and arms == 'down'):
+            el, hand = (0.12, side * (shoulders + 0.02), shoulder - 0.3), (0.32, side * 0.12, hip + 0.05)
+        elif arms == 'wheel':
+            el, hand = (0.2, side * (shoulders + 0.02), shoulder - 0.25), (0.45, side * 0.18, shoulder - 0.15)
+        elif arms == 'lantern' and side == -1:
+            el, hand = (0.15, side * (shoulders + 0.06), shoulder - 0.28), (0.38, side * (shoulders + 0.04), hip + 0.12)
+        else:
+            el, hand = (0.02, side * (shoulders + 0.04), shoulder - 0.3), (0.06, side * (shoulders + 0.02), shoulder - 0.6)
+        obs.append(tube('arm', [sh, el, hand], [0.055, 0.048, 0.04], 'cloth'))
+        obs.append(at(ball('hand', 0.045, 'body', 8, 6), hand))
+    if arms == 'lantern':
+        hx, hy, hzz = 0.38, -(shoulders + 0.04), hip + 0.12
+        obs.append(tube('bail', [(hx, hy, hzz), (hx, hy, hzz - 0.1)], 0.006, 'trim'))
+        obs.append(at(cone('lantern-frame', 0.075, 0.06, 0.2, 'trim', 8), (hx, hy, hzz - 0.32)))
+        obs.append(at(ball('lantern-flame', 0.045, 'glow', 8, 6), (hx, hy, hzz - 0.22)))
+    return obs
+

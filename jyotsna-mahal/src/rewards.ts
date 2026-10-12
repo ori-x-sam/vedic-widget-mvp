@@ -1,11 +1,17 @@
-// Behaviour words for what collecting a thing does. content/things.kdl lists them under each thing (`points 5`), one per
-// line; content.ts hands this registry to `combinators()`. The core module that owns a rule owns its words.
-// PLACEHOLDER: one word to show the pattern; add words here with a catalog row (## Behaviour words).
+// Behaviour words for the two hidden marks: what a choice, a touch or an excuse does to the Raja's suspicion and to
+// Bhima's regard. Content writes them as props on any beat, choice or line (`suspicion=1 regard=-2`); content.ts turns
+// each into one of these. The rules that read the marks (a second bolt, the midnight shikar) live in game.ts and their
+// thresholds in tuning.ts. Catalog: ## Behaviour words.
 
-/** What one word does to the score when its thing is collected. */
-export type Reward = (score: number) => number;
+/** The two numbers the player never sees. */
+export type Marks = { suspicion: number; regard: number };
+
+/** What one word does to the marks. */
+export type Reward = (m: Marks) => Marks;
 
 export const REWARDS: Record<string, (...args: number[]) => Reward> = {
-  /** Collecting it scores `n` points. */
-  points: (n) => (score) => score + n,
+  /** The Raja's suspicion rises (or falls, when negative) by `n`. */
+  suspicion: (n) => (m) => ({ ...m, suspicion: m.suspicion + n }),
+  /** Bhima's regard rises (or falls) by `n`. */
+  regard: (n) => (m) => ({ ...m, regard: m.regard + n }),
 };

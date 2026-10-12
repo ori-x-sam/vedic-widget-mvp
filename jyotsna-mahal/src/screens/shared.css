@@ -1,50 +1,186 @@
-/* The palette (the only :root), shared base styles, and the shared prefabs' styles. Every screen's sheet comes after
-   this one, so a screen styles only its deltas. Colours the 3D scene needs live here too and are read by tokens.ts.
-   Sizes are design px (the design space is 390 px tall), times in s. PLACEHOLDER values: make them your game's. */
+/* The palette (the only :root), the look of the render, shared base styles, and the shared prefabs' styles. Every
+   screen's sheet comes after this one, so a screen styles only its deltas. Colours the 3D scene needs live here too and
+   are read by tokens.ts; look numbers by view/look.ts. Sizes are design px (the design space is 390 px tall), times in s.
+
+   Colour is rationed (docs/brief.md, The look): moonlight, sandstone, marble and blue-black shadow everywhere;
+   saturated colour only in a flame, a glint, a sari's border, and red when something is wrong. */
 :root {
-  /* UI */
-  --ink: #0b0d12;
-  --panel: #161a22;
-  --edge: #39414f;
-  --text: #e8ecf2;
-  --dim: #8a93a3;
-  --accent: #6cc4ff;
-  --scrim: #05060a;
-  --pop: cubic-bezier(.3, 1.7, .5, 1);
-  --title-font: Arial, sans-serif;
-  --body-font: Arial, sans-serif;
+  /* ---------- the interface: a Raj-era police notebook ---------- */
+  --ink: #07090f;
+  --scrim: #04050a;
+  --paper: #e9dfc4;
+  --paper-shade: #cbbd98;
+  --pencil: #2a241c;
+  --ink-faded: #b9b3a2;
+  /* Pattachitra borders: the casebook's red and its ochre. */
+  --patta-red: #a8322a;
+  --patta-ochre: #c98f2b;
+  /* Interaction prompts: small and quiet. */
+  --prompt: #d7dbe3;
+  --dim: #8a8f9c;
+  /* Something is wrong. */
+  --wrong: #c0261d;
+  --pop: cubic-bezier(.3, 1.6, .5, 1);
+  --title-font: IM Fell English SC, Georgia, serif;
+  --body-font: IM Fell English, Georgia, serif;
+  --odia-font: Noto Sans Oriya, sans-serif;
 
-  /* The scene (tokens.ts): the floor, the light's hue, and one --thing-<id> per thing in content/things.kdl. */
-  --floor: #2a2f3a;
-  --light: #fff4e0;
-  --thing-orb: #6cc4ff;
-  --thing-gem: #ff6ca8;
+  /* ---------- the two lights, and the day ---------- */
+  /* The moon: pale, cool, radiant; the key light at night. */
+  --moon: #b9cdf2;
+  /* The night sky and the shadows it leaves: blue-black. */
+  --night-sky: #0b1428;
+  --shadow: #0a0f1d;
+  /* The flame: small warm amber pools (lamps, diyas, the candle stub, Bhima's lantern). */
+  --flame: #ffab4a;
+  /* The dynamo's bulbs: too bright, greenish, never steady (Night 5). */
+  --dynamo: #e8f0a0;
+  /* Day: hot, white, close to overexposed. */
+  --sun: #fff6e4;
+  --day-sky: #f3efe2;
+  /* Dusk on the verandah. */
+  --dusk-sun: #ff9a62;
+  --dusk-sky: #6e5a7a;
+  /* The jungle: dense sal, black-green, silver-edged by the moon. */
+  --jungle: #16241a;
+  --sal-bark: #4a3d33;
+  --sal-leaf: #2d4a26;
 
-  /* The look (view/look.ts): how the render sees the palette's hues. Plain numbers; the unit is the name's last word
-     (u = world units, deg, rad); no unit is a strength. */
-  /* Tone-mapping exposure: the whole frame. */
-  --look-exposure: 1.1;
-  /* The key light's strength, and where it shines from (x y z towards it). */
-  --look-key-light: 2.2;
-  --look-key-dir: 3 8 4;
-  /* Sky/ground fill, so the unlit side isn't black. */
-  --look-fill-light: 0.8;
-  /* Camera: field of view, distance from the field's centre, and tilt off straight down. */
-  --look-camera-fov-deg: 40;
-  --look-camera-dist-u: 14;
-  --look-camera-tilt-rad: 0.35;
+  /* ---------- surfaces (view/surfaces.ts) ---------- */
+  --marble: #e8e6e1;
+  --marble-vein: #a8a8b0;
+  --sandstone: #b98d80;
+  --sandstone-dark: #7c5a50;
+  --plaster: #d9cfbd;
+  --brick: #7b3f2f;
+  --teak: #6b4325;
+  --teak-dark: #3c2615;
+  --brass: #b58d3b;
+  --brass-new: #f0cf6a;
+  --iron: #3b3b40;
+  --gilt: #c6a046;
+  --silver: #c8ccd2;
+  --glass-eye: #e8c060;
+  --mirror: #b9c4d0;
+  --crystal: #dfe8ff;
+
+  /* ---------- cloth and things ---------- */
+  --linen: #e7e1cf;
+  --jute: #a68a5b;
+  --punkah-cloth: #8a3a30;
+  --curtain: #4a2a3a;
+  --velvet: #3a1a2a;
+  --rug: #6a2a26;
+  --rug-border: #253050;
+  --trunk-canvas: #7a6a48;
+  --trunk-leather: #4a2e1c;
+  --oleograph: #c84a6a;
+  --ledger: #5a3020;
+  --portrait: #6a5a48;
+  --canvas: #7d7a5c;
+  --cane: #b49562;
+  --cushion: #5a6a7a;
+  --jeep: #4f5a3a;
+
+  /* ---------- beasts, alive and mounted ---------- */
+  --tiger: #c47a35;
+  --tiger-stripe: #241a12;
+  --old-skin: #8a6a48;
+  --leopard: #c49a50;
+  --boar: #4a3a30;
+  --gaur: #2e2420;
+  --bear: #1e1a18;
+  --chital: #b0743e;
+  --chital-dark: #6a4024;
+
+  /* ---------- the cast: names in dialogue, skin, dress ---------- */
+  --raja: #e6b04a;
+  --ghatak: #9ab0c8;
+  --mrs-ghatak: #b48aa0;
+  --sahukar: #c8a078;
+  --mrs-sahukar: #e8a0b0;
+  --bhima: #a8b0a0;
+  --jagu: #c8b080;
+  --dewan: #a0a8b8;
+  --kotwal: #e8d040;
+  --pomfret: #c86a5a;
+  --skin-raja: #8a5a3a;
+  --skin-ghatak: #9a6a48;
+  --skin-mrs-ghatak: #a07050;
+  --skin-sahukar: #8a5e40;
+  --skin-mrs-sahukar: #b07e5a;
+  --skin-bhima: #5e3e2a;
+  --skin-thistlewood: #e0b8a0;
+  --achkan: #3a2a52;
+  --safa: #d8c070;
+  --jewel: #e03050;
+  --ghatak-suit: #d8d2c0;
+  /* Black hair and moustaches. */
+  --moustache: #1a1410;
+  --mrs-ghatak-sari: #5a5048;
+  --sari-border-dark: #7a1a20;
+  --sahukar-suit: #6a5038;
+  --topi: #d8ccaa;
+  --cigar: #ff6a2a;
+  --mrs-sahukar-sari: #e0d0d8;
+  --sari-border: #d02060;
+  --bhima-cloth: #d8d0bc;
+  --bhima-turban: #8a2a20;
+
+  /* ---------- the look (view/look.ts): how the render sees the palette. Plain numbers; the unit is the name's last
+     word (u = world units, s, deg, px, hz); no unit is a strength or a 0..1 amount. ---------- */
+  /* Tone-mapping exposure by light: night, dusk, day (day is close to overexposed, so nights feel colder). */
+  --look-exposure: 1.25;
+  --look-dusk-exposure: 1.1;
+  --look-day-exposure: 1.55;
+  /* The moon as a key light through the jaalis, and its patterned shafts in the haze. */
+  --look-moon-light: 7;
+  --look-moon-shaft: 0.05;
+  /* The faint moonlit haze in the air, and the cold fill that keeps shadows blue-black rather than black. */
+  --look-haze: 0.045;
+  --look-fill-light: 0.7;
+  /* A lamp's or diya's amber pool: strength and reach. */
+  --look-flame-light: 2.2;
+  --look-flame-reach-u: 4.5;
+  /* Thistlewood's candle stub. */
+  --look-candle-light: 1.6;
+  --look-candle-reach-u: 5;
+  /* Bhima's lantern. */
+  --look-lantern-light: 9;
+  --look-lantern-reach-u: 8;
+  /* How much flames flicker, 0..1. */
+  --look-flicker: 0.18;
+  /* The day's sun and where it shines from (x y z towards it), and dusk's. */
+  --look-sun-light: 3.2;
+  --look-sun-dir: -3 8 2;
+  --look-dusk-light: 1.6;
+  /* The eye: field of view, height of the eye, the walk's head bob (height, steps per second), mouse feel. */
+  --look-camera-fov-deg: 70;
+  --look-eye-height-u: 1.62;
+  --look-bob-u: 0.035;
+  --look-bob-hz: 1.8;
+  --look-mouse-deg-px: 0.14;
+  /* The camera's flash: how long its white lasts. */
+  --look-flash-s: 0.35;
 }
 
-text { font-family: var(--body-font); font-color: var(--text); font-size: 16px }
+text { font-family: var(--body-font); font-color: var(--prompt); font-size: 14px }
 
 /* A button: the consumer sets width/height when the default doesn't fit. */
 button {
-  width: 180px; height: max(44px, var(--touch-size)); align-items: center; justify-content: center;
-  background-color: var(--panel); border-color: var(--edge); border-width: 2px;
-  transition: scale .08s ease-out, background-color .12s;
+  height: max(34px, var(--touch-size)); align-items: center; justify-content: center; padding: 0 14px;
+  background-color: var(--scrim); border-color: var(--dim); border-width: 1px; opacity: .92;
+  transition: scale .08s ease-out, background-color .12s, border-color .12s;
 }
-button:hover { border-color: var(--accent) }
-button:pressed { scale: .94 }
-button.primary { border-color: var(--accent) }
-button.off { opacity: .45 }
-.shared-btn-label { font-family: var(--title-font); font-size: 16px; letter-spacing: 3px; font-color: var(--text) }
+button:hover { border-color: var(--paper) }
+button:pressed { scale: .96 }
+button.primary { border-color: var(--patta-ochre) }
+button.off { opacity: .35 }
+.shared-btn-label { font-family: var(--body-font); font-size: 15px; font-color: var(--paper) }
+
+/* A line in a list: no box, just the words, underlined in red when chosen. */
+.shared-row { height: 24px; padding: 0 6px; align-items: flex-start; background-color: var(--paper); border-width: 0; opacity: 1 }
+.shared-row:hover { background-color: var(--paper-shade) }
+.shared-row.on { background-color: var(--paper-shade); border-color: var(--patta-red); border-width: 1px }
+.shared-row.off { opacity: .4 }
+.shared-row-label { font-family: var(--body-font); font-size: 14px; font-color: var(--pencil) }
