@@ -9,6 +9,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { LOOK } from './look';
+import { QUALITY } from './quality';
 
 const GRADE = {
   uniforms: { tDiffuse: { value: null }, vignette: { value: 0 }, grain: { value: 0 }, time: { value: 0 }, aspect: { value: 1 } },
@@ -32,14 +33,14 @@ const GRADE = {
 export type Post = ReturnType<typeof createPost>;
 
 export function createPost(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera, w: number, h: number) {
-  const maxRatio = Math.min(2, devicePixelRatio || 1);
+  const maxRatio = Math.min(QUALITY.maxRatio, devicePixelRatio || 1);
   let ratio = maxRatio, cw = w, ch = h;
-  const target = new THREE.WebGLRenderTarget(w * ratio, h * ratio, { type: THREE.HalfFloatType, samples: 4 });
+  const target = new THREE.WebGLRenderTarget(w * ratio, h * ratio, { type: THREE.HalfFloatType, samples: QUALITY.samples });
   const composer = new EffectComposer(renderer, target);
   composer.setPixelRatio(ratio);
   composer.setSize(w, h);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(w / 2, h / 2), LOOK.BLOOM, 0.55, LOOK.BLOOM_THRESHOLD);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(w / QUALITY.bloomDiv, h / QUALITY.bloomDiv), LOOK.BLOOM, 0.55, LOOK.BLOOM_THRESHOLD);
   composer.addPass(bloom);
   const grade = new ShaderPass(GRADE);
   grade.uniforms.vignette!.value = LOOK.VIGNETTE;
@@ -72,7 +73,7 @@ export function createPost(renderer: THREE.WebGLRenderer, scene: THREE.Scene, ca
     resize(w2: number, h2: number) {
       cw = w2; ch = h2;
       grade.uniforms.aspect!.value = w2 / h2;
-      bloom.resolution.set(w2 / 2, h2 / 2);
+      bloom.resolution.set(w2 / QUALITY.bloomDiv, h2 / QUALITY.bloomDiv);
       apply();
     },
   };

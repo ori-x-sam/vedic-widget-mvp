@@ -29,13 +29,20 @@ BEVEL_STEPS = 3
 PATH_STEPS = 3
 
 
-def _seg(seg, lo=MIN_SEG):
-    return max(lo, int(seg) * 2)
+SEG_MUL = 2
 
 
-def _catmull(pts, radii, steps=PATH_STEPS):
+def _seg(seg, lo=None):
+    """How many sides a round shape gets: the script's own count doubled, at least MIN_SEG (a smaller `lo` floor for
+    shapes that need fewer, scaled with MIN_SEG). A distant stand-in model lowers MIN_SEG and SEG_MUL before building."""
+    floor = MIN_SEG if lo is None else max(3, round(lo * MIN_SEG / 18))
+    return max(floor, int(int(seg) * SEG_MUL))
+
+
+def _catmull(pts, radii, steps=None):
     """A smooth path through the points (Catmull-Rom), with the radii eased between them; ends stay put."""
-    if len(pts) < 3: return pts, radii
+    steps = PATH_STEPS if steps is None else steps
+    if len(pts) < 3 or steps <= 1: return pts, radii
     out_p, out_r = [], []
     for i in range(len(pts) - 1):
         p0, p1, p2, p3 = pts[max(i - 1, 0)], pts[i], pts[i + 1], pts[min(i + 2, len(pts) - 1)]

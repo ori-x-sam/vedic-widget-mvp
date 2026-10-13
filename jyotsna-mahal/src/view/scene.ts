@@ -10,6 +10,7 @@ import { token } from '../tokens';
 import { LOOK, SUN_DIR_XYZ } from './look';
 import { place, type Instance } from './models';
 import { createPost } from './post';
+import { QUALITY } from './quality';
 import { buildSet, type Set } from './sets';
 import { buildWing, type Wing } from './wing';
 
@@ -59,7 +60,7 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
 
   const hemi = new THREE.HemisphereLight(token('--moon'), token('--shadow'), LOOK.FILL_LIGHT);
   const sun = new THREE.DirectionalLight(token('--sun'), LOOK.SUN_LIGHT);
-  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048);
+  sun.castShadow = true; sun.shadow.mapSize.set(QUALITY.sunMap, QUALITY.sunMap);
   sun.shadow.radius = 3; sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
   Object.assign(sun.shadow.camera, { left: -20, right: 20, top: 20, bottom: -20, near: 1, far: 120 });
   scene.add(hemi, sun, sun.target);

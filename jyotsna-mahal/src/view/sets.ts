@@ -6,9 +6,10 @@
 import * as THREE from 'three';
 import { Sky } from 'three/addons/objects/Sky.js';
 import { token } from '../tokens';
-import { place, type Instance } from './models';
+import { place } from './models';
 import { mulberry } from './noise';
 import { surface } from './surfaces';
+import { QUALITY } from './quality';
 
 export type Set = { root: THREE.Group; tick(dtS: number, moving: boolean): void; light?(sunDir: THREE.Vector3): void };
 
@@ -51,6 +52,60 @@ function hills(radius: number, y: number, seed: number): THREE.Mesh {
   return m;
 }
 
+/** One tree or bush of a jungle: where it stands, which way it turns, how big. */
+type Planting = { x: number; z: number; turn: number; scale: number };
+
+/** Many copies of one model drawn as a few instanced batches (a phone draws a jungle in a few dozen calls, not
+    hundreds). The road is cut into sections of SECTION_U, each its own batch, so a section behind the eye (or outside
+    the sun's shadow) is skipped whole, and a section further ahead than NEAR_U draws `farId`, the same plant cut
+    coarsely, if there is one. What stands near the road casts shadows; the rest is drawn once. `roll(u)` moves the
+    grove south by u, a section that passes the jeep going back to the far end of the road. */
+const ROAD_FROM_Z = -150, ROAD_U = 200, SECTION_U = 50, NEAR_U = 30;
+function partsOf(id: string): THREE.Mesh[] {
+  const template = place(id).root, parts: THREE.Mesh[] = [];
+  template.updateMatrixWorld(true);
+  template.traverse((o) => { if ((o as THREE.Mesh).isMesh) parts.push(o as THREE.Mesh); });
+  return parts;
+}
+function grove(id: string, plants: Planting[], farId?: string) {
+  const root = new THREE.Group(), detail = { near: partsOf(id), far: farId ? partsOf(farId) : null };
+  const mat = new THREE.Matrix4(), q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0), pos = new THREE.Vector3(), sc = new THREE.Vector3();
+  const sections: { group: THREE.Group; near: THREE.Group; far: THREE.Group | null }[] = [];
+  for (let z0 = ROAD_FROM_Z; z0 < ROAD_FROM_Z + ROAD_U; z0 += SECTION_U) {
+    const group = new THREE.Group();
+    group.position.z = z0;
+    const here = plants.filter((p) => p.z >= z0 && p.z < z0 + SECTION_U);
+    const build = (parts: THREE.Mesh[]) => {
+      const g = new THREE.Group();
+      for (const [i, set] of [here.filter((p) => Math.abs(p.x) <= 9), here.filter((p) => Math.abs(p.x) > 9)].entries()) {
+        if (!set.length) continue;
+        for (const m of parts) {
+        const inst = new THREE.InstancedMesh(m.geometry, m.material, set.length);
+        inst.castShadow = i === 0; inst.receiveShadow = true;
+        inst.userData.noPick = true;
+        set.forEach((p, k) => { mat.compose(pos.set(p.x, 0, p.z - z0), q.setFromAxisAngle(up, p.turn), sc.setScalar(p.scale)).multiply(m.matrixWorld); inst.setMatrixAt(k, mat); });
+        inst.computeBoundingSphere();
+        g.add(inst);
+        }
+      }
+      group.add(g);
+      return g;
+    };
+    sections.push({ group, near: build(detail.near), far: detail.far ? build(detail.far) : null });
+    root.add(group);
+  }
+  /** Near sections draw the plant itself; sections further ahead than NEAR_U, its coarse stand-in. */
+  const detailFor = () => { for (const s of sections) { const close = s.group.position.z + SECTION_U > -NEAR_U; s.near.visible = close || !s.far; if (s.far) s.far.visible = !close; } };
+  detailFor();
+  return {
+    root,
+    roll(u: number) {
+      for (const s of sections) { s.group.position.z += u; if (s.group.position.z > ROAD_FROM_Z + ROAD_U) s.group.position.z -= ROAD_U; }
+      detailFor();
+    },
+  };
+}
+
 /** The drive in: the road runs north (-z); trees roll south past the jeep while it moves. */
 function jungleRoad(): Set {
   const root = new THREE.Group();
@@ -69,30 +124,18 @@ function jungleRoad(): Set {
   const bank = new THREE.Mesh(new THREE.SphereGeometry(4, 40, 16, 0, Math.PI * 2, 0, Math.PI / 2), surface('grass', 8, 8));
   bank.scale.y = 0.14; bank.position.set(0.6, 0, -12.6); bank.receiveShadow = true;
   root.add(ground, road, hill, bank);
-  const rnd = mulberry(3), trees: Instance[] = [];
-  for (let i = 0; i < 90; i++) {
-    const side = i % 2 ? 1 : -1, t = place('sal-tree');
-    t.root.position.set(side * (3.5 + rnd() * 22), 0, -150 + rnd() * 200);
-    t.root.rotation.y = rnd() * Math.PI * 2;
-    t.root.scale.setScalar(0.8 + rnd() * 0.6);
-    root.add(t.root); trees.push(t);
-  }
+  const rnd = mulberry(3), sal: Planting[] = [], scrub: Planting[] = [];
+  for (let i = 0; i < QUALITY.trees; i++) sal.push({ x: (i % 2 ? 1 : -1) * (3.5 + rnd() * 22), z: -150 + rnd() * 200, turn: rnd() * Math.PI * 2, scale: 0.8 + rnd() * 0.6 });
   // Scrub and ferns under the sal, thick at the road's edge.
-  for (let i = 0; i < 90; i++) {
-    const side = i % 2 ? 1 : -1, b = place('scrub');
-    b.root.position.set(side * (2.6 + rnd() * 16), 0, -150 + rnd() * 200);
-    b.root.rotation.y = rnd() * Math.PI * 2;
-    b.root.scale.setScalar(0.7 + rnd() * 0.9);
-    root.add(b.root); trees.push(b);
-  }
-  // Only what stands near the road casts a shadow onto it; the rest is drawn once, not twice.
-  for (const t of trees) if (Math.abs(t.root.position.x) > 9) t.root.traverse((o) => { o.castShadow = false; });
+  for (let i = 0; i < QUALITY.scrub; i++) scrub.push({ x: (i % 2 ? 1 : -1) * (2.6 + rnd() ** 2 * 16), z: -150 + rnd() * 200, turn: rnd() * Math.PI * 2, scale: 0.7 + rnd() * 0.9 });
+  const groves = [grove('sal-tree', sal, 'sal-tree-far'), grove('scrub', scrub, 'scrub-far')];
+  for (const g of groves) root.add(g.root);
   return {
     root,
     light: air.aim,
     tick(dtS, moving) {
       if (!moving) return;
-      for (const t of trees) { t.root.position.z += dtS * 7; if (t.root.position.z > 50) t.root.position.z -= 200; }
+      for (const g of groves) g.roll(dtS * 7);
       roadMap.offset.y -= (dtS * 7) / 4.2;
     },
   };
@@ -127,7 +170,7 @@ function verandah(): Set {
   root.add(rail);
   // The jungle below the ridge.
   const rnd = mulberry(9);
-  for (let i = 0; i < 40; i++) { const t = place('sal-tree'); t.root.position.set(-60 + rnd() * 120, -14, -20 - rnd() * 60); t.root.scale.setScalar(1.2 + rnd()); root.add(t.root); }
+  for (let i = 0; i < 40; i++) { const t = place('sal-tree-far'); t.root.position.set(-60 + rnd() * 120, -14, -20 - rnd() * 60); t.root.scale.setScalar(1.2 + rnd()); root.add(t.root); }
   const below = new THREE.Mesh(new THREE.PlaneGeometry(400, 300), surface('grass', 400, 300));
   below.rotation.x = -Math.PI / 2; below.position.set(0, -14, -100);
   root.add(below);

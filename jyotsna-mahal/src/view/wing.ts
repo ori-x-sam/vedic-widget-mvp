@@ -7,6 +7,7 @@ import { C, get, nightOf, roomsOf, spotsIn, doorsOf, type Cond, type Room, type 
 import { doorPlace, holds, roomAt, spotPose, type GameState } from '../game';
 import { token } from '../tokens';
 import { LOOK } from './look';
+import { QUALITY } from './quality';
 import { jaaliPattern, surface } from './surfaces';
 import { place, type Instance } from './models';
 import { mulberry } from './noise';
@@ -121,7 +122,8 @@ function moonThrough(room: Room, side: WallSide, at: number, y: number, w: numbe
   light.position.copy(centre).addScaledVector(dir, 7);
   light.target.position.copy(target);
   light.castShadow = true;
-  light.shadow.mapSize.set(1024, 1024);
+  light.userData.still = true;
+  light.shadow.mapSize.set(QUALITY.moonMap, QUALITY.moonMap);
   light.shadow.bias = -0.0004;
   light.shadow.normalBias = 0.02;
   light.shadow.camera.near = 1;
@@ -145,6 +147,7 @@ function flame(x: number, y: number, z: number, kind: string, shadow: boolean): 
   light.position.set(x, y + 0.12, z);
   light.castShadow = shadow;
   light.shadow.mapSize.set(256, 256);
+  light.userData.still = true;
   light.shadow.camera.near = 0.1;
   light.shadow.normalBias = 0.03;
   const glow = new THREE.Mesh(new THREE.SphereGeometry(kind === 'hanging' ? 0.05 : 0.025, 8, 6), new THREE.MeshBasicMaterial({ color: token('--flame'), toneMapped: false }));
@@ -274,7 +277,10 @@ export function buildWing(n: number) {
     const inst = place(p.who);
     const lantern = new THREE.PointLight(token('--flame'), LOOK.LANTERN_LIGHT, LOOK.LANTERN_REACH_U, 1.4);
     lantern.position.set(0.35, 0.75, -0.25);
-    lantern.castShadow = true; lantern.shadow.mapSize.set(512, 512); lantern.shadow.camera.near = 0.05; lantern.shadow.bias = -0.002; lantern.shadow.normalBias = 0.03;
+    // Bhima himself casts no shadow (the still lights' shadows are drawn once, and would keep a ghost of him); his
+    // lantern's own shadow, redrawn as he walks, is the dearest thing in the frame, so a phone goes without it.
+    inst.root.traverse((o) => { o.castShadow = false; });
+    lantern.castShadow = QUALITY.lanternShadow; lantern.shadow.mapSize.set(512, 512); lantern.shadow.camera.near = 0.05; lantern.shadow.bias = -0.002; lantern.shadow.normalBias = 0.03;
     inst.root.add(lantern);
     root.add(inst.root);
     mixers.push(inst);
@@ -282,6 +288,11 @@ export function buildWing(n: number) {
     flames.push(lantern);
   }
 
+  // Lamps and the moon never move: their shadows are drawn once, and again only when something that casts one moves
+  // (a door swinging, the trunk sliding, a prop appearing). Shadows are most of a frame's cost, a phone's above all.
+  const still: (THREE.PointLight | THREE.SpotLight)[] = [];
+  root.traverse((o) => { const l = o as THREE.PointLight | THREE.SpotLight; if (l.isLight && l.castShadow && o.userData.still) { l.shadow.autoUpdate = false; l.shadow.needsUpdate = true; still.push(l); } });
+  const redrawShadows = () => { for (const l of still) l.shadow.needsUpdate = true; };
   const occluders: THREE.Object3D[] = [];
   root.traverse((o) => { if (o.userData.occluder) occluders.push(o); });
   const base = flames.map((f) => f.intensity);
@@ -310,7 +321,7 @@ export function buildWing(n: number) {
         m.inst.root.position.set(w.x, floorAt(w.x, w.z), w.z);
         m.inst.root.rotation.y = -w.face;
       }
-      for (const x of shown) x.obj.visible = holds(s, x.cond);
+      for (const x of shown) { const v = holds(s, x.cond); if (v !== x.obj.visible) { x.obj.visible = v; redrawShadows(); } }
     },
     /** The spot under his eye and in reach (its mote brightens and rings), or none. */
     mark(id: string | null) { marked = id; },
@@ -345,6 +356,7 @@ export function buildWing(n: number) {
       }
       flames.forEach((f, i) => { f.intensity = base[i]! * (1 - LOOK.FLICKER * 0.5 + LOOK.FLICKER * (0.5 * Math.sin(t * 13 + i * 3) + 0.3 * Math.sin(t * 29 + i) + 0.2 * Math.sin(t * 7.3 + i * 5)) * 0.5 + LOOK.FLICKER * 0.25); });
       for (const m of mixers) m.mixer?.update(dtS);
+      if (busy) redrawShadows();
       return busy;
     },
   };
