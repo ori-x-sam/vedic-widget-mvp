@@ -168,7 +168,7 @@
   /* ---------- the look (view/look.ts): how the render sees the palette. Plain numbers; the unit is the name's last
      word (u = world units, s, deg, px, hz); no unit is a strength or a 0..1 amount. ---------- */
   /* Tone-mapping exposure by light: night, dusk, day (day is close to overexposed, so nights feel colder). */
-  --look-exposure: 1.25;
+  --look-exposure: 1.45;
   --look-dusk-exposure: 1.1;
   --look-day-exposure: 1.35;
   /* The moon as a key light through the jaalis, and its patterned shafts in the haze. */
@@ -176,7 +176,7 @@
   --look-moon-shaft: 0.05;
   /* The faint moonlit haze in the air, and the cold fill that keeps shadows blue-black rather than black. */
   --look-haze: 0.045;
-  --look-fill-light: 0.7;
+  --look-fill-light: 0.9;
   /* A lamp's or diya's amber pool: strength and reach. */
   --look-flame-light: 2.2;
   --look-flame-reach-u: 4.5;

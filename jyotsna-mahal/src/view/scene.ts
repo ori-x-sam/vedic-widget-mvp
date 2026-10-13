@@ -144,6 +144,8 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
       hands.root.visible = !s.talk;
       if (s.night && (!s.talk || !wantsEye(s))) eye = { x: s.night.x, y: (wing?.floorAt(s.night.x, s.night.z) ?? 0) + LOOK.EYE_HEIGHT_U, z: s.night.z, turn: 0 };
     },
+    /** The spot under the eye and in reach: its mote brightens and rings. */
+    mark(id: string | null) { wing?.mark(id); wing?.eyeAt(camera.position); },
     /** A flash: the camera's magnesium, for a moment. */
     flash() { flashT = LOOK.FLASH_S; },
     /** Animate the world (doors, poses, flames, the rolling jungle, the flash); true while a tween runs. */

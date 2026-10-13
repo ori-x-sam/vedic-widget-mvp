@@ -239,8 +239,10 @@ export function buildWing(n: number) {
     root.add(doorLeaf(d, leaves));
   }
 
-  // Spots: their models at their current pose, and an invisible ball the eye can pick.
-  const spots = new Map<string, { inst: Instance | null; proxy: THREE.Mesh; at: THREE.Vector3; turn: number }>();
+  // Spots: their models at their current pose, an invisible ball the eye can pick, and a mote: a small warm glow
+  // over each thing he can touch, so nothing that matters hides in the dark. It burns brighter until he has looked
+  // at the thing, and brightest, with a ring, while it is under his eye.
+  const spots = new Map<string, { inst: Instance | null; proxy: THREE.Mesh; at: THREE.Vector3; turn: number; mote: THREE.Sprite; ring: THREE.Sprite; seen: boolean }>();
   for (const room of roomsOf(n)) for (const sp of spotsIn(room.id)) {
     const inst = sp.model ? place(sp.model) : null;
     if (inst) { root.add(inst.root); mixers.push(inst); }
@@ -248,8 +250,23 @@ export function buildWing(n: number) {
     proxy.userData.spot = sp.id;
     root.add(proxy);
     pickables.push(proxy);
-    spots.set(sp.id, { inst, proxy, at: new THREE.Vector3(room.x + sp.at[0], room.y, room.z + sp.at[1]), turn: sp.turn });
+    const mote = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowDot(), color: token('--patta-ochre'), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, toneMapped: false, sizeAttenuation: false, depthTest: false }));
+    const ring = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowRing(), color: token('--paper'), transparent: true, depthWrite: false, fog: false, toneMapped: false, sizeAttenuation: false, depthTest: false }));
+    mote.userData.noPick = ring.userData.noPick = true;
+    mote.raycast = ring.raycast = () => {};
+    mote.renderOrder = ring.renderOrder = 10;
+    root.add(mote, ring);
+    spots.set(sp.id, { inst, proxy, at: new THREE.Vector3(room.x + sp.at[0], room.y, room.z + sp.at[1]), turn: sp.turn, mote, ring, seen: false });
   }
+  let marked: string | null = null;
+  const eye = new THREE.Vector3(), MOTE_REACH_U = 9, sight = new THREE.Raycaster(), toMote = new THREE.Vector3();
+  /** Can the eye see the mote: near enough, and nothing that blocks sight (walls, doors) between them? */
+  const inSight = (p: THREE.Vector3) => {
+    const d = toMote.subVectors(p, eye).length();
+    if (d > MOTE_REACH_U) return false;
+    sight.set(eye, toMote.normalize()); sight.far = Math.max(0, d - 0.35);
+    return !sight.intersectObjects(occluders, false).length;
+  };
 
   // Bhima, with his lantern: its light casts shadows, so it shows under a closed door and not through a wall.
   const watchmen = new Map<string, { inst: Instance; lantern: THREE.PointLight }>();
@@ -283,6 +300,8 @@ export function buildWing(n: number) {
         const def = get('spot', id), p = spotPose(s, def), room = get('room', def.room);
         sp.at.set(room.x + p.at[0], room.y, room.z + p.at[1]); sp.turn = p.turn;
         sp.proxy.position.set(sp.at.x, room.y + p.y, sp.at.z);
+        sp.mote.position.copy(sp.proxy.position); sp.ring.position.copy(sp.proxy.position);
+        sp.seen = s.flags.includes(`seen:${id}`);
       }
       for (const [id, m] of watchmen) {
         const w = nr?.watch.find((x) => x.id === id);
@@ -293,9 +312,24 @@ export function buildWing(n: number) {
       }
       for (const x of shown) x.obj.visible = holds(s, x.cond);
     },
-    /** Animate: doors swing towards open or shut, the trunk slides to its pose, flames flicker. */
+    /** The spot under his eye and in reach (its mote brightens and rings), or none. */
+    mark(id: string | null) { marked = id; },
+    /** Where the eye is: a mote shows when it is near (MOTE_REACH_U) and no wall or door stands between them. Motes
+        draw over everything else, since each sits in the middle of its own thing. */
+    eyeAt(p: THREE.Vector3) { eye.copy(p); },
+    /** Animate: doors swing towards open or shut, the trunk slides to its pose, flames flicker, the motes breathe. */
     tick(dtS: number) {
       t += dtS;
+      for (const [id, sp] of spots) {
+        const on = id === marked, breathe = 0.5 + 0.5 * Math.sin(t * 2.4 + sp.at.x * 1.7 + sp.at.z);
+        // Sizes are as seen a metre from the eye, at any distance (the motes don't shrink with distance; walls still hide them).
+        const m = sp.mote.material, size = on ? 0.085 : sp.seen ? 0.032 : 0.06 + 0.014 * breathe;
+        sp.mote.visible = on || inSight(sp.mote.position);
+        m.opacity = on ? 1 : sp.seen ? 0.45 : 0.75 + 0.25 * breathe;
+        sp.mote.scale.setScalar(size);
+        sp.ring.visible = on;
+        if (on) { sp.ring.scale.setScalar(0.14 + 0.01 * Math.sin(t * 5)); sp.ring.material.opacity = 0.8; }
+      }
       let busy = false;
       for (const leaf of leaves.values()) {
         const target = leaf.open * 1.75, cur = leaf.pivot.rotation.y;
@@ -336,4 +370,24 @@ export function buildWing(n: number) {
     out.set(d.id, { pivot: swing, open: 0 });
     return pivot;
   }
+}
+
+let dot: THREE.CanvasTexture | null = null, ringTex: THREE.CanvasTexture | null = null;
+/** A soft round glow, white (the sprite's colour tints it). */
+function glowDot(): THREE.CanvasTexture {
+  if (dot) return dot;
+  const c = document.createElement('canvas'); c.width = c.height = 64;
+  const g = c.getContext('2d')!, r = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(0.4, 'rgba(255,255,255,0.9)'); r.addColorStop(0.7, 'rgba(255,255,255,0.35)'); r.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = r; g.fillRect(0, 0, 64, 64);
+  return (dot = new THREE.CanvasTexture(c));
+}
+/** A thin bright ring: the mark round the thing under his eye. */
+function glowRing(): THREE.CanvasTexture {
+  if (ringTex) return ringTex;
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d')!;
+  g.strokeStyle = 'rgba(255,255,255,0.95)'; g.lineWidth = 5; g.beginPath(); g.arc(64, 64, 52, 0, Math.PI * 2); g.stroke();
+  g.strokeStyle = 'rgba(255,255,255,0.3)'; g.lineWidth = 12; g.beginPath(); g.arc(64, 64, 52, 0, Math.PI * 2); g.stroke();
+  return (ringTex = new THREE.CanvasTexture(c));
 }

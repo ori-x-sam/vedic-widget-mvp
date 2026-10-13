@@ -1,7 +1,7 @@
 // Rebuild the 3D models from their Blender scripts: `npm run models` (all) or `npm run models -- crate lamp`.
 // Each models/<name>.py runs in a fresh headless Blender and writes models/<name>.glb (committed, so the game builds
-// without Blender). BLENDER overrides the binary. Each .glb is then packed by gltfpack: quantised and meshopt-compressed
-// (about a quarter of the size; the game's loader decodes it), keeping node and material names for the rig contract.
+// without Blender). BLENDER overrides the binary. The .glb is plain glTF as Blender writes it: no gltfpack, no
+// quantisation or compression extensions, which some phones' browsers failed to load (every model a stand-in box).
 import { execFile } from 'node:child_process';
 import { readdirSync } from 'node:fs';
 import { cpus } from 'node:os';
@@ -19,7 +19,6 @@ async function worker() {
   for (let name; (name = queue.shift()); ) {
     try {
       const { stdout } = await run(blender, ['-b', '--factory-startup', '--python-exit-code', '1', '--python-expr', "import sys; sys.path.insert(0, 'models')", '-P', `models/${name}.py`], { maxBuffer: 1 << 24 });
-      await run('npx', ['gltfpack', '-i', `models/${name}.glb`, '-o', `models/${name}.glb`, '-cc', '-kn', '-km', '-ke'], { maxBuffer: 1 << 24 });
       console.log(stdout.split('\n').find((l) => l.startsWith('MODEL')) ?? `${name}: no MODEL line`);
     } catch (e) {
       failed++;

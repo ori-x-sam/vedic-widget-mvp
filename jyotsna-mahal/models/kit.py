@@ -24,9 +24,9 @@ CLIPS = ('idle',)
 D = math.radians
 # Smoothness: every round shape gets at least this many sides, curved paths are smoothed through their points, and
 # bevels are rounded in this many steps. The scripts name the shape; the kit decides how finely it is cut.
-MIN_SEG = 24
+MIN_SEG = 18
 BEVEL_STEPS = 3
-PATH_STEPS = 4
+PATH_STEPS = 3
 
 
 def _seg(seg, lo=MIN_SEG):

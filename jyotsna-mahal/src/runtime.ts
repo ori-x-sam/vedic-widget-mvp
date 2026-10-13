@@ -6,6 +6,7 @@ import * as Actions from './actions';
 import * as Audio from './audio';
 import { now, onTick, startClock } from './clock';
 import { get, nightOf } from './content';
+import * as Game from './game';
 import type { GameState } from './game';
 import * as Input from './input';
 import { fit, initPixi, pixi } from './stage';
@@ -95,6 +96,7 @@ export async function boot(el: HTMLElement): Promise<() => void> {
     // The toast and the noted line fade on their own (CSS); the target is whatever is under the eye.
     const target = r.phase === 'night' && !r.talk ? sc.pick() : null;
     if (target !== ui.getState().target) Actions.aim(target);
+    sc.mark(target && Game.reachable(r, target) ? target : null);
     // Both always tick: the screens' tweens must run while the 3D is moving too.
     const moving = sc.tick(dt);
     return tickScreens(dt) || moving;

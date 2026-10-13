@@ -14,7 +14,8 @@
 .hud-toast { width: 536px; text-wrap: wrap; text-align: center; font-size: 14px; line-height: 18px; font-color: var(--paper) }
 .hud-toast.thought { font-color: var(--patta-ochre) }
 .hud-noted { font-size: 11px; font-color: var(--patta-ochre); letter-spacing: 1px; animation: hud-say 9s linear forwards }
-.hud-prompt { font-size: 13px; font-color: var(--prompt); opacity: .85 }
+.hud-prompt-box { background-color: var(--scrim); padding: 3px 12px; opacity: .85 }
+.hud-prompt { font-size: 15px; font-color: var(--paper) }
 .hud-hand { width: 100%; flex-direction: row; justify-content: space-between }
 .hud-held { font-size: 12px; font-color: var(--patta-ochre) }
 .hud-keys { font-size: 11px; font-color: var(--dim) }

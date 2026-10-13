@@ -18,7 +18,9 @@ prefab "hud" {
                 text class="hud-toast" bind-class="toastKind" bind="toast"
             }
             text class="hud-noted" if="noted" bind="noted"
-            text class="hud-prompt" if="prompt" bind="prompt"
+            panel class="hud-prompt-box" if="prompt" {
+                text class="hud-prompt" bind="prompt"
+            }
             panel class="hud-hand" {
                 text class="hud-held" bind="held"
                 text class="hud-keys" bind="keys"

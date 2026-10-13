@@ -12,7 +12,7 @@ const glbs = Object.keys(GLB).map(nameOf);
 function gltf(name: string) {
   const bin = atob(GLB[`../models/${name}.glb`]!.split(',')[1]!);
   const len = bin.charCodeAt(12) | (bin.charCodeAt(13) << 8) | (bin.charCodeAt(14) << 16) | (bin.charCodeAt(15) << 24);
-  return JSON.parse(bin.slice(20, 20 + len)) as { materials?: { name: string }[]; animations?: { name: string }[]; nodes: { name?: string; children?: number[] }[]; scenes: { nodes: number[] }[] };
+  return JSON.parse(bin.slice(20, 20 + len)) as { materials?: { name: string }[]; animations?: { name: string }[]; extensionsRequired?: string[]; nodes: { name?: string; children?: number[] }[]; scenes: { nodes: number[] }[] };
 }
 
 describe('models', () => {
@@ -28,5 +28,7 @@ describe('models', () => {
     expect((g.materials ?? []).map((m) => m.name).filter((m) => !['body', 'trim', 'glow', 'cloth'].includes(m))).toEqual([]);
     expect((g.animations ?? []).map((a) => a.name)).toContain('idle');
     expect(g.scenes[0]!.nodes.map((i) => g.nodes[i]!.name)).toEqual(['rig']);
+    // Plain glTF: no required extension (quantised and compressed models failed to load on phones: stand-in boxes).
+    expect(g.extensionsRequired ?? []).toEqual([]);
   });
 });
