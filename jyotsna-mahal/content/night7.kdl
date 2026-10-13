@@ -124,7 +124,7 @@ spot "iron-safe" room="toshakhana" name="the iron safe" at="2 -1.5" y=0.8 r=0.6 
     code "୦ ୧ ୨ ୩ ୪ ୫ ୬ ୭ ୮ ୯" dials=4 answer="୧ ୯ ୦ ୬" learns="moondial" if="knows:wedding-fresco knows:moondial-digit" wrong="The handle will not move. Not that year." "One, nine, nought, six. 1906. The handle turns, and the door comes open on its weight, and inside, in oilcloth, two papers, as the old Raja left them." sets="safe-open" clue="marriage-certificate old-raja-will" sound="lock-open"
 }
 
-// ---------- a bearer in the Raja's corridor ----------
+// ---------- a bearer in the Raja's corridor; and, for a suspicious Raja, another on the roof ----------
 
 patrol "bearer-7" night=7 who="bhima" speed=0.6 {
     stop "private-corridor" at="0 -4" wait=6
@@ -132,8 +132,8 @@ patrol "bearer-7" night=7 who="bhima" speed=0.6 {
 }
 
 patrol "bearer-7b" night=7 who="bhima" speed=0.7 if="suspicion>=6" {
-    stop "feast-court" at="4.5 -3" wait=4
-    stop "feast-court" at="4.5 3" wait=4
+    stop "palace-roof" at="-3 3" wait=6
+    stop "palace-roof" at="3 3" wait=6
 }
 
 hint "n7-moon" night=7 until="knows:moondial-digit" after-s=240 text="The moondial on the roof only speaks at the full moon's height. After one o'clock."

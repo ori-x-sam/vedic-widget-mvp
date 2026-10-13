@@ -219,6 +219,20 @@ describe('the night: time and the watchman', () => {
     expect(G.roomAt(1, s.night!.x, s.night!.z)).toBe('guest-room');
     expect(s.items).toContain('bolt-hook');
   });
+  it('caught in his own doorway, he is walked back once: Bhima goes back to his round, he does not catch him again', () => {
+    // Bhima follows him into the guest room and catches him there, by the bed he is about to be walked back to.
+    let s = night();
+    const home = { x: s.night!.x, z: s.night!.z };
+    s = { ...s, night: { ...s.night!, doors: [...s.night!.doors, 'guest-door'], candle: true, watch: [{ ...s.night!.watch[0]!, x: home.x + 0.5, z: home.z, mode: 'chase', t: 0, lastX: home.x, lastZ: home.z, trail: [[home.x + 0.5, home.z]] }] } };
+    for (let i = 0; i < 40 && !s.talk; i++) s = G.tick(s, 0.05);
+    expect(s.talk!.scene).toBe('caught-1');
+    while (!G.choices(s).length) s = G.next(s);
+    s = G.choose(s, 0);
+    while (s.talk) s = G.next(s);
+    expect(G.roomAt(1, s.night!.x, s.night!.z)).toBe('guest-room');
+    // Twenty seconds at the bed after: no second catch, no second excuse.
+    for (let i = 0; i < 400; i++) { s = G.tick(s, 0.05); expect(s.talk, `caught again after ${(i * 0.05).toFixed(2)} s`).toBeNull(); }
+  });
   it('out of his sight long enough, he gives up and walks home', () => {
     let s = outOfRoom(night());
     s = { ...s, night: { ...s.night!, x: 2, z: -4, candle: true, watch: [{ ...s.night!.watch[0]!, x: 5, z: -4, face: -Math.PI / 2, mode: 'patrol', wait: 0 }] } };

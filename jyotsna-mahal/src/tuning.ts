@@ -52,6 +52,9 @@ export const T = {
   LOSE_S: 3.5,
   /** This close and he has you. */
   CATCH_U: 0.9,
+  /** After he has walked a man back and bolted him in, he goes back to the start of his round and doesn't look
+      for this long: the walk back is the scene, not a second catch. */
+  CALM_S: 12,
   /** Being seen at all costs this much suspicion (an excuse decides the rest). */
   SEEN_SUSPICION: 1,
 

@@ -24,6 +24,8 @@ export type Watchman = {
   t: number;
   /** Where he last saw you, and the way back to his round. */
   lastX: number; lastZ: number; trail: [number, number][];
+  /** Seconds he still walks his round without looking (after walking a man back). */
+  calm: number;
 };
 
 export type NightRun = {
@@ -296,10 +298,7 @@ function endScene(s: GameState, how: 'night' | 'back-to-room' | 'morning' | 'res
 
 export function startNight(s: GameState, n: number): GameState {
   const nt = nightOf(n), room = get('room', nt.start);
-  const watch = Object.values(C.patrol).filter((p) => p.night === n && holds(s, p.if ?? [])).map((p): Watchman => {
-    const st = p.children[0]!, r = get('room', st.room);
-    return { id: p.id, x: r.x + st.at[0], z: r.z + st.at[1], face: 0, leg: 1 % p.children.length, wait: st.wait, mode: 'patrol', t: 0, lastX: 0, lastZ: 0, trail: [] };
-  });
+  const watch = Object.values(C.patrol).filter((p) => p.night === n && holds(s, p.if ?? [])).map((p) => onRound(p.id, 0));
   s = {
     ...s, phase: 'night', talk: null,
     night: {
@@ -311,11 +310,19 @@ export function startNight(s: GameState, n: number): GameState {
   return { ...s, events: [...s.events, { type: 'night-start', n }, { type: 'save' }] };
 }
 
-/** Bhima walks him back: the night's `on-caught` effects, and he is where he woke, candle out. */
+/** A watchman at the first stop of his round, walking it, not looking for `calm` seconds. */
+function onRound(id: string, calm: number): Watchman {
+  const p = get('patrol', id), st = p.children[0]!, r = get('room', st.room);
+  return { id, x: r.x + st.at[0], z: r.z + st.at[1], face: 0, leg: 1 % p.children.length, wait: st.wait, mode: 'patrol', t: 0, lastX: 0, lastZ: 0, trail: [], calm };
+}
+
+/** Bhima walks him back: the night's `on-caught` effects, and he is where he woke, candle out. Every watchman goes
+    back to the start of his round, not looking for a while, so the walk back is never a second catch. */
 export function backToRoom(s: GameState): GameState {
   const nt = nightOf(s.night!.n), room = get('room', nt.start);
   for (const c of nt.children) if (c.word === 'on-caught' && holds(s, c.does.if)) s = apply(s, c.does);
-  return { ...s, phase: 'night', night: { ...s.night!, x: room.x + nt.at[0], z: room.z + nt.at[1], candle: false, hidden: null, caught: s.night!.caught + 1 }, events: [...s.events, { type: 'returned' }] };
+  const watch = s.night!.watch.map((w) => onRound(w.id, T.CALM_S));
+  return { ...s, phase: 'night', night: { ...s.night!, x: room.x + nt.at[0], z: room.z + nt.at[1], candle: false, hidden: null, caught: s.night!.caught + 1, watch }, events: [...s.events, { type: 'returned' }] };
 }
 
 /** Is he free to act in the wing (not in a scene, not past the night)? */
@@ -528,8 +535,9 @@ function stepToward(w: Watchman, tx: number, tz: number, speed: number, dtS: num
 
 function moveWatchman(s: GameState, w: Watchman, dtS: number, ev: GameEvent[]): { w: Watchman; caught: boolean } {
   const p = get('patrol', w.id), n = s.night!;
+  if (w.calm > 0) w = { ...w, calm: Math.max(0, w.calm - dtS) };
   if (w.mode === 'patrol' || w.mode === 'return') {
-    if (sees(s, w)) {
+    if (!w.calm && sees(s, w)) {
       ev.push({ type: 'seen', by: w.id }, { type: 'sound', id: 'who' });
       return { w: { ...w, mode: 'alert', t: T.ALERT_S, lastX: n.x, lastZ: n.z, face: headingTo(w.x, w.z, n.x, n.z), trail: w.mode === 'return' ? w.trail : [[w.x, w.z]] }, caught: false };
     }
@@ -562,7 +570,7 @@ function moveWatchman(s: GameState, w: Watchman, dtS: number, ev: GameEvent[]): 
 // ---------- saves: a snapshot at the start of each night and each morning, checked by zod on load ----------
 
 const Ids = z.array(z.string());
-const WatchSave = z.object({ id: z.string(), x: z.number(), z: z.number(), face: z.number(), leg: z.number().int(), wait: z.number(), mode: z.enum(['patrol', 'alert', 'chase', 'return']), t: z.number(), lastX: z.number(), lastZ: z.number(), trail: z.array(z.tuple([z.number(), z.number()])) });
+const WatchSave = z.object({ id: z.string(), x: z.number(), z: z.number(), face: z.number(), leg: z.number().int(), wait: z.number(), mode: z.enum(['patrol', 'alert', 'chase', 'return']), t: z.number(), lastX: z.number(), lastZ: z.number(), trail: z.array(z.tuple([z.number(), z.number()])), calm: z.number().default(0) });
 export const SaveSchema = z.object({
   day: z.number().int().positive(), phase: z.enum(['day', 'night', 'reveal', 'end']), ending: z.string().nullable(),
   flags: Ids, items: Ids, clues: Ids, fired: Ids, thoughts: Ids,
