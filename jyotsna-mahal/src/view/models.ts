@@ -33,7 +33,7 @@ export async function loadModels(): Promise<void> {
     const url = urlOf(id);
     if (!url) { loaded.set(id, { scene: standIn(), clips: [] }); return; }
     try {
-      const g = await loader.loadAsync(url);
+      const g = url.startsWith('data:') ? await loader.parseAsync(fromDataUrl(url), '') : await loader.loadAsync(url);
       g.scene.traverse((o) => {
         const mesh = o as THREE.Mesh;
         if (!mesh.isMesh) return;
@@ -46,6 +46,14 @@ export async function loadModels(): Promise<void> {
       loaded.set(id, { scene: standIn(), clips: [] });
     }
   }));
+}
+
+/** A model inlined into the page (an artifact build) as a base64 data URL, decoded in place. Never fetched: an
+    artifact page's CSP refuses fetch() of data: URLs, and every model would load as a stand-in box. */
+export function fromDataUrl(url: string): ArrayBuffer {
+  const bin = atob(url.slice(url.indexOf(',') + 1)), out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out.buffer;
 }
 
 function standIn(): THREE.Object3D {

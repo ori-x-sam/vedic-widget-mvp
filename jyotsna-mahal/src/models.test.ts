@@ -1,7 +1,9 @@
 // Every model the content names is built and committed, and every committed .glb keeps the rig contract in the header
 // of models/kit.py: materials only body/trim/glow/cloth, an `idle` clip, everything under one `rig` root.
 import { describe, expect, it } from 'vitest';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { C } from './content';
+import { fromDataUrl } from './view/models';
 
 const GLB = import.meta.glob<string>('../models/*.glb', { query: '?inline', import: 'default', eager: true });
 const PY = import.meta.glob<string>('../models/*.py', { query: '?raw', import: 'default', eager: true });
@@ -30,5 +32,15 @@ describe('models', () => {
     expect(g.scenes[0]!.nodes.map((i) => g.nodes[i]!.name)).toEqual(['rig']);
     // Plain glTF: no required extension (quantised and compressed models failed to load on phones: stand-in boxes).
     expect(g.extensionsRequired ?? []).toEqual([]);
+  });
+  // The artifact build inlines every model as a data URL, and its page refuses fetch() of data: URLs (every model a
+  // stand-in box on a phone): the loader decodes them in place. Every model must parse that way.
+  it('every model parses from its inlined data URL, without a fetch', async () => {
+    const loader = new GLTFLoader(), bad: string[] = [];
+    for (const name of glbs) {
+      try { const g = await loader.parseAsync(fromDataUrl(GLB[`../models/${name}.glb`]!), ''); if (!g.scene.children.length) bad.push(`${name}: empty`); }
+      catch (e) { bad.push(`${name}: ${(e as Error).message}`); }
+    }
+    expect(bad).toEqual([]);
   });
 });
