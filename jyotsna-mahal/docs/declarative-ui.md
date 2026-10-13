@@ -480,7 +480,7 @@ What a `sound`'s `play=` names (`src/audio.ts`).
 |---|---|
 | `knock` | knuckles on teak |
 | `thud` | a soft body sound: footsteps |
-| `noise` | filtered noise: a match, a page, crickets (long ones pulse) |
+| `noise` | filtered noise: a match, a page |
 | `howl` | jackals: rising, wavering yips |
 | `roar` | a tiger, far off |
 | `bell` | small bells: ghungroo |
@@ -491,7 +491,9 @@ What a `sound`'s `play=` names (`src/audio.ts`).
 | `puff` | a cigar, a harrumph, a snuffed candle |
 | `flutter` | a handkerchief |
 | `shot` | a rifle and its echo off the hills |
-| `drone` | a tanpura-like drone |
+| `tanpura` | one tanpura string: a long, warm pluck with the bridge's shimmer (the music's round) |
+| `pluck` | a sitar's played string, buzzing; may slide into its note (the music's phrases) |
+| `snap` | a sitar string drawn sharp until it snaps: the fright when Bhima sees you |
 | `creak` | wood under strain |
 | `scrape` | something dragged: a bolt, a trunk, brakes |
 | `whistle` | a mynah |

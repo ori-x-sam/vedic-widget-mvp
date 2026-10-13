@@ -68,7 +68,7 @@ function play(s: GameState, sc: Scene) {
     if (e.type === 'item' && e.gained) Audio.play('pick-up');
     if (e.type === 'night-start' || e.type === 'returned') { const nt = nightOf(s.night!.n); Input.face(nt.turn); }
   }
-  Audio.nightBed(s.phase === 'night');
+  Audio.bed(s.phase === 'night' ? 'night' : s.phase === 'day' || s.phase === 'reveal' ? 'day' : null);
 }
 
 export async function boot(el: HTMLElement): Promise<() => void> {
@@ -98,6 +98,7 @@ export async function boot(el: HTMLElement): Promise<() => void> {
     if (target !== ui.getState().target) Actions.aim(target);
     sc.mark(target && Game.reachable(r, target) ? target : null);
     // Both always tick: the screens' tweens must run while the 3D is moving too.
+    Audio.bedTick();
     const moving = sc.tick(dt);
     return tickScreens(dt) || moving;
   });
@@ -136,6 +137,6 @@ export async function boot(el: HTMLElement): Promise<() => void> {
     removeEventListener('pointerdown', wake); removeEventListener('keydown', wake);
     pixi.ticker.remove(render3d);
     stopClock(); offTick();
-    Audio.nightBed(false);
+    Audio.bed(null);
   };
 }

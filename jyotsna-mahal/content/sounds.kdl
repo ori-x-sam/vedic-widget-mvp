@@ -1,6 +1,6 @@
 // Every sound in the game, synthesised in code: each is a composition of one instrument from src/audio.ts.
 //   sound "id" play="instrument" hz=<base pitch, Hz> gain=<0..1> len=<one hit, s> times=<hits> gap=<s from one hit to the next>
-// Instruments: knock thud noise howl roar bell chime click laugh sniff puff flutter shot drone creak scrape whistle tone
+// Instruments: knock thud noise howl roar bell chime click laugh sniff puff flutter shot tanpura pluck snap creak scrape whistle tone
 // Content names sounds by id: `sound="bolt-open"` on a beat, `sound="laugh"` on a person.
 
 // ---------- the signatures ----------
@@ -27,8 +27,8 @@ sound "cigar" play="puff" hz=500 gain=0.25 len=0.6
 sound "flutter" play="flutter" hz=2400 gain=0.22 len=0.5
 sound "lantern-creak" play="creak" hz=300 gain=0.2 len=0.4
 sound "whistle" play="whistle" hz=1800 gain=0.25 len=0.5 times=2 gap=0.1
-// Bhima, seeing a light where there should be none.
-sound "who" play="thud" hz=60 gain=0.5 len=0.5
+// Bhima, seeing a light where there should be none: a sitar string drawn sharp until it snaps.
+sound "who" play="snap" hz=330 gain=0.5 len=3.2
 
 // ---------- things ----------
 
@@ -52,8 +52,9 @@ sound "proved" play="tone" hz=294 gain=0.25 len=2.5
 sound "footstep" play="thud" hz=110 gain=0.12 len=0.08
 sound "bhima-step" play="thud" hz=70 gain=0.22 len=0.12
 
-// ---------- under the night ----------
+// ---------- the music (audio.ts bed(): the tanpura's round and the sitar's phrases, in the hour's raga) ----------
 
-// A tanpura-like drone, and the crickets.
-sound "night-drone" play="drone" hz=73.4 gain=0.08 len=8
-sound "crickets" play="noise" hz=4200 gain=0.035 len=8
+// One tanpura string at Sa (C#); the round plays it at Pa, upper Sa twice and low Sa.
+sound "bed-tanpura" play="tanpura" hz=138.6 gain=0.2 len=4.2
+// One sitar note at middle Sa; the phrases play it at the raga's notes.
+sound "bed-sitar" play="pluck" hz=277.2 gain=0.17 len=2.6

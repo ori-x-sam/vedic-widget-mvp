@@ -124,7 +124,7 @@ scene "bhima-rises" day=6 place="caught" first="bhima-r1"
 
 beat "bhima-r1" scene="bhima-rises" {
     does sets="met-bhima"
-    line "narrator" "Bhima gets up. He is two metres tall, and wet to the chest, and he comes up the steps towards you without hurrying, the lantern held low."
+    line "narrator" "Bhima gets up. He is two metres tall, and wet to the chest, and he comes up the steps towards you without hurrying, the lantern held low." sound="who"
     choose "Run." go="bhima-r2"
     choose "Stand your ground, and say Sudam's name." go="bhima-r3" regard=1
 }
