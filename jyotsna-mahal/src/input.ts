@@ -31,11 +31,13 @@ const PEER_RATE = 6;
 /** Peering doubles the eye's magnification at most. */
 const PEER_MAX = 1;
 
-const roaming = () => { const s = game.getState().run, u = ui.getState(); return u.screen === 'play' && s.phase === 'night' && !s.talk && !u.casebook && !u.dials && !u.card; };
-const talking = () => { const s = game.getState().run, u = ui.getState(); return u.screen === 'play' && !!s.talk && !u.card; };
+const roaming = () => { const s = game.getState().run, u = ui.getState(); return u.screen === 'play' && s.phase === 'night' && !s.talk && !u.casebook && !u.dials && !u.card && !u.menu; };
+const talking = () => { const s = game.getState().run, u = ui.getState(); return u.screen === 'play' && !!s.talk && !u.card && !u.menu; };
 
 function key(e: KeyboardEvent) {
   const k = e.key.toLowerCase(), u = ui.getState();
+  if (k === 'm' && (u.screen === 'play' || u.menu)) { if (u.menu) Actions.closeMenu(); else Actions.openMenu(); return; }
+  if (u.menu) { if (k === 'escape') Actions.closeMenu(); return; }
   if (u.screen !== 'play') return;
   if (u.card) { if (!['shift', 'control', 'alt', 'meta', 'tab'].includes(k)) Actions.dismissCard(); e.preventDefault(); return; }
   if (k === 'escape') { if (u.dials) Actions.closeDials(); else if (u.casebook) Actions.closeCasebook(); return; }
@@ -73,12 +75,12 @@ export function listen(canvas: HTMLElement, onUi: (cx: number, cy: number) => bo
   const tdown = (e: PointerEvent) => {
     Actions.useTouch();
     const p = design(canvas, e), u = ui.getState();
-    if (u.screen !== 'play') return;
-    // A card swallows taps (it covers everything) and any tap dismisses it; a line with no choices moves on from a tap
-    // anywhere. Only then is a thumb on a button the button's.
+    if (u.screen !== 'play' || u.menu) return;
+    // A card swallows taps (it covers everything) and any tap dismisses it; then a thumb on a button (the Menu, a
+    // choice) is the button's; a line with no choices moves on from a tap anywhere else.
     if (u.card) { Actions.dismissCard(); return; }
-    if (talking() && !Game.choices(game.getState().run).length) { Actions.next(); return; }
     if (onUi(p.cx, p.cy)) return;
+    if (talking() && !Game.choices(game.getState().run).length) { Actions.next(); return; }
     if (!roaming() && !talking()) return;
     const walking = [...thumbs.values()].some((t) => t.kind === 'stick');
     const kind = roaming() && !walking && p.x < view.width * 0.42 ? 'stick' : 'look';
@@ -109,8 +111,9 @@ export function listen(canvas: HTMLElement, onUi: (cx: number, cy: number) => bo
     if (e.pointerType === 'touch') { tdown(e); return; }
     if (e.button === 2) { peering = true; return; }
     if (e.button !== 0) return;
-    const u = ui.getState();
+    const u = ui.getState(), p = design(canvas, e);
     if (u.card) { Actions.dismissCard(); return; }
+    if (onUi(p.cx, p.cy)) return; // a button (the Menu, a choice, the pad): the screen's, not the look's
     if (talking() && !Game.choices(game.getState().run).length) { Actions.next(); return; }
     if (roaming() || talking()) { dragging = true; if (roaming() && document.pointerLockElement !== canvas) canvas.requestPointerLock?.()?.catch?.(() => {}); }
   };

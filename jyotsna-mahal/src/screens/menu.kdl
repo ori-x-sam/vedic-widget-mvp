@@ -1,0 +1,24 @@
+// The chapters menu, for playtesting: a small Menu button at the top left while playing, and over everything the list
+// of every day and night (each starts as the campaign's first path reaches it), back to the game, or to the title.
+// Styled in menu.css; bindings in menu.ts.
+prefab "menu-button" {
+    panel class="mb" {
+        button class="mb-button" tap="tap" {
+            text class="mb-label" "Menu"
+        }
+    }
+}
+
+prefab "menu" {
+    panel class="mn" {
+        panel class="mn-box" {
+            text class="mn-title" "Chapters"
+            text class="mn-sub" "For playtesting: start any day or night as the story reaches it."
+            panel class="mn-cols" {
+                panel class="mn-col" slot="days"
+                panel class="mn-col" slot="nights"
+            }
+            panel class="mn-actions" slot="actions"
+        }
+    }
+}

@@ -73,3 +73,24 @@ export const ThePadsButtons: Story = {
     await expect(ui.getState().casebook).toBe(false);
   },
 };
+
+export const TheMenuStartsAnyChapter: Story = {
+  render: () => stage(atTheBolt),
+  play: async ({ args }) => {
+    if (!args.runInteraction) return;
+    await ready();
+    await press('Menu', 'thumb');
+    await expect(ui.getState().menu).toBe(true);
+    await expect(screenText()).toEqual(expect.arrayContaining(['Day 4 — Luncheon and Cards', 'Night 7 — The Full Moon']));
+    await press('Night 3', 'thumb');
+    await expect(ui.getState().menu).toBe(false);
+    await expect(run().phase).toBe('night');
+    await expect(run().night!.n).toBe(3);
+    // Everything the first two nights found is in the casebook, as the story would have it.
+    await expect(run().clues).toEqual(expect.arrayContaining(['pulled-claws', 'malati-met']));
+    await thumb(view.width / 2, view.height / 2);
+    await press('Menu', 'thumb');
+    await press('Day 6', 'thumb');
+    await expect(run().talk!.scene).toBe('morning-6');
+  },
+};

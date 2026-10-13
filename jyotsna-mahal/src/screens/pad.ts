@@ -26,10 +26,10 @@ const small = (key: string, label: string, tap: () => void, lit = false) => use(
 export function drawPad() {
   const u = ui.getState(), { run } = game.getState();
   if (!u.touch || u.screen !== 'play' || run.phase !== 'night' || run.talk || !run.night || u.casebook || u.dials || u.card) return padUi.show(null);
-  const st = u.stick, near = !!u.target && Game.reachable(run, u.target);
+  const st = u.stick, near = u.door ? true : !!u.target && Game.reachable(run, u.target);
   padUi.show(use('pad', {
     sx: st?.x ?? 0, sy: st?.y ?? 0, dx: st?.dx ?? 0, dy: st?.dy ?? 0, live: st ? 1 : 0, r: T.STICK_R_PX,
-    use: () => Actions.touch(), useLabel: verb(run, u.target, u.held), lit: near ? 1 : 0,
+    use: () => Actions.touch(), useLabel: u.door ? (Game.canSwing(run, u.door) === 'close' ? 'Close' : 'Open') : verb(run, u.target, u.held), lit: near ? 1 : 0,
   }, {
     smalls: [
       ...(u.held ? [small('away', 'Put away', () => Actions.hold(null), true)] : []),

@@ -196,15 +196,23 @@ export function dayOutcomes(start: GameState = Game.newGame()): { label: string;
 
 /** The whole game: for each night, every way its day can end, starting the day from the end of the night before
     (solved by its critical path, after the first way its own day ended). */
-export function campaign(): { n: number; starts: { label: string; s: GameState }[] }[] {
-  const out: { n: number; starts: { label: string; s: GameState }[] }[] = [];
+export function campaign(): { n: number; morning: GameState; starts: { label: string; s: GameState }[] }[] {
+  const out: { n: number; morning: GameState; starts: { label: string; s: GameState }[] }[] = [];
   let morning: GameState | null = Game.newGame();
   for (let n = 1; morning && Object.values(C.night).some((x) => x.n === n); n++) {
     const starts: { label: string; s: GameState }[] = dayOutcomes(morning).filter((o) => o.s.phase === 'night' && o.s.night?.n === n);
-    out.push({ n, starts });
+    out.push({ n, morning, starts });
     const first: { label: string; s: GameState } | undefined = starts[0];
     const end: GameState | null = first ? solveNight(first.s, first.label).end : null;
     morning = end ? Game.afterReveal(end) : null;
   }
   return out;
+}
+
+/** For playtesting from the menu: the state each day starts in (its first scene) and each night starts in, along the
+    campaign's first path (the first way each day ends, each night solved by its critical path). Written to
+    src/chapters.json by `npm run chapters`; a test keeps the file in step with the content. */
+export function chapters(): { days: GameState[]; nights: GameState[] } {
+  const c = campaign(), clean = (s: GameState): GameState => ({ ...s, events: [] });
+  return { days: c.map((x) => clean(x.morning)), nights: c.map((x) => clean(x.starts[0]!.s)) };
 }

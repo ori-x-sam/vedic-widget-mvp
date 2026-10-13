@@ -12,6 +12,7 @@
     "test:stories": "vitest run --project storybook",
     "typecheck": "tsc",
     "sim": "node scripts/run.mjs scripts/sim.ts",
+    "chapters": "node scripts/run.mjs scripts/chapters.ts",
     "shots": "node scripts/shots.mjs",
     "models": "node scripts/models.mjs",
     "build:page": "tsc && INLINE=1 vite build && node scripts/page.mjs"

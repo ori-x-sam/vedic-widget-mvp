@@ -39,6 +39,8 @@ export type NightRun = {
   /** Seconds since the last new flag, item or clue: the hints' clock. */
   sinceProgressS: number;
   doors: string[]; hints: string[];
+  /** Doors he has unlocked and then shut behind him himself: shut, not locked, so he can open them again. */
+  shut: string[];
   watch: Watchman[];
   caught: number;
 };
@@ -136,9 +138,11 @@ function apply(s: GameState, e: Effects, key?: string): GameState {
   if (night) {
     const progressed = items.length > s.items.length || flags.length !== s.flags.length || clues.length > s.clues.length;
     const doors = drop(add(night.doors, e.opens), e.closes);
+    // Opened by a key, or closed and locked by the house: either way no longer a door he has merely shut.
+    const shut = drop(night.shut, [...e.opens, ...e.closes]);
     for (const id of e.opens) if (!night.doors.includes(id)) ev.push({ type: 'door', id, open: true });
     for (const id of e.closes) if (night.doors.includes(id)) ev.push({ type: 'door', id, open: false });
-    night = { ...night, doors, sinceProgressS: progressed ? 0 : night.sinceProgressS, clockS: night.clockS + e.minutes * secondsPerMinute() };
+    night = { ...night, doors, shut, sinceProgressS: progressed ? 0 : night.sinceProgressS, clockS: night.clockS + e.minutes * secondsPerMinute() };
   }
   return { ...s, items, flags, clues, marks, counts, night, fired: e.once && key ? add(s.fired, [key]) : s.fired, events: ev };
 }
@@ -303,7 +307,7 @@ export function startNight(s: GameState, n: number): GameState {
     ...s, phase: 'night', talk: null,
     night: {
       n, x: room.x + nt.at[0], z: room.z + nt.at[1], candle: false, hidden: null, clockS: 0, quarters: 0, knocks: 0, sinceProgressS: 0,
-      doors: doorsOf(n).filter((d) => d.open).map((d) => d.id), hints: [], watch, caught: 0,
+      doors: doorsOf(n).filter((d) => d.open).map((d) => d.id), shut: [], hints: [], watch, caught: 0,
     },
   };
   for (const c of nt.children) if (c.word === 'begins' && holds(s, c.does.if)) s = apply(s, c.does);
@@ -323,6 +327,32 @@ export function backToRoom(s: GameState): GameState {
   for (const c of nt.children) if (c.word === 'on-caught' && holds(s, c.does.if)) s = apply(s, c.does);
   const watch = s.night!.watch.map((w) => onRound(w.id, T.CALM_S));
   return { ...s, phase: 'night', night: { ...s.night!, x: room.x + nt.at[0], z: room.z + nt.at[1], candle: false, hidden: null, caught: s.night!.caught + 1, watch }, events: [...s.events, { type: 'returned' }] };
+}
+
+// ---------- doors he shuts behind him ----------
+
+/** Can he shut this door (it is open and has a leaf: an arch has none), or open it again (he shut it himself)? */
+export function canSwing(s: GameState, doorId: string): 'close' | 'open' | null {
+  const n = s.night, d = C.door[doorId];
+  if (!n || !d || d.arch) return null;
+  return n.doors.includes(doorId) ? 'close' : n.shut.includes(doorId) ? 'open' : null;
+}
+
+/** Is the door within his reach? */
+export function doorReachable(s: GameState, doorId: string): boolean {
+  if (!roaming(s)) return false;
+  const p = doorPlace(get('door', doorId)), n = s.night!;
+  return Math.hypot(p.x - n.x, p.z - n.z) <= 1.0 + T.REACH_U;
+}
+
+/** Shut an open door behind him (so nobody sees in), or open one he shut. A door he unlocked stays unlocked. */
+export function swingDoor(s: GameState, doorId: string): GameState {
+  s = fresh(s);
+  const how = canSwing(s, doorId);
+  if (!how || !doorReachable(s, doorId)) return s;
+  const n = s.night!;
+  const night = how === 'close' ? { ...n, doors: drop(n.doors, [doorId]), shut: add(n.shut, [doorId]) } : { ...n, doors: add(n.doors, [doorId]), shut: drop(n.shut, [doorId]) };
+  return { ...s, night, events: [{ type: 'door', id: doorId, open: how === 'open' }, { type: 'sound', id: how === 'open' ? 'bolt-lift' : 'bolt-shut' }] };
 }
 
 /** Where a night ends once its case is proved: the spot with a `bed` word (his bed, the way back, Major Pomfret). */
@@ -583,7 +613,7 @@ export const SaveSchema = z.object({
   marks: z.object({ suspicion: z.number(), regard: z.number() }),
   counts: z.record(z.string(), z.number()).default({}),
   talk: z.object({ scene: z.string(), beat: z.string(), at: z.number().int(), t: z.number(), said: z.number().int() }).nullable(),
-  night: z.object({ n: z.number().int(), x: z.number(), z: z.number(), candle: z.boolean(), hidden: z.string().nullable(), clockS: z.number(), quarters: z.number().int(), knocks: z.number().int(), sinceProgressS: z.number(), doors: Ids, hints: Ids, watch: z.array(WatchSave), caught: z.number().int() }).nullable(),
+  night: z.object({ n: z.number().int(), x: z.number(), z: z.number(), candle: z.boolean(), hidden: z.string().nullable(), clockS: z.number(), quarters: z.number().int(), knocks: z.number().int(), sinceProgressS: z.number(), doors: Ids, shut: Ids.default([]), hints: Ids, watch: z.array(WatchSave), caught: z.number().int() }).nullable(),
 });
 
 /** A save's game, or null when it isn't one (or names content that no longer exists). */

@@ -140,22 +140,58 @@ function moonThrough(room: Room, side: WallSide, at: number, y: number, w: numbe
   return g;
 }
 
-/** A flame's pool of amber: a point light and a small unlit glow. */
-function flame(x: number, y: number, z: number, kind: string, shadow: boolean): { group: THREE.Group; light: THREE.PointLight } {
-  const g = new THREE.Group();
+/** A covered lamp's pool of amber: a point light in a glass chimney on a brass fount, never a bare flame floating in
+    the air. An oil lamp (`diya`, `candle`) is fixed to the nearest wall on a bracket, two metres up at least; in a
+    room with only a parapet (a roof, a court) it stands on a brass post; a `hanging` lamp hangs from the ceiling on a
+    chain; a dynamo `bulb` hangs bare. */
+function flame(room: Room, at: [number, number], y: number, kind: string, shadow: boolean): { group: THREE.Group; light: THREE.PointLight } {
+  const g = new THREE.Group(), brass = new THREE.MeshStandardMaterial({ color: token('--brass'), roughness: 0.35, metalness: 0.7 });
+  const glass = new THREE.MeshBasicMaterial({ color: new THREE.Color(token('--flame')).lerp(new THREE.Color(0xffffff), 0.25), transparent: true, opacity: 0.62, toneMapped: false, depthWrite: false });
+  let x = room.x + at[0], z = room.z + at[1], ly = room.y + y;
+  const mesh = (geo: THREE.BufferGeometry, mat: THREE.Material, px: number, py: number, pz: number) => { const m = new THREE.Mesh(geo, mat); m.position.set(px, py, pz); m.castShadow = false; m.userData.noPick = true; g.add(m); return m; };
+  /** The lamp itself: fount, chimney, cap, centred on (x, top of fount, z). */
+  const lamp = (cx: number, cy: number, cz: number) => {
+    mesh(new THREE.CylinderGeometry(0.07, 0.09, 0.08, 20), brass, cx, cy - 0.04, cz);
+    mesh(new THREE.LatheGeometry([0.035, 0.07, 0.085, 0.075, 0.045, 0.04].map((r, i) => new THREE.Vector2(r, i * 0.045)), 24), glass, cx, cy, cz);
+    mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.04, 20), brass, cx, cy + 0.245, cz);
+    mesh(new THREE.TorusGeometry(0.04, 0.006, 6, 20), brass, cx, cy + 0.3, cz).rotation.x = Math.PI / 2;
+  };
+  if (kind === 'bulb') {
+    lamp(x, ly, z);
+  } else if (kind === 'hanging') {
+    ly = room.y + Math.min(Math.max(y, 2.2), room.h - 0.6);
+    lamp(x, ly, z);
+    if (!room.open) mesh(new THREE.CylinderGeometry(0.006, 0.006, room.y + room.h - ly - 0.3, 6), brass, x, (ly + 0.3 + room.y + room.h) / 2, z);
+  } else if (room.open || room.h < 2.6) {
+    // A brass lamp post, on the floor where the lamp was set.
+    ly = room.y + 1.7;
+    mesh(new THREE.CylinderGeometry(0.025, 0.04, 1.62, 12), brass, x, room.y + 0.81, z);
+    mesh(new THREE.CylinderGeometry(0.16, 0.18, 0.04, 20), brass, x, room.y + 0.02, z);
+    lamp(x, ly, z);
+  } else {
+    // To the nearest wall, on a bracket.
+    const gaps = { west: at[0] + room.w / 2, east: room.w / 2 - at[0], north: at[1] + room.d / 2, south: room.d / 2 - at[1] };
+    const side = (Object.keys(gaps) as (keyof typeof gaps)[]).reduce((m, k) => (gaps[k] < gaps[m] ? k : m), 'west');
+    const out = 0.2, n = { west: [1, 0], east: [-1, 0], north: [0, 1], south: [0, -1] }[side];
+    const wx = side === 'west' ? room.x - room.w / 2 : side === 'east' ? room.x + room.w / 2 : x, wz = side === 'north' ? room.z - room.d / 2 : side === 'south' ? room.z + room.d / 2 : z;
+    x = wx + n[0]! * out; z = wz + n[1]! * out;
+    ly = room.y + Math.min(Math.max(y, 2.0), room.h - 0.6);
+    lamp(x, ly, z);
+    mesh(new THREE.BoxGeometry(0.1, 0.22, 0.1), brass, wx + n[0]! * 0.02, ly + 0.02, wz + n[1]! * 0.02).scale.set(n[0] ? 0.3 : 1, 1, n[1] ? 0.3 : 1);
+    const arm = mesh(new THREE.CylinderGeometry(0.012, 0.012, out, 8), brass, wx + n[0]! * out / 2, ly - 0.06, wz + n[1]! * out / 2);
+    arm.rotation.set(n[1] ? Math.PI / 2 : 0, 0, n[0] ? Math.PI / 2 : 0);
+    mesh(new THREE.CylinderGeometry(0.09, 0.05, 0.02, 20), brass, x, ly - 0.085, z);
+  }
   const light = new THREE.PointLight(token('--flame'), LOOK.FLAME_LIGHT, LOOK.FLAME_REACH_U, 1.6);
-  light.position.set(x, y + 0.12, z);
+  light.position.set(x, ly + 0.12, z);
   light.castShadow = shadow;
   light.shadow.mapSize.set(256, 256);
-  light.userData.still = true;
-  light.shadow.camera.near = 0.1;
+  light.shadow.camera.near = 0.15;
   light.shadow.normalBias = 0.03;
-  const glow = new THREE.Mesh(new THREE.SphereGeometry(kind === 'hanging' ? 0.05 : 0.025, 8, 6), new THREE.MeshBasicMaterial({ color: token('--flame'), toneMapped: false }));
-  glow.position.set(x, y + 0.05, z);
-  glow.userData.noPick = true;
-  const dish = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.04, 0.03, 10), new THREE.MeshStandardMaterial({ color: token('--brass'), roughness: 0.4, metalness: 0.5 }));
-  dish.position.set(x, y, z);
-  g.add(light, glow, dish);
+  light.userData.still = true;
+  const glow = mesh(new THREE.SphereGeometry(kind === 'bulb' ? 0.05 : 0.022, 10, 8), new THREE.MeshBasicMaterial({ color: token('--flame'), toneMapped: false }), x, ly + 0.09, z);
+  glow.scale.y = kind === 'bulb' ? 1 : 1.8;
+  g.add(light);
   return { group: g, light };
 }
 
@@ -227,8 +263,8 @@ export function buildWing(n: number) {
       }
       if (c.word === 'prop') { const p = place(c.model); p.root.position.set(room.x + c.at[0], room.y + c.y, room.z + c.at[1]); p.root.rotation.y = -c.turn * D2R; root.add(p.root); mixers.push(p); if (c.if.length) shown.push({ obj: p.root, cond: c.if }); }
       if (c.word === 'lamp') {
-        const f = flame(room.x + c.at[0], room.y + c.y, room.z + c.at[1], c.kind, c.kind !== 'bulb');
-        if (c.kind === 'bulb') { f.light.color.setHex(token('--dynamo')); f.light.intensity = LOOK.BULB_LIGHT; f.light.distance = LOOK.BULB_REACH_U; (f.group.children[1] as THREE.Mesh).material = new THREE.MeshBasicMaterial({ color: token('--dynamo'), toneMapped: false }); }
+        const f = flame(room, c.at, c.y, c.kind, c.kind !== 'bulb');
+        if (c.kind === 'bulb') { f.light.color.setHex(token('--dynamo')); f.light.intensity = LOOK.BULB_LIGHT; f.light.distance = LOOK.BULB_REACH_U; for (const m of f.group.children) if ((m as THREE.Mesh).isMesh && ((m as THREE.Mesh).material as THREE.MeshBasicMaterial).toneMapped === false) (m as THREE.Mesh).material = new THREE.MeshBasicMaterial({ color: token('--dynamo'), toneMapped: false, transparent: true, opacity: 0.8 }); }
         root.add(f.group); flames.push(f.light);
         if (c.if.length) shown.push({ obj: f.group, cond: c.if });
       }
@@ -240,6 +276,12 @@ export function buildWing(n: number) {
   for (const d of doorsOf(n)) {
     if (d.arch) continue;
     root.add(doorLeaf(d, leaves));
+    // The doorway itself, invisible: pointing at an open door's opening (from either side) is pointing at the door.
+    const p = doorPlace(d), gap = new THREE.Mesh(new THREE.PlaneGeometry(d.w, d.h), new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide }));
+    gap.position.set(p.x, get('room', d.from).y + d.h / 2, p.z);
+    if (!p.ns) gap.rotation.y = Math.PI / 2;
+    gap.userData.door = d.id; gap.userData.doorway = true;
+    root.add(gap); pickables.push(gap);
   }
 
   // Spots: their models at their current pose, an invisible ball the eye can pick, and a mote: a small warm glow
@@ -374,6 +416,7 @@ export function buildWing(n: number) {
     board.position.set(d.w / 2, leafH / 2 + 0.03, 0);
     board.castShadow = board.receiveShadow = true;
     board.userData.occluder = true;
+    board.userData.door = d.id;
     const bolt = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.04, 0.04), new THREE.MeshStandardMaterial({ color: token('--brass'), metalness: 0.6, roughness: 0.35 }));
     bolt.position.set(d.w - 0.12, 1.1, 0.05);
     swing.add(board, bolt);

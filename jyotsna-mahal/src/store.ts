@@ -30,17 +30,21 @@ export type UiState = {
   toast: { text: string; at: number; thought: boolean } | null;
   /** The spot under the eye. */
   target: string | null;
+  /** The door under the eye that he can shut behind him or open again (then `target` is null). */
+  door: string | null;
   card: Card;
   /** Bhima has seen him. */
   alarm: boolean;
   /** Played by touch (a phone): the on-screen pad shows, and the screens say "tap" not "click". */
   touch: boolean;
+  /** The chapters menu is open (every day and night, for playtesting). */
+  menu: boolean;
   /** The walking thumbstick while a thumb is on it: its centre and the knob's offset, design px. */
   stick: { x: number; y: number; dx: number; dy: number } | null;
 };
 export const initialUi: UiState = {
   screen: 'title', casebook: false, tab: 'evidence', entry: 0, held: null, pick: null, dials: null, answers: [],
-  toast: null, target: null, card: null, alarm: false, touch: false, stick: null,
+  toast: null, target: null, door: null, card: null, alarm: false, touch: false, menu: false, stick: null,
 };
 
 function disk<T>(fn: (ls: Storage) => T): T | null {

@@ -14,5 +14,6 @@ export function drawTitle() {
   if (screen !== 'title') return titleUi.show(null);
   const buttons = [btn('Begin', () => Actions.begin(), 'primary')];
   if (save) buttons.push(btn(save.phase === 'night' ? `Night ${save.night?.n}, again` : 'Continue', () => Actions.resume()));
+  buttons.push(btn('Chapters', () => Actions.openMenu(), '', 'chapters'));
   titleUi.show(use('title', {}, { buttons }));
 }

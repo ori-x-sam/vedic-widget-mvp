@@ -11,6 +11,20 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { LOOK } from './look';
 import { QUALITY } from './quality';
 
+/** Straight after the render: a pixel that came out NaN or infinite (a degenerate normal in a bump map, say) is put
+    out, and the rest held to a sane brightness, before the bloom can spread one bad pixel over the whole frame. */
+const SANE = {
+  uniforms: { tDiffuse: { value: null } },
+  vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+  fragmentShader: `
+    uniform sampler2D tDiffuse; varying vec2 vUv;
+    void main() {
+      vec4 c = texture2D(tDiffuse, vUv);
+      bool bad = c.r != c.r || c.g != c.g || c.b != c.b || c.r > 6e4 || c.g > 6e4 || c.b > 6e4;
+      gl_FragColor = bad ? vec4(0.0, 0.0, 0.0, 1.0) : vec4(min(c.rgb, vec3(64.0)), c.a);
+    }`,
+};
+
 const GRADE = {
   uniforms: { tDiffuse: { value: null }, vignette: { value: 0 }, grain: { value: 0 }, time: { value: 0 }, aspect: { value: 1 } },
   vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
@@ -40,6 +54,7 @@ export function createPost(renderer: THREE.WebGLRenderer, scene: THREE.Scene, ca
   composer.setPixelRatio(ratio);
   composer.setSize(w, h);
   composer.addPass(new RenderPass(scene, camera));
+  composer.addPass(new ShaderPass(SANE));
   const bloom = new UnrealBloomPass(new THREE.Vector2(w / QUALITY.bloomDiv, h / QUALITY.bloomDiv), LOOK.BLOOM, 0.55, LOOK.BLOOM_THRESHOLD);
   composer.addPass(bloom);
   const grade = new ShaderPass(GRADE);

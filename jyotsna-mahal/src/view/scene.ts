@@ -162,13 +162,22 @@ export function createScene(el: HTMLElement, w: number, h: number, look: Look) {
       return busy || flashT > 0;
     },
     /** The spot under the middle of the eye, if one is in reach and no wall is in the way. */
-    pick(maxU = 3.2): string | null {
-      if (!wing) return null;
+    pick(maxU = 3.2): string | null { return this.under(maxU).spot?.id ?? null; },
+    /** What is under the middle of the eye, in reach, before any wall: the first spot, and a door's leaf (with how far
+        each is), since a door's own lock usually sits right in front of its leaf. */
+    under(maxU = 3.2): { spot: { id: string; d: number } | null; door: { id: string; d: number } | null } {
+      const out: ReturnType<Scene['under']> = { spot: null, door: null };
+      if (!wing) return out;
       aimCamera();
       const ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2(0, 0), camera); ray.far = maxU;
-      const hits = ray.intersectObjects([...wing.pickables, ...wing.occluders], false);
-      const first = hits[0];
-      return first && first.object.userData.spot ? (first.object.userData.spot as string) : null;
+      for (const h of ray.intersectObjects([...wing.pickables, ...wing.occluders], false)) {
+        const u = h.object.userData;
+        if (u.spot) { out.spot ??= { id: u.spot as string, d: h.distance }; continue; }
+        // An open doorway lets the eye through to what is beyond it; a door's leaf, like a wall, stops it.
+        if (u.door) { out.door ??= { id: u.door as string, d: h.distance }; if (u.doorway) continue; break; }
+        break;
+      }
+      return out;
     },
     render() {
       aimCamera();

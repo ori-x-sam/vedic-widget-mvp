@@ -29,7 +29,7 @@
 // Positions inside a room are from the room's centre (x east, z south); headings are degrees, 0 north, 90 east.
 // Effects on any beat: gives takes sets unsets clue opens closes sound suspicion regard once minutes; if="..." gates it.
 
-night "night-1" n=1 name="The Bolted Door" moon=0.5 moon-alt=16 moon-az=252 start="guest-room" at="-0.4 0.9" turn=0 proves="staged-tiger" then="morning-2" caught="caught-1" {
+night "night-1" n=1 name="The Bolted Door" moon=0.5 moon-alt=16 moon-az=252 start="guest-room" at="-0.8 0.9" turn=0 proves="staged-tiger" then="morning-2" caught="caught-1" {
     // A suspicious Raja has the door bolted twice.
     begins if="suspicion>=5" sets="bolted-twice"
     // Bhima walks him back and bolts him in again; what he carries and what he has learned stay with him.
@@ -38,12 +38,31 @@ night "night-1" n=1 name="The Bolted Door" moon=0.5 moon-alt=16 moon-az=252 star
 
 // ---------- the floor plan ----------
 
-room "guest-room" night=1 name="The guest room" x=0 z=0 w=4.4 d=5 h=4.2 floor="marble" walls="plaster" dark=0.55 {
-    jaali wall="west" at=0.4 w=1.3 h=1.7 y=0.8
+// The guest room is the palace's best: tall, pillared, a chandelier nobody lights, a desk for letters, books nobody
+// reads, and the Raja's father on the wall watching the bed. The door wall (north) adjoins the corridor.
+room "guest-room" night=1 name="The guest room" x=0 z=1.85 w=7.6 d=8.7 h=5.4 floor="marble" walls="plaster" dark=0.5 {
+    jaali wall="west" at=-0.6 w=1.8 h=2.6 y=0.9
+    jaali wall="south" at=1.6 w=1.4 h=2.2 y=1.0
     transom wall="north" at=0 w=1.1 h=0.45 y=2.6
-    lamp at="-1.7 -1.7" y=1.0 kind="diya"
-    prop "almirah" at="1.85 -0.6" turn=270 solid=0.55
-    prop "rug" at="0 0.4"
+    lamp at="-3.4 -3.9" y=2.1 kind="diya"
+    lamp at="3.5 1.0" y=2.1 kind="diya"
+    lamp at="-3.5 3.0" y=2.1 kind="diya"
+    prop "almirah" at="3.45 -2.6" turn=270 solid=0.55
+    prop "rug" at="0 0.2"
+    prop "rug" at="-2.4 2.6" turn=90
+    prop "rug" at="2.3 2.8"
+    prop "pillar" at="-2.3 -1.8" solid=0.3
+    prop "pillar" at="2.3 -1.8" solid=0.3
+    prop "pillar" at="-2.3 2.0" solid=0.3
+    prop "pillar" at="2.3 2.0" solid=0.3
+    prop "chandelier-dead" at="0 0.2" y=4.3
+    prop "writing-desk" at="3.25 0.9" turn=270 solid=0.45
+    prop "cane-chair" at="2.45 0.9" turn=90 solid=0.3
+    prop "cane-chair" at="-0.9 3.7" turn=200 solid=0.3
+    prop "cane-chair" at="1.6 3.6" turn=160 solid=0.3
+    prop "bookcase" at="3.5 3.4" turn=270 solid=0.4
+    prop "portrait" at="-0.4 4.25" y=1.9 turn=0
+    prop "calendar-print" at="3.75 -0.9" y=1.6 turn=270
 }
 
 room "corridor" night=1 name="The guest corridor" x=2 z=-4 w=12 d=3 h=4.6 floor="sandstone" walls="sandstone" dark=0.75 {
@@ -72,7 +91,7 @@ door "storeroom-door" name="the storeroom door" from="gallery" wall="east" at=0 
 
 // ---------- the guest room ----------
 
-spot "bolted-door" room="guest-room" name="the door" at="0 -2.3" y=1.3 r=0.6 {
+spot "bolted-door" room="guest-room" name="the door" at="0 -4.15" y=1.3 r=0.6 {
     look if="door-open" "The corridor beyond is dark and smells of lamp oil and old roses."
     use "bolt-hook" if="trunk-at-door bolted-twice !first-bolt-up" "You climb onto the trunk, feed the hook through the jaali and lift. One bolt slides back. One remains. The Raja is a thorough host." sets="first-bolt-up" sound="bolt-lift"
     use "bolt-hook" if="trunk-at-door" "You climb onto the trunk, feed the hook through the jaali, find the knob and lift. The bolt slides back with a sound like a cough in church. The door breathes open." opens="guest-door" sets="door-open" sound="bolt-open"
@@ -83,34 +102,34 @@ spot "bolted-door" room="guest-room" name="the door" at="0 -2.3" y=1.3 r=0.6 {
     look "Bolted from outside, \"because of the tiger.\" Through the jaali transom above the door, high up, the bolt's brass knob gleams in the corridor's lamplight. A long way up for a hand." clue="bolted-in"
 }
 
-spot "punkah" room="guest-room" name="the punkah" at="0 0.2" y=3.3 r=1.0 model="punkah" {
+spot "punkah" room="guest-room" name="the punkah" at="0 -0.6" y=4.2 r=1.0 model="punkah" {
     look if="has:hairpin" "The punkah hangs still again, its fringe empty of secrets."
     look "A punkah of faded red cloth on a wooden beam, its fringe stirring in no wind at all. Something in the fringe glints. Far too high to reach; its rope runs to a cleat on the wall."
 }
 
-spot "punkah-rope" room="guest-room" name="the punkah rope" at="-2.05 -0.9" y=1.3 r=0.5 model="punkah-cleat" turn=90 {
+spot "punkah-rope" room="guest-room" name="the punkah rope" at="-3.65 -2.6" y=1.3 r=0.5 model="punkah-cleat" turn=90 {
     look "You give the rope a pull. The punkah heaves across the ceiling like a sigh, and something drops from its fringe and rings on the marble. A hairpin, enamelled with a blue butterfly." gives="hairpin" sound="punkah" once=#true
     look "The punkah swings, and creaks, and swings. The room is no cooler and no wiser."  sound="punkah"
 }
 
-spot "trunk" room="guest-room" name="your steamer trunk" at="1.3 1.6" y=0.4 r=0.6 model="steamer-trunk" turn=90 solid=0.45 {
-    pose if="trunk-at-door" at="0.85 -2.05" turn=0
+spot "trunk" room="guest-room" name="your steamer trunk" at="1.4 -0.4" y=0.4 r=0.6 model="steamer-trunk" turn=90 solid=0.45 {
+    pose if="trunk-at-door" at="0.85 -3.9" turn=0
     look "Your steamer trunk: plates, chemicals, eleven shirts, and the tripod, strapped into the lid. You unscrew one brass leg. Fifty inches, drawn out." gives="tripod-leg" sound="unscrew" once=#true
     look if="!trunk-at-door" "You put your shoulder to the trunk and walk it across the marble to the door, one corner at a time. It complains the whole way. Marble carries a complaint." sets="trunk-at-door" sound="drag"
     look "It will hold a fussy man of fifty. Probably."
 }
 
-spot "dressing-table" room="guest-room" name="the dressing table" at="-1.6 -1.7" y=1.0 r=0.5 model="dressing-table" turn=180 solid=0.45 {
+spot "dressing-table" room="guest-room" name="the dressing table" at="-2.9 -4.0" y=1.0 r=0.5 model="dressing-table" turn=180 solid=0.45 {
     look "A card propped against the mirror: \"With the compliments of His Highness. Breakfast at eight. For your safety the guest wing is secured at night.\" In the mirror, a fussy man of fifty, holding a card." clue="bolted-in"
     photo "The flash fills the mirror and comes straight back at you. The album will have a portrait of the photographer, startled."
 }
 
-spot "guest-window" room="guest-room" name="the window" at="-2.05 0.4" y=1.6 r=0.6 {
+spot "guest-window" room="guest-room" name="the window" at="-3.65 -0.6" y=2.2 r=0.7 {
     look "The jaali is too fine for a cat, let alone an inspector. Through it: the jungle, black-green, silver at the edges, and the half moon going down in the west. Somewhere out there the jackals are discussing something."
     photo "A long exposure of the half moon through the jaali. If anyone asks, I photograph the moon."
 }
 
-spot "guest-bed" room="guest-room" name="the bed" at="-1.2 1.2" y=0.5 r=0.8 model="charpoy" solid=0.6 {
+spot "guest-bed" room="guest-room" name="the bed" at="-2.7 0.3" y=0.5 r=0.8 model="charpoy" solid=0.6 {
     bed "You lie down in your clothes, shoes and all, and listen to the house. Somewhere a door. Somewhere the jackals. Somewhere, very far off, a tiger that is not dead at all, or a very good imitation."
     look "A charpoy strung with jute, too short by a foot, as the beds of the East always are for the men of the West. Not yet. Not with the thing half-seen."
 }

@@ -43,7 +43,7 @@ place "verandah" set="verandah" light="dusk" {
 
 // The guest room at dawn, from the bed.
 place "dawn" set="wing" light="day" {
-    eye at="-1.2 1.2" y=0.9 turn=10
+    eye at="-2.7 2.15" y=0.9 turn=10
 }
 
 // ---------- the drive ----------

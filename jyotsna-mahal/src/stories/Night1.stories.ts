@@ -129,7 +129,7 @@ export const TrunkWalkedToTheDoor: Story = {
     await key('e');
     await expect(run().flags).toContain('trunk-at-door');
     settle();
-    await expect(Game.spotPose(run(), get('spot', 'trunk')).at).toEqual([0.85, -2.05]);
+    await expect(Game.spotPose(run(), get('spot', 'trunk')).at).toEqual([0.85, -3.9]);
   },
 };
 
@@ -432,3 +432,24 @@ function descendantsOf(text: string): Container[] {
   return descendants(layers.ui).filter((n) => (n as Container & { text?: string }).text === text && n.visible).map((n) => { let p: Container | null = n; while (p && p.eventMode !== 'static') p = p.parent; return p!; });
 }
 async function tapNode(n: Container) { const b = n.getBounds(); await tap((b.x + b.width / 2) / view.scale, (b.y + b.height / 2) / view.scale); }
+
+// ---------- shutting the door behind you ----------
+
+/** The door unbolted: he can shut it behind him (pointing at the doorway, from inside), and open it again. */
+export const ShutTheDoorBehindYou: Story = {
+  render: () => stage(() => ({ run: night1({ quiet: true, open: ['guest-door'], at: [0, -1.4] }), yaw: 0, pitch: -2 }), 300),
+  play: async ({ args }) => {
+    if (!args.runInteraction) return;
+    await ready();
+    await expect(ui.getState().door).toBe('guest-door');
+    await expect(screenText().join(' ')).toMatch(/close the guest room door/);
+    await key('e');
+    await expect(run().night!.doors).not.toContain('guest-door');
+    await expect(run().night!.shut).toContain('guest-door');
+    settle();
+    await expect(ui.getState().door).toBe('guest-door');
+    await expect(screenText().join(' ')).toMatch(/open the guest room door/);
+    await key('e');
+    await expect(run().night!.doors).toContain('guest-door');
+  },
+};

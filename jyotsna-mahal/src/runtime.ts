@@ -22,6 +22,7 @@ import { drawCasebook } from './screens/casebook';
 import { drawDials } from './screens/dials';
 import { drawCard } from './screens/card';
 import { drawTitle } from './screens/title';
+import { drawMenu } from './screens/menu';
 
 export let scene: Scene | null = null;
 
@@ -34,6 +35,7 @@ export function drawScreens() {
   drawDials();
   drawCard();
   drawTitle();
+  drawMenu();
 }
 
 /** One synchronous frame of both canvases: what a settled story shows and hit-tests against. */
@@ -81,7 +83,7 @@ export async function boot(el: HTMLElement): Promise<() => void> {
   const bhimaStepped = new Map<string, number>();
   const offTick = onTick((dt) => {
     const walked = Input.step(dt);
-    if (ui.getState().screen === 'play' && !ui.getState().card && !ui.getState().casebook && !ui.getState().dials) Actions.tick(dt);
+    if (ui.getState().screen === 'play' && !ui.getState().card && !ui.getState().casebook && !ui.getState().dials && !ui.getState().menu) Actions.tick(dt);
     // Footsteps: his, and Bhima's, louder as he comes closer.
     stepped += walked;
     if (stepped > STRIDE_U) { stepped = 0; Audio.play('footstep'); }
@@ -94,8 +96,12 @@ export async function boot(el: HTMLElement): Promise<() => void> {
       else bhimaStepped.set(w.id, acc);
     }
     // The toast and the noted line fade on their own (CSS); the target is whatever is under the eye.
-    const target = r.phase === 'night' && !r.talk ? sc.pick() : null;
-    if (target !== ui.getState().target) Actions.aim(target);
+    // A door he can swing (shut behind him, or open again) wins over a spot right at it (its lock); a spot well in
+    // front of it, or well beyond it through the open doorway, is still the spot.
+    const seen = r.phase === 'night' && !r.talk ? sc.under() : { spot: null, door: null };
+    const door = seen.door && Game.canSwing(r, seen.door.id) && Game.doorReachable(r, seen.door.id) && (!seen.spot || Math.abs(seen.spot.d - seen.door.d) < 0.9) ? seen.door.id : null;
+    const target = door ? null : seen.spot?.id ?? null;
+    if (target !== ui.getState().target || door !== ui.getState().door) Actions.aim(target, door);
     sc.mark(target && Game.reachable(r, target) ? target : null);
     // Both always tick: the screens' tweens must run while the 3D is moving too.
     Audio.bedTick();

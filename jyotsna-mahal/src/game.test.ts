@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { C, get } from './content';
 import * as G from './game';
 import type { GameState } from './game';
-import { campaign, dayOutcomes, solveNight } from './solver';
+import { campaign, chapters, dayOutcomes, solveNight } from './solver';
+import stored from './chapters.json';
 import { T } from './tuning';
 
 /** Play the day by always taking choice `pick` (or the first), until the night starts. */
@@ -117,7 +118,7 @@ describe('the night: touching things', () => {
   it('the trunk moves to the door', () => {
     let s = G.interact(at(night(), 'trunk'), 'trunk');
     s = G.interact(s, 'trunk');
-    expect(G.spotPose(s, get('spot', 'trunk')).at).toEqual([0.85, -2.05]);
+    expect(G.spotPose(s, get('spot', 'trunk')).at).toEqual([0.85, -3.9]);
   });
   it('a wrong code costs watch time and opens nothing', () => {
     const s = outOfRoom(night());
@@ -233,6 +234,24 @@ describe('the night: time and the watchman', () => {
     // Twenty seconds at the bed after: no second catch, no second excuse.
     for (let i = 0; i < 400; i++) { s = G.tick(s, 0.05); expect(s.talk, `caught again after ${(i * 0.05).toFixed(2)} s`).toBeNull(); }
   });
+  it('a door he unlocked he can shut behind him, and open again; a shut door hides him; Bhima bolts it again', () => {
+    let s = outOfRoom(night());
+    s = { ...s, night: { ...s.night!, x: 0, z: -3.4 } };
+    expect(G.canSwing(s, 'guest-door')).toBe('close');
+    expect(G.canSwing(s, 'gallery-arch')).toBeNull();
+    expect(G.canSwing(s, 'storeroom-door')).toBeNull();
+    s = G.swingDoor(s, 'guest-door');
+    expect(s.night!.doors).not.toContain('guest-door');
+    expect(G.canSwing(s, 'guest-door')).toBe('open');
+    // Inside, behind the shut door: Bhima in the corridor can't see him, candle and all.
+    const inside = { ...s, night: { ...s.night!, x: 0, z: -1.6, candle: true } };
+    expect(G.sees(inside, { ...s.night!.watch[0]!, x: 0, z: -3.6, face: Math.PI, mode: 'patrol' })).toBe(false);
+    s = G.swingDoor(s, 'guest-door');
+    expect(s.night!.doors).toContain('guest-door');
+    s = G.swingDoor(s, 'guest-door');
+    s = G.backToRoom(s);
+    expect(G.canSwing(s, 'guest-door')).toBeNull();
+  });
   it('out of his sight long enough, he gives up and walks home', () => {
     let s = outOfRoom(night());
     s = { ...s, night: { ...s.night!, x: 2, z: -4, candle: true, watch: [{ ...s.night!.watch[0]!, x: 5, z: -4, face: -Math.PI / 2, mode: 'patrol', wait: 0 }] } };
@@ -286,6 +305,12 @@ describe('the solver', () => {
     const r = solveNight(outcomes[0]!.s);
     expect(r.unreachedSpots).toEqual([]);
   });
+  it('the menu\'s chapters (src/chapters.json) are in step with the content: run `npm run chapters` if not', () => {
+    const now = chapters();
+    expect(JSON.parse(JSON.stringify(now))).toEqual(stored);
+    for (const s of [...now.days, ...now.nights]) expect(G.parseSave(JSON.parse(JSON.stringify(s)))).not.toBeNull();
+    expect(now.nights.map((s) => s.night!.n)).toEqual([1, 2, 3, 4, 5, 6, 7]);
+  }, 120_000);
   it('every night has one place it ends once proved, so the game can say where', () => {
     for (const nt of Object.values(C.night)) expect(G.bedSpot(nt.n), nt.id).toBeTruthy();
     expect(G.bedSpot(1)).toBe('guest-bed');

@@ -7,6 +7,7 @@ import * as Game from './game';
 import type { GameEvent, GameState } from './game';
 import { game, initialUi, ui, type Tab, type UiState } from './store';
 import { now } from './clock';
+import CHAPTERS from './chapters.json';
 
 const run = () => game.getState().run;
 
@@ -74,6 +75,22 @@ export function resume() {
 
 export const toTitle = () => ui.setState({ ...initialUi, touch: ui.getState().touch });
 
+// ---------- the chapters menu (playtesting) ----------
+
+export const openMenu = () => ui.setState({ menu: true, casebook: false, dials: null, stick: null });
+export const closeMenu = () => ui.setState({ menu: false });
+
+/** Start a day at its first scene, or a night at its bolt, as the campaign's first path reaches it (src/chapters.json):
+    everything learned and carried by then, the marks as they stood. It becomes the save point. */
+export function playChapter(kind: 'day' | 'night', n: number) {
+  const s = (kind === 'day' ? CHAPTERS.days : CHAPTERS.nights)[n - 1] as GameState | undefined;
+  if (!s) return;
+  game.setState({ run: { ...s, events: [] }, save: { ...s, events: [] } });
+  ui.setState({ ...initialUi, touch: ui.getState().touch, screen: 'play' });
+  if (kind === 'night') react({ ...s, talk: null }, s, [{ type: 'night-start', n }]);
+  else react({ ...s, talk: null }, s, []);
+}
+
 // ---------- the day: lines and choices ----------
 
 export const next = () => commit(Game.next(run()));
@@ -85,13 +102,14 @@ export const tick = (dtS: number) => commit(Game.tick(run(), dtS));
 export const walk = (fwd: number, side: number, yaw: number, dtS: number) => commit(Game.walk(run(), fwd, side, yaw, dtS));
 
 /** The spot under the eye changed (the runtime calls this only on a change). */
-export const aim = (spot: string | null) => ui.setState({ target: spot });
+export const aim = (spot: string | null, door: string | null = null) => ui.setState({ target: spot, door });
 
 // ---------- touching, photographing, light ----------
 
 /** E: touch what he is looking at, with what is in his hand. A spot with dials opens them. */
 export function touch() {
-  const { target, held } = ui.getState();
+  const { target, held, door } = ui.getState();
+  if (door) { commit(Game.swingDoor(run(), door)); return; }
   if (!target) return;
   if (!held && Game.dialsOf(run(), target)) {
     commit(Game.interact(run(), target));

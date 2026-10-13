@@ -31,6 +31,9 @@ function goalFor(s: Game.GameState): string | undefined {
   return bed ? `Case made. Now: ${get('spot', bed).name}` : undefined;
 }
 
+/** A door he can shut behind him, or open again. */
+const doorPrompt = (s: Game.GameState, door: string, touch: boolean) => `${touch ? '' : 'E  '}${Game.canSwing(s, door) === 'close' ? 'close' : 'open'} ${get('door', door).name}`;
+
 export function drawHud() {
   const u = ui.getState(), { run } = game.getState();
   if (u.screen !== 'play' || run.phase !== 'night' || run.talk || !run.night) return hudUi.show(null);
@@ -43,7 +46,8 @@ export function drawHud() {
     toast: u.toast?.text, toastKey: `say${u.toast?.at ?? 0}`, toastKind: u.toast?.thought ? 'thought' : '',
     noted: undefined,
     // On a phone the pad's round button says what touching would do; the prompt only names the thing.
-    prompt: u.target && !u.casebook && !u.dials ? (u.touch ? get('spot', u.target).name : promptFor(run, u.target, u.held)) : undefined,
+    prompt: u.door && !u.casebook && !u.dials ? doorPrompt(run, u.door, u.touch)
+      : u.target && !u.casebook && !u.dials ? (u.touch ? get('spot', u.target).name : promptFor(run, u.target, u.held)) : undefined,
     held: u.held ? `In hand: ${get('item', u.held).name}${u.touch ? '' : '   (R to put it away)'}` : '',
     keys: u.touch ? '' : `F photograph   Q ${run.night.candle ? 'snuff the candle' : 'light the candle'}   Tab casebook`,
   }));

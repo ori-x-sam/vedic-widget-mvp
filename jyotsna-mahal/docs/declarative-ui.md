@@ -543,4 +543,5 @@ In draw order (later on top). Each is `screens/<name>.kdl` + `.css` + `.ts` (bin
 | `casebook` | the notebook: evidence, plates, testimony, notes, thoughts, pockets (hold, put together), the case (the deduction) |
 | `dials` | a lock of dials: turn each, try the handle |
 | `card` | a title card, a night's reveal and question, an ending |
-| `title` | the name, Begin, and Continue from the last save |
+| `title` | the name, Begin, Continue from the last save, and Chapters |
+| `menu` | the Menu button while playing; the chapters menu (every day and night, for playtesting) |
