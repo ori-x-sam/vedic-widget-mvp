@@ -43,6 +43,8 @@ function react(prev: GameState, next: GameState, events: GameEvent[]) {
     }
     if (e.type === 'ending') { const en = C.ending[e.id]; patch.card = { kind: 'ending', title: en?.title ?? 'The end', sub: '', text: en?.text ?? '' }; }
     if (e.type === 'caught') { patch.casebook = false; patch.dials = null; }
+    // Proved: say where the night ends, so nobody is left in a finished wing wondering what is left to do.
+    if (e.type === 'proved' && next.night) { const bed = Game.bedSpot(next.night.n); if (bed) say(get('remark', 'proved-now').text.replace('{name}', get('spot', bed).name), true); }
   }
   // A new day scene with a name gets its title card.
   const sc = next.talk?.scene;

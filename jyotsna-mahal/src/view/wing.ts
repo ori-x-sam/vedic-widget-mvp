@@ -4,7 +4,7 @@
 // id each frame: doors swing, the trunk walks to the door, Bhima walks his round. Nothing here decides anything.
 import * as THREE from 'three';
 import { C, get, nightOf, roomsOf, spotsIn, doorsOf, type Cond, type Room, type Door } from '../content';
-import { doorPlace, holds, roomAt, spotPose, type GameState } from '../game';
+import { bedSpot, doorPlace, holds, roomAt, spotPose, type GameState } from '../game';
 import { token } from '../tokens';
 import { LOOK } from './look';
 import { QUALITY } from './quality';
@@ -262,11 +262,13 @@ export function buildWing(n: number) {
     spots.set(sp.id, { inst, proxy, at: new THREE.Vector3(room.x + sp.at[0], room.y, room.z + sp.at[1]), turn: sp.turn, mote, ring, seen: false });
   }
   let marked: string | null = null;
+  /** The spot where the night ends, once its case is proved: its mote becomes a beacon, seen from anywhere in sight. */
+  let beacon: string | null = null;
   const eye = new THREE.Vector3(), MOTE_REACH_U = 9, sight = new THREE.Raycaster(), toMote = new THREE.Vector3();
   /** Can the eye see the mote: near enough, and nothing that blocks sight (walls, doors) between them? */
-  const inSight = (p: THREE.Vector3) => {
+  const inSight = (p: THREE.Vector3, reach = MOTE_REACH_U) => {
     const d = toMote.subVectors(p, eye).length();
-    if (d > MOTE_REACH_U) return false;
+    if (d > reach) return false;
     sight.set(eye, toMote.normalize()); sight.far = Math.max(0, d - 0.35);
     return !sight.intersectObjects(occluders, false).length;
   };
@@ -321,6 +323,8 @@ export function buildWing(n: number) {
         m.inst.root.position.set(w.x, floorAt(w.x, w.z), w.z);
         m.inst.root.rotation.y = -w.face;
       }
+      const bed = nr && s.flags.includes(nightOf(n).proves) ? bedSpot(n) : null;
+      beacon = bed;
       for (const x of shown) { const v = holds(s, x.cond); if (v !== x.obj.visible) { x.obj.visible = v; redrawShadows(); } }
     },
     /** The spot under his eye and in reach (its mote brightens and rings), or none. */
@@ -334,9 +338,9 @@ export function buildWing(n: number) {
       for (const [id, sp] of spots) {
         const on = id === marked, breathe = 0.5 + 0.5 * Math.sin(t * 2.4 + sp.at.x * 1.7 + sp.at.z);
         // Sizes are as seen a metre from the eye, at any distance (the motes don't shrink with distance; walls still hide them).
-        const m = sp.mote.material, size = on ? 0.085 : sp.seen ? 0.032 : 0.06 + 0.014 * breathe;
-        sp.mote.visible = on || inSight(sp.mote.position);
-        m.opacity = on ? 1 : sp.seen ? 0.45 : 0.75 + 0.25 * breathe;
+        const lead = id === beacon, m = sp.mote.material, size = on ? 0.085 : lead ? 0.1 + 0.035 * breathe : sp.seen ? 0.032 : 0.06 + 0.014 * breathe;
+        sp.mote.visible = on || (lead ? inSight(sp.mote.position, Infinity) : inSight(sp.mote.position));
+        m.opacity = on || lead ? 1 : sp.seen ? 0.45 : 0.75 + 0.25 * breathe;
         sp.mote.scale.setScalar(size);
         sp.ring.visible = on;
         if (on) { sp.ring.scale.setScalar(0.14 + 0.01 * Math.sin(t * 5)); sp.ring.material.opacity = 0.8; }

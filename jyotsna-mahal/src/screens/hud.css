@@ -2,7 +2,9 @@
 .hud { width: 100%; height: 100%; justify-content: space-between; padding: 10px 14px 10px 14px }
 .hud-alarm { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border-color: var(--wrong); border-width: 6px; opacity: .55; animation: hud-alarm 1.2s ease-in-out infinite alternate }
 @keyframes hud-alarm { from { opacity: .25 } to { opacity: .7 } }
-.hud-top { flex-direction: row; justify-content: flex-end; height: 50px }
+.hud-top { flex-direction: row; justify-content: space-between; align-items: flex-start; height: 50px }
+.hud-goal-box { background-color: var(--scrim); padding: 5px 12px; opacity: .85; border-color: var(--patta-ochre); border-width: 1px }
+.hud-goal { font-size: 14px; font-color: var(--patta-ochre) }
 .hud-watch-box { flex-direction: row; align-items: center; gap: 6px }
 .hud-watch { width: 40px; height: 40px }
 .hud-time { font-size: 12px; font-color: var(--dim) }

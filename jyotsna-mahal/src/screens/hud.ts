@@ -1,6 +1,6 @@
 // The heads-up's bindings: store data in. Nothing else lives here (screen-imports.test.ts).
 import { use } from '../decl/engine';
-import { get } from '../content';
+import { get, nightOf } from '../content';
 import * as Game from '../game';
 import { game, ui } from '../store';
 import { screenUi } from './shared';
@@ -24,6 +24,13 @@ function promptFor(s: Game.GameState, spot: string, held: string | null): string
   return `E  ${sp.name}`;
 }
 
+/** Once the night's case is proved: where the night ends, kept on screen until he gets there. */
+function goalFor(s: Game.GameState): string | undefined {
+  if (!s.night || !s.flags.includes(nightOf(s.night.n).proves)) return undefined;
+  const bed = Game.bedSpot(s.night.n);
+  return bed ? `Case made. Now: ${get('spot', bed).name}` : undefined;
+}
+
 export function drawHud() {
   const u = ui.getState(), { run } = game.getState();
   if (u.screen !== 'play' || run.phase !== 'night' || run.talk || !run.night) return hudUi.show(null);
@@ -31,6 +38,7 @@ export function drawHud() {
   hudUi.show(use('hud', {
     alarm: u.alarm,
     watch: true, minutes: min, time: clock(min),
+    goal: goalFor(run),
     dot: !u.casebook && !u.dials,
     toast: u.toast?.text, toastKey: `say${u.toast?.at ?? 0}`, toastKind: u.toast?.thought ? 'thought' : '',
     noted: undefined,

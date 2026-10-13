@@ -286,6 +286,10 @@ describe('the solver', () => {
     const r = solveNight(outcomes[0]!.s);
     expect(r.unreachedSpots).toEqual([]);
   });
+  it('every night has one place it ends once proved, so the game can say where', () => {
+    for (const nt of Object.values(C.night)) expect(G.bedSpot(nt.n), nt.id).toBeTruthy();
+    expect(G.bedSpot(1)).toBe('guest-bed');
+  });
   it('the content ids it relies on exist', () => {
     expect(C.scene[G.PEAK_SCENE]).toBeDefined();
   });

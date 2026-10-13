@@ -325,6 +325,12 @@ export function backToRoom(s: GameState): GameState {
   return { ...s, phase: 'night', night: { ...s.night!, x: room.x + nt.at[0], z: room.z + nt.at[1], candle: false, hidden: null, caught: s.night!.caught + 1, watch }, events: [...s.events, { type: 'returned' }] };
 }
 
+/** Where a night ends once its case is proved: the spot with a `bed` word (his bed, the way back, Major Pomfret). */
+export function bedSpot(n: number): string | null {
+  for (const r of roomsOf(n)) for (const sp of spotsIn(r.id)) if (sp.children.some((c) => c.word === 'bed')) return sp.id;
+  return null;
+}
+
 /** Is he free to act in the wing (not in a scene, not past the night)? */
 const roaming = (s: GameState) => s.phase === 'night' && !!s.night && !s.talk;
 

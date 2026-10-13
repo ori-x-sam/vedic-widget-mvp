@@ -5,6 +5,9 @@ prefab "hud" {
     panel class="hud" {
         panel class="hud-alarm" if="alarm"
         panel class="hud-top" {
+            panel class="hud-goal-box" if="goal" {
+                text class="hud-goal" bind="goal"
+            }
             panel class="hud-watch-box" if="watch" {
                 watch class="hud-watch" minutes=(bind)"minutes"
                 text class="hud-time" bind="time"
