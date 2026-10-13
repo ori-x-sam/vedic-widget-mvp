@@ -73,9 +73,12 @@ export function listen(canvas: HTMLElement, onUi: (cx: number, cy: number) => bo
   const tdown = (e: PointerEvent) => {
     Actions.useTouch();
     const p = design(canvas, e), u = ui.getState();
-    if (u.screen !== 'play' || onUi(p.cx, p.cy)) return;
+    if (u.screen !== 'play') return;
+    // A card swallows taps (it covers everything) and any tap dismisses it; a line with no choices moves on from a tap
+    // anywhere. Only then is a thumb on a button the button's.
     if (u.card) { Actions.dismissCard(); return; }
     if (talking() && !Game.choices(game.getState().run).length) { Actions.next(); return; }
+    if (onUi(p.cx, p.cy)) return;
     if (!roaming() && !talking()) return;
     const walking = [...thumbs.values()].some((t) => t.kind === 'stick');
     const kind = roaming() && !walking && p.x < view.width * 0.42 ? 'stick' : 'look';

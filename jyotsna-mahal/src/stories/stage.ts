@@ -91,6 +91,30 @@ export async function tap(x: number, y: number) {
   settle();
 }
 
+// ---------- driver: thumbs (a phone) ----------
+
+const touch = (type: string, id: number, x: number, y: number) =>
+  canvas().dispatchEvent(new PointerEvent(type, { ...at(x, y), pointerId: id, pointerType: 'touch', isPrimary: id === 2, bubbles: true, cancelable: true, button: 0, buttons: type === 'pointerup' ? 0 : 1 }));
+
+/** A thumb's tap at design coordinates, then the clock settles. */
+export async function thumb(x: number, y: number) {
+  touch('pointerdown', 2, x, y);
+  touch('pointerup', 2, x, y);
+  settle();
+  await new Promise((r) => setTimeout(r, 0));
+}
+
+/** A thumb put down at (x, y), slid by (dx, dy) and held there for `holdMs` of game time, then lifted. */
+export async function thumbHold(x: number, y: number, dx: number, dy: number, holdMs: number, id = 3) {
+  touch('pointerdown', id, x, y);
+  const steps = 6;
+  for (let i = 1; i <= steps; i++) touch('pointermove', id, x + (dx * i) / steps, y + (dy * i) / steps);
+  advance(holdMs);
+  touch('pointerup', id, x + dx, y + dy);
+  settle();
+  await new Promise((r) => setTimeout(r, 0));
+}
+
 /** A key pressed and released (held `holdMs` of game time). */
 export async function key(k: string, holdMs = 0) {
   dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true }));
@@ -204,8 +228,8 @@ const shown = (n: Container | null): boolean => !n || (n.visible && n.alpha > 0 
 const textOf = (n: Container) => (n as Container & { text?: unknown }).text;
 export const screenText = () => descendants(layers.ui).filter((n) => shown(n)).map(textOf).filter((t): t is string => typeof t === 'string');
 
-/** Tap the tappable node holding the text `label` (or text starting with it). */
-export async function press(label: string) {
+/** Tap the tappable node holding the text `label` (or text starting with it), with the mouse or (`by` thumb) a finger. */
+export async function press(label: string, by: 'mouse' | 'thumb' = 'mouse') {
   const texts = descendants(layers.ui).filter((n) => shown(n) && typeof textOf(n) === 'string');
   const t = texts.find((n) => textOf(n) === label) ?? texts.find((n) => (textOf(n) as string).startsWith(label));
   await expect(t, `a visible "${label}"`).toBeDefined();
@@ -213,7 +237,7 @@ export async function press(label: string) {
   while (n && n.eventMode !== 'static') n = n.parent;
   await expect(n, `a tappable ancestor of "${label}"`).toBeTruthy();
   const b = n!.getBounds();
-  await tap((b.x + b.width / 2) / view.scale, (b.y + b.height / 2) / view.scale);
+  await (by === 'thumb' ? thumb : tap)((b.x + b.width / 2) / view.scale, (b.y + b.height / 2) / view.scale);
 }
 
 /** Click (or Space) through lines until a choice is up or the scene ends. */

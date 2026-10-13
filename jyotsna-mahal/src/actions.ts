@@ -57,7 +57,7 @@ function react(prev: GameState, next: GameState, events: GameEvent[]) {
 
 export function begin() {
   game.setState({ run: Game.newGame() });
-  ui.setState({ ...initialUi, screen: 'play' });
+  ui.setState({ ...initialUi, touch: ui.getState().touch, screen: 'play' });
   react({ ...run(), talk: null }, run(), run().events);
 }
 
@@ -66,11 +66,11 @@ export function resume() {
   const s = game.getState().save;
   if (!s) return begin();
   game.setState({ run: { ...s, events: [] } });
-  ui.setState({ ...initialUi, screen: 'play' });
+  ui.setState({ ...initialUi, touch: ui.getState().touch, screen: 'play' });
   if (s.phase === 'night' && s.night) react({ ...s, talk: null }, s, [{ type: 'night-start', n: s.night.n }]);
 }
 
-export const toTitle = () => ui.setState({ ...initialUi });
+export const toTitle = () => ui.setState({ ...initialUi, touch: ui.getState().touch });
 
 // ---------- the day: lines and choices ----------
 
@@ -178,7 +178,7 @@ export const closeDials = () => ui.setState({ dials: null });
 export function dismissCard() {
   const c = ui.getState().card;
   if (!c) return;
-  if (c.kind === 'ending') return ui.setState({ ...initialUi });
+  if (c.kind === 'ending') return ui.setState({ ...initialUi, touch: ui.getState().touch });
   ui.setState({ card: null });
   if (c.kind === 'reveal') commit(Game.afterReveal(run()));
 }
