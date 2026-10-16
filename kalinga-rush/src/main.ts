@@ -38,7 +38,14 @@ function playUrl(): string {
   const env = import.meta.env.VITE_PLAY_URL as string | undefined;
   if (env) return env;
   const host = location.host;
-  if (!host || /^(localhost|127\.|0\.0\.0\.0)|claudeusercontent|sandbox|artifact/i.test(host)) return '';
+  let framed = false;
+  try {
+    framed = window.top !== window;
+  } catch {
+    framed = true;
+  }
+  // Embedded previews and local dev don't have a URL worth printing.
+  if (!host || framed || /^(localhost|127\.|0\.0\.0\.0)/.test(host)) return '';
   return (host + location.pathname).replace(/index\.html$/, '').replace(/\/$/, '');
 }
 

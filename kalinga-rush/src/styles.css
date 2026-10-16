@@ -143,6 +143,7 @@ body { font-family: var(--font-body); }
 }
 .pill .gold { color: var(--gold); }
 .pill.bottom { bottom: 7%; }
+.pill.top { top: 6%; }
 .pill.mid { top: 50%; transform: translate(-50%, -50%); }
 .pill.pulse { animation: pulse 1.6s ease-in-out infinite; }
 @keyframes pulse { 50% { transform: translateX(-50%) scale(1.05); } }

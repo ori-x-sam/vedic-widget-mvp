@@ -105,7 +105,7 @@ export function showPage(o: { label: string; title: string; lines: string[]; cho
 }
 
 /** Pill message inside the game window. */
-export function pill(text: string, where: 'bottom' | 'mid' = 'bottom', ms = 0, pulse = false): HTMLElement {
+export function pill(text: string, where: 'bottom' | 'mid' | 'top' = 'bottom', ms = 0, pulse = false): HTMLElement {
   const el = document.createElement('div');
   el.className = `pill ${where}${pulse ? ' pulse' : ''} fade-in`;
   el.innerHTML = text;

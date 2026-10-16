@@ -107,7 +107,7 @@ export class Run extends Phaser.Scene {
       // Let the QA tool know the frame is ready.
       this.time.delayedCall(250, () => ((window as unknown as { __KR_READY__: boolean }).__KR_READY__ = true));
     } else if (DEBUG.at === 0) {
-      this.introPill = pill(isTouch() ? 'Tap anywhere to <span class="gold">jump</span> · hold to go higher' : 'Press <span class="gold">Space</span> to jump · hold to go higher', 'bottom');
+      this.introPill = pill(isTouch() ? 'Tap anywhere to <span class="gold">jump</span> · hold to go higher' : 'Press <span class="gold">Space</span> to jump · hold to go higher', 'top');
     }
 
     this.events.once('shutdown', () => {
