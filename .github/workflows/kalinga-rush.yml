@@ -1,0 +1,42 @@
+name: Kalinga Rush
+
+on:
+  push:
+    paths: ['kalinga-rush/**', '.github/workflows/kalinga-rush.yml']
+  pull_request:
+    paths: ['kalinga-rush/**', '.github/workflows/kalinga-rush.yml']
+
+defaults:
+  run:
+    working-directory: kalinga-rush
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: kalinga-rush/package-lock.json
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: No colour literals outside palettes.ts
+        run: npm run lint:colours
+      - name: Unit tests (physics, solvability, WCAG contrast)
+        run: npm test
+      - name: Build
+        run: npx vite build
+      - name: Install Chromium for colour QA
+        run: npx playwright@1.64.1 install --with-deps chromium
+      - name: Colour QA
+        run: npm run qa:colour
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: colour-qa
+          path: |
+            kalinga-rush/docs/colour-report.md
+            kalinga-rush/docs/qa/
