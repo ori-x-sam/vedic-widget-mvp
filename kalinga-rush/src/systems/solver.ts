@@ -1,102 +1,113 @@
-// Frame-perfect solvability search (brief §5). Plays a generated level with
-// the real sim and finds a press/hold plan that avoids every hazard and
-// catches the record. Used by unit tests and tools/solvability-bot.ts.
+// Frame-perfect solvability search (brief §5). A beam search over button
+// decisions (every 1/30 s: release, hold, or press) that plays the real sim
+// for every ride mode, and finds a plan that avoids every hazard and catches
+// the record. Used by unit tests, tools/solvability-bot.ts and the autopilot.
 import { STEP } from '../config';
-import { cloneRunner, type VehicleProfile } from './physics';
-import { createSim, playerBox, stepSim, type Entity, type Level, type SimOptions, type SimState } from './sim';
+import type { VehicleProfile } from './physics';
+import { cloneSim, createSim, stepSim, type Level, type SimOptions, type SimState } from './sim';
 
-export interface Press { t: number; hold: number }
-export interface SolveResult { ok: boolean; presses: Press[]; failedAt?: number; nodes: number }
+/** Decision codes: 0 release, 1 hold, 2 press (and hold). */
+export type Action = 0 | 1 | 2;
+export const DECISION_STEPS = 4;
 
-interface Snap { s: SimState; ents: { taken: boolean; startT: number | null; bonus: boolean }[] }
-
-function snap(s: SimState, level: Level): Snap {
-  return {
-    s: { ...s, runner: cloneRunner(s.runner), events: [] },
-    ents: level.entities.map((e) => ({ taken: e.taken, startT: e.dolphin?.startT ?? null, bonus: e.dolphin?.bonus ?? false })),
-  };
-}
-function restore(sn: Snap, level: Level): SimState {
-  sn.ents.forEach((v, i) => {
-    const e = level.entities[i];
-    e.taken = v.taken;
-    if (e.dolphin) { e.dolphin.startT = v.startT; e.dolphin.bonus = v.bonus; }
-  });
-  return { ...sn.s, runner: cloneRunner(sn.s.runner), events: [] };
+export interface SolveResult {
+  ok: boolean;
+  /** One action per decision (every DECISION_STEPS sim steps). */
+  plan: Uint8Array;
+  failedAt?: number;
+  nodes: number;
 }
 
-const HOLDS = [0, 0.04, 0.08, 0.12, 0.17, 0.22];
+interface Node { s: SimState; parent: Node | null; a: Action }
 
-export function solveLevel(level: Level, p: VehicleProfile, maxNodes = 60000): SolveResult {
-  const opts: SimOptions = { lives: 1 };
-  const targets: Entity[] = level.entities.filter((e) => e.hit || e.kind === 'record');
-  let nodes = 0;
-  const plan: Press[] = [];
+function keyOf(s: SimState, level: Level): string {
+  const r = s.runner;
+  const rc = s.recordCaught ? 1 : 0;
+  const dx = Math.round(s.dx / 8);
+  if (level.mode === 'flight') return `${Math.round(r.y / 7)}|${Math.round(r.vy / 50)}|${dx}|${rc}`;
+  if (level.mode === 'gravity') return `${r.gsign}|${Math.round(r.y / 8)}|${r.grounded ? 1 : 0}|${Math.round(r.vy / 60)}|${rc}`;
+  return `${Math.round(r.y / 4)}|${Math.round(r.vy / 40)}|${r.holding ? 1 : 0}|${r.grounded ? 1 : 0}|${dx}|${r.buffer > 0 ? 1 : 0}|${rc}`;
+}
 
-  const advanceIdle = (s: SimState, steps: number) => {
-    for (let i = 0; i < steps && !s.dead && !s.ended; i++) stepSim(s, level, p, { pressed: false, held: false }, STEP, opts);
-  };
+function actionsFor(level: Level, s: SimState): Action[] {
+  if (level.mode === 'flight') return [0, 1];
+  if (level.mode === 'gravity') return [0, 2];
+  // Run: holding only matters while rising from a jump.
+  return s.runner.grounded && !s.runner.holding ? [0, 2] : [0, 1, 2];
+}
 
-  const solveFrom = (sn: Snap, ti: number): boolean => {
-    if (nodes > maxNodes) return false;
-    // Skip targets already behind the player.
-    let s = restore(sn, level);
-    while (ti < targets.length) {
-      const e = targets[ti];
-      const box = playerBox(s, p);
-      if (e.kind === 'record' ? e.taken : e.hit!.x + e.hit!.w < box.x) ti++;
-      else break;
-    }
-    if (ti >= targets.length) {
-      while (!s.ended && !s.dead) advanceIdle(s, 60);
-      return !s.dead;
-    }
-    const target = targets[ti];
-    // Latest moment a take-off could still matter: when the target reaches the player.
-    const box0 = playerBox(s, p);
-    const targetLeft = target.kind === 'record' ? target.x - 60 : target.hit!.x;
-    const lastStep = Math.max(0, Math.ceil((targetLeft - (box0.x + box0.w)) / (level.speed * STEP)) + 2);
-    const firstStep = Math.max(0, lastStep - Math.ceil(0.9 / STEP));
-    const base = snap(s, level);
-    for (let k = lastStep; k >= firstStep; k -= 2) {
-      for (const hold of HOLDS) {
-        nodes++;
-        s = restore(base, level);
-        advanceIdle(s, k);
-        if (s.dead) continue;
-        if (!s.runner.grounded) continue;
-        const pressT = s.t;
-        let held = 0;
-        stepSim(s, level, p, { pressed: true, held: true }, STEP, opts);
-        // Fly until we land past the target (or catch it), or die.
-        let guard = 0;
-        while (!s.dead && !s.ended && guard++ < 600) {
-          held += STEP;
-          stepSim(s, level, p, { pressed: false, held: held < hold }, STEP, opts);
-          if (s.runner.grounded) break;
-        }
-        if (s.dead) continue;
-        const after = playerBox(s, p);
-        const cleared = target.kind === 'record' ? target.taken : target.hit!.x + target.hit!.w < after.x + after.w;
-        if (target.kind === 'record' && !target.taken) continue;
-        if (!cleared && target.kind !== 'record') {
-          // Landed before the hazard: this jump was a no-op for the target; let a later candidate handle it.
-          continue;
-        }
-        plan.push({ t: pressT, hold });
-        if (solveFrom(snap(s, level), ti + 1)) return true;
-        plan.pop();
-      }
-    }
-    return false;
-  };
+function stepWith(s: SimState, level: Level, p: VehicleProfile, a: Action, opts: SimOptions): void {
+  for (let k = 0; k < DECISION_STEPS && !s.dead && !s.ended; k++) {
+    stepSim(s, level, p, { pressed: a === 2 && k === 0, held: a !== 0 }, STEP, opts);
+    s.events.length = 0;
+  }
+}
 
-  const s0 = createSim(level, opts);
-  const ok = solveFrom(snap(s0, level), 0);
-  // Leave the level clean for the caller.
+function resetLevel(level: Level): void {
   for (const e of level.entities) {
     e.taken = false;
+    e.bonus = false;
     if (e.dolphin) { e.dolphin.startT = null; e.dolphin.bonus = false; }
   }
-  return { ok, presses: ok ? [...plan] : [], nodes, failedAt: ok ? undefined : nodes };
+}
+
+export function solveLevel(level: Level, p: VehicleProfile, opts: { beam?: number; startScroll?: number } = {}): SolveResult {
+  const B = opts.beam ?? (level.mode === 'flight' ? 96 : 40);
+  const simOpts: SimOptions = { lives: 1, startScroll: opts.startScroll };
+  let beam: Node[] = [{ s: createSim(level, simOpts), parent: null, a: 0 }];
+  let nodes = 0;
+  let winner: Node | null = null;
+  let lastT = 0;
+  const needRecord = !!level.recordEntity;
+  while (beam.length && !winner) {
+    const next = new Map<string, Node>();
+    for (const n of beam) {
+      for (const a of actionsFor(level, n.s)) {
+        const s = cloneSim(n.s);
+        stepWith(s, level, p, a, simOpts);
+        nodes++;
+        if (s.dead) continue;
+        const node: Node = { s, parent: n, a };
+        if (s.ended) {
+          if (!needRecord || s.recordCaught) {
+            winner = node;
+            break;
+          }
+          continue;
+        }
+        if (needRecord && s.recordMissed) continue;
+        const key = keyOf(s, level);
+        if (!next.has(key)) next.set(key, node);
+      }
+      if (winner) break;
+    }
+    if (winner) break;
+    let list = [...next.values()];
+    if (list.length > B) {
+      // Prefer states that already hold the record, then spread across heights.
+      // Order by height, then vertical speed, so an even pick covers both.
+      list.sort((x, y) => Number(y.s.recordCaught) - Number(x.s.recordCaught) || Math.round(x.s.runner.y / 12) - Math.round(y.s.runner.y / 12) || x.s.runner.vy - y.s.runner.vy);
+      const caught = list.filter((n) => n.s.recordCaught);
+      const rest = list.filter((n) => !n.s.recordCaught);
+      const pick: Node[] = caught.slice(0, B);
+      const room = B - pick.length;
+      // Spread evenly across heights, always keeping both extremes.
+      for (let i = 0; i < room && rest.length; i++) pick.push(rest[room > 1 ? Math.round((i * (rest.length - 1)) / (room - 1)) : 0]);
+      list = pick;
+    }
+    if (list.length) lastT = list[0].s.t;
+    beam = list;
+  }
+  resetLevel(level);
+  if (!winner) return { ok: false, plan: new Uint8Array(0), failedAt: lastT, nodes };
+  const acts: number[] = [];
+  for (let n: Node | null = winner; n && n.parent; n = n.parent) acts.push(n.a);
+  acts.reverse();
+  return { ok: true, plan: Uint8Array.from(acts), nodes };
+}
+
+/** Replays a plan: input for sim step `k` (counted from the solve's start). */
+export function planInput(plan: Uint8Array, k: number): { pressed: boolean; held: boolean } {
+  const a = plan[Math.floor(k / DECISION_STEPS)] ?? 0;
+  return { pressed: a === 2 && k % DECISION_STEPS === 0, held: a !== 0 };
 }
