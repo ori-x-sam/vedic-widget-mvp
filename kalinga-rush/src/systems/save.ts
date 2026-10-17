@@ -9,12 +9,32 @@ export interface Settings {
   textScale: number;
 }
 
+/** The journey in progress: where to resume and the running totals for the report card. */
+export interface RunSave {
+  /** Record to resume from (start of that record). */
+  checkpoint: string;
+  cowries: number;
+  diyasLost: number;
+  /** Seconds played this journey. */
+  time: number;
+  assisted: boolean;
+  /** Records caught on this journey. */
+  caught: string[];
+}
+
 export interface SaveData {
   v: 1;
   lessons: Record<string, { caught: boolean; at: number }>;
+  /** Kept for old saves; the live checkpoint is run.checkpoint. */
   checkpoint: string | null;
+  run: RunSave | null;
+  /** Highest act whose start the player has reached (chapter checkpoints on the title). */
+  actReached: number;
   seenTwist: boolean;
+  endless: boolean;
   bestCowries: number;
+  bestEndless: number;
+  finished: boolean;
   settings: Settings;
 }
 
@@ -24,8 +44,13 @@ const fresh = (): SaveData => ({
   v: 1,
   lessons: {},
   checkpoint: null,
+  run: null,
+  actReached: 1,
   seenTwist: false,
+  endless: false,
   bestCowries: 0,
+  bestEndless: 0,
+  finished: false,
   settings: { assist: false, reducedMotion: false, music: true, sfx: true, textScale: 1 },
 });
 
@@ -56,4 +81,14 @@ export function save(mutate: (d: SaveData) => void): SaveData {
     // ignore: progress just won't persist
   }
   return d;
+}
+
+/** Forget everything except settings (title → "start from the very beginning" keeps lessons). */
+export function resetProgress(keepLessons = true): void {
+  save((d) => {
+    const s = d.settings;
+    const lessons = d.lessons;
+    const keep = { seenTwist: d.seenTwist, endless: d.endless, bestCowries: d.bestCowries, bestEndless: d.bestEndless, finished: d.finished, actReached: d.actReached };
+    Object.assign(d, fresh(), keep, { settings: s, lessons: keepLessons ? lessons : {} });
+  });
 }

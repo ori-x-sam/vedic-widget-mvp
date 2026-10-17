@@ -4,10 +4,10 @@ import Phaser from 'phaser';
 import { GAME_W, GAME_H } from '../config';
 import { P } from '../data/palettes';
 import { hexToNum } from '../lib/colour';
-import { DEPTH, type DecorSpec, type LayerSpec, type SceneArt } from './layers';
+import { DEPTH, decorAtX, type DecorSpec, type LayerSpec, type SceneArt } from './layers';
 
-interface LayerView { spec: LayerSpec; imgs: Phaser.GameObjects.Image[]; width: number; baseAlpha: number }
-interface DecorView { spec: DecorSpec; obj: Phaser.GameObjects.Image; extra: Phaser.GameObjects.Image[] }
+interface LayerView { spec: LayerSpec; imgs: Phaser.GameObjects.Image[]; width: number; baseAlpha: number; toned: boolean }
+interface DecorView { spec: DecorSpec; obj: Phaser.GameObjects.Image; extra: Phaser.GameObjects.Image[]; x: number }
 
 const BLEND: Record<string, number> = {
   normal: Phaser.BlendModes.NORMAL,
@@ -23,14 +23,24 @@ export class RecordStage {
   private decor: DecorView[] = [];
   private grain: Phaser.GameObjects.TileSprite | null = null;
   private grainTick = 0;
+  /** Length of the record in px (one-off decor is placed by fraction of it). */
+  private length: number;
+  private flood = 0;
   reducedMotion = false;
 
-  constructor(scene: Phaser.Scene, art: SceneArt) {
+  constructor(scene: Phaser.Scene, art: SceneArt, length = 13000) {
     this.scene = scene;
     this.art = art;
+    this.length = length;
     for (const spec of art.layers) this.addLayer(spec);
-    for (const spec of art.decor) this.addDecor(spec);
+    art.decor.forEach((spec, i) => this.addDecor(spec, i));
     this.addFinish();
+  }
+
+  /** Act IV → colour (Record 25): 0 = toned, 1 = full colour. */
+  setFlood(k: number): void {
+    this.flood = Math.max(0, Math.min(1, k));
+    for (const L of this.layers) if (L.toned) L.imgs.forEach((img) => img.setAlpha(L.baseAlpha * (1 - this.flood)));
   }
 
   private addLayer(spec: LayerSpec): void {
@@ -47,10 +57,10 @@ export class RecordStage {
       if (spec.alpha !== undefined) img.setAlpha(spec.alpha);
       imgs.push(img);
     }
-    this.layers.push({ spec, imgs, width, baseAlpha: spec.alpha ?? 1 });
+    this.layers.push({ spec, imgs, width, baseAlpha: spec.alpha ?? 1, toned: spec.name.endsWith(':toned') });
   }
 
-  private addDecor(spec: DecorSpec): void {
+  private addDecor(spec: DecorSpec, index: number): void {
     let obj: Phaser.GameObjects.Image;
     const extra: Phaser.GameObjects.Image[] = [];
     switch (spec.kind) {
@@ -65,13 +75,19 @@ export class RecordStage {
         for (let i = 0; i < 7; i++) extra.push(this.scene.add.image(spec.x, spec.y, 'fx:puff').setDepth(spec.depth).setAlpha(0));
         break;
       }
+      case 'landmark': {
+        const [ox, oy] = spec.origin ?? [0.5, 1];
+        obj = this.scene.add.image(spec.x, spec.y, `${this.art.recordId}:lm${index}`).setOrigin(ox, oy).setScale(spec.scale ?? 1).setDepth(spec.depth);
+        break;
+      }
       case 'sign':
       default: {
         obj = this.scene.add.image(spec.x, spec.y, `${this.art.recordId}:sign`).setOrigin(0.5, 196 / 206).setScale(0.5).setDepth(spec.depth);
         break;
       }
     }
-    this.decor.push({ spec, obj, extra });
+    const x = spec.at !== undefined ? decorAtX(spec.at, this.length, spec.parallax, GAME_W) : spec.x;
+    this.decor.push({ spec, obj, extra, x });
   }
 
   private addFinish(): void {
@@ -95,7 +111,7 @@ export class RecordStage {
     for (const L of this.layers) {
       const s = L.spec;
       if (s.tile) {
-        const off = -(((scroll * s.parallax + t * (s.drift ?? 0)) % L.width) + L.width) % L.width;
+        const off = -(((((scroll * s.parallax + t * (s.drift ?? 0)) % L.width) + L.width) % L.width));
         L.imgs.forEach((img, i) => img.setX(Math.round((off + i * L.width) * 2) / 2));
       }
       if (s.shimmer) {
@@ -106,7 +122,7 @@ export class RecordStage {
     }
     for (const D of this.decor) {
       const s = D.spec;
-      const sx = RecordStage.wrapX(s.x, scroll, s.parallax, s.period);
+      const sx = RecordStage.wrapX(D.x, scroll, s.parallax, s.period);
       if (s.kind === 'worker') {
         const swing = Math.floor(t * 2.6 + (s.phase ?? 0) * 2) % 2;
         D.obj.setTexture(`worker:${D.obj.getData('k')}${swing}`).setX(sx);
@@ -119,7 +135,8 @@ export class RecordStage {
           p.setAlpha(0.5 * (1 - life) * Math.min(1, age * 4));
         });
       } else {
-        D.obj.setX(sx);
+        const w = D.obj.displayWidth;
+        D.obj.setX(sx).setVisible(sx > -w && sx < GAME_W + w);
       }
     }
     if (this.grain && !this.reducedMotion && ++this.grainTick % 3 === 0) {

@@ -38,6 +38,13 @@ export class Fx {
     }
   }
 
+  /** Little kicked-up dust on land rides. */
+  dust(x: number, y: number, n = 5): void {
+    for (let i = 0; i < n; i++) {
+      this.spawn('fx:dust', x + (Math.random() - 0.5) * 40, y - 4, { vx: -80 - Math.random() * 90, vy: -30 - Math.random() * 60, g: 160, life: 0.5 + Math.random() * 0.3, s0: 0.6, s1: 1.6, a0: 0.55 });
+    }
+  }
+
   puff(x: number, y: number): void {
     for (let i = 0; i < 5; i++) {
       this.spawn('fx:puff', x + (Math.random() - 0.5) * 30, y + (Math.random() - 0.5) * 20, { vx: (Math.random() - 0.5) * 60, vy: -40 - Math.random() * 40, life: 0.8, s0: 0.5, s1: 1.4, a0: 0.8 });

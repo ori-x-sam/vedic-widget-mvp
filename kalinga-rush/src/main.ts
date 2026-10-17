@@ -22,6 +22,11 @@ import { Boot } from './scenes/Boot';
 import { Title } from './scenes/Title';
 import { Run } from './scenes/Run';
 import { TitleCard } from './scenes/TitleCard';
+import { FakeEnding } from './scenes/FakeEnding';
+import { Finale } from './scenes/Finale';
+import { audio } from './audio';
+import { load } from './systems/save';
+import { applyTextScale } from './ui/pages';
 
 async function fontsReady(): Promise<void> {
   if (!('fonts' in document)) return;
@@ -62,6 +67,17 @@ async function main(): Promise<void> {
 
   const app = document.getElementById('app')!;
   input.attach(app);
+  applyTextScale();
+  app.classList.toggle('is-reel', DEBUG.reel);
+  // Audio starts muted until the first input (autoplay rules, §6).
+  const unlock = () => {
+    const s = load().settings;
+    audio.unlock();
+    audio.setMusic(s.music);
+    audio.setSfx(s.sfx);
+  };
+  window.addEventListener('pointerdown', unlock, { passive: true });
+  window.addEventListener('keydown', unlock);
   initLayout();
   await fontsReady();
   applyLayout();
@@ -80,7 +96,7 @@ async function main(): Promise<void> {
     render: { antialias: true, powerPreference: 'high-performance', maxTextures: 1 },
     input: { keyboard: false, mouse: false, touch: false, gamepad: false },
     audio: { noAudio: true },
-    scene: [Boot, Title, Run, TitleCard],
+    scene: [Boot, Title, Run, TitleCard, FakeEnding, Finale],
   });
   window.addEventListener('kr-layout', () => game.scale.refresh());
   (window as unknown as { __KR_GAME__: Phaser.Game }).__KR_GAME__ = game;

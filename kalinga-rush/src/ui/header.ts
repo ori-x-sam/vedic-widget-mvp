@@ -31,8 +31,15 @@ export function dateHtml(date: string): string {
   return esc.replace(/^c\. /i, '<span class="c">c.</span> ');
 }
 
+export function setHeaderLabel(future: boolean): void {
+  $('hdr-label').innerHTML = future
+    ? 'Kalinga Rush · Supplementary Reader · 2026 → ∞'
+    : 'Kalinga Rush · <span class="c">c.</span>1500 BCE → 2026';
+}
+
 export function showRecordHeader(rec: RecordOutline, animate = true): void {
   const hdr = $('hdr');
+  setHeaderLabel(rec.act === 7);
   $('hdr-date').innerHTML = dateHtml(rec.dateLine);
   const [a, b] = twoLines(rec.headline);
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');

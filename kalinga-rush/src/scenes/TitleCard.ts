@@ -13,9 +13,9 @@ export class TitleCard extends Phaser.Scene {
     super('TitleCard');
   }
 
-  create(data: { recordId: string }): void {
+  create(data: { recordId: string; endless?: number }): void {
     const rec = outlineById(data.recordId);
-    if (rec) showRecordHeader(rec, true);
+    if (rec) showRecordHeader(data.endless ? { ...rec, dateLine: `Endless · lap ${data.endless + 1} · ${rec.dateLine}` } : rec, true);
     if (!isReducedMotion()) {
       const flash = this.add.rectangle(0, 0, GAME_W, GAME_H, hexToNum(P.limewhite), 0.22).setOrigin(0, 0);
       this.tweens.add({ targets: flash, alpha: 0, duration: 420, ease: 'Quad.easeOut' });

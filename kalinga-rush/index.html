@@ -32,15 +32,17 @@
         <div class="hud-right">
           <div class="hud-stat" id="hud-cowries" aria-label="Cowries"><span class="ico ico-cowrie"></span><b>0</b></div>
           <div class="hud-stat gold" id="hud-records" aria-label="Records caught"><span class="ico ico-leaf"></span><b>0</b><span class="of">/ 37</span></div>
+          <button id="btn-pause" type="button" aria-label="Pause">II</button>
         </div>
       </div>
 
       <div id="below">
-        <button class="btn btn-gold" id="btn-play" type="button">Play</button>
+        <div class="menu" id="menu"><button class="btn btn-gold" id="btn-play" type="button">Play</button></div>
         <p class="below-hint" id="below-hint"></p>
       </div>
 
       <div id="card-layer" aria-live="polite"></div>
+      <div id="ending" aria-live="polite"></div>
       <div id="loading" role="status"><div class="loading-inner"><span>Printing the reader…</span><i><b id="loading-bar"></b></i></div></div>
     </div>
     <script type="module" src="/src/main.ts"></script>
