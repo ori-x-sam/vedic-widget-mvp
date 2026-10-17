@@ -21,7 +21,7 @@ export interface LayerSpec {
   shimmer?: number;
 }
 
-export type DecorKind = 'worker' | 'smoke' | 'sign';
+export type DecorKind = 'worker' | 'smoke' | 'sign' | 'landmark';
 
 export interface DecorSpec {
   kind: DecorKind;
@@ -35,6 +35,17 @@ export interface DecorSpec {
   phase?: number;
   /** Signboards: date and title. */
   text?: { date: string; title: string };
+  /** One-off decor: fraction of the record (0–1) at which it is centred on screen (overrides x). */
+  at?: number;
+  /** Landmarks: the painted canvas (baked as `<record>:lm<i>`). */
+  canvas?: HTMLCanvasElement;
+  /** Landmarks: origin (0–1) of the canvas, default bottom-centre. */
+  origin?: [number, number];
+}
+
+/** Screen-space x for one-off decor at fraction `at` of a record `length` px long. */
+export function decorAtX(at: number, length: number, parallax: number, screenW: number): number {
+  return screenW / 2 + at * length * parallax;
 }
 
 export interface SceneArt {
