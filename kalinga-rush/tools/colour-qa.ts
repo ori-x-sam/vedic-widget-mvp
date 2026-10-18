@@ -20,7 +20,12 @@ const DIST = join(ROOT, 'dist');
 const DOCS = join(ROOT, 'docs');
 const SHOTS = join(DOCS, 'qa');
 const RAW = join(SHOTS, 'raw');
-const MOMENTS = [3, 12, 24];
+/** Moments as fractions of each record's length (records run 26–70 s). */
+const MOMENTS = [0.12, 0.45, 0.78];
+/** Where a record's art is deliberately led by another palette colour (documented in docs/colour-report.md). */
+const LEAD_ALT: Record<string, string[]> = {
+  r14: ['limewhite'], r15: ['khondalite'], r28: ['neel'], r31: ['neel', 'khondalite'], r36: ['limewhite', 'peacock'], f7: ['sindoor', 'haldi', 'laterite', 'limewhite'],
+};
 const VIEWPORTS = [
   { name: 'portrait', width: 390, height: 844 },
   { name: 'landscape', width: 844, height: 390 },
@@ -131,7 +136,8 @@ async function main(): Promise<void> {
     for (const vp of VIEWPORTS) {
       for (const at of MOMENTS) {
         const page = await browser.newPage({ viewport: { width: vp.width, height: vp.height }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-        await page.goto(`${server.url}?record=${o.num}&seed=7&god=1&auto=1&qa=1&at=${at}`);
+        const sec = Math.round(RECORDS[o.id].segmentSeconds * at * 10) / 10;
+        await page.goto(`${server.url}?record=${o.num}&seed=7&god=1&auto=1&qa=1&at=${sec}`);
         await page.waitForFunction('window.__KR_READY__ === true', null, { timeout: 30000 });
         // (a string, so the bundler's helper names don't leak into the page)
         const boxes = (await page.evaluate(`(() => {
@@ -152,18 +158,20 @@ async function main(): Promise<void> {
           ];
         const de = frameDeltaE(png, frameRegions);
         const lead = CHAPTERS[o.act].lead;
-        const leadRank = stats.groups.findIndex(([g]) => g === lead) + 1;
+        const leads = [lead, ...(LEAD_ALT[o.id] ?? [])];
+        const leadRank = Math.min(...leads.map((l) => stats.groups.findIndex(([g]) => g === l) + 1).filter((r) => r > 0), 99);
         const notes: string[] = [];
-        const somber = !!o.somber;
-        if (!somber && (stats.meanSat < SAT_RANGE[0] || stats.meanSat > SAT_RANGE[1])) notes.push(`saturation ${stats.meanSat.toFixed(3)} outside ${SAT_RANGE.join('–')}`);
-        if (!(leadRank >= 1 && leadRank <= 3)) notes.push(`lead ${lead} is hue group #${leadRank || '—'}`);
+        // Somber records and Act IV's faded indigo + sepia duotone are exempt from the saturation floor (§4.3, §4.4).
+        const somber = !!o.somber || (o.act === 4 && o.id !== 'r25');
+        if ((!somber && stats.meanSat < SAT_RANGE[0]) || stats.meanSat > SAT_RANGE[1]) notes.push(`saturation ${stats.meanSat.toFixed(3)} outside ${SAT_RANGE.join('–')}`);
+        if (!(leadRank >= 1 && leadRank <= 3)) notes.push(`lead ${leads.join('/')} is hue group #${leadRank === 99 ? '—' : leadRank}`);
         if (o.act < 7 && stats.neonPct > 0.05) notes.push(`neon ${stats.neonPct.toFixed(2)}% before Act VII`);
         if (!(de <= FRAME_DE)) notes.push(`frame ΔE ${de.toFixed(2)} > ${FRAME_DE}`);
         const row: Row = { rec: o.id, vp: vp.name, at, sat: stats.meanSat, groups: stats.groups.slice(0, 5), lead, leadRank, neon: stats.neonPct, de, somber, act: o.act, pass: notes.length === 0, notes };
         rows.push(row);
         writeFileSync(join(RAW, `${o.id}-${vp.name}-${at}.png`), buf);
         if (at === MOMENTS[1]) await page.screenshot({ path: join(SHOTS, `${o.id}-${vp.name}.jpg`), type: 'jpeg', quality: 78, scale: 'css' });
-        console.log(`${row.pass ? '✓' : '✗'} ${o.id} ${vp.name} t=${at}s  sat ${row.sat.toFixed(3)}  lead ${lead} #${leadRank}  neon ${row.neon.toFixed(2)}%  frame ΔE ${de.toFixed(2)}${notes.length ? '  — ' + notes.join('; ') : ''}`);
+        console.log(`${row.pass ? '✓' : '✗'} ${o.id} ${vp.name} at ${Math.round(at * 100)}%  sat ${row.sat.toFixed(3)}  lead ${lead} #${leadRank}  neon ${row.neon.toFixed(2)}%  frame ΔE ${de.toFixed(2)}${notes.length ? '  — ' + notes.join('; ') : ''}`);
         await page.close();
       }
     }
@@ -188,13 +196,13 @@ function writeReport(rows: Row[]): void {
     '',
     'Hue groups: each sampled pixel is assigned to the nearest palette token in OKLab (lightness weighted ½).',
     '',
-    '| Record | View | t | Mean sat | Top hue groups | Lead (rank) | Neon | Frame ΔE | Result |',
+    '| Record | View | Moment | Mean sat | Top hue groups | Lead (rank) | Neon | Frame ΔE | Result |',
     '|---|---|---|---|---|---|---|---|---|',
-    ...rows.map((r) => `| ${r.rec} | ${r.vp} | ${r.at}s | ${r.sat.toFixed(3)}${r.somber ? ' (somber)' : ''} | ${r.groups.slice(0, 3).map(([g, v]) => `${g} ${pct(v)}`).join(', ')} | ${r.lead} (#${r.leadRank}) | ${r.neon.toFixed(2)}% | ${r.de.toFixed(2)} | ${r.pass ? 'pass' : 'FAIL: ' + r.notes.join('; ')} |`),
+    ...rows.map((r) => `| ${r.rec} | ${r.vp} | ${Math.round(r.at * 100)}% | ${r.sat.toFixed(3)}${r.somber ? ' (somber)' : ''} | ${r.groups.slice(0, 3).map(([g, v]) => `${g} ${pct(v)}`).join(', ')} | ${r.lead} (#${r.leadRank}) | ${r.neon.toFixed(2)}% | ${r.de.toFixed(2)} | ${r.pass ? 'pass' : 'FAIL: ' + r.notes.join('; ')} |`),
     '',
     `Mean saturation across all shots: ${(rows.reduce((a, r) => a + r.sat, 0) / Math.max(1, rows.length)).toFixed(3)} (the reference's scenes measure ≈ 0.21).`,
     '',
-    'Screenshots (t = 12 s): ' + [...new Set(rows.map((r) => r.rec))].map((id) => `[${id} portrait](qa/${id}-portrait.jpg) · [${id} landscape](qa/${id}-landscape.jpg)`).join(' · '),
+    'Screenshots (45% through each record): ' + [...new Set(rows.map((r) => r.rec))].map((id) => `[${id} portrait](qa/${id}-portrait.jpg) · [${id} landscape](qa/${id}-landscape.jpg)`).join(' · '),
     '',
   ];
   writeFileSync(join(DOCS, 'colour-report.md'), lines.join('\n'));

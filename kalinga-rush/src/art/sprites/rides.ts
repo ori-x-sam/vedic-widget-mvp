@@ -83,6 +83,8 @@ interface GirlO {
   openHand?: boolean;
 }
 
+/** Hand raised in a happy wave (jump poses). */
+const CHEER: Pt = { x: 27, y: -33 };
 const SH_N: Pt = { x: 8, y: -16 };
 const SH_F: Pt = { x: 3, y: -20 };
 const HIP_N: Pt = { x: 3, y: 9 };
@@ -508,7 +510,7 @@ function paintFoot(ctx: Ctx, rng: Rng, st: St): void {
     ctx.translate(0, -RUN_GROUND + bob);
     girl(ctx, rng, {
       lower: 'stand', lean: 0.16, footN: fN, footF: fF, hem: -3 - Math.sin(p * TAU * 2) * 1.6,
-      near: { x: 10 - sN * 15, y: -3 - Math.max(0, -sN) * 9 }, far: { x: 6 + sN * 15, y: -6 - Math.max(0, sN) * 9 },
+      near: { x: 6 - sN * 17, y: -2 - Math.max(0, -sN) * 10 }, far: { x: 2 + sN * 17, y: -5 - Math.max(0, sN) * 10 },
       nearBend: -1, farBend: -1,
     });
     ctx.restore();
@@ -517,7 +519,7 @@ function paintFoot(ctx: Ctx, rng: Rng, st: St): void {
     ctx.translate(0, -RUN_GROUND);
     girl(ctx, rng, {
       lower: 'stand', lean: 0.04, face: 'happy', footN: { x: 13, y: 26 }, footF: { x: -6, y: 33 }, kneeF: -1, hem: -5,
-      near: { x: 20, y: -36 }, far: { x: -4, y: -38 }, nearBend: 1, farBend: -1,
+      near: CHEER, far: { x: -4, y: -38 }, nearBend: 1, farBend: -1, openHand: true,
     });
     ctx.restore();
   } else {
@@ -695,12 +697,12 @@ function paintCart(ctx: Ctx, rng: Rng, st: St): void {
   // Taapoi on the front of the bed, reins in hand
   ctx.save();
   ctx.translate(-22, -52 + sway);
-  const nearH: Pt = jump ? { x: 18, y: -40 } : hit ? { x: 20, y: -2 } : { x: 21, y: -4 + Math.sin(p * TAU) * 0.8 };
+  const nearH: Pt = jump ? CHEER : hit ? { x: 20, y: -2 } : { x: 21, y: -4 + Math.sin(p * TAU) * 0.8 };
   const farH: Pt = hit ? { x: 16, y: -6 } : { x: 18, y: -7 };
   girl(ctx, rng, {
     lower: 'astride', footN: { x: 20, y: 25 + Math.sin(p * TAU) * 1.2 }, footF: { x: 15, y: 24 }, kneeN: -1, kneeF: -1,
     lean: hit ? -0.14 : 0.03, face: jump ? 'happy' : hit ? 'hit' : 'calm',
-    near: nearH, far: farH, nearBend: jump ? -1 : 1, farBend: 1,
+    near: nearH, far: farH, nearBend: jump ? -1 : 1, farBend: 1, openHand: jump,
     between: () => {
       // reins from her hands to the bullock's nose
       const nose = { x: 36 + 41 + 22, y: -26.5 + 52 - sway };
@@ -896,7 +898,7 @@ function paintElephant(ctx: Ctx, rng: Rng, st: St): void {
   girl(ctx, rng, {
     lower: 'astride', footN: { x: 12, y: 26 }, footF: { x: 8, y: 24 }, kneeN: -1, kneeF: -1,
     lean: hit ? -0.16 : 0.04 + sway * 0.01, face: jump ? 'happy' : hit ? 'hit' : 'calm',
-    near: jump ? { x: 18, y: -38 } : hit ? { x: 20, y: -10 } : { x: 17, y: 2 }, far: jump ? { x: 10, y: 0 } : { x: 14, y: 1 },
+    near: jump ? CHEER : hit ? { x: 20, y: -10 } : { x: 17, y: 2 }, far: jump ? { x: 10, y: 0 } : { x: 14, y: 1 },
     nearBend: jump ? -1 : 1, openHand: jump,
     between: () => {
       // a rope of the caparison to hold on to
@@ -1066,7 +1068,7 @@ function boitaShipRide(ctx: Ctx, rng: Rng, st: St, heavy: boolean): void {
   ctx.translate(gx, H.deck - 15);
   girl(ctx, rng, {
     lower: 'seat', face: jump ? 'happy' : hit ? 'hit' : 'calm', lean: hit ? -0.14 : 0.04,
-    near: jump ? { x: 18, y: -40 } : hit ? { x: 22, y: -14 } : { x: 24, y: 10 },
+    near: jump ? CHEER : hit ? { x: 22, y: -14 } : { x: 24, y: 10 },
     far: jump ? { x: 6, y: -42 } : { x: 18, y: -27 }, nearBend: jump ? -1 : 1, farBend: -1, openHand: jump,
   });
   ctx.restore();
@@ -1163,9 +1165,9 @@ function paintEboat(ctx: Ctx, rng: Rng, st: St): void {
   ctx.save();
   ctx.translate(0, bob);
   // solar canopy on two slim posts
-  taperStroke(ctx, [{ x: -32, y: H.deck }, { x: -30, y: -108 }], 2, mix(P.limewhite, P.neel, 0.3), 1, [1, 1]);
-  taperStroke(ctx, [{ x: 28, y: H.deck }, { x: 22, y: -110 }], 2, mix(P.limewhite, P.neel, 0.3), 1, [1, 1]);
-  const pan = () => polyPath(ctx, [{ x: -44, y: -108 }, { x: 34, y: -114 }, { x: 38, y: -108 }, { x: -42, y: -102 }]);
+  taperStroke(ctx, [{ x: -40, y: H.deck }, { x: -38, y: -108 }], 2.2, mix(P.limewhite, P.neel, 0.3), 1, [1, 1]);
+  taperStroke(ctx, [{ x: 52, y: H.deck }, { x: 46, y: -113 }], 2.2, mix(P.limewhite, P.neel, 0.3), 1, [1, 1]);
+  const pan = () => polyPath(ctx, [{ x: -50, y: -108 }, { x: 52, y: -116 }, { x: 58, y: -110 }, { x: -48, y: -102 }]);
   pan();
   ctx.fillStyle = mix(P.neel, P.ink, 0.2);
   ctx.fill();
@@ -1173,19 +1175,19 @@ function paintEboat(ctx: Ctx, rng: Rng, st: St): void {
     ctx.strokeStyle = withAlpha(P.haldi, 0.7);
     ctx.lineWidth = 0.6;
     ctx.beginPath();
-    for (let x = -40; x < 40; x += 7) { ctx.moveTo(x, -116); ctx.lineTo(x + 1, -100); }
+    for (let x = -46; x < 58; x += 7) { ctx.moveTo(x, -118); ctx.lineTo(x + 1, -100); }
     ctx.stroke();
     glow(ctx, 10, -110, 18, P.limewhite, 0.25);
   });
   ctx.fillStyle = P.neonCyan;
-  ctx.fillRect(-42, -102.5, 80, 1);
+  ctx.fillRect(-48, -102.5, 104, 1);
   // Taapoi at the little wheel
   ctx.save();
   ctx.translate(6, H.deck - 15);
   const wheelAt = { x: 26, y: 2 };
   girl(ctx, rng, {
     lower: 'seat', face: jump ? 'happy' : hit ? 'hit' : 'calm', lean: hit ? -0.14 : 0.06,
-    near: jump ? { x: 18, y: -40 } : { x: wheelAt.x - 2, y: wheelAt.y - 6 + Math.sin(p * TAU) }, far: { x: wheelAt.x - 1, y: wheelAt.y + 2 },
+    near: jump ? CHEER : { x: wheelAt.x - 2, y: wheelAt.y - 6 + Math.sin(p * TAU) }, far: { x: wheelAt.x - 1, y: wheelAt.y + 2 },
     nearBend: jump ? -1 : 1, farBend: 1, openHand: jump,
     between: () => {
       taperStroke(ctx, [{ x: wheelAt.x + 4, y: 18 }, { x: wheelAt.x + 1, y: wheelAt.y }], 2.4, mix(P.neel, P.ink, 0.3), 1, [1, 1]);
@@ -1210,16 +1212,1027 @@ function paintEboat(ctx: Ctx, rng: Rng, st: St): void {
 }
 
 // =============================================================================
+// palanquin: two bearers jogging in step, Taapoi seated inside
+// =============================================================================
+const bearerSkin = mix(P.chandan, P.laterite, 0.32);
+const bearerShade = mix(bearerSkin, P.laterite, 0.45);
+
+interface BearerO { phase: number; cloth: string; scarf: string; jump?: boolean; hit?: boolean; poleY: number }
+
+/** An adult bearer standing on (0,0), facing right, shoulder under the pole. */
+function bearer(ctx: Ctx, o: BearerO): void {
+  const p = o.phase;
+  const hip = { x: 0, y: -48 };
+  const footAt = (q: number): Pt => {
+    if (o.jump) return q < 0.5 ? { x: 10, y: -12 } : { x: -12, y: -6 };
+    const c = Math.cos(q * TAU), s = Math.sin(q * TAU);
+    return { x: c * 11, y: -Math.max(0, -s) * 8 };
+  };
+  const legDraw = (q: number, far: boolean) => {
+    const f = footAt(q);
+    const k = joint(hip, f, 24, 25, -1);
+    const col = far ? bearerShade : bearerSkin;
+    taperStroke(ctx, [hip, k], 9, col, 1, [1, 0.8]);
+    taperStroke(ctx, [k, f], 6.4, col, 1, [0.9, 0.7]);
+    dab(ctx, f.x + 2.5, f.y - 1, 4.6, 2.2, 0, col, 1);
+  };
+  const lean = o.hit ? -0.12 : 0.06;
+  const sh = add(hip, rot({ x: 0, y: -38 }, lean));
+  // far leg + far arm up to the pole
+  legDraw(p + 0.5, true);
+  const hf = { x: sh.x - 9, y: o.poleY + 1 };
+  taperStroke(ctx, [{ x: sh.x - 2, y: sh.y + 2 }, joint({ x: sh.x - 2, y: sh.y + 2 }, hf, 16, 15, -1), hf], 6, bearerShade, 1, [1, 0.8]);
+  legDraw(p, false);
+  // dhoti, tucked to the knee, with a haldi border
+  ctx.fillStyle = o.cloth;
+  ctx.beginPath();
+  ctx.moveTo(hip.x - 9, hip.y - 6);
+  ctx.lineTo(hip.x + 9, hip.y - 6);
+  ctx.quadraticCurveTo(hip.x + 13, hip.y + 8, hip.x + 8, hip.y + 18);
+  ctx.lineTo(hip.x - 10, hip.y + 16);
+  ctx.quadraticCurveTo(hip.x - 13, hip.y + 4, hip.x - 9, hip.y - 6);
+  ctx.closePath();
+  ctx.fill();
+  taperStroke(ctx, [{ x: hip.x - 10, y: hip.y + 15 }, { x: hip.x + 8, y: hip.y + 17 }], 2.4, P.haldi, 1, [1, 1]);
+  taperStroke(ctx, [{ x: hip.x + 2, y: hip.y - 4 }, { x: hip.x + 4, y: hip.y + 15 }], 1.2, mix(o.cloth, P.khondalite, 0.4), 0.8);
+  // torso: a simple cotton vest
+  ctx.save();
+  ctx.translate(hip.x, hip.y);
+  ctx.rotate(lean);
+  ctx.fillStyle = mix(P.limewhite, P.skyCream, 0.5);
+  ctx.beginPath();
+  ctx.moveTo(-9, -4);
+  ctx.quadraticCurveTo(-12, -24, -8, -38);
+  ctx.quadraticCurveTo(2, -42, 9, -37);
+  ctx.quadraticCurveTo(12, -20, 9, -4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = withAlpha(P.khondalite, 0.25);
+  ctx.fillRect(-12, -40, 7, 38);
+  // folded scarf (gamchha) on the shoulder as a pad under the pole
+  dab(ctx, -1, -39, 9, 3.6, 0.1, o.scarf, 1);
+  for (let i = 0; i < 4; i++) taperStroke(ctx, [{ x: -8 + i * 4.5, y: -41 }, { x: -7 + i * 4.5, y: -37 }], 1, P.limewhite, 0.7);
+  taperStroke(ctx, [{ x: -6, y: -37 }, { x: -9, y: -26 }], 3.6, o.scarf, 1, [1, 0.6]);
+  // neck + head with a limewhite turban
+  taperStroke(ctx, [{ x: 1, y: -40 }, { x: 2, y: -45 }], 6, bearerShade, 1, [1, 1]);
+  dab(ctx, 3, -51, 8.6, 9.4, 0, bearerSkin, 1);
+  dab(ctx, -2, -50, 4, 6, 0, bearerShade, 0.5);
+  dab(ctx, 1.5, -57, 9, 5, -0.1, P.limewhite, 1);
+  dab(ctx, -4, -56, 4, 4, 0, mix(P.limewhite, P.khondalite, 0.25), 1);
+  taperStroke(ctx, [{ x: -5, y: -58 }, { x: 4, y: -61 }, { x: 10, y: -57 }], 1.4, P.haldi, 0.9);
+  dab(ctx, 7.6, -51, 1, 1.2, 0, P.ink, 1); // eye
+  taperStroke(ctx, [{ x: 5, y: -46 }, { x: 8.5, y: -46.6 }, { x: 11, y: -45.6 }], 1.8, P.ink, 0.9, [0.5, 0.3]); // moustache
+  dab(ctx, 11, -49.4, 1.4, 1.8, 0, bearerSkin, 1); // nose
+  ctx.restore();
+  // near arm up to the pole in front of the shoulder
+  const sN = add(sh, { x: 5, y: 4 });
+  const hn = { x: sh.x + 10, y: o.poleY + 1 };
+  const en = joint(sN, hn, 16, 15, 1);
+  taperStroke(ctx, [sN, en], 7, bearerSkin, 1, [1, 0.8]);
+  taperStroke(ctx, [en, hn], 6, bearerSkin, 1, [0.9, 0.7]);
+}
+
+function paintPalanquin(ctx: Ctx, rng: Rng, st: St): void {
+  const p = phaseOf(st);
+  const jump = st.k === 'jump', hit = st.k === 'hit';
+  const bob = st.k === 'cycle' ? -Math.abs(Math.cos(p * TAU)) * 1.6 : jump ? -4 : 0;
+  softShadow(ctx, 0, 0, 86, 5, P.ink, 0.2);
+  const poleY = -86 + bob;
+  const wood = mix(P.laterite, P.ink, 0.2);
+  // the pole, behind the box (it hangs from brackets)
+  const pole = () => {
+    taperStroke(ctx, [{ x: -92, y: poleY + 1 }, { x: 0, y: poleY - 1.5 }, { x: 92, y: poleY + 1 }], 4.6, mix(P.chandan, P.laterite, 0.45), 1, [1, 1]);
+    taperStroke(ctx, [{ x: -90, y: poleY }, { x: 0, y: poleY - 2.4 }, { x: 90, y: poleY }], 1.2, mix(P.chandan, P.haldi, 0.4), 0.8, [1, 1]);
+    dab(ctx, 92, poleY + 1, 3, 3, 0, P.haldi, 1);
+    dab(ctx, -92, poleY + 1, 3, 3, 0, P.haldi, 1);
+  };
+  // rear bearer (behind), front bearer
+  ctx.save();
+  ctx.translate(-64, bob * 0.3);
+  bearer(ctx, { phase: p + 0.5, cloth: P.limewhite, scarf: P.haldi, jump, hit, poleY: poleY - bob * 0.3 });
+  ctx.restore();
+  pole();
+  ctx.save();
+  ctx.translate(0, bob);
+  // brackets
+  for (const x of [-26, 26]) taperStroke(ctx, [{ x, y: -100 }, { x, y: -86 }], 3, P.haldi, 1, [1, 1]);
+  // box
+  const box = () => polyPath(ctx, [{ x: -36, y: -96 }, { x: 36, y: -96 }, { x: 34, y: -30 }, { x: -34, y: -30 }]);
+  paintedShape(ctx, rng, box, { x: -36, y: -96, w: 72, h: 66 }, { base: wood, light: mix(wood, P.marigold, 0.35), shade: mix(wood, P.ink, 0.4), rim: mix(wood, P.ink, 0.6), rimW: 1.3, dabs: 20 });
+  // window with the dark inside
+  const win = () => {
+    ctx.beginPath();
+    ctx.moveTo(-24, -40);
+    ctx.lineTo(-24, -82);
+    ctx.quadraticCurveTo(1, -101, 26, -82);
+    ctx.lineTo(26, -40);
+    ctx.closePath();
+  };
+  win();
+  ctx.fillStyle = mix(P.laterite, P.ink, 0.62);
+  ctx.fill();
+  clipTo(ctx, win, () => {
+    glow(ctx, 6, -60, 30, P.marigold, 0.2);
+    ctx.save();
+    ctx.translate(2, -45);
+    ctx.scale(0.7, 0.7);
+    girl(ctx, rng, {
+      lower: 'seat', face: jump ? 'happy' : hit ? 'hit' : 'calm', lean: hit ? -0.14 : 0.02, tilt: st.k === 'cycle' ? Math.sin(p * TAU) * 0.03 : 0,
+      near: jump ? CHEER : { x: 20, y: 8 }, far: { x: 16, y: 6 }, nearBend: jump ? -1 : 1, openHand: jump,
+    });
+    ctx.restore();
+  });
+  // curtains tied back: Pipili appliqué panels
+  for (const [x0, x1, s] of [[-24, -18, 1], [26, 21, -1]] as const) {
+    const cur = () => {
+      ctx.beginPath();
+      ctx.moveTo(x0, -82 + (s > 0 ? 0 : 1));
+      ctx.quadraticCurveTo(x1 + s * 2, -70, x1, -58);
+      ctx.quadraticCurveTo(x1 - s * 1, -50, x0, -42);
+      ctx.closePath();
+    };
+    cur();
+    ctx.fillStyle = T.border;
+    ctx.fill();
+    dab(ctx, (x0 + x1) / 2, -66, 2.2, 2.2, 0, P.haldi, 1);
+    dab(ctx, (x0 + x1) / 2, -66, 0.9, 0.9, 0, P.limewhite, 1);
+    dab(ctx, (x0 + x1) / 2 + s * 0.5, -52, 1.6, 1.6, 0, P.tota, 1);
+    taperStroke(ctx, [{ x: x1 - s, y: -60 }, { x: x1 + s * 2, y: -57 }], 2, P.haldi, 1, [1, 1]);
+  }
+  // sill, haldi trim, little painted lotuses
+  ctx.fillStyle = P.haldi;
+  ctx.fillRect(-36, -40, 72, 2.4);
+  ctx.fillRect(-36, -96, 72, 2);
+  for (const x of [-30, 30]) for (let i = 0; i < 4; i++) dab(ctx, x, -86 + i * 13, 1.6, 1.6, 0, P.haldi, 0.9);
+  for (let i = 0; i < 6; i++) dab(ctx, -25 + i * 10, -34.5, 2.6, 1.6, 0, i % 2 ? T.border : P.limewhite, 1);
+  // domed roof with scallops and a finial
+  const roof = () => {
+    ctx.beginPath();
+    ctx.moveTo(-42, -94);
+    ctx.quadraticCurveTo(-38, -114, 0, -118);
+    ctx.quadraticCurveTo(38, -114, 42, -94);
+    ctx.closePath();
+  };
+  paintedShape(ctx, rng, roof, { x: -42, y: -118, w: 84, h: 24 }, { base: T.border, light: mix(T.border, P.haldi, 0.45), shade: mix(T.border, P.ink, 0.3), rim: mix(T.border, P.ink, 0.5), rimW: 1, dabs: 10 });
+  for (let i = 0; i < 9; i++) dab(ctx, -38 + i * 9.5, -94, 4.4, 2.6, 0, P.haldi, 1);
+  taperStroke(ctx, [{ x: 0, y: -118 }, { x: 0, y: -126 }], 2, P.haldi, 1, [1, 0.6]);
+  dab(ctx, 0, -126, 2.6, 2.6, 0, P.haldi, 1);
+  ctx.restore();
+  ctx.save();
+  ctx.translate(64, bob * 0.3);
+  bearer(ctx, { phase: p, cloth: P.limewhite, scarf: T.border, jump, hit, poleY: poleY - bob * 0.3 });
+  ctx.restore();
+}
+
+// =============================================================================
+// pressCart: a handcart with a little printing press, Taapoi pushing
+// =============================================================================
+function paintPressCart(ctx: Ctx, rng: Rng, st: St): void {
+  const p = phaseOf(st);
+  const jump = st.k === 'jump', hit = st.k === 'hit';
+  const ang = st.k === 'cycle' ? (p * TAU) / 6 : 0.3;
+  softShadow(ctx, 0, 0, 70, 5, P.ink, 0.2);
+  ctx.save();
+  ctx.translate(-10, 0);
+  const iron = mix(P.khondalite, P.ink, 0.55);
+  const ironL = mix(P.khondalite, P.limewhite, 0.2);
+  // Taapoi pushing (behind the handles)
+  const bob = st.k === 'cycle' ? -Math.abs(Math.cos(p * TAU)) * 2 : 0;
+  ctx.save();
+  ctx.translate(-30, -RUN_GROUND + bob);
+  const legs = st.k === 'cycle' ? runLegs(p) : jump ? { fN: { x: 10, y: 28 }, fF: { x: -10, y: 32 } } : { fN: { x: 8, y: RUN_GROUND }, fF: { x: -10, y: RUN_GROUND - 2 } };
+  const grip = { x: 30, y: -6 - bob };
+  girl(ctx, rng, {
+    lower: 'stand', lean: hit ? -0.1 : 0.24, footN: legs.fN, footF: legs.fF, hem: -2 - (st.k === 'cycle' ? Math.sin(p * TAU * 2) * 1.4 : 2),
+    face: jump ? 'happy' : hit ? 'hit' : 'calm', near: grip, far: { x: grip.x - 2, y: grip.y - 2 }, nearBend: 1, farBend: 1, parts: 'body',
+  });
+  ctx.restore();
+  // cart
+  const bedY = -30;
+  taperStroke(ctx, [{ x: -2, y: -44 }, { x: 10, y: -36 }, { x: 18, y: bedY - 2 }], 3, woodD, 1, [1, 1]); // handle
+  dab(ctx, -3, -44.5, 3.4, 2.4, -0.5, mix(woodD, P.ink, 0.3), 1);
+  cartWheel(ctx, 54, -13, 13, ang + 0.4, true);
+  paintedShape(ctx, rng, () => polyPath(ctx, [{ x: 14, y: bedY - 4 }, { x: 86, y: bedY - 4 }, { x: 84, y: bedY + 4 }, { x: 16, y: bedY + 4 }]), { x: 14, y: bedY - 4, w: 72, h: 8 }, { base: woodC, light: woodL, shade: woodD, rim: woodO, rimW: 1, dabs: 8 });
+  // press: two uprights, a head, the screw and its bar
+  for (const x of [32, 58]) {
+    taperStroke(ctx, [{ x, y: bedY - 4 }, { x, y: -82 }], 4.2, iron, 1, [1, 1]);
+    taperStroke(ctx, [{ x: x - 0.8, y: bedY - 6 }, { x: x - 0.8, y: -80 }], 1, ironL, 0.6, [1, 1]);
+  }
+  paintedShape(ctx, rng, () => polyPath(ctx, [{ x: 28, y: -88 }, { x: 62, y: -88 }, { x: 62, y: -79 }, { x: 28, y: -79 }]), { x: 28, y: -88, w: 34, h: 9 }, { base: iron, light: ironL, shade: P.ink, dabs: 6 });
+  dab(ctx, 45, -84, 3, 2.2, 0, P.haldi, 0.9); // a little brass boss
+  const turn = st.k === 'cycle' ? Math.sin(p * TAU) : 0;
+  taperStroke(ctx, [{ x: 45, y: -79 }, { x: 45, y: -60 }], 3.4, ironL, 1, [1, 1]);
+  for (let i = 0; i < 5; i++) taperStroke(ctx, [{ x: 43.4, y: -77 + i * 3.6 }, { x: 46.6, y: -75.6 + i * 3.6 }], 0.8, iron, 0.9);
+  taperStroke(ctx, [{ x: 45 - 12 * Math.cos(turn * 0.6), y: -68 }, { x: 45 + 14 * Math.cos(turn * 0.6), y: -66 }], 2.2, iron, 1, [1, 1]);
+  dab(ctx, 45 + 14 * Math.cos(turn * 0.6), -66, 2.4, 2.4, 0, T.border, 1);
+  ctx.fillStyle = iron;
+  ctx.fillRect(34, -60, 22, 4); // platen
+  ctx.fillStyle = mix(P.khondalite, P.laterite, 0.3);
+  ctx.fillRect(30, bedY - 10, 30, 6); // bed of type
+  ctx.fillStyle = P.limewhite;
+  ctx.fillRect(33, bedY - 12, 24, 2);
+  // stack of printed sheets, tied with string
+  for (let i = 0; i < 6; i++) {
+    ctx.fillStyle = i % 2 ? mix(P.limewhite, P.skyCream, 0.5) : P.limewhite;
+    ctx.fillRect(64 + (i % 2), bedY - 6 - i * 2.4, 20, 2.4);
+  }
+  ctx.strokeStyle = T.border;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(73, bedY - 20.5, 0.1, 15);
+  for (let i = 0; i < 4; i++) taperStroke(ctx, [{ x: 66, y: bedY - 19.5 + i * 0.1 }, { x: 82, y: bedY - 19.5 }], 0.6, mix(P.laterite, P.ink, 0.4), 0.6);
+  // ink pot and roller
+  dab(ctx, 22, bedY - 7, 4, 3.4, 0, mix(P.neel, P.ink, 0.4), 1);
+  dab(ctx, 22, bedY - 10, 2.2, 1, 0, P.ink, 1);
+  // a sheet fluttering off the stack in the wind
+  if (st.k !== 'hit') {
+    const f = st.k === 'cycle' ? p : 0.3;
+    const sx = 70 - f * 30, sy = bedY - 26 - Math.sin(f * Math.PI) * 18;
+    ctx.save();
+    ctx.translate(sx, sy);
+    ctx.rotate(-0.4 + f * 1.4);
+    ctx.fillStyle = P.limewhite;
+    ctx.beginPath();
+    ctx.moveTo(-6, -4);
+    ctx.quadraticCurveTo(0, -6 + Math.sin(f * TAU * 2) * 2, 6, -4);
+    ctx.lineTo(6, 4);
+    ctx.quadraticCurveTo(0, 2, -6, 4);
+    ctx.closePath();
+    ctx.fill();
+    for (let i = 0; i < 3; i++) taperStroke(ctx, [{ x: -4, y: -2 + i * 2.2 }, { x: 4, y: -2 + i * 2.2 }], 0.6, mix(P.laterite, P.ink, 0.4), 0.6);
+    ctx.restore();
+  }
+  cartWheel(ctx, 50, -13, 13, ang);
+  // her arms over the handles
+  ctx.save();
+  ctx.translate(-30, -RUN_GROUND + bob);
+  girl(ctx, rng, { lower: 'stand', lean: hit ? -0.1 : 0.24, near: grip, far: { x: grip.x - 2, y: grip.y - 2 }, nearBend: 1, farBend: 1, parts: 'arm' });
+  ctx.restore();
+  ctx.restore();
+}
+
+// =============================================================================
+// bicycle: an old roadster
+// =============================================================================
+function paintBicycle(ctx: Ctx, rng: Rng, st: St): void {
+  const p = phaseOf(st);
+  const jump = st.k === 'jump', hit = st.k === 'hit';
+  softShadow(ctx, 0, 0, 56, 4, P.ink, 0.22);
+  const frame = mix(P.ink, P.neel, 0.12);
+  const frameL = mix(P.neel, P.limewhite, 0.35);
+  const rw = { x: -30, y: -19 }, fw = { x: 32, y: -19 }, bb = { x: 0, y: -15 };
+  const seat = { x: -11, y: -40 }, head = { x: 21, y: -42 };
+  const ang = st.k === 'cycle' ? (p * TAU) / 6 : 0.4;
+  const wheelO: WheelO = { tyre: P.ink, tyreW: 2.6, rim: mix(P.khondalite, P.limewhite, 0.35), rimW: 1.4, spoke: withAlpha(mix(P.khondalite, P.limewhite, 0.4), 0.8), spokeW: 0.6, spokes: 18, hub: mix(P.khondalite, P.limewhite, 0.3) };
+  const crank = st.k === 'cycle' ? p * TAU : jump ? 0 : 0.6;
+  const pedal = (a: number): Pt => ({ x: bb.x + Math.cos(a) * 8, y: bb.y + Math.sin(a) * 8 });
+  const G = { x: -14, y: -50 };
+  const toG = (q: Pt): Pt => ({ x: q.x - G.x, y: q.y - G.y });
+  const pN = pedal(crank), pF = pedal(crank + Math.PI);
+  // far crank + pedal
+  taperStroke(ctx, [bb, pF], 2.2, frame, 1, [1, 1]);
+  dab(ctx, pF.x, pF.y, 3, 1.2, 0, frame, 1);
+  // girl body (far leg is on the far pedal)
+  const grips = { x: head.x - 4, y: head.y - 9 };
+  const gO: GirlO = {
+    lower: 'astride', footN: toG(pN), footF: toG(pF), kneeN: -1, kneeF: -1, lean: hit ? -0.12 : 0.14,
+    face: jump ? 'happy' : hit ? 'hit' : 'calm', near: jump ? CHEER : toG(grips), far: toG({ x: grips.x - 1, y: grips.y + 1 }),
+    nearBend: jump ? -1 : 1, farBend: 1, openHand: jump, hem: -2,
+  };
+  wheel(ctx, rw.x, rw.y, 19, ang, wheelO);
+  wheel(ctx, fw.x, fw.y, 19, ang, wheelO);
+  // frame: double top tube (a roadster), rod brakes, chain guard
+  const tube = (a: Pt, b: Pt, w = 2.6) => { taperStroke(ctx, [a, b], w, frame, 1, [1, 1]); taperStroke(ctx, [a, b], 0.7, frameL, 0.5, [1, 1]); };
+  tube(rw, seat); tube(rw, bb); tube(seat, bb, 3); tube({ x: seat.x + 1, y: seat.y + 2 }, head, 2.4); tube({ x: seat.x + 2, y: seat.y + 7 }, { x: head.x, y: head.y + 5 }, 2.2); tube(bb, { x: head.x, y: head.y + 6 }, 3);
+  tube(head, fw, 2.6);
+  taperStroke(ctx, [{ x: head.x, y: head.y }, { x: head.x - 1, y: head.y - 9 }], 2.6, frame, 1, [1, 1]);
+  taperStroke(ctx, [{ x: head.x - 1, y: head.y - 9 }, { x: head.x + 4, y: head.y - 11 }, { x: grips.x, y: grips.y }], 2, frame, 1, [1, 1]);
+  dab(ctx, grips.x, grips.y, 2.8, 1.8, 0, mix(P.laterite, P.ink, 0.4), 1);
+  // chain guard
+  ctx.fillStyle = frame;
+  ctx.beginPath();
+  ctx.ellipse(-14, -16, 18, 4.4, -0.06, 0, TAU);
+  ctx.fill();
+  taperStroke(ctx, [{ x: -30, y: -15 }, { x: -14, y: -19 }, { x: 2, y: -17.5 }], 0.8, P.haldi, 0.9, [0.3, 0.3]);
+  // mudguards
+  ctx.strokeStyle = frame;
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.arc(rw.x, rw.y, 21, Math.PI * 1.05, Math.PI * 1.75); ctx.stroke();
+  ctx.beginPath(); ctx.arc(fw.x, fw.y, 21, Math.PI * 1.25, Math.PI * 1.95); ctx.stroke();
+  // rear carrier with a cloth bundle, front lamp
+  taperStroke(ctx, [{ x: seat.x - 2, y: seat.y + 3 }, { x: rw.x - 8, y: rw.y - 20 }], 1.6, frame, 1, [1, 1]);
+  dab(ctx, head.x + 4, head.y - 1, 2.8, 2.6, 0, mix(P.khondalite, P.limewhite, 0.4), 1);
+  dab(ctx, head.x + 6, head.y - 1, 1.2, 1.8, 0, P.haldi, 1);
+  // saddle + bell
+  dab(ctx, seat.x - 1, seat.y - 2, 7, 2.6, -0.08, mix(P.laterite, P.ink, 0.5), 1);
+  dab(ctx, grips.x + 6, grips.y + 1, 1.8, 1.4, 0, mix(P.khondalite, P.limewhite, 0.5), 1);
+  ctx.save();
+  ctx.translate(G.x, G.y);
+  girl(ctx, rng, gO);
+  ctx.restore();
+  // near crank + pedal over the foot
+  taperStroke(ctx, [bb, pN], 2.6, frame, 1, [1, 1]);
+  dab(ctx, bb.x, bb.y, 3.6, 3.6, 0, frame, 1);
+  dab(ctx, bb.x, bb.y, 1.4, 1.4, 0, P.haldi, 1);
+  dab(ctx, pN.x, pN.y + 1.6, 3.4, 1.2, 0, mix(P.khondalite, P.ink, 0.3), 1);
+}
+
+// =============================================================================
+// scooter: a little electric kick-scooter, Taapoi standing
+// =============================================================================
+function paintScooter(ctx: Ctx, rng: Rng, st: St): void {
+  const p = phaseOf(st);
+  const jump = st.k === 'jump', hit = st.k === 'hit';
+  softShadow(ctx, 0, 0, 40, 4, P.ink, 0.22);
+  const body = P.peacock, bodyL = mix(P.peacock, P.limewhite, 0.45), bodyD = mix(P.peacock, P.ink, 0.4);
+  const ang = st.k === 'cycle' ? (p * TAU) / 5 : 0.3;
+  const dip = st.k === 'cycle' ? Math.sin(p * TAU * 2) * 1.2 : 0;
+  const wO: WheelO = { tyre: P.ink, tyreW: 3, rim: mix(P.khondalite, P.limewhite, 0.3), rimW: 1.4, spoke: bodyD, spokeW: 1.4, spokes: 5, hub: P.rani };
+  wheel(ctx, -28, -9, 9, ang, wO);
+  // deck
+  const deck = () => polyPath(ctx, [{ x: -32, y: -14 }, { x: 22, y: -14 }, { x: 26, y: -9 }, { x: 20, y: -6 }, { x: -30, y: -6 }]);
+  paintedShape(ctx, rng, deck, { x: -32, y: -14, w: 58, h: 8 }, { base: body, light: bodyL, shade: bodyD, rim: bodyD, rimW: 1, dabs: 6 });
+  ctx.fillStyle = P.haldi;
+  ctx.fillRect(-26, -9, 40, 1.4);
+  dab(ctx, -33, -12, 2, 1.6, 0, T.border, 1); // tail light
+  // Taapoi standing: front foot forward, back foot behind
+  const G = { x: -6, y: -50 + dip };
+  const H = { x: 22, y: -56 };
+  ctx.save();
+  ctx.translate(G.x, G.y);
+  girl(ctx, rng, {
+    lower: 'stand', lean: hit ? -0.12 : 0.08, footN: { x: 8, y: 36 - dip }, footF: { x: -12, y: 36 - dip }, kneeN: -1, kneeF: -1,
+    hem: st.k === 'cycle' ? -4 - Math.sin(p * TAU * 2) * 1.5 : -5, face: jump ? 'happy' : hit ? 'hit' : 'calm',
+    near: jump ? CHEER : { x: H.x - G.x - 2, y: H.y - G.y + 1 }, far: { x: H.x - G.x - 4, y: H.y - G.y }, nearBend: jump ? -1 : 1, farBend: 1, openHand: jump,
+    between: () => {
+      // stem and handlebar
+      const s0 = { x: 26 - G.x, y: -10 - G.y }, s1 = { x: H.x - G.x, y: H.y - G.y };
+      taperStroke(ctx, [s0, s1], 4, body, 1, [1, 1]);
+      taperStroke(ctx, [{ x: s0.x - 1, y: s0.y }, { x: s1.x - 1, y: s1.y }], 1, bodyL, 0.7, [1, 1]);
+      taperStroke(ctx, [{ x: s1.x - 5, y: s1.y }, { x: s1.x + 3, y: s1.y - 1 }], 2.4, mix(P.khondalite, P.ink, 0.5), 1, [1, 1]);
+      dab(ctx, s1.x - 4, s1.y + 0.4, 2.4, 1.8, 0, P.rani, 1);
+      dab(ctx, s0.x + 1, s0.y - 20, 3, 2.4, 0, mix(P.khondalite, P.ink, 0.3), 1); // headlamp
+      dab(ctx, s0.x + 2.6, s0.y - 20, 1.4, 1.8, 0, P.haldi, 1);
+      dab(ctx, s0.x - 0.5, s0.y - 33, 2.6, 4, 0, bodyD, 1); // battery
+      dab(ctx, s0.x - 0.5, s0.y - 34, 0.8, 0.8, 0, P.tota, 1);
+    },
+  });
+  ctx.restore();
+  wheel(ctx, 27, -9, 9, ang, wO);
+  taperStroke(ctx, [{ x: 26, y: -10 }, { x: 27, y: -9 }], 3, body, 1, [1, 1]);
+}
+
+// =============================================================================
+// Windowed vehicles: bus, train, dakota, maglev
+// =============================================================================
+interface Rect { x: number; y: number; w: number; h: number; r?: number }
+function rrect(ctx: Ctx, R: Rect): void {
+  const r = Math.min(R.r ?? 3, R.w / 2, R.h / 2);
+  ctx.moveTo(R.x + r, R.y);
+  ctx.arcTo(R.x + R.w, R.y, R.x + R.w, R.y + R.h, r);
+  ctx.arcTo(R.x + R.w, R.y + R.h, R.x, R.y + R.h, r);
+  ctx.arcTo(R.x, R.y + R.h, R.x, R.y, r);
+  ctx.arcTo(R.x, R.y, R.x + R.w, R.y, r);
+  ctx.closePath();
+}
+
+/** Fill a body outline with window holes (evenodd) and shade it. */
+function panelWithHoles(ctx: Ctx, rng: Rng, outline: () => void, holes: Rect[], b: Rect, base: string, light: string, shade: string): void {
+  const path = () => {
+    ctx.beginPath();
+    outline();
+    for (const h of holes) rrect(ctx, h);
+  };
+  path();
+  ctx.fillStyle = base;
+  ctx.fill('evenodd');
+  ctx.save();
+  path();
+  ctx.clip('evenodd');
+  const g = ctx.createLinearGradient(0, b.y, 0, b.y + b.h);
+  g.addColorStop(0, withAlpha(light, 0.5));
+  g.addColorStop(0.4, withAlpha(light, 0));
+  g.addColorStop(0.7, withAlpha(shade, 0));
+  g.addColorStop(1, withAlpha(shade, 0.5));
+  ctx.fillStyle = g;
+  ctx.fillRect(b.x, b.y, b.w, b.h);
+  dabField(ctx, rng, b.x, b.y, b.w, b.h, { n: Math.round((b.w * b.h) / 140), r: [1.5, 4], colours: [light, base, shade], alpha: [0.06, 0.16] });
+  ctx.restore();
+  ctx.strokeStyle = mix(shade, P.ink, 0.4);
+  ctx.lineWidth = 1.1;
+  path();
+  ctx.stroke();
+}
+
+function glassSheen(ctx: Ctx, R: Rect): void {
+  ctx.save();
+  ctx.beginPath();
+  rrect(ctx, R);
+  ctx.clip();
+  ctx.fillStyle = withAlpha(P.seafoam, 0.16);
+  ctx.fillRect(R.x, R.y, R.w, R.h);
+  taperStroke(ctx, [{ x: R.x + R.w * 0.55, y: R.y - 2 }, { x: R.x + R.w * 0.2, y: R.y + R.h + 2 }], 3, P.limewhite, 0.35);
+  ctx.restore();
+}
+
+/** A generic passenger's head and shoulders in a window (warm browns). */
+function passenger(ctx: Ctx, x: number, y: number, k: number, cloth: string, head: 'hair' | 'veil' | 'cap'): void {
+  const skin = mix(P.chandan, P.laterite, 0.15 + k * 0.4);
+  dab(ctx, x, y + 9, 8, 6, 0, cloth, 1);
+  dab(ctx, x, y, 5.2, 5.8, 0, skin, 1);
+  if (head === 'veil') dab(ctx, x - 1.5, y - 1.5, 5.6, 6, 0, cloth, 1);
+  else if (head === 'cap') dab(ctx, x, y - 4.6, 5, 2.4, 0, P.limewhite, 1);
+  else dab(ctx, x - 1.4, y - 3, 5, 3.4, 0.2, P.ink, 1);
+  if (head === 'veil') dab(ctx, x + 1.5, y + 0.5, 3.6, 4.6, 0, skin, 1);
+  dab(ctx, x + 3, y - 0.5, 0.7, 0.8, 0, P.ink, 1);
+}
+
+// ---- bus ---------------------------------------------------------------------
+function paintBus(ctx: Ctx, rng: Rng, st: St): void {
+  const p = phaseOf(st);
+  const jump = st.k === 'jump', hit = st.k === 'hit';
+  const ang = st.k === 'cycle' ? (p * TAU) / 6 : 0.2;
+  const sway = st.k === 'cycle' ? Math.sin(p * TAU * 2) * 0.7 : 0;
+  softShadow(ctx, 0, 0, 96, 5, P.ink, 0.24);
+  const tyreO: WheelO = { tyre: P.ink, tyreW: 4, rim: mix(P.khondalite, P.limewhite, 0.3), rimW: 2.4, spoke: mix(P.khondalite, P.ink, 0.3), spokeW: 1.6, spokes: 6, hub: T.border };
+  // far wheels peek
+  ctx.save();
+  ctx.translate(0, sway);
+  const X0 = -96, X1 = 94, TOP = -94, BOT = -14;
+  const wins: Rect[] = [];
+  for (let i = 0; i < 6; i++) wins.push({ x: -88 + i * 24, y: -82, w: 19, h: 25, r: 3 });
+  const front: Rect = { x: 62, y: -86, w: 24, h: 36, r: 4 };
+  // interiors
+  ctx.fillStyle = mix(P.neel, P.ink, 0.45);
+  for (const w of [...wins, front]) { ctx.beginPath(); rrect(ctx, w); ctx.fill(); }
+  const folks: [number, string, 'hair' | 'veil' | 'cap'][] = [[0.2, P.tota, 'veil'], [0.6, P.limewhite, 'cap'], [0.4, P.marigold, 'hair'], [0.7, P.rani, 'veil'], [0.3, P.peacock, 'hair']];
+  folks.forEach(([k, c, h], i) => {
+    if (i === 2) return; // an empty seat
+    ctx.save();
+    ctx.beginPath();
+    rrect(ctx, wins[i]);
+    ctx.clip();
+    passenger(ctx, wins[i].x + 10, wins[i].y + 13 + (i % 2) * 2 + (st.k === 'cycle' ? Math.sin(p * TAU * 2 + i) * 0.6 : 0), k, c, h);
+    ctx.restore();
+  });
+  // Taapoi at the front window
+  const G = { x: 72, y: -42 };
+  const wave = st.k === 'cycle' ? Math.sin(p * TAU * 2) : 0;
+  const gO: GirlO = {
+    lower: 'seat', face: hit ? 'hit' : jump ? 'happy' : 'happy', lean: hit ? -0.12 : 0.06,
+    near: hit ? { x: 18, y: -8 } : { x: 25 + wave * 3, y: -30 - Math.abs(wave) * 2 }, far: { x: 14, y: 6 }, nearBend: hit ? 1 : -1, openHand: !hit,
+  };
+  ctx.save();
+  ctx.beginPath();
+  rrect(ctx, front);
+  ctx.clip();
+  ctx.translate(G.x, G.y);
+  ctx.scale(0.72, 0.72);
+  girl(ctx, rng, { ...gO, parts: 'body' });
+  ctx.restore();
+  // body panels
+  const outline = () => {
+    ctx.moveTo(X0, BOT);
+    ctx.lineTo(X0, TOP + 6);
+    ctx.quadraticCurveTo(X0, TOP, X0 + 6, TOP);
+    ctx.lineTo(X1 - 10, TOP);
+    ctx.quadraticCurveTo(X1 - 2, TOP + 1, X1, TOP + 12);
+    ctx.lineTo(X1 + 2, BOT);
+    ctx.closePath();
+  };
+  const bodyC = mix(P.limewhite, P.skyCream, 0.35);
+  panelWithHoles(ctx, rng, outline, [...wins, front], { x: X0, y: TOP, w: X1 - X0 + 2, h: BOT - TOP }, bodyC, P.limewhite, mix(bodyC, P.khondalite, 0.5));
+  // lower half peacock, hand-painted rani wave with haldi dots
+  ctx.save();
+  ctx.beginPath();
+  outline();
+  ctx.clip();
+  ctx.fillStyle = P.peacock;
+  ctx.fillRect(X0, -46, X1 - X0 + 4, 34);
+  ctx.fillStyle = withAlpha(mix(P.peacock, P.ink, 0.4), 0.5);
+  ctx.fillRect(X0, -22, X1 - X0 + 4, 10);
+  ctx.strokeStyle = P.rani;
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  for (let x = X0; x <= X1 + 2; x += 2) {
+    const y = -50 + Math.sin((x / 22) * Math.PI) * 2.4;
+    if (x === X0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  for (let x = X0 + 6; x < X1; x += 11) dab(ctx, x, -50 + Math.sin((x / 22) * Math.PI) * 2.4, 1.2, 1.2, 0, P.haldi, 1);
+  ctx.fillStyle = P.rani;
+  ctx.fillRect(X0, TOP + 2, X1 - X0 + 2, 3);
+  for (let x = X0 + 8; x < X1 - 6; x += 16) {
+    ctx.fillStyle = P.haldi;
+    ctx.beginPath();
+    ctx.moveTo(x - 3, -40); ctx.lineTo(x, -36); ctx.lineTo(x + 3, -40); ctx.lineTo(x, -44);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+  for (const w of [...wins, front]) glassSheen(ctx, w);
+  // door seam, headlamp, bumper
+  ctx.strokeStyle = withAlpha(mix(P.peacock, P.ink, 0.5), 0.8);
+  ctx.lineWidth = 1;
+  ctx.strokeRect(44, -82, 14, 66);
+  dab(ctx, X1 - 1, -28, 3, 3.4, 0, P.haldi, 1);
+  dab(ctx, X1, -28, 1.4, 1.8, 0, P.limewhite, 1);
+  ctx.fillStyle = mix(P.khondalite, P.ink, 0.4);
+  ctx.fillRect(X1 - 6, -16, 10, 3);
+  // roof rack with bundles
+  taperStroke(ctx, [{ x: -80, y: TOP - 2 }, { x: 40, y: TOP - 2 }], 1.6, mix(P.khondalite, P.ink, 0.4), 1, [1, 1]);
+  const bundles: [number, number, number, string][] = [[-70, 9, 6, P.haldi], [-52, 11, 7, P.limewhite], [-34, 8, 5, T.border], [-18, 10, 6, P.tota]];
+  for (const [x, w, h, c] of bundles) {
+    dab(ctx, x, TOP - 2 - h, w, h, 0, c, 1);
+    taperStroke(ctx, [{ x, y: TOP - 2 - h * 2 }, { x, y: TOP - 2 }], 1, mix(P.laterite, P.ink, 0.4), 0.7);
+  }
+  // wheel arches + wheels
+  for (const wx of [-60, 58]) {
+    ctx.fillStyle = mix(P.ink, P.neel, 0.2);
+    ctx.beginPath();
+    ctx.arc(wx, -13, 16, Math.PI, TAU);
+    ctx.fill();
+  }
+  ctx.restore();
+  wheel(ctx, -60, -13, 13, ang, tyreO);
+  wheel(ctx, 58, -13, 13, ang, tyreO);
+  // her waving arm, out of the window
+  ctx.save();
+  ctx.translate(G.x, G.y + sway);
+  ctx.scale(0.72, 0.72);
+  girl(ctx, rng, { ...gO, parts: 'arm' });
+  ctx.restore();
+}
+
+// ---- train: a small steam loco, Taapoi at the cab window ---------------------
+function paintTrain(ctx: Ctx, rng: Rng, st: St): void {
+  const p = phaseOf(st);
+  const jump = st.k === 'jump', hit = st.k === 'hit';
+  const a = st.k === 'cycle' ? p * TAU : 0.5;
+  softShadow(ctx, 0, 0, 90, 5, P.ink, 0.24);
+  const loco = mix(P.neel, P.ink, 0.45), locoL = mix(P.neel, P.limewhite, 0.25), locoD = mix(P.ink, P.neel, 0.1);
+  // smoke puffs drifting back
+  if (!hit) for (let i = 0; i < 4; i++) {
+    const t = (i + (st.k === 'cycle' ? p : 0.4)) / 4;
+    dab(ctx, 52 - t * 70, -102 - t * 16 + Math.sin(i * 2) * 2, 5 + t * 9, 4 + t * 6, 0, mix(P.limewhite, P.khondalite, 0.2 + t * 0.2), 0.75 - t * 0.5);
+  }
+  // rails/sleepers hint under the wheels is drawn by the scene; keep a soft shadow
+  // cab with a big side window
+  const win: Rect = { x: -66, y: -86, w: 26, h: 32, r: 5 };
+  const G = { x: -52, y: -40 };
+  const gO: GirlO = {
+    lower: 'seat', face: hit ? 'hit' : 'happy', lean: hit ? -0.12 : 0.1,
+    near: hit ? { x: 16, y: -6 } : jump ? CHEER : { x: 22, y: 8 }, far: { x: 18, y: 4 }, nearBend: jump ? -1 : 1, openHand: jump,
+  };
+  ctx.fillStyle = mix(P.laterite, P.ink, 0.65);
+  ctx.beginPath();
+  rrect(ctx, win);
+  ctx.fill();
+  glow(ctx, -52, -62, 18, P.marigold, 0.35); // firebox glow inside the cab
+  ctx.save();
+  ctx.beginPath();
+  rrect(ctx, win);
+  ctx.clip();
+  ctx.translate(G.x, G.y);
+  ctx.scale(0.72, 0.72);
+  girl(ctx, rng, { ...gO, parts: 'body' });
+  ctx.restore();
+  const cab = () => {
+    ctx.moveTo(-76, -28);
+    ctx.lineTo(-76, -92);
+    ctx.lineTo(-28, -92);
+    ctx.lineTo(-28, -28);
+    ctx.closePath();
+  };
+  panelWithHoles(ctx, rng, cab, [win], { x: -76, y: -92, w: 48, h: 64 }, loco, locoL, locoD);
+  // cab roof
+  ctx.fillStyle = locoD;
+  ctx.beginPath();
+  ctx.moveTo(-80, -90);
+  ctx.quadraticCurveTo(-52, -100, -24, -90);
+  ctx.lineTo(-24, -88);
+  ctx.lineTo(-80, -88);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = P.haldi;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(-73, -88, 42, 56);
+  glassSheen(ctx, win);
+  // boiler
+  const boiler = () => { ctx.beginPath(); rrect(ctx, { x: -30, y: -70, w: 92, h: 38, r: 12 }); };
+  paintedShape(ctx, rng, boiler, { x: -30, y: -70, w: 92, h: 38 }, { base: loco, light: locoL, shade: locoD, rim: P.ink, rimW: 1, dabs: 20 });
+  for (const x of [-6, 22, 46]) taperStroke(ctx, [{ x, y: -70 }, { x, y: -32 }], 1.6, P.haldi, 0.9, [1, 1]); // brass bands
+  // smokebox front, chimney, domes, lamp
+  dab(ctx, 62, -51, 8, 19, 0, locoD, 1);
+  dab(ctx, 66, -51, 3, 6, 0, mix(P.khondalite, P.ink, 0.4), 1);
+  ctx.fillStyle = locoD;
+  ctx.beginPath();
+  ctx.moveTo(48, -70); ctx.lineTo(46, -94); ctx.lineTo(60, -94); ctx.lineTo(57, -70);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = mix(P.haldi, P.laterite, 0.25);
+  ctx.fillRect(45, -97, 16, 4);
+  dab(ctx, 26, -72, 7, 6, 0, P.haldi, 1); // steam dome (brass)
+  dab(ctx, 24, -74, 3, 2, 0, P.limewhite, 0.5);
+  dab(ctx, 2, -72, 6, 5, 0, loco, 1);
+  dab(ctx, 66, -74, 4, 4, 0, mix(P.khondalite, P.ink, 0.3), 1);
+  dab(ctx, 69, -74, 2, 2.6, 0, P.haldi, 1);
+  glow(ctx, 71, -74, 9, P.haldi, 0.4);
+  // running board + sindoor buffer beam + cowcatcher
+  ctx.fillStyle = locoD;
+  ctx.fillRect(-78, -32, 156, 5);
+  ctx.fillStyle = P.haldi;
+  ctx.fillRect(-78, -32, 156, 1.2);
+  ctx.fillStyle = T.border;
+  ctx.fillRect(70, -36, 8, 12);
+  ctx.fillStyle = mix(P.khondalite, P.ink, 0.4);
+  ctx.beginPath();
+  ctx.moveTo(70, -22); ctx.lineTo(84, -3); ctx.lineTo(66, -3);
+  ctx.closePath();
+  ctx.fill();
+  for (let i = 0; i < 3; i++) taperStroke(ctx, [{ x: 70 + i * 4, y: -20 + i * 5 }, { x: 68 + i * 2, y: -4 }], 0.8, P.khondalite, 0.8);
+  // wheels with sindoor rims + coupling rod
+  const wO: WheelO = { tyre: mix(P.khondalite, P.limewhite, 0.2), tyreW: 2, rim: T.border, rimW: 2.6, spoke: T.border, spokeW: 1.6, spokes: 10, hub: P.haldi };
+  const drivers = [-50, -24, 2];
+  for (const x of drivers) wheel(ctx, x, -12, 12, a, wO);
+  wheel(ctx, 40, -8, 8, a * 1.5, { ...wO, spokes: 6 });
+  const crank = (x: number): Pt => ({ x: x + Math.cos(a) * 6, y: -12 + Math.sin(a) * 6 });
+  taperStroke(ctx, [crank(drivers[0]), crank(drivers[2])], 2.6, mix(P.khondalite, P.limewhite, 0.35), 1, [1, 1]);
+  for (const x of drivers) dab(ctx, crank(x).x, crank(x).y, 1.8, 1.8, 0, P.haldi, 1);
+  // piston rod to the cylinder
+  ctx.fillStyle = locoD;
+  ctx.fillRect(16, -26, 22, 12);
+  taperStroke(ctx, [crank(drivers[2]), { x: 18, y: -20 }], 2, mix(P.khondalite, P.limewhite, 0.35), 1, [1, 1]);
+  // steam wisps at the cylinder
+  if (st.k === 'cycle') dab(ctx, 40 - p * 6, -10, 6 + p * 4, 2.4, 0, P.limewhite, 0.5 - p * 0.3);
+  // Taapoi's arm, over the window sill
+  ctx.save();
+  ctx.translate(G.x, G.y);
+  ctx.scale(0.72, 0.72);
+  girl(ctx, rng, { ...gO, parts: 'arm' });
+  ctx.restore();
+}
+
+// ---- dakota: a generic 1940s twin-engine propeller plane (no markings) ------
+function propeller(ctx: Ctx, x: number, y: number, r: number, a: number): void {
+  ctx.fillStyle = withAlpha(P.limewhite, 0.22);
+  ctx.beginPath();
+  ctx.ellipse(x, y, 2.6, r, 0, 0, TAU);
+  ctx.fill();
+  for (let i = 0; i < 3; i++) {
+    const s = Math.sin(a + (i * TAU) / 3);
+    const c = Math.cos(a + (i * TAU) / 3);
+    const by = y + s * r * 0.5;
+    dab(ctx, x + c * 0.8, by, 1.6, Math.abs(s) * r * 0.48 + 1.2, 0, mix(P.khondalite, P.ink, 0.5), 0.85);
+  }
+  dab(ctx, x + 1.5, y, 3.2, 3.6, 0, mix(P.khondalite, P.limewhite, 0.35), 1);
+}
+
+function paintDakota(ctx: Ctx, rng: Rng, st: St): void {
+  const p = phaseOf(st);
+  const jump = st.k === 'jump', hit = st.k === 'hit';
+  const a = st.k === 'cycle' ? (p * TAU) / 3 + st.i * 0.9 : 0.4;
+  const metal = mix(P.limewhite, P.khondalite, 0.32);
+  const metalL = P.limewhite;
+  const metalD = mix(P.khondalite, P.neel, 0.3);
+  ctx.save();
+  ctx.rotate(jump ? -0.12 : hit ? 0.1 : 0);
+  // far engine above the fuselage line
+  dab(ctx, 26, -10, 14, 5, 0, metalD, 1);
+  propeller(ctx, 42, -10, 9, a + 1);
+  // tail fin + stabiliser
+  const fin = () => polyPath(ctx, [{ x: -94, y: -4 }, { x: -86, y: -40 }, { x: -76, y: -42 }, { x: -64, y: -8 }]);
+  paintedShape(ctx, rng, fin, { x: -94, y: -42, w: 30, h: 38 }, { base: metal, light: metalL, shade: metalD, rim: mix(metalD, P.ink, 0.3), rimW: 1, dabs: 8, lightFrom: 'left' });
+  // fuselage with the cockpit hump
+  const fus = () => {
+    ctx.beginPath();
+    ctx.moveTo(-96, -2);
+    ctx.quadraticCurveTo(-60, -14, -10, -14);
+    ctx.lineTo(44, -14);
+    ctx.quadraticCurveTo(54, -32, 72, -30);
+    ctx.quadraticCurveTo(84, -26, 90, -8);
+    ctx.quadraticCurveTo(94, 4, 84, 12);
+    ctx.quadraticCurveTo(40, 15, -10, 13);
+    ctx.quadraticCurveTo(-70, 10, -96, 2);
+    ctx.closePath();
+  };
+  // Taapoi in the cockpit (behind the glazing)
+  const G = { x: 63, y: 4 };
+  ctx.save();
+  ctx.translate(G.x, G.y);
+  ctx.scale(0.5, 0.5);
+  girl(ctx, rng, {
+    lower: 'none', face: hit ? 'hit' : jump ? 'happy' : 'calm', lean: hit ? -0.15 : 0.04,
+    near: jump ? CHEER : { x: 24, y: 2 }, far: { x: 20, y: 0 }, nearBend: jump ? -1 : 1, openHand: jump,
+  });
+  ctx.restore();
+  ctx.save();
+  fus();
+  // cut the canopy glass out of the fuselage fill
+  ctx.moveTo(48, -16);
+  ctx.quadraticCurveTo(56, -29, 71, -28);
+  ctx.quadraticCurveTo(82, -25, 86, -12);
+  ctx.lineTo(48, -12);
+  ctx.closePath();
+  ctx.fillStyle = metal;
+  ctx.fill('evenodd');
+  ctx.clip('evenodd');
+  const g = ctx.createLinearGradient(0, -30, 0, 15);
+  g.addColorStop(0, withAlpha(metalL, 0.8));
+  g.addColorStop(0.35, withAlpha(metalL, 0.1));
+  g.addColorStop(0.75, withAlpha(metalD, 0.3));
+  g.addColorStop(1, withAlpha(metalD, 0.8));
+  ctx.fillStyle = g;
+  ctx.fillRect(-100, -34, 200, 50);
+  dabField(ctx, rng, -96, -30, 190, 44, { n: 50, r: [1.5, 4], colours: [metalL, metal, metalD], alpha: [0.05, 0.14] });
+  // panel lines and rivets
+  ctx.strokeStyle = withAlpha(metalD, 0.6);
+  ctx.lineWidth = 0.6;
+  for (const x of [-60, -30, 10, 40]) { ctx.beginPath(); ctx.moveTo(x, -16); ctx.lineTo(x, 15); ctx.stroke(); }
+  ctx.restore();
+  ctx.strokeStyle = mix(metalD, P.ink, 0.4);
+  ctx.lineWidth = 1.1;
+  fus();
+  ctx.stroke();
+  // canopy glass + frame
+  ctx.fillStyle = withAlpha(P.seafoam, 0.22);
+  ctx.beginPath();
+  ctx.moveTo(48, -12);
+  ctx.quadraticCurveTo(56, -29, 71, -28);
+  ctx.quadraticCurveTo(82, -25, 86, -12);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = metalD;
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+  taperStroke(ctx, [{ x: 76, y: -27 }, { x: 80, y: -12 }], 1.6, metalD, 1, [1, 1]);
+  taperStroke(ctx, [{ x: 58, y: -25 }, { x: 66, y: -27 }], 2, P.limewhite, 0.6);
+  // passenger windows
+  for (let i = 0; i < 6; i++) {
+    ctx.fillStyle = mix(P.neel, P.seafoam, 0.35);
+    ctx.beginPath();
+    rrect(ctx, { x: -54 + i * 14, y: -9, w: 7, h: 6, r: 2 });
+    ctx.fill();
+    dab(ctx, -51 + i * 14, -7.5, 1.4, 0.8, 0, P.limewhite, 0.6);
+  }
+  // near wing (towards us) + engine nacelle + propeller
+  const wing = () => polyPath(ctx, [{ x: -16, y: 4 }, { x: 34, y: 2 }, { x: 22, y: 30 }, { x: -2, y: 32 }]);
+  paintedShape(ctx, rng, wing, { x: -16, y: 2, w: 50, h: 30 }, { base: mix(metal, P.limewhite, 0.2), light: metalL, shade: metalD, rim: mix(metalD, P.ink, 0.3), rimW: 1, dabs: 10, lightFrom: 'left' });
+  const nac = () => { ctx.beginPath(); ctx.ellipse(28, 10, 18, 7, 0.04, 0, TAU); };
+  paintedShape(ctx, rng, nac, { x: 10, y: 3, w: 36, h: 14 }, { base: metal, light: metalL, shade: metalD, rim: mix(metalD, P.ink, 0.3), rimW: 1, dabs: 6 });
+  dab(ctx, 44, 10, 4, 6, 0, mix(P.khondalite, P.ink, 0.4), 1);
+  propeller(ctx, 48, 10, 15, a);
+  // tailplane
+  dab(ctx, -80, 2, 16, 3, 0.05, metalD, 1);
+  if (hit) for (let i = 0; i < 4; i++) dab(ctx, 14 - i * 9, 6 - i * 2, 4 + i * 2, 3 + i * 1.4, 0, mix(P.khondalite, P.limewhite, 0.3), 0.6 - i * 0.1);
+  ctx.restore();
+}
+
+// ---- maglev: a boita-shaped pod hovering on a neon-cyan glow ----------------
+function paintMaglev(ctx: Ctx, rng: Rng, st: St): void {
+  const p = phaseOf(st);
+  const jump = st.k === 'jump', hit = st.k === 'hit';
+  const hover = st.k === 'cycle' ? Math.sin(p * TAU) * 1.2 : 0;
+  // soft glow underneath
+  const pulse = st.k === 'cycle' ? 0.5 + Math.sin(p * TAU * 2) * 0.12 : 0.45;
+  ctx.save();
+  ctx.scale(1, 0.22);
+  glow(ctx, 0, -10, 84, P.neonCyan, pulse);
+  ctx.restore();
+  ctx.fillStyle = withAlpha(P.neonCyan, 0.85);
+  ctx.fillRect(-70, -2, 140, 1.4);
+  ctx.save();
+  ctx.translate(0, hover);
+  const body = mix(P.limewhite, P.seafoam, 0.12), bodyD = mix(P.neel, P.limewhite, 0.45);
+  const G = { x: 0, y: -40 };
+  const gO: GirlO = {
+    lower: 'seat', face: hit ? 'hit' : jump ? 'happy' : 'calm', lean: hit ? -0.14 : 0.04,
+    near: jump ? CHEER : { x: 22, y: 6 }, far: { x: 18, y: 4 }, nearBend: jump ? -1 : 1, openHand: jump,
+  };
+  ctx.save();
+  ctx.translate(G.x, G.y);
+  ctx.scale(0.8, 0.8);
+  girl(ctx, rng, gO);
+  ctx.restore();
+  // pod hull: raised prow and stern like a boita
+  const hull = () => {
+    ctx.beginPath();
+    ctx.moveTo(-90, -50);
+    ctx.quadraticCurveTo(-84, -36, -66, -36);
+    ctx.lineTo(56, -36);
+    ctx.quadraticCurveTo(80, -38, 92, -56);
+    ctx.quadraticCurveTo(96, -26, 70, -10);
+    ctx.lineTo(-62, -10);
+    ctx.quadraticCurveTo(-88, -18, -90, -50);
+    ctx.closePath();
+  };
+  paintedShape(ctx, rng, hull, { x: -92, y: -56, w: 188, h: 46 }, { base: body, light: P.limewhite, shade: bodyD, rim: mix(P.neel, P.ink, 0.3), rimW: 1.2, dabs: 24 });
+  clipTo(ctx, hull, () => {
+    ctx.fillStyle = mix(P.neel, P.ink, 0.15);
+    ctx.fillRect(-100, -30, 200, 9);
+    for (let i = 0; i < 7; i++) {
+      ctx.fillStyle = withAlpha(P.seafoam, 0.6);
+      ctx.fillRect(-64 + i * 18, -28.5, 11, 6);
+    }
+    ctx.fillStyle = P.neonRani;
+    ctx.fillRect(-100, -19, 200, 1.4);
+    ctx.fillStyle = P.haldi;
+    ctx.fillRect(-100, -33, 200, 1.4);
+  });
+  // eye on the prow
+  dab(ctx, 80, -42, 4, 2.6, -0.4, P.limewhite, 1);
+  dab(ctx, 80.6, -42, 1.6, 1.6, 0, P.ink, 1);
+  // glass canopy over her
+  ctx.fillStyle = withAlpha(mix(P.seafoam, P.neonCyan, 0.3), 0.2);
+  ctx.beginPath();
+  ctx.moveTo(-40, -36);
+  ctx.quadraticCurveTo(-36, -100, 8, -100);
+  ctx.quadraticCurveTo(48, -98, 58, -36);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = withAlpha(P.limewhite, 0.8);
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+  taperStroke(ctx, [{ x: 18, y: -96 }, { x: 40, y: -84 }, { x: 50, y: -60 }], 3.4, P.limewhite, 0.55, [0.2, 0.2]);
+  taperStroke(ctx, [{ x: -32, y: -60 }, { x: -26, y: -82 }], 2, P.limewhite, 0.4);
+  // underside skids glowing
+  for (const x of [-46, 44]) {
+    ctx.fillStyle = mix(P.neel, P.ink, 0.3);
+    ctx.fillRect(x - 12, -11, 24, 4);
+    dab(ctx, x, -6, 12, 1.6, 0, P.neonCyan, 0.9);
+  }
+  ctx.restore();
+}
+
+// =============================================================================
 // Registry
 // =============================================================================
+// =============================================================================
+// Future rides: glider (appliqué wing), lightsail (orbit suit on a sail-board), starBoita
+// =============================================================================
+function paintGlider(ctx: Ctx, rng: Rng, st: St): void {
+  const p = phaseOf(st);
+  const jump = st.k === 'jump', hit = st.k === 'hit';
+  const flap = st.k === 'cycle' ? Math.sin(p * TAU) * 2 : 0;
+  const tilt = jump ? -0.16 : hit ? 0.12 : 0;
+  ctx.save();
+  ctx.rotate(tilt);
+  // Taapoi hangs below the wing, lying forward on a light frame.
+  ctx.save();
+  ctx.translate(2, 31 + flap * 0.3);
+  ctx.scale(0.62, 0.62);
+  girl(ctx, rng, {
+    lower: 'seat', lean: 0.1, face: hit ? 'hit' : jump ? 'happy' : 'calm',
+    near: jump ? CHEER : { x: 22, y: -34 }, far: { x: 18, y: -36 }, nearBend: jump ? -1 : 1, farBend: 1, openHand: jump,
+  });
+  ctx.restore();
+  // control bar + lines
+  ctx.strokeStyle = withAlpha(P.limewhite, 0.7);
+  ctx.lineWidth = 0.8;
+  for (const x of [-26, 0, 26]) { ctx.beginPath(); ctx.moveTo(x, -14 + flap * 0.4); ctx.lineTo(x * 0.25, 12); ctx.stroke(); }
+  taperStroke(ctx, [{ x: 8, y: -4 }, { x: 20, y: -4 }], 2, mix(P.neel, P.ink, 0.3), 1, [1, 1]);
+  // the wing: indigo field with sindoor/haldi/rani appliqué panels and neon-cyan edge
+  const wing = () => {
+    ctx.beginPath();
+    ctx.moveTo(-86, -6 + flap);
+    ctx.quadraticCurveTo(-30, -44 - flap, 60, -20);
+    ctx.quadraticCurveTo(84, -12, 92, -2);
+    ctx.quadraticCurveTo(10, -22, -86, -6 + flap);
+    ctx.closePath();
+  };
+  paintedShape(ctx, rng, wing, { x: -86, y: -46, w: 180, h: 44 }, { base: mix(P.neel, P.ink, 0.1), light: mix(P.neel, P.limewhite, 0.4), shade: mix(P.neel, P.ink, 0.5), rim: mix(P.neel, P.ink, 0.6), rimW: 1.2, dabs: 12, lightFrom: 'top' });
+  clipTo(ctx, wing, () => {
+    const cols = [P.sindoor, P.haldi, P.rani, P.tota];
+    for (let i = 0; i < 7; i++) {
+      const x = -72 + i * 24;
+      ctx.fillStyle = cols[i % cols.length];
+      ctx.beginPath();
+      ctx.moveTo(x, -18);
+      ctx.lineTo(x + 9, -32 + (i % 2) * 4);
+      ctx.lineTo(x + 18, -18);
+      ctx.closePath();
+      ctx.fill();
+      dab(ctx, x + 9, -22, 1.6, 1.6, 0, P.limewhite, 0.9);
+    }
+    ctx.strokeStyle = withAlpha(P.limewhite, 0.75);
+    ctx.setLineDash([1.5, 1.5]);
+    ctx.lineWidth = 0.7;
+    ctx.beginPath(); ctx.moveTo(-84, -9 + flap); ctx.quadraticCurveTo(10, -22, 90, -3); ctx.stroke();
+    ctx.setLineDash([]);
+  });
+  taperStroke(ctx, [{ x: -84, y: -6 + flap }, { x: 4, y: -22 }, { x: 90, y: -3 }], 1.6, P.neonCyan, 0.95, [0.1, 0.1]);
+  glow(ctx, 4, -16, 30, P.neonCyan, 0.14);
+  ctx.restore();
+}
+
+function paintLightsail(ctx: Ctx, rng: Rng, st: St): void {
+  const p = phaseOf(st);
+  const jump = st.k === 'jump', hit = st.k === 'hit';
+  const bob = st.k === 'cycle' ? Math.sin(p * TAU) * 1.4 : 0;
+  // the sail-board under her feet
+  const board = () => polyPath(ctx, [{ x: -34, y: -4 }, { x: 36, y: -4 }, { x: 28, y: 2 }, { x: -28, y: 2 }]);
+  paintedShape(ctx, rng, board, { x: -34, y: -4, w: 70, h: 6 }, { base: mix(P.neel, P.limewhite, 0.2), light: P.limewhite, shade: mix(P.neel, P.ink, 0.4), rim: mix(P.neel, P.ink, 0.6), rimW: 1, dabs: 4 });
+  taperStroke(ctx, [{ x: -30, y: 3 }, { x: 28, y: 3 }], 1.4, P.neonCyan, 0.95, [0.3, 0.3]);
+  glow(ctx, -34, 0, 14, P.neonRani, 0.4 + Math.sin(p * TAU) * 0.1);
+  // a small light-sail on a mast behind her
+  taperStroke(ctx, [{ x: -18, y: -4 }, { x: -20, y: -84 }], 2, mix(P.limewhite, P.neel, 0.3), 1, [1, 1]);
+  const sail = () => {
+    ctx.beginPath();
+    ctx.moveTo(-20, -82);
+    ctx.quadraticCurveTo(-58 - bob * 3, -52, -22, -18);
+    ctx.quadraticCurveTo(-34, -52, -20, -82);
+    ctx.closePath();
+  };
+  ctx.fillStyle = withAlpha(P.neonCyan, 0.35);
+  sail(); ctx.fill();
+  ctx.strokeStyle = withAlpha(P.limewhite, 0.85);
+  ctx.lineWidth = 1;
+  sail(); ctx.stroke();
+  for (let i = 1; i < 5; i++) taperStroke(ctx, [{ x: -20, y: -82 + i * 13 }, { x: -38 - bob, y: -66 + i * 11 }], 0.7, P.limewhite, 0.5, [0.2, 0.2]);
+  // Taapoi in her orbit suit, standing on the board
+  ctx.save();
+  ctx.translate(2, -44 + bob);
+  girl(ctx, rng, {
+    suit: true, lower: 'stand', lean: hit ? -0.14 : 0.05, face: jump ? 'happy' : hit ? 'hit' : 'calm',
+    footN: { x: 10, y: 38 }, footF: { x: -8, y: 38 }, kneeN: -1, kneeF: -1, hem: 0,
+    near: jump ? CHEER : { x: 18, y: -4 }, far: { x: 14, y: -6 }, nearBend: jump ? -1 : 1, farBend: 1, openHand: jump,
+  });
+  helmet(ctx);
+  ctx.restore();
+}
+
+function paintStarBoita(ctx: Ctx, rng: Rng, st: St): void {
+  const p = phaseOf(st);
+  const jump = st.k === 'jump', hit = st.k === 'hit';
+  const bob = st.k === 'cycle' ? Math.sin(p * TAU) * 1.6 : 0;
+  ctx.save();
+  ctx.translate(0, bob);
+  ctx.rotate(jump ? -0.12 : hit ? 0.09 : 0);
+  // thruster glow behind
+  glow(ctx, -92, 4, 30 + Math.sin(p * TAU * 2) * 3, P.neonCyan, 0.55);
+  glow(ctx, -92, 4, 14, P.limewhite, 0.7);
+  // glowing sails
+  const sail = (mx: number, top: number, h: number, col: string) => {
+    const s = () => {
+      ctx.beginPath();
+      ctx.moveTo(mx, top);
+      ctx.quadraticCurveTo(mx + 34, top + h * 0.5, mx + 4, top + h);
+      ctx.lineTo(mx - 2, top + h);
+      ctx.closePath();
+    };
+    ctx.fillStyle = withAlpha(col, 0.5);
+    s(); ctx.fill();
+    ctx.strokeStyle = withAlpha(P.limewhite, 0.9);
+    ctx.lineWidth = 1.2;
+    s(); ctx.stroke();
+    glow(ctx, mx + 12, top + h * 0.5, 26, col, 0.25);
+  };
+  taperStroke(ctx, [{ x: -14, y: -2 }, { x: -14, y: -74 }], 2.4, woodD, 1, [1, 1]);
+  taperStroke(ctx, [{ x: 36, y: -4 }, { x: 36, y: -50 }], 2, woodD, 1, [1, 1]);
+  sail(-14, -72, 62, P.neonRani);
+  sail(36, -48, 42, P.neonCyan);
+  // Taapoi at the helm (a bubble canopy over her)
+  ctx.save();
+  ctx.translate(8, -22);
+  ctx.scale(0.6, 0.6);
+  girl(ctx, rng, {
+    lower: 'seat', lean: 0.06, face: hit ? 'hit' : jump ? 'happy' : 'calm',
+    near: jump ? CHEER : { x: 24, y: 0 }, far: { x: 20, y: 2 }, nearBend: jump ? -1 : 1, farBend: 1, openHand: jump,
+  });
+  ctx.restore();
+  ctx.fillStyle = withAlpha(P.seafoam, 0.2);
+  ctx.beginPath(); ctx.ellipse(10, -22, 24, 22, 0, Math.PI, TAU); ctx.fill();
+  ctx.strokeStyle = withAlpha(P.limewhite, 0.7);
+  ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.ellipse(10, -22, 24, 22, 0, Math.PI, TAU); ctx.stroke();
+  // the hull: a boita turned starship, haldi band + neon trim
+  const H: HullO = { x0: -86, x1: 84, deck: -14, keel: 14, prow: 30, stern: 20, base: mix(P.neel, P.limewhite, 0.18), light: mix(P.neel, P.limewhite, 0.55), shade: mix(P.neel, P.ink, 0.5) };
+  boatHull(ctx, rng, H);
+  ctx.fillStyle = P.haldi;
+  ctx.fillRect(H.x0 + 18, H.deck + 4, H.x1 - H.x0 - 44, 1.8);
+  taperStroke(ctx, [{ x: H.x0 + 16, y: H.deck + 12 }, { x: 0, y: H.deck + 13 }, { x: H.x1 - 18, y: H.deck + 9 }], 1.8, P.neonCyan, 0.95, [0.4, 0.4]);
+  for (let i = 0; i < 5; i++) dab(ctx, H.x0 + 26 + i * 28, H.deck + 8, 2.2, 2.2, 0, P.neonRani, 0.95);
+  ctx.restore();
+}
+
 const SPECS: Partial<Record<VehicleId, Spec>> = {
   foot: { w: 120, h: 132, ox: 58, oy: 124, n: 8, hz: 1.7, paint: paintFoot },
   cart: { w: 172, h: 128, ox: 84, oy: 120, n: 8, hz: 1.4, paint: paintCart },
-  elephant: { w: 150, h: 136, ox: 76, oy: 128, n: 8, hz: 1.1, paint: paintElephant },
-  boita: { w: 196, h: 140, ox: 98, oy: 128, n: 6, hz: 0.9, paint: paintBoita },
-  boitaElephant: { w: 200, h: 132, ox: 100, oy: 118, n: 6, hz: 0.8, paint: paintBoitaElephant },
+  elephant: { w: 150, h: 144, ox: 76, oy: 136, n: 8, hz: 1.1, paint: paintElephant },
+  boita: { w: 196, h: 148, ox: 98, oy: 136, n: 6, hz: 0.9, paint: paintBoita },
+  boitaElephant: { w: 200, h: 140, ox: 100, oy: 126, n: 6, hz: 0.8, paint: paintBoitaElephant },
   countryBoat: { w: 196, h: 110, ox: 98, oy: 96, n: 8, hz: 1.0, paint: paintCountryBoat },
+  palanquin: { w: 196, h: 136, ox: 98, oy: 128, n: 8, hz: 1.5, paint: paintPalanquin },
+  pressCart: { w: 160, h: 132, ox: 76, oy: 124, n: 8, hz: 1.6, paint: paintPressCart },
+  bicycle: { w: 124, h: 128, ox: 58, oy: 120, n: 8, hz: 1.5, paint: paintBicycle },
+  scooter: { w: 104, h: 132, ox: 48, oy: 124, n: 6, hz: 1.6, paint: paintScooter },
+  bus: { w: 200, h: 120, ox: 98, oy: 112, n: 6, hz: 1.5, paint: paintBus },
+  train: { w: 176, h: 134, ox: 86, oy: 126, n: 8, hz: 1.4, paint: paintTrain },
+  dakota: { w: 200, h: 92, ox: 100, oy: 50, n: 6, hz: 3, paint: paintDakota },
+  maglev: { w: 196, h: 118, ox: 98, oy: 110, n: 6, hz: 1.2, paint: paintMaglev },
   eboat: { w: 190, h: 136, ox: 96, oy: 124, n: 6, hz: 1.2, paint: paintEboat },
+  glider: { w: 200, h: 120, ox: 100, oy: 60, n: 6, hz: 1.2, paint: paintGlider },
+  lightsail: { w: 120, h: 130, ox: 60, oy: 122, n: 6, hz: 1.0, paint: paintLightsail },
+  starBoita: { w: 220, h: 130, ox: 110, oy: 70, n: 6, hz: 1.3, paint: paintStarBoita },
 };
 
 function paintOne(spec: Spec, id: string, st: St): { c: HTMLCanvasElement; ribbon: Pt | null } {

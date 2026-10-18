@@ -49,7 +49,7 @@ function rain(ctx: Ctx, rng: Rng, W: number, H: number, n: number, alpha = 0.35)
 /** A bougainvillea clump: rani bracts over dark leaves. (x, y) = base centre. */
 function bougainvillea(ctx: Ctx, rng: Rng, x: number, y: number, w: number, h: number, haze = 0): void {
   const leaf = [hz(mix(P.tota, P.neel, 0.35), haze), hz(mix(P.tota, P.peacock, 0.3), haze), hz(P.tota, haze)];
-  const pink = [hz(P.rani, haze), hz(P.rani, haze), hz(mix(P.rani, P.limewhite, 0.3), haze), hz(mix(P.rani, P.sindoor, 0.25), haze)];
+  const pink = [hz(P.rani, haze), hz(P.rani, haze), hz(mix(P.rani, P.skyCream, 0.3), haze), hz(mix(P.rani, P.sindoor, 0.25), haze)];
   const n = Math.round((w * h) / 20);
   const pt = () => {
     const u = rng.range(-1, 1);
@@ -57,6 +57,20 @@ function bougainvillea(ctx: Ctx, rng: Rng, x: number, y: number, w: number, h: n
   };
   for (let i = 0; i < n * 0.6; i++) { const p = pt(); dab(ctx, p.x, p.y, rng.range(2, 4), rng.range(1.4, 2.6), rng.next() * 3, rng.pick(leaf), 0.95); }
   for (let i = 0; i < n; i++) { const p = pt(); dab(ctx, p.x, p.y - 1, rng.range(1.6, 3.4), rng.range(1.4, 2.8), rng.next() * 3, rng.pick(pink), 0.92); }
+}
+
+/** Paint a vignette k times larger, keeping its baseline at the canvas bottom. */
+function scaled(ctx: Ctx, h: number, k: number, fn: (hh: number) => void): void {
+  ctx.save();
+  ctx.translate(0, h * (1 - k));
+  ctx.scale(k, k);
+  fn(h);
+  ctx.restore();
+}
+
+/** A continuous bougainvillea hedge along a whole strip (tiles seamlessly). */
+function hedgeRow(ctx: Ctx, rng: Rng, W: number, y: number, h: number, haze = 0): void {
+  for (let x = 0; x < W; x += 24) wrapped(W, x, 30, (xx) => bougainvillea(ctx, rng.fork(x), xx, y, 44, h * rng.range(0.8, 1.15), haze));
 }
 
 /** A bed of marigolds and rani flowers. */
@@ -450,7 +464,7 @@ function chartPicture(ctx: Ctx, rng: Rng, ch: string, x: number, y: number): voi
 
 function alphabetChart(ctx: Ctx, rng: Rng, W: number, top: number, bottom: number): void {
   const paper = mix(P.limewhite, P.skyCream, 0.25);
-  const bandH = 14;
+  const bandH = 20;
   vGradient(ctx, 0, top, W, bottom - top, [[0, paper, 1], [1, mix(paper, P.chandan, 0.15), 1]]);
   dabField(ctx, rng, 0, top, W, bottom - top, { n: 900, r: [3, 10], colours: [P.limewhite, mix(paper, P.chandan, 0.25)], alpha: [0.08, 0.18] });
   // Pattachitra-style rani borders with haldi flowers and little triangles
@@ -491,8 +505,11 @@ function alphabetChart(ctx: Ctx, rng: Rng, W: number, top: number, bottom: numbe
 }
 
 // ---- scenes -------------------------------------------------------------------------
-const DAY_SKY: [number, string][] = [[0, mix(P.seafoam, P.peacock, 0.2)], [0.5, mix(P.seafoam, P.skyCream, 0.5)], [0.9, P.skyCream], [1, mix(P.skyCream, P.rani, 0.12)]];
-const NIGHT_SKY: [number, string][] = [[0, mix(P.neel, P.ink, 0.35)], [0.5, P.neel], [0.8, mix(P.neel, P.rani, 0.45)], [1, mix(P.rani, P.marigold, 0.35)]];
+// Day: the textbook sky, warming to a rani blush behind the treeline.
+const DAY_SKY: [number, string][] = [[0, mix(P.seafoam, P.peacock, 0.25)], [0.36, mix(P.seafoam, P.skyCream, 0.45)], [0.58, P.skyCream], [0.78, mix(P.skyCream, P.rani, 0.45)], [1, mix(P.rani, P.skyCream, 0.3)]];
+// Night: neel overhead, a broad rani glow of the city on the horizon.
+const NIGHT_SKY: [number, string][] = [[0, mix(P.neel, P.ink, 0.4)], [0.28, mix(P.neel, P.ink, 0.1)], [0.48, mix(P.neel, P.rani, 0.5)], [0.66, mix(P.rani, P.neel, 0.3)], [1, mix(P.rani, P.marigold, 0.3)]];
+const NIGHT_PLAIN = mix(mix(P.peacock, P.neel, 0.6), P.khondalite, 0.35);
 
 export const SCENES: Record<string, () => SceneDef> = {
   // 32 · 1 Nov 2011 · Orissa becomes Odisha — a highway, dhabas, paddy and a sign-painter.
@@ -528,8 +545,9 @@ export const SCENES: Record<string, () => SceneDef> = {
           ctx.stroke();
         }
       }
+      hedgeRow(ctx, rng.fork('roadhedge'), W, 226, 12);
       // roadside dhabas in bright paint, bougainvillea at every door
-      const walls = [mix(P.rani, P.limewhite, 0.12), mix(P.peacock, P.limewhite, 0.25), mix(P.haldi, P.limewhite, 0.1), mix(P.tota, P.limewhite, 0.2)];
+      const walls = [mix(P.rani, P.skyCream, 0.12), mix(P.peacock, P.limewhite, 0.25), mix(P.rani, P.skyCream, 0.2), mix(P.haldi, P.limewhite, 0.1)];
       scatter(rng.fork('dhaba'), W, [380, 520], (x, i) => wrapped(W, x, 90, (xx) => {
         dhaba(ctx, rng.fork(x), xx, 225, rng.range(70, 90), rng.range(40, 50), walls[i % walls.length], i % 2 ? [P.rani, P.limewhite] : [P.peacock, P.haldi]);
         bougainvillea(ctx, rng.fork(x + 1), xx - 62, 226, 34, 28);
@@ -547,7 +565,7 @@ export const SCENES: Record<string, () => SceneDef> = {
         else for (let k = 0; k < 3; k++) person(ctx, xx + k * 16, 40 + k * 2, 0.6, { pose: 'bend', cloth: rng.pick(CLOTHS), sari: k === 1, head: k === 1 ? 'veil' : 'cap', facing: 1 });
       }));
       // the verge: hedges of bougainvillea, milestones, goats, a bus stop painted rani
-      scatter(rng.fork('hedge'), W, [150, 260], (x) => wrapped(W, x, 40, (xx) => bougainvillea(ctx, rng.fork(x), xx, 130, rng.range(40, 70), rng.range(18, 30))));
+      hedgeRow(ctx, rng.fork('hedge'), W, 136, 18);
       scatter(rng.fork('stones'), W, [500, 700], (x) => wrapped(W, x, 10, (xx) => milestone(ctx, xx, 130, 1.1)));
       wrapped(W, 700, 70, (xx) => {
         const c = mix(P.rani, P.limewhite, 0.1);
@@ -655,7 +673,7 @@ export const SCENES: Record<string, () => SceneDef> = {
   r33: () => ({
     id: 'r33',
     sky: {
-      stops: [[0, mix(P.neel, P.ink, 0.3)], [0.4, mix(P.neel, P.rani, 0.3)], [0.75, mix(P.rani, P.marigold, 0.3)], [1, mix(P.haldi, P.skyCream, 0.4)]],
+      stops: [[0, mix(P.neel, P.ink, 0.3)], [0.3, mix(P.neel, P.rani, 0.4)], [0.55, mix(P.rani, P.neel, 0.25)], [0.8, mix(P.rani, P.marigold, 0.25)], [1, mix(P.marigold, P.haldi, 0.4)]],
       clouds: 'storm', cloudTint: mix(P.neel, P.rani, 0.3), halftone: mix(P.neel, P.limewhite, 0.4),
     },
     far: [{ kind: 'sea', a: mix(P.peacock, P.neel, 0.35), b: mix(P.peacock, P.neel, 0.6) }],
@@ -796,7 +814,7 @@ export const SCENES: Record<string, () => SceneDef> = {
     id: 'r34',
     sky: { stops: [[0, mix(P.seafoam, P.peacock, 0.15)], [0.55, mix(P.skyCream, P.haldi, 0.2)], [1, mix(P.skyCream, P.rani, 0.12)]], sun: { x: 1120, y: 96, r: 30 }, clouds: 'cumulus' },
     far: [{ kind: 'none', a: P.tota }],
-    ground: { kind: 'land', plain: mix(P.tota, P.haldi, 0.3), plainDetail: 'grass', path: mix(P.laterite, P.chandan, 0.3), verge: mix(P.tota, P.haldi, 0.15) },
+    ground: { kind: 'land', plain: mix(P.tota, P.haldi, 0.3), plainDetail: 'grass', path: mix(P.rani, P.chandan, 0.3), verge: mix(P.tota, P.haldi, 0.15) },
     mid: (ctx, rng, W) => {
       // trees peep over the chart; the chart hangs from bamboo poles along the whole school ground
       scatter(rng.fork('trees'), W, [70, 130], (x) => {
@@ -820,7 +838,7 @@ export const SCENES: Record<string, () => SceneDef> = {
       // rows of children on mats, reciting with slates and books
       scatter(rng.fork('class'), W, [380, 560], (x, i) => wrapped(W, x, 110, (xx) => {
         const r2 = rng.fork(x);
-        mat(ctx, xx, 130, 110, i % 2 ? P.rani : P.haldi, i % 2 ? mix(P.rani, P.limewhite, 0.4) : P.marigold);
+        mat(ctx, xx, 130, 110, i % 2 ? P.rani : P.haldi, i % 2 ? mix(P.rani, P.skyCream, 0.3) : P.marigold);
         for (let k = 0; k < 5; k++) {
           const pose: Pose = r2.pick(['read', 'read', 'armsUp', 'sit']);
           person(ctx, xx - 44 + k * 22, 126, 0.95, { pose, cloth: r2.pick([P.peacock, P.limewhite, P.rani, P.haldi]), cloth2: P.neel, sari: k % 2 === 1, head: k % 2 ? 'bun' : 'none', facing: 1, skin: r2.next() });
@@ -828,7 +846,7 @@ export const SCENES: Record<string, () => SceneDef> = {
         pothi(ctx, xx + 70, 130, 24);
         if (i % 3 === 0) { bucket(ctx, xx - 72, 130, 0.7, P.ink, P.neel); person(ctx, xx - 90, 130, 1.25, { pose: 'point', cloth: P.peacock, cloth2: P.rani, sari: true, head: 'bun', facing: 1 }); }
       }));
-      scatter(rng.fork('beds'), W, [200, 320], (x) => wrapped(W, x, 30, (xx) => flowerBed(ctx, rng.fork(x), xx, 138, 40, 10)));
+      for (let x = 0; x < W; x += 30) wrapped(W, x, 30, (xx) => flowerBed(ctx, rng.fork(x), xx, 139, 40, 9));
     },
     fore: 'flowers',
     sign: { date: '20 Feb 2014', title: 'Classical Odia' },
@@ -853,18 +871,18 @@ export const SCENES: Record<string, () => SceneDef> = {
       },
       {
         // A poet under the banyan scratches verses onto palm leaf with an iron stylus; a parrot checks the spelling.
-        at: 0.42, plane: 'mid', w: 360, h: 240, y: 458,
+        at: 0.42, plane: 'near', w: 320, h: 190, y: 554,
         paint: (ctx, rng, _w, h) => {
           const gy = h - 6;
-          broadTree(ctx, rng, 170, gy, 260, 230, 0);
-          taperStroke(ctx, curvePts(170, gy - 120, 230, gy - 128, 280, gy - 112), 6, mix(P.laterite, P.ink, 0.4), 1, [1, 0.4]);
+          broadTree(ctx, rng, 150, gy, 200, 170, 0);
+          taperStroke(ctx, curvePts(160, gy - 120, 220, gy - 132, 268, gy - 124), 6, mix(P.laterite, P.ink, 0.4), 1, [1, 0.4]);
           mat(ctx, 170, gy, 90, P.rani, P.haldi);
           person(ctx, 160, gy - 4, 1.7, { pose: 'read', cloth: P.limewhite, cloth2: P.haldi, head: 'none', facing: 1, skin: 0.6 });
           pothi(ctx, 186, gy - 38, 28, true);
           taperStroke(ctx, [{ x: 178, y: gy - 30 }, { x: 186, y: gy - 46 }], 1.2, P.khondalite, 1, [1, 0.2]);
           for (let k = 0; k < 3; k++) pothi(ctx, 216 + k * 4, gy - k * 12, 30);
           // the parrot on the branch, leaning in
-          const bx = 228, by = gy - 128;
+          const bx = 236, by = gy - 128;
           dab(ctx, bx, by - 6, 6, 8, 0.5, P.tota, 1);
           dab(ctx, bx - 4, by - 14, 4.4, 4.4, 0, P.tota, 1);
           dab(ctx, bx - 8, by - 13, 2, 1.6, 0, P.sindoor, 1);
@@ -876,7 +894,7 @@ export const SCENES: Record<string, () => SceneDef> = {
       {
         // Grandmother shows a palm-leaf book to a girl, who shows her ଓ on a tablet. Old letters, new screens.
         at: 0.68, plane: 'near', w: 220, h: 110, y: 554,
-        paint: (ctx, _rng, w, h) => {
+        paint: (ctx, _rng, _w, h) => {
           const gy = h - 4;
           bench(ctx, 110, gy, 120, P.peacock);
           person(ctx, 82, gy - 8, 1.45, { pose: 'sit', cloth: P.limewhite, cloth2: P.rani, sari: true, head: 'veil', facing: 1, skin: 0.7 });
@@ -895,21 +913,21 @@ export const SCENES: Record<string, () => SceneDef> = {
       },
       {
         // A goat has started eating a letter chart. The class is negotiating.
-        at: 0.9, plane: 'mid', w: 240, h: 150, y: 456,
-        paint: (ctx, rng, _w, h) => {
+        at: 0.9, plane: 'mid', w: 330, h: 200, y: 456,
+        paint: (ctx, rng, _w, hh) => scaled(ctx, hh, 1.35, (h) => {
           const gy = h - 6;
           const wood = mix(P.laterite, P.ink, 0.2);
-          for (const px of [70, 150]) taperStroke(ctx, [{ x: px, y: gy }, { x: px, y: gy - 120 }], 3, wood, 1, [1, 1]);
-          paintedShape(ctx, rng, () => polyPath(ctx, [{ x: 60, y: gy - 126 }, { x: 160, y: gy - 126 }, { x: 160, y: gy - 50 }, { x: 132, y: gy - 46 }, { x: 60, y: gy - 50 }]), { x: 60, y: gy - 126, w: 100, h: 80 }, { base: P.limewhite, light: P.limewhite, shade: mix(P.limewhite, P.chandan, 0.4), rim: P.rani, rimW: 4, dabs: 16 });
+          for (const px of [70, 150]) taperStroke(ctx, [{ x: px, y: gy }, { x: px, y: gy - 112 }], 3, wood, 1, [1, 1]);
+          paintedShape(ctx, rng, () => polyPath(ctx, [{ x: 60, y: gy - 110 }, { x: 160, y: gy - 110 }, { x: 160, y: gy - 30 }, { x: 146, y: gy - 24 }, { x: 60, y: gy - 34 }]), { x: 60, y: gy - 110, w: 100, h: 86 }, { base: P.limewhite, light: P.limewhite, shade: mix(P.limewhite, P.chandan, 0.4), rim: P.rani, rimW: 4, dabs: 16 });
           ctx.textAlign = 'center';
           ctx.font = ODIA_FONT(52);
           ctx.fillStyle = P.peacock;
-          ctx.fillText('କ', 100, gy - 66);
-          chartPicture(ctx, rng, 'କ', 140, gy - 54);
+          ctx.fillText('କ', 98, gy - 50);
+          chartPicture(ctx, rng, 'କ', 138, gy - 40);
           goat(ctx, 186, gy, 1.5, -1, 0, P.limewhite);
           person(ctx, 30, gy, 1.4, { pose: 'pull', cloth: P.rani, head: 'bun', facing: 1, skin: 0.5 });
           person(ctx, 222, gy, 1.3, { pose: 'armsUp', cloth: P.haldi, head: 'none', facing: -1, skin: 0.2 });
-        },
+        }),
       },
     ],
   }),
@@ -917,15 +935,15 @@ export const SCENES: Record<string, () => SceneDef> = {
   // 35 · 2018 · Hockey comes home — a floodlit night at the stadium.
   r35: () => ({
     id: 'r35',
-    sky: { stops: NIGHT_SKY, moon: { x: 210, y: 92, r: 20 }, stars: 140, clouds: 'streak', cloudTint: mix(P.rani, P.limewhite, 0.4), halftone: mix(P.neel, P.peacock, 0.5), sun: { x: 900, y: 470, r: 0, colour: P.rani } },
+    sky: { stops: NIGHT_SKY, moon: { x: 210, y: 92, r: 20 }, stars: 140, clouds: 'streak', cloudTint: mix(P.rani, P.skyCream, 0.3), halftone: mix(P.neel, P.peacock, 0.5), sun: { x: 900, y: 470, r: 0, colour: P.rani } },
     far: [{ kind: 'hills', a: mix(P.neel, P.ink, 0.15), b: P.ink, height: [8, 34], haze: 0.05 }],
-    ground: { kind: 'land', plain: mix(P.peacock, P.neel, 0.35), plainDetail: 'grass', path: mix(P.neel, P.khondalite, 0.45), verge: mix(P.tota, P.neel, 0.45) },
+    ground: { kind: 'land', plain: NIGHT_PLAIN, plainDetail: 'grass', path: mix(P.neel, P.khondalite, 0.45), verge: mix(P.tota, P.neel, 0.45) },
     mid: (ctx, rng, W) => {
       // the city: blocks with lit windows
       scatter(rng.fork('blocks'), W, [50, 110], (x) => {
         const bw = rng.range(46, 84), bh = rng.range(50, 120);
         const body = rng.pick([mix(P.neel, P.peacock, 0.3), mix(P.neel, P.rani, 0.25), mix(P.neel, P.ink, 0.2)]);
-        const on = rng.pick([P.haldi, mix(P.haldi, P.limewhite, 0.5), mix(P.rani, P.limewhite, 0.4)]);
+        const on = rng.pick([P.haldi, mix(P.haldi, P.limewhite, 0.5), mix(P.rani, P.skyCream, 0.3)]);
         wrapped(W, x, bw / 2, (xx) => modernBlock(ctx, rng.fork(x), xx, 214, bw, bh, body, { lit: 0.5, glowColour: on }));
       });
       dimmed(ctx, W, 260, NIGHT, 0.45, (c) => {
@@ -1011,7 +1029,7 @@ export const SCENES: Record<string, () => SceneDef> = {
       {
         // Street hockey under the lamp: two bricks for a goal — and the dog has the ball.
         at: 0.5, plane: 'near', w: 260, h: 110, y: 552,
-        paint: (ctx, _rng, w, h) => {
+        paint: (ctx, _rng, _w, h) => {
           const gy = h - 6;
           streetLamp(ctx, 40, gy, 80, true, P.haldi);
           glow(ctx, 130, gy - 10, 110, P.haldi, 0.18);
@@ -1032,7 +1050,7 @@ export const SCENES: Record<string, () => SceneDef> = {
       {
         // The whole family on one scooter, flag flying, off to the match.
         at: 0.72, plane: 'mid', w: 240, h: 130, y: 448,
-        paint: (ctx, _rng, w, h) => {
+        paint: (ctx, _rng, _w, h) => {
           const gy = h - 4, x = 120;
           glow(ctx, x, gy - 30, 90, P.haldi, 0.2);
           scooterRider(ctx, x, gy, 2, P.peacock, { cloth: P.limewhite, head: 'helmet', lit: true, pillion: P.rani });
@@ -1044,12 +1062,21 @@ export const SCENES: Record<string, () => SceneDef> = {
       },
       {
         // Far away up north, Rourkela's new stadium glows by the steel town.
-        at: 0.9, plane: 'far', w: 420, h: 200, y: 440,
+        at: 0.9, plane: 'far', w: 480, h: 330, y: 452,
         paint: (ctx, rng, w, h) => {
-          const gy = h - 4;
-          blastFurnace(ctx, rng, 90, gy, 0.8, 0.0);
+          const top = h - 170;
+          blastFurnace(ctx, rng, 110, top + 6, 0.8, 0.0);
           wash(ctx, w, h, NIGHT, 0.45);
-          stadium(ctx, rng, 270, gy, 240, 60, 0.15);
+          ctx.fillStyle = mix(mix(P.tota, P.neel, 0.6), P.ink, 0.3);
+          ctx.beginPath();
+          ctx.moveTo(0, h);
+          ctx.quadraticCurveTo(40, top + 10, 140, top + 4);
+          ctx.lineTo(380, top);
+          ctx.quadraticCurveTo(450, top + 20, w, h);
+          ctx.closePath();
+          ctx.fill();
+          stadium(ctx, rng, 290, top + 4, 220, 56, 0.1);
+          glow(ctx, 290, top - 30, 140, P.haldi, 0.12);
         },
       },
     ],
@@ -1058,9 +1085,9 @@ export const SCENES: Record<string, () => SceneDef> = {
   // 36 · 17 Jan 2024 · The parikrama around Shree Mandira: lawns, shade and pilgrims by the outer wall.
   r36: () => ({
     id: 'r36',
-    sky: { stops: [[0, mix(P.seafoam, P.peacock, 0.22)], [0.55, mix(P.seafoam, P.skyCream, 0.55)], [1, mix(P.skyCream, P.haldi, 0.15)]], sun: { x: 250, y: 110, r: 34 }, clouds: 'cumulus' },
+    sky: { stops: DAY_SKY, sun: { x: 250, y: 110, r: 34 }, clouds: 'cumulus' },
     far: [{ kind: 'hills', a: mix(P.tota, P.skyCream, 0.55), b: P.peacock, height: [6, 22], trees: true, haze: 0.55 }],
-    ground: { kind: 'land', plain: mix(P.tota, P.haldi, 0.2), plainDetail: 'grass', path: mix(P.limewhite, P.chandan, 0.4), verge: mix(P.tota, P.haldi, 0.15) },
+    ground: { kind: 'land', plain: mix(P.tota, P.haldi, 0.2), plainDetail: 'grass', path: mix(P.rani, P.chandan, 0.35), verge: mix(P.tota, P.haldi, 0.15) },
     mid: (ctx, rng, W) => {
       // small shrines of the temple compound peep over the Meghanada Pacheri
       scatter(rng.fork('shrines'), W, [380, 560], (x) => wrapped(W, x, 30, (xx) => rekhaDeula(ctx, rng.fork(x), xx, 178, rng.range(56, 80), { stone: P.limewhite, haze: 0.35, flagColour: rng.pick([P.sindoor, P.haldi]) })));
@@ -1085,7 +1112,10 @@ export const SCENES: Record<string, () => SceneDef> = {
       scatter(rng.fork('pilgrims'), W, [180, 300], (x) => wrapped(W, x, 60, (xx) => crowd(ctx, rng.fork(x), xx - 40, xx + 40, 214, 0.8, { poses: ['walk'], facing: 1, density: 1.3, cloths: [P.rani, P.limewhite, P.haldi, P.marigold, P.peacock, P.rani] })));
     },
     near: (ctx, rng, W) => {
-      scatter(rng.fork('beds'), W, [150, 260], (x) => wrapped(W, x, 40, (xx) => flowerBed(ctx, rng.fork(x), xx, 134, rng.range(40, 70), 12)));
+      // clipped lawn stripes and two long bougainvillea hedges
+      for (let y = 30; y < 120; y += 18) { ctx.fillStyle = withAlpha(mix(P.tota, P.haldi, 0.5), 0.18); ctx.fillRect(0, y, W, 8); }
+      hedgeRow(ctx, rng.fork('hedgeBack'), W, 44, 12, 0.15);
+      hedgeRow(ctx, rng.fork('hedge'), W, 138, 16);
       scatter(rng.fork('folk'), W, [360, 520], (x, i) => wrapped(W, x, 60, (xx) => {
         const r2 = rng.fork(x);
         if (i % 3 === 0) {
@@ -1102,9 +1132,9 @@ export const SCENES: Record<string, () => SceneDef> = {
     landmarks: [
       {
         // Shree Jagannath temple: lime-white, the Nilachakra and the flag above the wall — a backdrop only.
-        at: 0.5, plane: 'far', w: 420, h: 330, y: 452,
+        at: 0.5, plane: 'far', w: 420, h: 380, y: 452,
         paint: (ctx, rng, w, h) => {
-          jagannathTemple(ctx, rng, w / 2 + 10, h - 2, 1.12, 0.12);
+          jagannathTemple(ctx, rng, w / 2 + 10, h - 2, 1.22, 0.1);
         },
       },
       {
@@ -1127,8 +1157,8 @@ export const SCENES: Record<string, () => SceneDef> = {
       },
       {
         // A boy feeds the pigeons; one has settled on his grandfather's head and will not be moved.
-        at: 0.4, plane: 'mid', w: 240, h: 130, y: 448,
-        paint: (ctx, rng, _w, h) => {
+        at: 0.4, plane: 'mid', w: 360, h: 200, y: 448,
+        paint: (ctx, rng, _w, hh) => scaled(ctx, hh, 1.5, (h) => {
           const gy = h - 4;
           bench(ctx, 70, gy, 60, P.laterite);
           person(ctx, 64, gy - 8, 1.5, { pose: 'sit', cloth: P.limewhite, cloth2: P.haldi, head: 'none', facing: 1, skin: 0.8 });
@@ -1137,12 +1167,12 @@ export const SCENES: Record<string, () => SceneDef> = {
           for (let i = 0; i < 9; i++) dab(ctx, 150 + rng.next() * 50, gy - rng.next() * 3, 1, 0.8, 0, P.haldi, 1);
           for (let i = 0; i < 6; i++) pigeon(ctx, 150 + i * 13 + rng.range(-3, 3), gy, 1.1, false, i % 2 ? 1 : -1);
           for (let i = 0; i < 4; i++) pigeon(ctx, 150 + i * 20, gy - 40 - rng.next() * 30, 1.1, true, i % 2 ? 1 : -1);
-        },
+        }),
       },
       {
         // The cow has taken the shade umbrella; the pilgrims stand in the sun and don't mind.
         at: 0.72, plane: 'mid', w: 280, h: 140, y: 448,
-        paint: (ctx, _rng, w, h) => {
+        paint: (ctx, _rng, _w, h) => {
           const gy = h - 4;
           brolly(ctx, 120, gy - 74, 52, P.rani);
           softShadow(ctx, 120, gy, 60, 6, P.ink, 0.3);
@@ -1155,7 +1185,7 @@ export const SCENES: Record<string, () => SceneDef> = {
       {
         // An e-cart carries elderly pilgrims round the corridor.
         at: 0.9, plane: 'near', w: 200, h: 100, y: 552,
-        paint: (ctx, rng, w, h) => {
+        paint: (ctx, rng, _w, h) => {
           const gy = h - 4, x = 100;
           softShadow(ctx, x, gy, 60, 4, P.ink, 0.3);
           paintedShape(ctx, rng, () => polyPath(ctx, [{ x: x - 56, y: gy - 8 }, { x: x - 56, y: gy - 24 }, { x: x + 56, y: gy - 24 }, { x: x + 60, y: gy - 8 }]), { x: x - 56, y: gy - 24, w: 116, h: 16 }, { base: P.limewhite, light: P.limewhite, shade: mix(P.limewhite, P.khondalite, 0.3), dabs: 6 });
@@ -1175,11 +1205,11 @@ export const SCENES: Record<string, () => SceneDef> = {
   r37: () => ({
     id: 'r37',
     sky: {
-      stops: [[0, mix(P.neel, P.ink, 0.3)], [0.42, P.neel], [0.72, mix(P.neel, P.rani, 0.55)], [0.9, mix(P.rani, P.marigold, 0.4)], [1, mix(P.marigold, P.haldi, 0.5)]],
-      moon: { x: 1080, y: 84, r: 16 }, stars: 110, clouds: 'streak', cloudTint: mix(P.rani, P.limewhite, 0.35), halftone: mix(P.neel, P.peacock, 0.5),
+      stops: [[0, mix(P.neel, P.ink, 0.35)], [0.3, mix(P.neel, P.ink, 0.05)], [0.5, mix(P.neel, P.rani, 0.5)], [0.68, mix(P.rani, P.neel, 0.25)], [0.88, mix(P.rani, P.marigold, 0.3)], [1, mix(P.marigold, P.haldi, 0.45)]],
+      moon: { x: 1080, y: 84, r: 16 }, stars: 110, clouds: 'streak', cloudTint: mix(P.rani, P.skyCream, 0.3), halftone: mix(P.neel, P.peacock, 0.5),
     },
     far: [{ kind: 'hills', a: mix(P.neel, P.rani, 0.2), b: P.ink, height: [10, 40], haze: 0.05 }],
-    ground: { kind: 'land', plain: mix(P.peacock, P.neel, 0.4), plainDetail: 'grass', path: mix(P.neel, P.khondalite, 0.45), verge: mix(P.tota, P.neel, 0.5) },
+    ground: { kind: 'land', plain: NIGHT_PLAIN, plainDetail: 'grass', path: mix(P.neel, P.khondalite, 0.45), verge: mix(P.tota, P.neel, 0.5) },
     mid: (ctx, rng, W) => {
       // glass blocks of the campus, rani edge-lights, cranes with warning lamps
       scatter(rng.fork('blocks'), W, [70, 150], (x, i) => {
@@ -1285,7 +1315,7 @@ export const SCENES: Record<string, () => SceneDef> = {
       {
         // Thought for the road: a museum window with a stone adze from Golbai Sasan beside a silicon wafer.
         at: 0.45, plane: 'near', w: 260, h: 140, y: 556,
-        paint: (ctx, _rng, w, h) => {
+        paint: (ctx, _rng, _w, h) => {
           const gy = h - 4;
           ctx.fillStyle = mix(P.neel, P.peacock, 0.35);
           ctx.fillRect(30, gy - 120, 200, 120);
@@ -1313,7 +1343,7 @@ export const SCENES: Record<string, () => SceneDef> = {
       {
         // Chai break: a worker still in his cleanroom suit tries to drink tea through the mask.
         at: 0.7, plane: 'mid', w: 300, h: 150, y: 446,
-        paint: (ctx, _rng, w, h) => {
+        paint: (ctx, _rng, _w, h) => {
           const gy = h - 4;
           glow(ctx, 120, gy - 40, 90, P.marigold, 0.45);
           ctx.fillStyle = P.tota;
@@ -1334,7 +1364,7 @@ export const SCENES: Record<string, () => SceneDef> = {
       {
         // A cow inspects a delivery robot. The robot waits politely.
         at: 0.9, plane: 'near', w: 160, h: 80, y: 556,
-        paint: (ctx, _rng, w, h) => {
+        paint: (ctx, _rng, _w, h) => {
           const gy = h - 4;
           deliveryBot(ctx, 110, gy, 1.5);
           cow(ctx, 60, gy, 1.2, { grazing: true, facing: 1 });

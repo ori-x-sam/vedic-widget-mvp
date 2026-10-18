@@ -7,6 +7,8 @@ import { RecordStage } from '../art/stage';
 import { DEPTH } from '../art/layers';
 import { audio } from '../audio';
 import { RECORDS } from '../data/records';
+import { P } from '../data/palettes';
+import { hexToRgb } from '../lib/colour';
 import { input } from '../systems/input';
 import { journey, newJourney } from '../systems/journey';
 import { save } from '../systems/save';
@@ -38,7 +40,7 @@ export class Finale extends Phaser.Scene {
     this.stage.reducedMotion = isReducedMotion();
     this.boat = this.add.image(640, art.laneY + 18, 'fx:paperBoat').setScale(0.5).setDepth(DEPTH.entities);
     this.glow = this.add.image(652, art.laneY - 6, 'fx:glow').setScale(1.4).setAlpha(0.7).setDepth(DEPTH.entities + 0.1);
-    this.cameras.main.fadeIn(1400, 0xf6, 0xef, 0xe0);
+    this.cameras.main.fadeIn(1400, ...hexToRgb(P.limewhite));
     showRecordHeader({ ...RECORDS.f8, headline: 'The voyage never ended.' }, true);
     audio.play(RECORDS.r01);
     input.enabled = false;

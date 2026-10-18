@@ -13,7 +13,9 @@
     "test": "vitest run",
     "qa:colour": "tsx tools/colour-qa.ts",
     "build:single": "npm run build && tsx tools/build-single.ts",
-    "check": "npm run typecheck && npm run lint:colours && npm run test"
+    "check": "npm run typecheck && npm run lint:colours && npm run test",
+    "bot": "tsx tools/solvability-bot.ts",
+    "difficulty": "tsx tools/difficulty-report.ts"
   },
   "dependencies": {
     "@fontsource/baloo-bhaina-2": "^5.3.0",

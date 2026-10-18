@@ -7,7 +7,7 @@ import { DERIVED, P } from '../../data/palettes';
 import { mix, withAlpha } from '../../lib/colour';
 import type { Rng } from '../../lib/rng';
 import { clipTo, curvePts, dab, dabField, glow, paintedShape, polyPath, smoothPath, softShadow, taperStroke, vGradient, wrapped, type Ctx, type Pt } from '../brush';
-import { bank, scatter, treeRow, type SceneDef } from '../engine';
+import { bank, scatter, treeRow, type Landmark, type SceneDef } from '../engine';
 import { colonial, house, pandal, rekhaDeula, stall } from '../kit/buildings';
 import { bullockCartBg } from '../kit/craft';
 import { crowd, flag, person, skinTone, type Headwear, type Pose } from '../kit/people';
@@ -456,6 +456,30 @@ function townRow(ctx: Ctx, rng: Rng, W: number, y: number, haze: number, roofs: 
   scatter(rng, W, step, (x) => wrapped(W, x, 40, (xx) => house(ctx, rng.fork(x), xx, y + rng.range(-3, 3), rng.range(34, 56), rng.range(36, 56), { roof: rng.pick(roofs), haze })));
 }
 
+/** Paint a vignette k× larger than authored (canvas grows to match), so small story details read at a glance. */
+function big(k: number, lm: Landmark): Landmark {
+  return {
+    ...lm,
+    w: Math.round(lm.w * k),
+    h: Math.round(lm.h * k),
+    paint: (ctx, rng, w, h) => {
+      ctx.save();
+      ctx.scale(k, k);
+      lm.paint(ctx, rng, w / k, h / k);
+      ctx.restore();
+    },
+  };
+}
+
+/** Night: darken everything already painted on this canvas toward indigo (lamps go on afterwards). */
+function nightWash(ctx: Ctx, w: number, h: number, alpha = 0.62): void {
+  ctx.save();
+  ctx.globalCompositeOperation = 'source-atop';
+  ctx.fillStyle = withAlpha(mix(P.neel, P.ink, 0.35), alpha);
+  ctx.fillRect(0, 0, w, h);
+  ctx.restore();
+}
+
 // ---- scenes -------------------------------------------------------------------------
 export const SCENES: Record<string, () => SceneDef> = {
   // 20 · 1803 · Khurda — the Company arrives below Barunei hill.
@@ -514,7 +538,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           ctx.beginPath(); ctx.moveTo(560, h); ctx.lineTo(560, h - 24); ctx.quadraticCurveTo(572, h - 36, 584, h - 24); ctx.lineTo(584, h); ctx.closePath(); ctx.fill();
         },
       },
-      {
+      big(1.15, {
         // The toll gate: a clerk under a black umbrella, ledger open; the queue waits.
         at: 0.14, plane: 'mid', w: 560, h: 150,
         paint: (ctx, rng, w, h) => {
@@ -547,7 +571,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           goat(ctx, 172, g, 1.4, 1);
           person(ctx, 300, g, 1.7, { pose: 'wave', cloth: P.limewhite, head: 'turban', facing: -1, skin: 0.7 });
         },
-      },
+      }),
       {
         // Far off on the road, a red-coated column marches — just people, a long way from home.
         at: 0.5, plane: 'mid', w: 460, h: 80,
@@ -564,7 +588,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           flag(ctx, 82, g, 46, mix(P.limewhite, P.neel, 0.2), 0.2, 2);
         },
       },
-      {
+      big(1.1, {
         // A peacock on the old fort wall, unbothered by the change of rulers.
         at: 0.64, plane: 'mid', w: 440, h: 170,
         paint: (ctx, rng, _w, h) => {
@@ -581,8 +605,8 @@ export const SCENES: Record<string, () => SceneDef> = {
           groundPatch(ctx, rng, 30, 410, g + 2, mix(P.tota, P.haldi, 0.3));
           peacock(ctx, 240, g - 72, 1.9, -1);
         },
-      },
-      {
+      }),
+      big(1.4, {
         // The cowrie or the coin? A clerk weighs a heap of cowries against three silver coins — the beam stays level.
         at: 0.86, plane: 'mid', w: 480, h: 170,
         paint: (ctx, rng, w, h) => {
@@ -612,7 +636,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           person(ctx, 168, g, 1.05, { pose: 'point', cloth: P.limewhite, facing: 1, skin: 0.5 });
           crow(ctx, 340, g - 116, 1.4, -1);
         },
-      },
+      }),
     ],
   }),
 
@@ -635,14 +659,14 @@ export const SCENES: Record<string, () => SceneDef> = {
     },
     near: (ctx, rng, W) => {
       scatter(rng.fork('ferns'), W, [40, 90], (x) => wrapped(W, x, 30, (xx) => reedTuft(ctx, rng.fork(x), xx, 136, rng.range(26, 40), rng.range(24, 40), { dark: mix(P.tota, P.neel, 0.45), mid: mix(P.tota, P.peacock, 0.25), tip: mix(P.tota, P.haldi, 0.4) }, 10)));
-      scatter(rng.fork('trunks'), W, [260, 460], (x) => wrapped(W, x, 50, (xx) => broadTree(ctx, rng.fork(x), xx, 134, rng.range(60, 80), rng.range(110, 130))));
-      scatter(rng.fork('bamboo'), W, [380, 640], (x) => wrapped(W, x, 30, (xx) => bamboo(ctx, rng.fork(x), xx, 136, rng.range(80, 110))), 150);
+      scatter(rng.fork('bush'), W, [160, 300], (x) => wrapped(W, x, 40, (xx) => broadTree(ctx, rng.fork(x), xx, 134, rng.range(44, 64), rng.range(34, 48))));
+      scatter(rng.fork('bamboo'), W, [300, 520], (x) => wrapped(W, x, 30, (xx) => bamboo(ctx, rng.fork(x), xx, 136, rng.range(80, 110))), 150);
     },
     fore: 'grass',
     tone: tone(0.62),
     sign: { date: 'Mar 1817', title: 'Paika Bidroha' },
     landmarks: [
-      {
+      big(1.4, {
         // Farewell at the hut: a tilak for the Paika before he joins the others.
         at: 0.13, plane: 'mid', w: 340, h: 150,
         paint: (ctx, rng, w, h) => {
@@ -665,7 +689,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           dab(ctx, 305, g - 12, 1.2, 1.4, 0, P.sindoor, 1);
           taperStroke(ctx, [{ x: 307, y: g - 9 }, { x: 310, y: g - 8 }], 1, P.haldi, 1, [1, 0.3]);
         },
-      },
+      }),
       {
         // The Paikas line up at the forest edge in the first light; their commander rides along the line.
         at: 0.42, plane: 'mid', w: 1120, h: 190,
@@ -697,7 +721,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           rider(ctx, 120, g, 2.1, 1, P.sindoor, P.haldi, 'wave', 'turban');
         },
       },
-      {
+      big(1.3, {
         // What the quarrel was about: salt pans under new controls, and taxes wanted in silver, not cowries.
         at: 0.74, plane: 'mid', w: 560, h: 150,
         paint: (ctx, rng, w, h) => {
@@ -717,17 +741,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           person(ctx, 300, g, 1.75, { pose: 'point', cloth: P.haldi, cloth2: P.sindoor, head: 'turban', facing: 1, skin: 0.6 });
           person(ctx, 358, g, 1.7, { pose: 'stand', cloth: P.limewhite, head: 'none', facing: -1, skin: 0.4 });
         },
-      },
-      {
-        // A thin smoke on the far horizon — a silhouette only.
-        at: 0.9, plane: 'far', w: 260, h: 260,
-        paint: (ctx, _rng, w, h) => {
-          for (let i = 0; i < 70; i++) {
-            const t = i / 70;
-            dab(ctx, w / 2 + Math.sin(t * 5) * 14 + t * 70, h - 6 - t * (h - 30), 8 + t * 26, 6 + t * 16, 0, mix(P.khondalite, P.neel, 0.3), 0.12 * (1 - t * 0.6));
-          }
-        },
-      },
+      }),
     ],
   }),
 
@@ -758,7 +772,7 @@ export const SCENES: Record<string, () => SceneDef> = {
     tone: tone(0.9),
     sign: { date: '1866', title: "Na'anka" },
     landmarks: [
-      {
+      big(1.3, {
         // A dry well; a single crow on its rim.
         at: 0.18, plane: 'mid', w: 300, h: 160,
         paint: (ctx, rng, w, h) => {
@@ -768,7 +782,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           well(ctx, rng, 170, g, 1.6);
           crow(ctx, 150, g - 32, 1.6, 1);
         },
-      },
+      }),
       {
         // Anna chhatra: volunteers ladle rice from big pots; people sit in a quiet row with leaf plates.
         at: 0.5, plane: 'mid', w: 660, h: 180,
@@ -794,7 +808,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           for (let i = 0; i < 4; i++) dab(ctx, 610 + i * 12, g - 7, 5, 6, 0, mix(P.laterite, P.khondalite, 0.3), 1);
         },
       },
-      {
+      big(1.15, {
         // Relief arrives slowly by cart along a bad road.
         at: 0.82, plane: 'mid', w: 480, h: 130,
         paint: (ctx, rng, w, h) => {
@@ -807,7 +821,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           person(ctx, 210, g, 1.75, { pose: 'carry', cloth: P.limewhite, head: 'none', facing: 1, skin: 0.6, phase: 1 });
           person(ctx, 400, g, 1.75, { pose: 'walk', cloth: P.limewhite, cloth2: P.chandan, head: 'turban', facing: 1, skin: 0.45, phase: 2 });
         },
-      },
+      }),
     ],
   }),
 
@@ -816,10 +830,11 @@ export const SCENES: Record<string, () => SceneDef> = {
     id: 'r23',
     sky: { stops: [[0, mix(P.seafoam, P.neel, 0.2)], [0.55, mix(P.skyCream, P.seafoam, 0.3)], [1, P.skyCream]], sun: { x: 1050, y: 100, r: 32 }, clouds: 'cumulus' },
     far: [{ kind: 'hills', a: mix(mix(P.tota, P.neel, 0.4), P.skyCream, 0.5), b: P.neel, height: [10, 40], trees: true, haze: 0.55 }],
-    ground: { kind: 'land', plain: mix(P.chandan, P.tota, 0.25), plainDetail: 'paving', path: mix(P.laterite, P.chandan, 0.4), verge: mix(P.tota, P.laterite, 0.3) },
+    ground: { kind: 'land', plain: mix(P.tota, P.chandan, 0.35), plainDetail: 'grass', path: mix(P.laterite, P.chandan, 0.4), verge: mix(P.tota, P.laterite, 0.3) },
     mid: (ctx, rng, W) => {
       // Far bank of the Mahanadi, the wide river with sails, and the near bank of the town.
-      treeRow(ctx, rng.fork('far'), W, 150, 0.5, 0.4);
+      scatter(rng.fork('far'), W, [40, 80], (x) => wrapped(W, x, 40, (xx) => broadTree(ctx, rng.fork(x), xx, 150, rng.range(50, 80), rng.range(46, 70), 0.5)));
+      scatter(rng.fork('farPalm'), W, [120, 240], (x) => wrapped(W, x, 30, (xx) => coconutPalm(ctx, rng.fork(x), xx, 152, rng.range(80, 110), rng.range(-0.12, 0.12), 0.45)));
       townRow(ctx, rng.fork('farTown'), W, 152, 0.45, ['tile', 'flat'], [60, 140]);
       vGradient(ctx, 0, 150, W, 72, [[0, mix(P.seafoam, P.limewhite, 0.3), 1], [0.5, mix(P.seafoam, P.peacock, 0.4), 1], [1, mix(P.peacock, P.neel, 0.3), 1]]);
       for (let i = 0; i < 260; i++) {
@@ -841,9 +856,15 @@ export const SCENES: Record<string, () => SceneDef> = {
       // The town street: shopfronts, readers, a boy with a bundle of papers.
       scatter(rng.fork('shops'), W, [300, 480], (x, i) => wrapped(W, x, 80, (xx) => {
         const r2 = rng.fork(x);
-        house(ctx, r2, xx, 132, 70, 74, { roof: 'tile' });
-        if (i % 2) person(ctx, xx + 52, 132, 1.25, { pose: 'read', cloth: P.limewhite, cloth2: P.haldi, head: 'cap', facing: -1, skin: r2.next() });
-        else crowd(ctx, r2, xx + 44, xx + 90, 133, 1.2, { density: 2.4 });
+        if (i % 3 === 0) {
+          stall(ctx, xx, 130, 64, 46, [P.limewhite, P.neel]);
+          for (let k = 0; k < 4; k++) sheet(ctx, xx - 22 + k * 15, 100, 11, 14, r2.range(-0.1, 0.1));
+          person(ctx, xx + 46, 132, 1.25, { pose: 'read', cloth: P.limewhite, cloth2: P.haldi, head: 'cap', facing: -1, skin: r2.next() });
+        } else if (i % 3 === 1) {
+          broadTree(ctx, r2, xx, 134, 70, 64);
+          person(ctx, xx + 4, 132, 1.2, { pose: 'sit', cloth: P.limewhite, head: 'none', facing: 1, skin: r2.next() });
+          person(ctx, xx + 40, 132, 1.25, { pose: 'read', cloth: P.sindoor, cloth2: P.haldi, sari: true, head: 'veil', facing: -1, skin: r2.next() });
+        } else crowd(ctx, r2, xx - 30, xx + 40, 133, 1.2, { density: 2.2, poses: ['walk', 'read', 'stand'] });
       }));
       wrapped(W, 1150, 40, (xx) => { person(ctx, xx, 132, 1.0, { pose: 'carry', cloth: P.haldi, facing: 1 }); goat(ctx, xx + 40, 132, 1.1, -1); });
     },
@@ -862,7 +883,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           kite(ctx, 330, 120, 1.1, P.peacock, P.limewhite, 'ଅ', -0.1, 212, g - 34);
         },
       },
-      {
+      big(1.1, {
         // The hand-press shop: sheets drying on lines, a printer with ink on his nose holds up the first page.
         at: 0.32, plane: 'mid', w: 680, h: 220,
         paint: (ctx, rng, w, h) => {
@@ -911,7 +932,7 @@ export const SCENES: Record<string, () => SceneDef> = {
             }
           }
         },
-      },
+      }),
       {
         // The College across the river (later Ravenshaw).
         at: 0.55, plane: 'mid', y: 354, w: 420, h: 150,
@@ -923,7 +944,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           coconutPalm(ctx, rng, 360, g, 120, -0.06, 0.4);
         },
       },
-      {
+      big(1.35, {
         // An old scribe with his palm-leaf pothi peers at a printed page through his spectacles.
         at: 0.72, plane: 'mid', w: 380, h: 160,
         paint: (ctx, rng, _w, h) => {
@@ -944,9 +965,11 @@ export const SCENES: Record<string, () => SceneDef> = {
           }
           // the scribe, seated, a leaf and stylus in hand
           const s = 1.9, sx = 130;
-          person(ctx, sx, g - 14, s, { pose: 'read', cloth: P.limewhite, cloth2: P.chandan, head: 'none', facing: 1, skin: 0.7 });
+          person(ctx, sx, g - 14, s, { pose: 'sit', cloth: P.limewhite, cloth2: P.chandan, head: 'none', facing: 1, skin: 0.7 });
+          taperStroke(ctx, [{ x: sx, y: g - 14 - 23 * s }, { x: sx + 6 * s, y: g - 14 - 19 * s }, { x: sx + 9 * s, y: g - 14 - 21 * s }], 2.4 * s, skinTone(0.7), 1, [1, 0.75]);
           ctx.fillStyle = mix(P.haldi, P.chandan, 0.3);
-          ctx.fillRect(sx + 4, g - 14 - 22 * s, 22, 3);
+          ctx.fillRect(sx + 8, g - 14 - 22 * s, 26, 3);
+          taperStroke(ctx, [{ x: sx + 16, y: g - 14 - 23 * s }, { x: sx + 22, y: g - 14 - 30 * s }], 1, P.khondalite, 1, [1, 0.3]);
           ctx.strokeStyle = P.ink;
           ctx.lineWidth = 0.9;
           const hx = sx + 1.3 * s, hy = g - 14 - 29.6 * s;
@@ -961,7 +984,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           ctx.fillStyle = WOOD;
           ctx.fillRect(268, g - 75, 44, 2);
         },
-      },
+      }),
       {
         // More letter-kites over the river bank.
         at: 0.92, plane: 'mid', w: 380, h: 300,
@@ -988,19 +1011,20 @@ export const SCENES: Record<string, () => SceneDef> = {
       townRow(ctx, rng.fork('town'), W, 236, 0.12, ['tile', 'tile', 'flat'], [52, 96]);
       // bunting strung over the lanes
       scatter(rng.fork('bunting'), W, [260, 420], (x) => wrapped(W, x, 90, (xx) => bunting(ctx, xx - 80, 168, xx + 80, 172, 16, 8, [P.sindoor, P.haldi, P.limewhite, P.tota], 0.1)));
+      // kerosene lamp posts along the road
+      scatter(rng.fork('lamps'), W, [260, 420], (x) => wrapped(W, x, 10, (xx) => {
+        const post = mix(P.neel, P.ink, 0.35);
+        taperStroke(ctx, [{ x: xx, y: 248 }, { x: xx, y: 196 }], 2.2, post, 1, [1, 1]);
+        ctx.fillStyle = withAlpha(P.limewhite, 0.85);
+        ctx.fillRect(xx - 3.5, 186, 7, 8);
+        ctx.fillStyle = post;
+        ctx.fillRect(xx - 4.5, 194, 9, 2);
+        ctx.beginPath(); ctx.moveTo(xx - 5, 187); ctx.lineTo(xx, 181); ctx.lineTo(xx + 5, 187); ctx.closePath(); ctx.fill();
+      }), 60);
       bank(ctx, rng.fork('bank'), W, 242, mix(P.tota, P.haldi, 0.25), mix(P.tota, P.laterite, 0.35));
     },
     near: (ctx, rng, W) => {
-      // Delegates walking in, umbrellas and shawls; kerosene lamp posts.
-      scatter(rng.fork('lamps'), W, [400, 600], (x) => wrapped(W, x, 10, (xx) => {
-        taperStroke(ctx, [{ x: xx, y: 134 }, { x: xx, y: 64 }], 3, mix(P.neel, P.ink, 0.4), 1, [1, 1]);
-        ctx.fillStyle = mix(P.neel, P.ink, 0.4);
-        ctx.fillRect(xx - 6, 52, 12, 3);
-        ctx.fillStyle = withAlpha(P.limewhite, 0.8);
-        ctx.fillRect(xx - 5, 55, 10, 11);
-        ctx.fillStyle = mix(P.neel, P.ink, 0.4);
-        ctx.beginPath(); ctx.moveTo(xx - 7, 54); ctx.lineTo(xx, 46); ctx.lineTo(xx + 7, 54); ctx.closePath(); ctx.fill();
-      }), 100);
+      // Delegates walking in, umbrellas and shawls.
       scatter(rng.fork('walkers'), W, [220, 380], (x, i) => wrapped(W, x, 60, (xx) => {
         const r2 = rng.fork(x);
         crowd(ctx, r2, xx - 40, xx + 30, 133, 1.2, { facing: 1, poses: ['walk'], cloths: [P.limewhite, P.limewhite, P.haldi, P.sindoor, P.chandan], density: 2 });
@@ -1012,7 +1036,7 @@ export const SCENES: Record<string, () => SceneDef> = {
     tone: tone(0.62),
     sign: { date: '30 Dec 1903', title: 'Utkal Sammilani' },
     landmarks: [
-      {
+      big(1.25, {
         // Bicycles parked in a row; a boy minds them.
         at: 0.2, plane: 'mid', w: 440, h: 150,
         paint: (ctx, rng, w, h) => {
@@ -1025,7 +1049,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           bicycle(ctx, 400, g, 1.5, P.neel);
           person(ctx, 380, g, 1.75, { pose: 'pull', cloth: P.limewhite, cloth2: P.chandan, head: 'turban', facing: 1, phase: 1, skin: 0.4 });
         },
-      },
+      }),
       {
         // The meeting tent: a speaker at the lectern, the hall full, more chairs being set out.
         at: 0.45, plane: 'mid', w: 700, h: 230,
@@ -1057,7 +1081,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           person(ctx, 46, g, 1.7, { pose: 'carry', cloth: P.limewhite, cloth2: P.haldi, head: 'cap', facing: 1, skin: 0.6 });
         },
       },
-      {
+      big(1.25, {
         // A goat has found the banner — and is eating its corner. A volunteer runs to stop it.
         at: 0.67, plane: 'mid', w: 400, h: 170,
         paint: (ctx, rng, w, h) => {
@@ -1065,10 +1089,10 @@ export const SCENES: Record<string, () => SceneDef> = {
           groundPatch(ctx, rng, 20, w - 20, g + 2, mix(P.tota, P.chandan, 0.35));
           for (const px of [90, 290]) taperStroke(ctx, [{ x: px, y: g }, { x: px, y: g - 130 }], 4, mix(P.haldi, P.laterite, 0.4), 1, [1, 1]);
           // banner: hanging cloth, the right lower corner tugged down to the goat
-          ctx.fillStyle = P.limewhite;
+          ctx.fillStyle = mix(P.marigold, P.limewhite, 0.5);
           ctx.beginPath();
           ctx.moveTo(92, g - 124); ctx.lineTo(288, g - 124); ctx.lineTo(288, g - 92);
-          ctx.quadraticCurveTo(300, g - 60, 316, g - 36);
+          ctx.quadraticCurveTo(298, g - 60, 318, g - 36);
           ctx.quadraticCurveTo(250, g - 74, 92, g - 78);
           ctx.closePath();
           ctx.fill();
@@ -1076,12 +1100,13 @@ export const SCENES: Record<string, () => SceneDef> = {
           ctx.lineWidth = 3;
           ctx.stroke();
           for (let i = 0; i < 4; i++) { dab(ctx, 120 + i * 44, g - 101, 8, 8, 0, i % 2 ? P.tota : P.haldi, 1); dab(ctx, 120 + i * 44, g - 101, 3, 3, 0, P.sindoor, 1); }
-          goat(ctx, 330, g, 1.9, -1);
+          softShadow(ctx, 352, g, 30, 5, P.ink, 0.35);
+          goat(ctx, 350, g, 2, -1);
           person(ctx, 60, g, 1.8, { pose: 'armsUp', cloth: P.limewhite, cloth2: P.haldi, head: 'cap', facing: 1, phase: 1, skin: 0.5 });
           person(ctx, 200, g, 1.1, { pose: 'point', cloth: P.sindoor, facing: 1, skin: 0.4 });
         },
-      },
-      {
+      }),
+      big(1.15, {
         // Delegates from far districts arrive by bullock cart, umbrellas up.
         at: 0.9, plane: 'mid', w: 480, h: 150,
         paint: (ctx, rng, w, h) => {
@@ -1093,7 +1118,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           umbrella(ctx, 218, g - 24, 18, mix(P.ink, P.neel, 0.3));
           person(ctx, 420, g, 1.8, { pose: 'wave', cloth: P.limewhite, cloth2: P.haldi, head: 'cap', facing: -1, skin: 0.4 });
         },
-      },
+      }),
     ],
   }),
 
@@ -1104,8 +1129,9 @@ export const SCENES: Record<string, () => SceneDef> = {
     far: [{ kind: 'hills', a: mix(P.tota, P.skyCream, 0.35), b: P.peacock, height: [10, 40], trees: true, haze: 0.4 }],
     ground: { kind: 'land', plain: mix(P.tota, P.haldi, 0.3), plainDetail: 'grass', path: mix(P.laterite, P.chandan, 0.3), verge: mix(P.tota, P.laterite, 0.15) },
     mid: (ctx, rng, W) => {
-      treeRow(ctx, rng.fork('trees'), W, 194, 0.25, 0.3);
-      townRow(ctx, rng.fork('town'), W, 236, 0.05, ['tile', 'tile', 'flat'], [50, 90]);
+      scatter(rng.fork('palms'), W, [160, 320], (x) => wrapped(W, x, 40, (xx) => coconutPalm(ctx, rng.fork(x), xx, 232, rng.range(110, 150), rng.range(-0.12, 0.12), 0.15)));
+      scatter(rng.fork('trees'), W, [260, 460], (x) => wrapped(W, x, 50, (xx) => broadTree(ctx, rng.fork(x), xx, 232, rng.range(70, 100), rng.range(60, 80), 0.15)));
+      townRow(ctx, rng.fork('town'), W, 236, 0.05, ['tile', 'tile', 'flat'], [70, 130]);
       // marigold garlands and flags between the houses
       scatter(rng.fork('garlands'), W, [180, 280], (x, i) => wrapped(W, x, 110, (xx) => {
         garland(ctx, xx - 100, 176, xx + 100, 178, 22, 1, i % 2 ? [P.marigold, P.haldi] : [P.marigold, P.sindoor]);
@@ -1123,16 +1149,15 @@ export const SCENES: Record<string, () => SceneDef> = {
         crowd(ctx, r2, xx - 50, xx + 40, 133, 1.25, { poses: ['armsUp', 'wave', 'walk', 'cymbal'], density: 2 });
         if (i % 2) stall(ctx, xx + 80, 132, 60, 44, [P.rani, P.haldi]);
       }));
-      scatter(rng.fork('poles'), W, [500, 700], (x, i) => wrapped(W, x, 20, (xx) => flag(ctx, xx, 136, 90, [P.sindoor, P.haldi, P.tota][i % 3], 0, 3)), 200);
     },
     fore: 'flowers',
     tone: tone(0.75),
     flood: true,
     sign: { date: '1 Apr 1936', title: 'Utkal Divas' },
     landmarks: [
-      {
+      big(1.6, {
         // Barabati fort beyond its moat, flags on the bastions.
-        at: 0.4, plane: 'far', w: 900, h: 150,
+        at: 0.36, plane: 'far', y: 446, w: 900, h: 150,
         paint: (ctx, rng, w, h) => {
           const hz3 = 0.3;
           vGradient(ctx, 40, h - 14, w - 80, 14, [[0, hz(mix(P.peacock, P.seafoam, 0.5), hz3), 1], [1, hz(P.peacock, hz3), 1]]);
@@ -1151,8 +1176,8 @@ export const SCENES: Record<string, () => SceneDef> = {
           garland(ctx, 420, h - 92, 480, h - 92, 10, 0.8);
           for (const tx of [60, 840]) broadTree(ctx, rng.fork(tx), tx, h - 10, 90, 80, 0.3);
         },
-      },
-      {
+      }),
+      big(1.15, {
         // Conch shells, drums and dancing in the lane.
         at: 0.16, plane: 'mid', w: 480, h: 180,
         paint: (ctx, rng, w, h) => {
@@ -1168,7 +1193,7 @@ export const SCENES: Record<string, () => SceneDef> = {
           person(ctx, 400, g, 1.85, { pose: 'drum', cloth: P.limewhite, cloth2: P.sindoor, head: 'turban', facing: -1, skin: 0.7 });
           for (let i = 0; i < 18; i++) dab(ctx, 160 + rng.next() * 220, g - 60 - rng.next() * 70, 2, 1.4, rng.next() * 3, rng.pick([P.marigold, P.haldi, P.rani]), 0.9);
         },
-      },
+      }),
       {
         // On a garlanded stage, two people unfold a new map; the crowd cheers.
         at: 0.48, plane: 'mid', w: 620, h: 220,
@@ -1207,15 +1232,17 @@ export const SCENES: Record<string, () => SceneDef> = {
           for (let i = 0; i < 30; i++) dab(ctx, 190 + rng.next() * 240, g - 130 - rng.next() * 60, 2, 1.4, rng.next() * 3, rng.pick([P.marigold, P.haldi, P.rani, P.sindoor]), 0.9);
         },
       },
-      {
+      big(1.2, {
         // Newspapers! A boy on a crate holds up the day's paper; a cow in a marigold garland wanders through.
         at: 0.8, plane: 'mid', w: 500, h: 170,
         paint: (ctx, rng, w, h) => {
           const g = h - 4;
           groundPatch(ctx, rng, 20, w - 20, g + 2, mix(P.laterite, P.chandan, 0.3));
-          ctx.fillStyle = mix(P.limewhite, P.chandan, 0.2);
-          ctx.fillRect(30, g - 24, 150, 24);
-          for (let x = 38; x < 180; x += 16) diya(ctx, x, g - 24, 1.2, 12);
+          const lw = mix(P.laterite, P.chandan, 0.25);
+          paintedShape(ctx, rng, () => polyPath(ctx, [{ x: 30, y: g }, { x: 30, y: g - 22 }, { x: 180, y: g - 22 }, { x: 180, y: g }]), { x: 30, y: g - 22, w: 150, h: 22 }, { base: lw, light: mix(lw, P.haldi, 0.4), shade: mix(lw, P.ink, 0.35), lightFrom: 'top' });
+          ctx.fillStyle = P.limewhite;
+          ctx.fillRect(28, g - 25, 154, 3);
+          for (let x = 38; x < 180; x += 16) diya(ctx, x, g - 25, 1.2, 12);
           // crate and the paper boy
           ctx.fillStyle = WOOD_L;
           ctx.fillRect(222, g - 20, 30, 20);
@@ -1235,95 +1262,106 @@ export const SCENES: Record<string, () => SceneDef> = {
           garland(ctx, 384, g - 38, 404, g - 28, 6, 0.9);
           dab(ctx, 406, g - 46, 2.4, 2.4, 0, P.sindoor, 1);
         },
-      },
+      }),
     ],
   }),
 
   // 26 · 11 Oct 1938 · Nilakanthapur ghat — night, rain, an empty boat with a single lamp.
   r26: () => ({
     id: 'r26',
-    sky: { stops: [[0, mix(P.neel, P.ink, 0.45)], [0.6, mix(P.neel, P.khondalite, 0.25)], [1, mix(P.neel, P.skyCream, 0.35)]], moon: { x: 930, y: 110, r: 22 }, stars: 30, clouds: 'night', cloudTint: mix(P.neel, P.khondalite, 0.4), halftone: P.neel },
+    sky: { stops: [[0, mix(P.neel, P.ink, 0.45)], [0.6, mix(P.neel, P.khondalite, 0.25)], [1, mix(P.neel, P.skyCream, 0.3)]], moon: { x: 930, y: 110, r: 20 }, stars: 24, clouds: 'streak', cloudTint: mix(P.neel, P.limewhite, 0.35), halftone: P.neel },
     far: [
-      { kind: 'hills', a: mix(P.neel, P.khondalite, 0.35), b: P.ink, height: [30, 80], trees: true, haze: 0.12 },
-      { kind: 'hills', a: mix(P.neel, P.ink, 0.25), b: P.ink, height: [10, 34], trees: true, haze: 0.06 },
+      { kind: 'hills', a: mix(P.neel, P.khondalite, 0.4), b: P.ink, height: [30, 80], trees: true, haze: 0.1 },
+      { kind: 'hills', a: mix(P.neel, P.ink, 0.25), b: P.ink, height: [10, 34], trees: true, haze: 0.04 },
     ],
-    ground: { kind: 'water', water: { sky: mix(P.neel, P.skyCream, 0.3), light: mix(P.neel, P.seafoam, 0.3), mid: mix(P.neel, P.ink, 0.2), deep: mix(P.neel, P.ink, 0.5) } },
+    ground: { kind: 'water', water: { sky: mix(P.neel, P.skyCream, 0.25), light: mix(P.neel, P.seafoam, 0.25), mid: mix(P.neel, P.ink, 0.2), deep: mix(P.neel, P.ink, 0.5) } },
     mid: (ctx, rng, W) => {
-      // The far bank: dark trees, palms, a village with a few lamps lit.
+      // The far bank at night: dark trees and palms, a village with a few lamps lit, ghat steps.
       const dark = mix(P.neel, P.ink, 0.35);
-      scatter(rng.fork('trees'), W, [60, 110], (x) => wrapped(W, x, 60, (xx) => broadTree(ctx, rng.fork(x), xx, 232, rng.range(80, 120), rng.range(70, 100), 0.05)));
-      scatter(rng.fork('palms'), W, [140, 260], (x) => wrapped(W, x, 50, (xx) => coconutPalm(ctx, rng.fork(x), xx, 236, rng.range(120, 170), rng.range(-0.14, 0.14), 0.02)));
-      scatter(rng.fork('huts'), W, [160, 340], (x) => wrapped(W, x, 40, (xx) => {
-        house(ctx, rng.fork(x), xx, 240, rng.range(36, 50), rng.range(34, 46), { roof: 'thatch' });
-        if (rng.chance(0.6)) { glow(ctx, xx, 230, 16, P.marigold, 0.55); dab(ctx, xx, 232, 2, 3, 0, P.haldi, 1); }
-      }));
-      // ghat steps here and there along the bank
+      scatter(rng.fork('trees'), W, [60, 110], (x) => wrapped(W, x, 60, (xx) => broadTree(ctx, rng.fork(x), xx, 232, rng.range(80, 120), rng.range(70, 100))));
+      scatter(rng.fork('palms'), W, [140, 260], (x) => wrapped(W, x, 50, (xx) => coconutPalm(ctx, rng.fork(x), xx, 236, rng.range(120, 170), rng.range(-0.14, 0.14))));
+      const lamps: number[] = [];
+      scatter(rng.fork('huts'), W, [160, 340], (x) => {
+        wrapped(W, x, 40, (xx) => house(ctx, rng.fork(x), xx, 240, 44, 40, { roof: 'thatch' }));
+        if (rng.chance(0.6)) lamps.push(x);
+      });
       scatter(rng.fork('steps'), W, [500, 800], (x) => wrapped(W, x, 50, (xx) => {
-        for (let k = 0; k < 4; k++) { ctx.fillStyle = mix(P.khondalite, P.neel, 0.3 + k * 0.08); ctx.fillRect(xx - 40 + k * 4, 236 + k * 5, 80 - k * 8, 5); }
+        for (let k = 0; k < 4; k++) { ctx.fillStyle = mix(P.khondalite, P.neel, 0.2 + k * 0.08); ctx.fillRect(xx - 40 + k * 5, 238 + k * 4, 80 - k * 10, 4); }
       }));
-      bank(ctx, rng.fork('bank'), W, 244, mix(P.khondalite, P.neel, 0.3), dark, mix(P.neel, P.ink, 0.4));
-      ctx.fillStyle = mix(P.neel, P.ink, 0.3);
-      ctx.fillRect(0, 254, W, 6);
+      bank(ctx, rng.fork('bank'), W, 246, mix(P.khondalite, P.neel, 0.3), dark, mix(P.neel, P.ink, 0.4));
+      nightWash(ctx, W, 260, 0.6);
+      for (const x of lamps) wrapped(W, x, 20, (xx) => {
+        glow(ctx, xx, 228, 18, P.marigold, 0.6);
+        ctx.fillStyle = mix(P.marigold, P.haldi, 0.4);
+        ctx.fillRect(xx - 4.5, 224, 9, 16);
+      });
     },
     near: (ctx, rng, W) => {
       // Reed clumps and old mooring stakes in the shallows.
-      scatter(rng.fork('reeds'), W, [260, 460], (x) => wrapped(W, x, 30, (xx) => reedTuft(ctx, rng.fork(x), xx, 132, rng.range(30, 50), rng.range(30, 50), { dark: mix(P.neel, P.ink, 0.45), mid: mix(P.neel, P.tota, 0.3), tip: mix(P.neel, P.seafoam, 0.4) }, 10, 2)));
-      scatter(rng.fork('stakes'), W, [500, 800], (x) => wrapped(W, x, 10, (xx) => taperStroke(ctx, [{ x: xx, y: 134 }, { x: xx + 2, y: 96 }], 4, mix(P.khondalite, P.ink, 0.45), 1, [1, 0.7])), 200);
+      scatter(rng.fork('reeds'), W, [260, 460], (x) => wrapped(W, x, 30, (xx) => reedTuft(ctx, rng.fork(x), xx, 132, rng.range(30, 50), rng.range(30, 50), { dark: mix(P.neel, P.ink, 0.5), mid: mix(P.neel, P.tota, 0.25), tip: mix(P.neel, P.seafoam, 0.3) }, 10, 2)));
+      scatter(rng.fork('stakes'), W, [500, 800], (x) => wrapped(W, x, 10, (xx) => taperStroke(ctx, [{ x: xx, y: 134 }, { x: xx + 2, y: 100 }], 4, mix(P.neel, P.ink, 0.5), 1, [1, 0.7])), 200);
     },
     fore: 'none',
     rain: true,
     tone: tone(0.85),
     sign: { date: '11 Oct 1938', title: 'Nilakanthapur ghat' },
     landmarks: [
-      {
+      big(1.2, {
         // A hut on the bank, its door lit.
         at: 0.16, plane: 'mid', w: 260, h: 170,
-        paint: (ctx, rng, _w, h) => {
+        paint: (ctx, rng, w, h) => {
           const g = h - 4;
-          coconutPalm(ctx, rng, 60, g, 150, 0.12, 0.05);
-          house(ctx, rng, 150, g, 80, 76, { roof: 'thatch', wall: mix(P.chandan, P.khondalite, 0.4), door: mix(P.marigold, P.haldi, 0.3) });
-          glow(ctx, 150, g - 18, 40, P.marigold, 0.4);
+          coconutPalm(ctx, rng, 60, g, 150, 0.12);
+          house(ctx, rng, 150, g, 80, 76, { roof: 'thatch', wall: mix(P.chandan, P.khondalite, 0.4) });
           ctx.fillStyle = mix(P.khondalite, P.neel, 0.3);
           ctx.fillRect(40, g - 2, 200, 4);
+          nightWash(ctx, w, h, 0.6);
+          glow(ctx, 150, g - 16, 46, P.marigold, 0.5);
+          ctx.fillStyle = mix(P.marigold, P.haldi, 0.45);
+          ctx.fillRect(150 - 80 * 0.12, g - 76 * 0.58 * 0.62, 80 * 0.24, 76 * 0.58 * 0.62);
         },
-      },
+      }),
       {
         // Nilakanthapur ghat: stone steps, a mooring post, an empty boat tied up with a single lamp burning.
-        at: 0.48, plane: 'mid', w: 560, h: 220,
-        paint: (ctx, rng, _w, h) => {
-          const g = h - 6;
-          const stone = mix(P.khondalite, P.neel, 0.25);
-          // a big tree leaning over the ghat
-          broadTree(ctx, rng, 120, g - 40, 200, 180, 0.04);
-          for (let k = 0; k < 6; k++) {
-            const sx0 = 40 + k * 10, sx1 = 330 - k * 6;
-            paintedShape(ctx, rng, () => polyPath(ctx, [{ x: sx0, y: g - 40 + k * 7 + 7 }, { x: sx0, y: g - 40 + k * 7 }, { x: sx1, y: g - 40 + k * 7 }, { x: sx1, y: g - 40 + k * 7 + 7 }]), { x: sx0, y: g - 40 + k * 7, w: sx1 - sx0, h: 7 }, { base: mix(stone, P.limewhite, 0.18 - k * 0.025), light: mix(stone, P.limewhite, 0.35), shade: mix(stone, P.ink, 0.4), lightFrom: 'top', dabs: 20 });
+        at: 0.48, plane: 'mid', y: 486, w: 760, h: 300,
+        paint: (ctx, rng, w, h) => {
+          const g = h - 24; // waterline (screen ≈ 462)
+          const stone = mix(P.khondalite, P.neel, 0.2);
+          broadTree(ctx, rng, 110, g - 44, 210, 190);
+          for (let k = 0; k < 7; k++) {
+            const sy = g - 46 + k * 7, sx0 = 30 + k * 9, sx1 = 330 - k * 5;
+            paintedShape(ctx, rng, () => polyPath(ctx, [{ x: sx0, y: sy + 7 }, { x: sx0 + 3, y: sy }, { x: sx1 - 3, y: sy }, { x: sx1, y: sy + 7 }]), { x: sx0, y: sy, w: sx1 - sx0, h: 7 }, { base: mix(stone, P.limewhite, 0.25 - k * 0.03), light: mix(stone, P.limewhite, 0.4), shade: mix(stone, P.ink, 0.4), lightFrom: 'top', dabs: 24 });
           }
-          // wet-step shine
-          for (let k = 0; k < 6; k++) taperStroke(ctx, [{ x: 60 + k * 10, y: g - 40 + k * 7 + 1 }, { x: 300 - k * 6, y: g - 40 + k * 7 + 1 }], 1.2, P.limewhite, 0.25);
-          // mooring post and rope
-          taperStroke(ctx, [{ x: 360, y: g + 4 }, { x: 362, y: g - 50 }], 6, mix(P.khondalite, P.ink, 0.4), 1, [1, 0.8]);
+          taperStroke(ctx, [{ x: 370, y: g + 6 }, { x: 372, y: g - 52 }], 6, mix(P.khondalite, P.ink, 0.4), 1, [1, 0.8]);
           ctx.strokeStyle = withAlpha(mix(P.chandan, P.khondalite, 0.4), 0.9);
           ctx.lineWidth = 1.4;
-          ctx.beginPath(); ctx.moveTo(362, g - 40); ctx.quadraticCurveTo(390, g - 8, 418, g - 14); ctx.stroke();
-          countryBoat(ctx, rng, 460, g + 2, 1.6);
-          // the single lamp on the bow, and its long reflection
-          const lx = 520, ly = g - 18;
-          glow(ctx, lx, ly - 4, 70, P.marigold, 0.4);
-          diya(ctx, lx, ly, 1.9, 0);
-          for (let i = 0; i < 6; i++) taperStroke(ctx, [{ x: lx - 6 + i * 0.6, y: g + 1 + i * 0.6 }, { x: lx + 6 - i * 0.6, y: g + 1 + i * 0.6 }], 1.4, P.marigold, 0.5 - i * 0.07);
+          ctx.beginPath(); ctx.moveTo(372, g - 42); ctx.quadraticCurveTo(398, g - 8, 428, g - 14); ctx.stroke();
+          countryBoat(ctx, rng, 470, g, 1.6);
+          nightWash(ctx, w, h, 0.64);
+          // rain sheen on the wet steps
+          for (let k = 0; k < 7; k++) taperStroke(ctx, [{ x: 42 + k * 9, y: g - 45 + k * 7 }, { x: 318 - k * 5, y: g - 45 + k * 7 }], 1.2, P.limewhite, 0.22);
+          // the single lamp on the bow, and its long broken reflection
+          const lx = 530, ly = g - 20;
+          glow(ctx, lx, ly - 6, 150, P.marigold, 0.5);
+          glow(ctx, lx, ly - 6, 40, P.haldi, 0.8);
+          diya(ctx, lx, ly, 2.6, 0);
+          for (let i = 0; i < 9; i++) {
+            const yy = g + 3 + i * 2.2, half = 7 - i * 0.5 + (i % 2) * 2;
+            taperStroke(ctx, [{ x: lx - half, y: yy }, { x: lx + half, y: yy }], 1.6, i % 2 ? P.haldi : P.marigold, 0.6 - i * 0.05);
+          }
         },
       },
-      {
+      big(1.2, {
         // An egret waits on a stake in the rain.
         at: 0.82, plane: 'mid', w: 200, h: 160,
-        paint: (ctx, _rng, _w, h) => {
+        paint: (ctx, _rng, w, h) => {
           const g = h - 4;
           taperStroke(ctx, [{ x: 100, y: g }, { x: 102, y: g - 60 }], 6, mix(P.khondalite, P.ink, 0.4), 1, [1, 0.8]);
           egret(ctx, 102, g - 60, 1.6, 0);
+          nightWash(ctx, w, h, 0.4);
           for (let i = 0; i < 5; i++) taperStroke(ctx, [{ x: 70 + i * 16, y: g + 1 }, { x: 80 + i * 16, y: g + 1 }], 1, P.limewhite, 0.3);
         },
-      },
+      }),
     ],
   }),
 };

@@ -13,6 +13,8 @@ export interface DebugFlags {
   at: number;
   auto: boolean;
   assist: boolean;
+  /** Reel mode: show the hook lines first. */
+  intro: boolean;
 }
 
 function parse(search: string): DebugFlags {
@@ -41,6 +43,7 @@ function parse(search: string): DebugFlags {
     at: Math.max(0, num('at') ?? 0),
     auto: flag('auto'),
     assist: flag('assist'),
+    intro: flag('intro'),
   };
 }
 

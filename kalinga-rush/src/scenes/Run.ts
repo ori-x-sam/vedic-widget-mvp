@@ -5,6 +5,8 @@
 import Phaser from 'phaser';
 import { GAME_W, GAME_H, PLAYER_X, STEP } from '../config';
 import { OUTLINE, RECORDS, nextRecord, outlineById, type RecordDef } from '../data/records';
+import { FRAME, P } from '../data/palettes';
+import { hexToRgb } from '../lib/colour';
 import { vehicle } from '../data/vehicles';
 import { bakedArt } from '../art/bake';
 import { RecordStage } from '../art/stage';
@@ -35,6 +37,8 @@ const REEL_S = 6;
 const ENDLESS_S = 30;
 
 let sessionTaught = false;
+const EDGE = hexToRgb(FRAME.frameEdge);
+const PAPER = hexToRgb(P.limewhite);
 
 export class Run extends Phaser.Scene {
   private j!: Journey;
@@ -437,19 +441,19 @@ export class Run extends Phaser.Scene {
     }
     const rec = this.rec;
     if (rec.id === 'r37') {
-      this.cameras.main.fadeOut(600, 0x34, 0x14, 0x0f);
+      this.cameras.main.fadeOut(600, ...EDGE);
       this.time.delayedCall(650, () => this.scene.start('FakeEnding'));
       return;
     }
     if (rec.id === 'f8') {
-      this.cameras.main.fadeOut(900, 0xf6, 0xef, 0xe0);
+      this.cameras.main.fadeOut(900, ...PAPER);
       this.time.delayedCall(950, () => this.scene.start('Finale'));
       return;
     }
     const next = advance();
     if (!next) return;
     const go = () => {
-      this.cameras.main.fadeOut(260, 0x34, 0x14, 0x0f);
+      this.cameras.main.fadeOut(260, ...EDGE);
       this.time.delayedCall(280, () => void goToRun(this));
     };
     if (next.act !== rec.act) {
@@ -475,7 +479,7 @@ export class Run extends Phaser.Scene {
     const next = nextRecord(this.rec.id);
     this.j.recordId = next ? next.id : 'r01';
     this.j.resumeScroll = 0;
-    this.cameras.main.fadeOut(200, 0x34, 0x14, 0x0f);
+    this.cameras.main.fadeOut(200, ...EDGE);
     this.time.delayedCall(220, () => void goToRun(this));
   }
 

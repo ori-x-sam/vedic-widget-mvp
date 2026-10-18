@@ -30,7 +30,7 @@ const RW = mix(P.laterite, P.ink, 0.65); // warm rim
 const RC = mix(P.neel, P.ink, 0.5); // cool rim
 const lt = (c: string, t = 0.35) => mix(c, P.limewhite, t);
 const dk = (c: string, t = 0.35) => mix(c, P.ink, t);
-const t4 = (c: string, k = 0.5) => mix(c, DERIVED.sepia, k); // Act IV tone
+const t4 = (c: string, k = 0.6) => mix(c, DERIVED.sepia, k); // Act IV tone
 const STONE = mix(P.khondalite, P.chandan, 0.25);
 const SAND = mix(P.skyCream, P.chandan, 0.35);
 const WOOD = mix(P.laterite, P.chandan, 0.35);
@@ -413,10 +413,9 @@ def('milestone', {
     ps(c, r, post, [-16, -56, 32, 50], stone, { light: P.limewhite, shade: mix(P.khondalite, P.ink, 0.1) });
     clipTo(c, post, () => {
       const cap = mix(P.haldi, P.chandan, 0.4);
-      fill(c, RR(c, -20, -60, 40, 24, 0), cap);
-      vGradient2(c, -20, -60, 40, 24, cap);
-      // carved marks (not letters)
-      for (let i = 0; i < 3; i++) taperStroke(c, [P2(-9, -28 + i * 6), P2(9, -28 + i * 6)], 1.4, mix(P.khondalite, P.ink, 0.25), 0.6, [0.6, 0.6]);
+      fill(c, RR(c, -20, -60, 40, 28, 0), cap);
+      vGradient2(c, -20, -60, 40, 28, cap);
+      fill(c, RR(c, -20, -33, 40, 2.4, 0), dk(cap, 0.3), 0.7);
       dab(c, -8, -48, 4, 2, -0.4, P.limewhite, 0.35);
     });
     tuft(c, r, -18, -2, 12, LEAFL, 6);
@@ -452,9 +451,9 @@ function paintWave(c: Ctx, r: Rng, sx: number, sy: number): void {
     // hollow under the lip
     dab(c, -16 * sx, -36 * sy, 10 * sx, 16 * sy, 0.2, mix(P.neel, P.ink, 0.3), 0.55);
     // streaks along the face
-    for (let i = 0; i < 7; i++) {
-      const k = i / 6;
-      taperStroke(c, curvePts((28 - k * 30) * sx, 2, (20 - k * 22) * sx, -24 * sy, (4 - k * 22) * sx, (-52 + k * 8) * sy, 8), 1.4, P.seafoam, 0.45);
+    for (let i = 0; i < 4; i++) {
+      const k = i / 3;
+      taperStroke(c, curvePts((26 - k * 26) * sx, (-6 - k * 4) * sy, (14 - k * 18) * sx, (-30 - k * 6) * sy, (-2 - k * 10) * sx, (-44 - k * 8) * sy, 8), 2.2, P.seafoam, 0.3);
     }
     // translucent green-blue near the crest
     dab(c, 8 * sx, -50 * sy, 14 * sx, 8 * sy, -0.6, P.seafoam, 0.35);
@@ -577,6 +576,7 @@ def('monkey', {
   body: (c, r, v) => {
     const fur = mix(P.khondalite, P.chandan, 0.45);
     const face = mix(P.chandan, P.rani, 0.2);
+    c.save(); c.scale(1.12, 1.12);
     // tail wrapping round
     taperStroke(c, curvePts(12, -6, 30, -26, 12, -46, 12), 4, dk(fur, 0.15), 1, [1, 0.4]);
     ps(c, r, E(c, 0, -24, 21, 21), [-21, -45, 42, 42], fur, { light: lt(fur, 0.35), shade: dk(fur, 0.35) });
@@ -604,6 +604,7 @@ def('monkey', {
     }
     taperStroke(c, curvePts(-18, -18, -12, -12, -4, -14, 6), 4, fur, 1, [1, 0.8]);
     taperStroke(c, curvePts(12, -18, 6, -12, -2, -14, 6), 4, dk(fur, 0.1), 1, [1, 0.8]);
+    c.restore();
   },
 });
 
@@ -1001,8 +1002,8 @@ def('puddle', {
     // splash crown
     for (let i = 0; i < 7; i++) {
       const a = Math.PI + (i / 6) * Math.PI;
-      const x = -6 + Math.cos(a) * 12, y = -12 + Math.sin(a) * 14;
-      taperStroke(c, [P2(-6 + Math.cos(a) * 6, -11), P2(x, y)], 2.2, mix(P.seafoam, P.limewhite, 0.4), 1, [1, 0.3]);
+      const x = -6 + Math.cos(a) * 9, y = -11 + Math.sin(a) * 8;
+      taperStroke(c, [P2(-6 + Math.cos(a) * 5, -10), P2(x, y)], 1.8, mix(P.seafoam, P.limewhite, 0.4), 1, [1, 0.3]);
       dab(c, x, y - 2, 1.6, 1.8, 0, P.limewhite, 1);
     }
     if (v === 1) {
@@ -1043,7 +1044,7 @@ def('foam', {
   arch: 'pit', n: 2, rim: RC, m: [14, 22, 16],
   body: (c, r, v) => {
     const wet = mix(SAND, P.khondalite, 0.45);
-    for (const sx of [-1, 1]) ps(c, r, SM(c, pts([[30, 2], [38, -14], [48, -20 - v * 3], [58, -12], [64, 2]], sx, 1)), [sx > 0 ? 30 : -64, -24, 34, 26], SAND);
+    for (const sx of [-1, 1]) ps(c, r, SM(c, pts([[24, 2], [32, -10], [46, -15 - v * 3], [58, -10], [64, 2]], sx, 1)), [sx > 0 ? 24 : -64, -18, 40, 20], SAND, { light: P.skyCream });
     const hole = SM(c, pts([[-42, 0], [-30, -4], [0, -5], [30, -4], [42, 0], [32, 8], [0, 12], [-32, 8]]));
     fill(c, hole, dk(wet, 0.4));
     clipTo(c, hole, () => {
@@ -1053,7 +1054,7 @@ def('foam', {
     // foam lace along the rims
     for (const sx of [-1, 1]) for (let i = 0; i < 12; i++) {
       const t = r.range(0, 1);
-      dab(c, sx * (34 + t * 24), -14 * Math.sin(t * Math.PI) - 4 - v * 2 * Math.sin(t * Math.PI), r.range(2, 4.4), r.range(1.6, 3), 0, P.limewhite, 1);
+      dab(c, sx * (30 + t * 14), -2 - t * 9, r.range(2, 4), r.range(1.4, 2.6), 0, P.limewhite, 1);
     }
     for (let i = 0; i < 14; i++) dab(c, r.range(-38, 38), r.range(-2, 2), r.range(2, 4), 1.6, 0, P.limewhite, 0.9);
   },
@@ -1081,7 +1082,8 @@ function jumbo(c: Ctx, r: Rng, x: number, y: number, s: number, o: { phase?: num
   taperStroke(c, [P2(-40, -50), P2(-46, -36), P2(-46, -22), P2(-52, -16), P2(-56, -20)], 9, col, 1, [1, 0.5]);
   for (let k = 0; k < 4; k++) ln(c, [P2(-48, -42 + k * 6), P2(-42, -42 + k * 6)], 0.7, sh, 0.6);
   ps(c, r, SM(c, pts([[-26, -66], [-12, -70], [-6, -56], [-10, -40], [-22, -42]])), [-26, -70, 20, 30], lt(col, 0.08), { light: li, shade: sh });
-  fill(c, SM(c, pts([[-22, -62], [-12, -64], [-9, -54], [-12, -45], [-20, -47]])), mix(P.chandan, P.rani, 0.3), 0.55);
+  fill(c, SM(c, pts([[-22, -62], [-12, -64], [-9, -54], [-12, -45], [-20, -47]])), mix(P.chandan, P.rani, 0.25), 0.3);
+  stroke(c, SM(c, pts([[-26, -66], [-12, -70], [-6, -56], [-10, -40], [-22, -42]])), sh, 1.2, 0.8);
   dab(c, -36, -60, 2.6, 3, 0, P.ink, 1);
   dab(c, -36.8, -61.2, 0.9, 0.9, 0, P.limewhite, 1);
   dab(c, -40, -52, 3, 2, 0, P.rani, 0.25);
@@ -1156,12 +1158,15 @@ def('rope', {
   body: (c, _r, v) => {
     const col = mix(P.chandan, P.laterite, 0.3);
     rope(c, curvePts(-58, -2, -46, -8, -32, -4, 6), 6.4, col);
-    for (let k = 0; k < 5; k++) {
-      const y = -4 - k * 5.2, rx = 34 - k * 2.4;
+    const ring = (y: number, rx: number, ry: number, a0: number, a1: number, cc: string) => {
       const p: Pt[] = [];
-      for (let i = 0; i <= 18; i++) { const a = Math.PI * 0.05 + (i / 18) * Math.PI * 0.9; p.push(P2(Math.cos(a) * -rx + 2, y + Math.sin(a) * 4)); }
-      rope(c, p, 6.4, k % 2 ? lt(col, 0.08) : col);
-    }
+      for (let i = 0; i <= 16; i++) { const a = a0 + (i / 16) * (a1 - a0); p.push(P2(Math.cos(a) * rx, y + Math.sin(a) * ry)); }
+      rope(c, p, 6.2, cc);
+    };
+    // back halves first (darker), then the front halves, bottom layer up
+    for (let k = 0; k < 4; k++) ring(-6 - k * 6, 36 - k * 3, 9 - k * 0.6, Math.PI, Math.PI * 2, dk(col, 0.22));
+    fill(c, E(c, 0, -26, 20, 4.6), dk(col, 0.6));
+    for (let k = 0; k < 4; k++) ring(-6 - k * 6, 36 - k * 3, 9 - k * 0.6, 0, Math.PI, k % 2 ? lt(col, 0.1) : col);
     rope(c, curvePts(30, -26, 46, -22, 58 - v * 6, -2, 6), 6.4, lt(col, 0.05));
   },
 });
@@ -1530,16 +1535,21 @@ def('conch', {
   under: (c) => shadow(c, 20),
   body: (c, r) => {
     const shell = mix(P.limewhite, P.chandan, 0.32);
-    const body = SM(c, pts([[-22, -18], [-18, -36], [-4, -46], [12, -44], [22, -34], [24, -22], [16, -8], [0, -3], [-14, -6]]));
-    ps(c, r, body, [-22, -46, 46, 43], shell, { shade: mix(P.chandan, P.laterite, 0.35) });
+    const shade = mix(P.chandan, P.laterite, 0.35);
+    // spire: stacked whorls stepping to the right
+    for (let k = 0; k < 3; k++) ps(c, r, E(c, 16 + k * 6, -30 + k * 1.2, 9 - k * 2.4, 8 - k * 2), [8, -38, 28, 16], lt(shell, 0.05 + k * 0.05), { shade });
+    dab(c, 32, -27, 2, 1.6, 0, lt(shell, 0.2), 1);
+    // body whorl tapering to the siphon canal at the left
+    const body = SM(c, pts([[-28, -14], [-18, -24], [-4, -36], [10, -38], [18, -28], [14, -12], [0, -4], [-14, -6], [-24, -10]]));
+    ps(c, r, body, [-28, -38, 46, 34], shell, { shade });
     clipTo(c, body, () => {
-      for (let k = 0; k < 5; k++) taperStroke(c, curvePts(-18 + k * 6, -40 + k, -10 + k * 8, -24, -10 + k * 6, -6, 8), 1.6, mix(P.laterite, P.chandan, 0.25), 0.7);
+      for (let k = 0; k < 4; k++) taperStroke(c, curvePts(-12 + k * 7, -36, -6 + k * 7, -20, -12 + k * 7, -2, 8), 2, mix(P.laterite, P.chandan, 0.3), 0.55);
     });
-    // spire (whorls) at the right
-    for (let k = 0; k < 3; k++) ps(c, r, E(c, 20 + k * 4, -34 + k * 2.4, 7 - k * 1.8, 6 - k * 1.5), [14, -40, 18, 14], lt(shell, 0.1));
-    // aperture (pink lip)
-    fill(c, SM(c, pts([[-20, -20], [-12, -30], [2, -24], [4, -12], [-10, -8]])), mix(P.chandan, P.rani, 0.3));
-    fill(c, SM(c, pts([[-14, -20], [-8, -26], [0, -22], [0, -14], [-8, -12]])), mix(P.chandan, P.rani, 0.5));
+    // knobs on the shoulder
+    for (let k = 0; k < 4; k++) dab(c, -6 + k * 6, -36 + Math.abs(k - 1.5) * 1.2, 2.6, 2.2, 0, lt(shell, 0.25), 1);
+    // long aperture with a pink lip along the underside
+    fill(c, SM(c, pts([[-26, -12], [-12, -18], [4, -16], [10, -9], [-4, -6], [-16, -8]])), mix(P.chandan, P.rani, 0.3));
+    fill(c, SM(c, pts([[-18, -11], [-8, -15], [4, -13], [6, -9], [-6, -8]])), mix(P.chandan, P.rani, 0.55));
   },
 });
 
@@ -1549,10 +1559,11 @@ def('garlandPole', {
   body: (c, r, v) => {
     stick(c, [P2(0, 2), P2(0, -124)], 4.4, BAMBOO);
     // garland strands from the top to pegs at the feet (a tent of flowers)
-    for (let g = 0; g < 5; g++) {
-      const fx = -28 + g * 14;
-      const p = curvePts(0, -116, fx * 0.6, -60, fx, -2, 14);
-      for (let i = 0; i < p.length; i++) marigold(c, p[i].x, p[i].y, 2.8, (i + g + v) % 3 === 0 ? P.haldi : P.marigold);
+    for (let g = 0; g < 4; g++) {
+      const fx = -30 + g * 20;
+      const p = curvePts(0, -114, fx * 0.5, -56, fx, -2, 10);
+      taperStroke(c, p, 1, dk(P.marigold, 0.4), 1, [1, 1]);
+      for (let i = 1; i < p.length; i++) marigold(c, p[i].x, p[i].y, 3.2, (i + g + v) % 3 === 0 ? P.haldi : P.marigold);
     }
     // mango-leaf toran ring at the top
     for (let k = 0; k < 9; k++) leaf(c, -18 + k * 4.5, -112 + Math.sin((k / 8) * Math.PI) * 4, 9, 2.6, 1.6 + r.range(-0.2, 0.2), LEAF);
@@ -1642,18 +1653,23 @@ def('surveyStake', {
   arch: 'small', n: 2,
   under: (c) => shadow(c, 26),
   body: (c, r, v) => {
-    fill(c, SM(c, pts([[-28, 2], [-16, -8], [10, -10], [28, 2]])), mix(P.laterite, P.chandan, 0.25));
+    fill(c, SM(c, pts([[-26, 2], [-12, -3], [8, -3.5], [26, 2]])), mix(P.khondalite, P.chandan, 0.35));
     // ranging rod (red/white bands) with a flag
     const rx = v ? 10 : -2;
     for (let k = 0; k < 8; k++) stick(c, [P2(rx, -4 - k * 10), P2(rx, -14 - k * 10)], 3.4, k % 2 ? P.limewhite : P.sindoor);
     fill(c, PL(c, pts([[rx, -84], [rx + 14, -80], [rx, -74]])), P.haldi);
     // pegs with white tops and a string between
     const pegs = v ? [-20, -6, 22] : [-20, 12, 22];
-    for (const x of pegs) {
-      ps(c, r, PL(c, pts([[x - 3.4, -2], [x - 3.4, -30], [x + 3.4, -32], [x + 3.4, -2]])), [x - 4, -32, 8, 30], WOOD);
-      fill(c, PL(c, pts([[x - 3.4, -30], [x + 3.4, -32], [x + 3.4, -26], [x - 3.4, -24]])), P.limewhite);
-    }
-    ln(c, [P2(pegs[0], -22), P2(pegs[1], -20), P2(pegs[2], -22)], 0.8, P.limewhite, 0.9);
+    const hs = [34, 24, 30];
+    pegs.forEach((x, i) => {
+      c.save(); c.translate(x, 0); c.rotate([-0.12, 0.08, 0.16][i]);
+      const h = hs[i];
+      ps(c, r, RR(c, -3.6, -h, 7.2, h, 1), [-4, -h, 8, h], WOOD, { from: 'left' });
+      fill(c, RR(c, -3.6, -h, 7.2, 5, 1), P.limewhite);
+      fill(c, RR(c, -3.6, -h + 5, 7.2, 2, 0), P.sindoor);
+      c.restore();
+    });
+    ln(c, [P2(pegs[0] - 3, -28), P2(pegs[1], -18), P2(pegs[2] + 3, -24)], 0.8, P.limewhite, 0.9);
   },
 });
 
@@ -1681,7 +1697,7 @@ def('chain', {
 });
 
 def('theodolite', {
-  arch: 'tall', n: 2, m: [22, 22, 10],
+  arch: 'tall', n: 2, m: [22, 30, 10],
   under: (c) => shadow(c, 30),
   body: (c, r, v) => {
     const wood = mix(P.laterite, P.chandan, 0.35);
@@ -1802,8 +1818,10 @@ def('railSwitch', {
     dab(c, tip.x - 1.4, tip.y - 1.4, 1.6, 1.6, 0, P.limewhite, 0.5);
     // target disc on a post
     stick(c, [P2(14, -6), P2(14, -40)], 2.6, steel);
-    ps(c, r, E(c, 14, -50, 11, 11), [3, -61, 22, 22], P.sindoor);
-    fill(c, RR(c, 5, -52, 18, 4, 1), P.limewhite);
+    const board = PL(c, pts([[14, -64], [26, -50], [14, -36], [2, -50]]));
+    ps(c, r, board, [2, -64, 24, 28], P.haldi);
+    stroke(c, PL(c, pts([[14, -59], [21, -50], [14, -41], [7, -50]])), dk(P.neel, 0.4), 1.6);
+    dab(c, 14, -50, 2.4, 2.4, 0, dk(P.neel, 0.4), 1);
   },
 });
 
@@ -1835,11 +1853,21 @@ def('sleepers', {
   arch: 'wide', n: 2, m: [14, 18, 10],
   under: (c) => shadow(c, 54, 0.35),
   body: (c, r, v) => {
-    const wood = mix(P.laterite, P.ink, 0.4);
+    const wood = mix(mix(P.laterite, P.khondalite, 0.4), P.ink, 0.35);
+    const endC = mix(P.chandan, P.laterite, 0.45);
     for (let k = 0; k < 3; k++) {
-      const y = -k * 10;
-      if (k % 2 === 0) { ps(c, r, RR(c, -54 + k * 4, y - 10, 104 - k * 8, 10, 1), [-54, y - 10, 104, 10], wood); grain(c, r, -54 + k * 4, y - 10, 104 - k * 8, 10, dk(wood, 0.4), 5, 0.5); }
-      else for (let i = 0; i < 6; i++) { const x = -48 + i * 18; ps(c, r, RR(c, x, y - 10, 11, 10, 1), [x, y - 10, 11, 10], lt(wood, 0.1)); for (let q = 1; q < 3; q++) stroke(c, E(c, x + 5.5, y - 5, q * 2, q * 1.8), dk(wood, 0.3), 0.5, 0.7); }
+      const y = -k * 11;
+      if (k % 2 === 0) {
+        const x0 = -54 + k * 4, w = 108 - k * 8;
+        ps(c, r, RR(c, x0, y - 11, w, 11, 1), [x0, y - 11, w, 11], wood);
+        grain(c, r, x0, y - 11, w, 11, dk(wood, 0.45), 7, 0.6);
+        fill(c, RR(c, x0, y - 11, w, 2, 0), lt(wood, 0.25), 0.8);
+        for (const bx of [x0 + 8, x0 + w - 10]) dab(c, bx, y - 5.5, 1.4, 1.4, 0, mix(P.khondalite, P.limewhite, 0.3), 1);
+      } else for (let i = 0; i < 4; i++) {
+        const x = -46 + i * 28;
+        ps(c, r, RR(c, x, y - 11, 16, 11, 1), [x, y - 11, 16, 11], endC);
+        for (let q = 1; q < 4; q++) stroke(c, E(c, x + 8, y - 5.5, q * 2.2, q * 1.5), dk(endC, 0.4), 0.6, 0.8);
+      }
     }
     if (v === 1) { const steel = mix(P.khondalite, P.neel, 0.3); ps(c, r, RR(c, -40, -36, 80, 6, 1), [-40, -36, 80, 6], steel); fill(c, RR(c, -40, -36, 80, 1.6, 0), lt(steel, 0.5)); }
   },
@@ -2063,16 +2091,19 @@ def('cone', {
 
 def('goal', {
   arch: 'tall', n: 1, m: [20, 14, 10],
-  under: (c) => shadow(c, 34),
-  body: (c, r) => {
-    const post = mix(P.limewhite, P.skyCream, 0.2);
-    const net = mix(P.limewhite, P.seafoam, 0.3);
-    // net mesh between the frames
+  under: (c) => {
+    shadow(c, 34);
+    // net mesh between the frames (not outlined, so it stays light)
+    const net = mix(P.limewhite, P.seafoam, 0.2);
     c.save();
     polyPath(c, pts([[-26, -96], [26, -102], [36, -16], [36, 0], [-26, 0]])); c.clip();
-    for (let k = -30; k < 40; k += 6) { ln(c, [P2(k, -110), P2(k + 6, 4)], 0.7, net, 0.75); }
-    for (let y = -98; y < 0; y += 6) ln(c, [P2(-28, y), P2(38, y - 4)], 0.7, net, 0.75);
+    c.fillStyle = withAlpha(P.limewhite, 0.18); c.fillRect(-30, -110, 70, 112);
+    for (let k = -30; k < 40; k += 6) ln(c, [P2(k, -110), P2(k + 6, 4)], 0.9, net, 0.9);
+    for (let y = -98; y < 0; y += 6) ln(c, [P2(-28, y), P2(38, y - 4)], 0.9, net, 0.9);
     c.restore();
+  },
+  body: (c, r) => {
+    const post = mix(P.limewhite, P.skyCream, 0.2);
     // backboard
     ps(c, r, RR(c, -26, -16, 62, 16, 1), [-26, -16, 62, 16], mix(P.neel, P.khondalite, 0.35));
     stick(c, [P2(26, -102), P2(36, -16)], 2.4, mix(post, P.khondalite, 0.25));
@@ -2595,9 +2626,26 @@ export function paintFriend(vis: 'kirtan' | 'turtle', variant: number): Sprite {
         [{ x: -18, pose: 'drum', head: 'none', skin: 0.5 }, { x: 16, pose: 'cymbal', head: 'cap', skin: 0.35 }],
         [{ x: -28, pose: 'armsUp', head: 'none', skin: 0.7 }, { x: 0, pose: 'cymbal', head: 'turban', skin: 0.4 }, { x: 26, pose: 'drum', head: 'none', skin: 0.55 }],
       ];
+      const s = 1.85;
       setups[vv].forEach((p, i) => {
         const [c1, c2] = cloths[(i + vv) % 3];
-        person(c, p.x, 0, 1.85, { cloth: c1, cloth2: c2, pose: p.pose, head: p.head, skin: p.skin, facing: i % 2 ? 1 : -1, sari: p.sari, phase: i + vv });
+        const f = i % 2 ? 1 : -1;
+        const pose = p.pose === 'cymbal' ? 'armsUp' : p.pose;
+        person(c, p.x, 0, s, { cloth: c1, cloth2: c2, pose, head: p.head, skin: p.skin, facing: f, sari: p.sari, phase: i + vv });
+        const sy = -25 * s;
+        if (p.pose === 'cymbal') {
+          // kartals clashing overhead
+          const brass = mix(P.haldi, P.khondalite, 0.35);
+          for (const hx of [p.x - 3 * s, p.x + 4 * s]) { dab(c, hx, sy - 9 * s, 4, 1.6, hx < p.x ? 0.5 : -0.5, brass, 1); dab(c, hx, sy - 9 * s - 0.6, 1.2, 0.8, 0, P.limewhite, 0.7); }
+        } else if (p.pose === 'drum') {
+          // mridanga slung across the waist (wood brown, not the record's haldi)
+          const dx = p.x + 4 * s * f, dy = sy + 7 * s;
+          const wood = mix(P.laterite, P.chandan, 0.25);
+          fill(c, SM(c, pts([[-13, -5], [0, -7.5], [13, -6], [13, 6], [0, 7.5], [-13, 5]], 1, 1, dx, dy)), wood);
+          for (let k = -2; k <= 2; k++) ln(c, [P2(dx + k * 5, dy - 7), P2(dx + k * 5 + 1.5, dy + 7)], 0.6, dk(wood, 0.4), 0.8);
+          for (const [hx, ry] of [[dx - 13, 5], [dx + 13, 6]] as const) { fill(c, E(c, hx, dy, 2.6, ry), P.limewhite); dab(c, hx, dy, 1.1, ry * 0.45, 0, P.ink, 1); }
+          taperStroke(c, curvePts(dx - 8, dy - 6, p.x - 2 * s * f, sy - 4, dx + 8, dy - 6, 8), 1.2, P.tota, 1, [1, 1]);
+        }
       });
       // musical notes (no text)
       for (let k = 0; k < 3; k++) {
@@ -2612,9 +2660,9 @@ export function paintFriend(vis: 'kirtan' | 'turtle', variant: number): Sprite {
   const body: Paint = (c, r, vv) => {
     const shell = mix(P.tota, P.khondalite, 0.55);
     const skin = mix(P.khondalite, P.seafoam, 0.25);
-    const spots = [[[-28, 0], [0, -4], [28, 1]], [[-22, -2], [14, 0]], [[-34, 1], [-8, -3], [18, 0], [38, -2]]][vv];
+    const spots = [[[-30, 0], [0, -3], [30, 1]], [[-22, -2], [18, 0]], [[-40, 1], [-4, -3], [36, 0]]][vv];
     for (const [x, y] of spots) {
-      const s = r.range(0.9, 1.1);
+      const s = r.range(1.35, 1.55);
       c.save(); c.translate(x, y); c.scale(s, s);
       leaf(c, -4, -2, 9, 3, 2.6, skin);
       leaf(c, 4, -2, 9, 3, 0.5, skin);

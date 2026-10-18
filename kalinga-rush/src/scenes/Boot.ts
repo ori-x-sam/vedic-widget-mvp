@@ -33,10 +33,28 @@ export class Boot extends Phaser.Scene {
       } else if (DEBUG.act !== null && DEBUG.act >= 1 && DEBUG.act <= 7) {
         newJourney(actStart(DEBUG.act));
         void goToRun(this);
+      } else if (DEBUG.reel && DEBUG.intro) {
+        newJourney('r01');
+        void reelIntro().then(() => goToRun(this));
       } else if (DEBUG.qa || DEBUG.reel) {
         newJourney('r01');
         void goToRun(this);
       } else this.scene.start('Title');
     });
   }
+}
+
+/** Reel intro (§8): the two hook lines, big, over the maroon page. */
+function reelIntro(): Promise<void> {
+  const el = document.getElementById('ending')!;
+  el.innerHTML = '<div class="hook"><p class="h1">I drew Odisha in rice paste.</p><p class="h2">Then I turned 3,500 years of it into a game.</p></div>';
+  el.classList.add('open', 'hooking');
+  return new Promise((resolve) => {
+    setTimeout(() => el.classList.add('line2'), 2400);
+    setTimeout(() => {
+      el.classList.remove('open', 'hooking', 'line2');
+      el.innerHTML = '';
+      resolve();
+    }, 5600);
+  });
 }

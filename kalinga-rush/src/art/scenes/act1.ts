@@ -115,6 +115,17 @@ function ghatSteps(ctx: Ctx, rng: Rng, x0: number, x1: number, y: number, n: num
   }
 }
 
+/** Wrap a landmark painter so it paints `k` times larger, about the base centre. */
+function scaled(k: number, paint: (ctx: Ctx, rng: Rng, w: number, h: number) => void): (ctx: Ctx, rng: Rng, w: number, h: number) => void {
+  return (ctx, rng, w, h) => {
+    ctx.save();
+    ctx.translate(w / 2, h);
+    ctx.scale(k, k);
+    paint(ctx, rng, w / k, h / k);
+    ctx.restore();
+  };
+}
+
 // ---- record 03 ------------------------------------------------------------------------
 
 const R03_WATER = { sky: mix(P.skyCream, P.marigold, 0.25), light: mix(P.peacock, P.seafoam, 0.55), mid: mix(P.peacock, P.seafoam, 0.18), deep: mix(P.peacock, P.neel, 0.28) };
@@ -267,8 +278,9 @@ function paintDhauli(ctx: Ctx, rng: Rng, w: number, h: number): void {
   const hill = () => {
     ctx.beginPath();
     ctx.moveTo(0, h);
-    ctx.bezierCurveTo(w * 0.12, h - 50, w * 0.25, h - 200, w * 0.42, h - 226);
-    ctx.bezierCurveTo(w * 0.55, h - 246, w * 0.7, h - 190, w * 0.8, h - 100);
+    ctx.bezierCurveTo(w * 0.1, h - 60, w * 0.2, h - 190, w * 0.36, h - 214);
+    ctx.bezierCurveTo(w * 0.5, h - 236, w * 0.62, h - 200, w * 0.72, h - 160);
+    ctx.bezierCurveTo(w * 0.8, h - 128, w * 0.86, h - 70, w * 0.92, h - 30);
     ctx.bezierCurveTo(w * 0.88, h - 50, w * 0.95, h - 20, w, h);
     ctx.closePath();
   };
@@ -296,8 +308,19 @@ function paintDhauli(ctx: Ctx, rng: Rng, w: number, h: number): void {
   ectx.fillStyle = withAlpha(mix(P.limewhite, P.chandan, 0.35), 0.4);
   ectx.fillRect(0, 0, 260, 140);
   ctx.drawImage(ec, rx - 70, ry - 196);
-  const rockPath = () => { ctx.beginPath(); ctx.moveTo(rx - 150, ry); ctx.bezierCurveTo(rx - 150, ry - 90, rx - 80, ry - 150, rx + 10, ry - 132); ctx.lineTo(rx + 20, ry - 66); ctx.bezierCurveTo(rx + 90, ry - 70, rx + 140, ry - 40, rx + 150, ry); ctx.closePath(); };
-  paintedShape(ctx, rng.fork('out'), rockPath, { x: rx - 150, y: ry - 150, w: 300, h: 150 }, { base: outcrop, light: mix(outcrop, P.marigold, 0.3), shade: mix(outcrop, P.neel, 0.35), lightFrom: 'right', rim: mix(outcrop, P.ink, 0.5), rimW: 1.5 });
+  // the boulder swallows the elephant's hind half, so only its forepart comes out of the rock
+  const ex = rx + 40;
+  const rockPath = () => {
+    ctx.beginPath();
+    ctx.moveTo(rx - 160, ry);
+    ctx.bezierCurveTo(rx - 160, ry - 100, rx - 90, ry - 168, ex - 20, ry - 160);
+    ctx.bezierCurveTo(ex + 6, ry - 150, ex + 14, ry - 110, ex + 2, ry - 86);
+    ctx.quadraticCurveTo(ex - 6, ry - 70, ex + 4, ry - 62);
+    ctx.bezierCurveTo(ex + 60, ry - 60, ex + 120, ry - 58, ex + 150, ry - 40);
+    ctx.quadraticCurveTo(ex + 170, ry - 20, ex + 176, ry);
+    ctx.closePath();
+  };
+  paintedShape(ctx, rng.fork('out'), rockPath, { x: rx - 160, y: ry - 170, w: 380, h: 170 }, { base: outcrop, light: mix(outcrop, P.marigold, 0.3), shade: mix(outcrop, P.neel, 0.35), lightFrom: 'right', rim: mix(outcrop, P.ink, 0.5), rimW: 1.5 });
   // the edict panel: rows of incised marks (not real text)
   const px = rx - 120, py = ry - 70;
   ctx.fillStyle = mix(outcrop, P.limewhite, 0.25);
@@ -578,8 +601,8 @@ export const SCENES: Record<string, () => SceneDef> = {
     landmarks: [
       { at: 0.2, plane: 'mid', w: 360, h: 110, y: 466, paint: paintDeer },
       { at: 0.42, plane: 'mid', w: 1000, h: 270, y: 460, paint: paintDhauli },
-      { at: 0.66, plane: 'mid', w: 360, h: 150, y: 472, paint: paintSword },
-      { at: 0.88, plane: 'mid', w: 340, h: 120, y: 464, paint: paintFlute },
+      { at: 0.66, plane: 'mid', w: 470, h: 200, y: 474, paint: scaled(1.3, (c, r, w, h) => { c.translate(-w / 2, -h); paintSword(c, r, w, h); }) },
+      { at: 0.88, plane: 'mid', w: 410, h: 150, y: 466, paint: scaled(1.2, (c, r, w, h) => { c.translate(-w / 2, -h); paintFlute(c, r, w, h); }) },
     ],
   }),
 
