@@ -124,7 +124,7 @@ function paintSunLayer(s: SkyDef): HTMLCanvasElement {
 }
 
 function paintClouds(rng: Rng, kind: SkyDef['clouds'], tint?: string): HTMLCanvasElement {
-  const H = 250;
+  const H = 330;
   const [c, ctx] = makeCanvas(TW, H);
   if (kind === 'none') return c;
   if (kind === 'streak') {
@@ -153,6 +153,14 @@ function paintClouds(rng: Rng, kind: SkyDef['clouds'], tint?: string): HTMLCanva
     ctx.fillRect(0, 0, TW, H);
     ctx.globalCompositeOperation = 'source-over';
   }
+  // Soft fade at the bottom edge so tiles never show a flat cut.
+  ctx.globalCompositeOperation = 'destination-out';
+  const fade = ctx.createLinearGradient(0, H - 90, 0, H);
+  fade.addColorStop(0, withAlpha(P.ink, 0));
+  fade.addColorStop(1, withAlpha(P.ink, 1));
+  ctx.fillStyle = fade;
+  ctx.fillRect(0, H - 90, TW, 90);
+  ctx.globalCompositeOperation = 'source-over';
   return c;
 }
 
