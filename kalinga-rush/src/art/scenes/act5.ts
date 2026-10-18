@@ -448,9 +448,10 @@ export const SCENES: Record<string, () => SceneDef> = {
     sky: {
       stops: [
         [0, mix(P.peacock, P.seafoam, 0.45)],
-        [0.26, mix(P.seafoam, P.skyCream, 0.45)],
-        [0.48, mix(P.skyCream, P.marigold, 0.22)],
-        [0.62, mix(P.marigold, P.skyCream, 0.42)],
+        [0.2, mix(P.seafoam, P.skyCream, 0.45)],
+        [0.28, mix(P.skyCream, P.marigold, 0.55)],
+        [0.5, P.marigold],
+        [0.62, mix(P.marigold, P.sindoor, 0.1)],
         [0.636, mix(P.haldi, P.skyCream, 0.45)],
         [0.642, mix(P.seafoam, P.peacock, 0.35)],
         [0.75, mix(P.peacock, P.seafoam, 0.25)],
@@ -707,7 +708,7 @@ export const SCENES: Record<string, () => SceneDef> = {
       id: 'r29',
       sky: { stops: [[0, mix(P.peacock, P.seafoam, 0.45)], [0.5, mix(P.seafoam, P.skyCream, 0.45)], [1, P.skyCream]], sun: { x: 300, y: 110, r: 32 }, clouds: 'cumulus' },
       far: [{ kind: 'hills', a: mix(mix(P.tota, P.khondalite, 0.35), P.skyCream, 0.4), b: P.neel, height: [24, 76], base: 150, trees: true, haze: 0.45 }],
-      ground: { kind: 'land', plain: lake.near, plainDetail: 'none', path: mix(P.laterite, P.haldi, 0.25), verge: mix(P.tota, P.haldi, 0.25) },
+      ground: { kind: 'land', plain: lake.near, plainDetail: 'none', path: mix(P.marigold, P.laterite, 0.1), verge: mix(P.tota, P.haldi, 0.25) },
       mid: (ctx, rng, W) => {
         // The reservoir runs to the hills: a dyke with cattle, cyclists and pylons; islands and boats.
         vGradient(ctx, 0, 218, W, 42, [[0, lake.far, 1], [1, lake.mid, 1]]);
@@ -888,7 +889,7 @@ export const SCENES: Record<string, () => SceneDef> = {
     id: 'r30',
     sky: { stops: [[0, mix(P.peacock, P.seafoam, 0.3)], [0.45, mix(P.skyCream, P.marigold, 0.18)], [1, mix(P.marigold, P.skyCream, 0.45)]], sun: { x: 1100, y: 200, r: 30, colour: P.marigold }, clouds: 'cumulus', cloudTint: P.marigold, halftone: mix(P.marigold, P.skyCream, 0.4) },
     far: [{ kind: 'hills', a: mix(mix(P.tota, P.peacock, 0.4), P.skyCream, 0.42), b: P.neel, height: [34, 96], trees: true, haze: 0.45 }],
-    ground: { kind: 'land', plain: mix(mix(P.tota, P.haldi, 0.25), P.khondalite, 0.22), plainDetail: 'grass', path: mix(P.khondalite, P.laterite, 0.35), verge: mix(P.khondalite, P.tota, 0.35) },
+    ground: { kind: 'land', plain: mix(mix(P.tota, P.haldi, 0.25), P.khondalite, 0.22), plainDetail: 'grass', path: mix(P.marigold, P.laterite, 0.15), verge: mix(P.khondalite, P.tota, 0.35) },
     mid: (ctx, rng, W) => {
       // The plant along the horizon, township trees in front of it.
       treeRow(ctx, rng.fork('trees'), W, 236, 0.4, 0.05);

@@ -19,7 +19,7 @@ export const SCENES: Record<string, () => SceneDef> = {
     id: 'r16',
     sky: { stops: SKY, sun: { x: 980, y: 120, r: 38 }, clouds: 'cumulus' },
     far: [{ kind: 'hills', a: mix(P.neel, P.skyCream, 0.6), b: P.neel, height: [24, 60], trees: true, haze: 0.5 }],
-    ground: { kind: 'land', plain: mix(P.tota, P.haldi, 0.3), plainDetail: 'grass', path: mix(P.sindoor, P.chandan, 0.45), verge: mix(P.tota, P.laterite, 0.2) },
+    ground: { kind: 'land', plain: mix(P.tota, P.haldi, 0.3), plainDetail: 'grass', path: mix(P.sindoor, P.laterite, 0.12), verge: mix(P.tota, P.laterite, 0.2) },
     mid: (ctx, rng, W) => {
       treeRow(ctx, rng.fork('t'), W, 190, 0.3, 0.25);
       scatter(rng.fork('rk'), W, [260, 420], (x) => wrapped(W, x, 40, (xx) => rekhaDeula(ctx, rng.fork(x), xx, 214, rng.range(80, 110), { haze: 0.3 })));
@@ -72,7 +72,7 @@ export const SCENES: Record<string, () => SceneDef> = {
     id: 'r17',
     sky: { stops: [[0, mix(P.haldi, P.skyCream, 0.55)], [1, P.skyCream]], sun: { x: 900, y: 130, r: 44, rays: true }, clouds: 'streak', cloudTint: P.limewhite },
     far: [{ kind: 'hills', a: mix(P.tota, P.skyCream, 0.5), b: P.neel, height: [30, 80], trees: true, haze: 0.45 }],
-    ground: { kind: 'land', plain: mix(P.tota, P.haldi, 0.35), plainDetail: 'fields', path: mix(P.sindoor, P.chandan, 0.5), verge: mix(P.tota, P.neel, 0.2) },
+    ground: { kind: 'land', plain: mix(P.tota, P.haldi, 0.35), plainDetail: 'fields', path: mix(P.sindoor, P.laterite, 0.12), verge: mix(P.tota, P.neel, 0.2) },
     mid: (ctx, rng, W) => {
       treeRow(ctx, rng.fork('t'), W, 200, 0.28, 0.35);
       bank(ctx, rng.fork('b'), W, 238, mix(P.tota, P.haldi, 0.3), mix(P.laterite, P.tota, 0.3));
@@ -118,7 +118,7 @@ export const SCENES: Record<string, () => SceneDef> = {
     id: 'r18',
     sky: { stops: SKY, sun: { x: 1020, y: 116, r: 36 }, clouds: 'cumulus' },
     far: [{ kind: 'hills', a: mix(P.peacock, P.skyCream, 0.55), b: P.neel, height: [18, 44], haze: 0.55 }],
-    ground: { kind: 'land', plain: mix(P.chandan, P.limewhite, 0.4), plainDetail: 'sand', path: mix(P.chandan, P.limewhite, 0.25), verge: mix(P.tota, P.chandan, 0.4) },
+    ground: { kind: 'land', plain: mix(P.chandan, P.limewhite, 0.4), plainDetail: 'sand', path: mix(P.sindoor, P.laterite, 0.15), verge: mix(P.tota, P.chandan, 0.4) },
     mid: (ctx, rng, W) => {
       treeRow(ctx, rng.fork('t'), W, 168, 0.35, 0.2);
       jagannathTemple(ctx, rng.fork('jt'), 360, 232, 1.2, 0.2);
@@ -168,9 +168,9 @@ export const SCENES: Record<string, () => SceneDef> = {
   // 19 · 1568 — the mridanga, a palm-leaf forest at dusk (quiet tone).
   r19: () => ({
     id: 'r19',
-    sky: { stops: [[0, mix(P.neel, P.ink, 0.35)], [0.45, mix(P.neel, P.sindoor, 0.35)], [0.8, mix(P.marigold, P.sindoor, 0.4)], [1, mix(P.haldi, P.marigold, 0.5)]], sun: { x: 300, y: 330, r: 44, colour: P.marigold }, stars: 60, clouds: 'streak', cloudTint: P.rani },
+    sky: { stops: [[0, mix(P.neel, P.ink, 0.35)], [0.45, mix(P.neel, P.sindoor, 0.35)], [0.8, mix(P.sindoor, P.marigold, 0.3)], [1, mix(P.haldi, P.marigold, 0.5)]], sun: { x: 300, y: 330, r: 44, colour: P.marigold }, stars: 60, clouds: 'streak', cloudTint: P.rani },
     far: [{ kind: 'hills', a: mix(P.neel, P.ink, 0.45), b: P.neel, height: [40, 100], trees: true, haze: 0.2 }],
-    ground: { kind: 'land', plain: mix(P.tota, P.ink, 0.55), plainDetail: 'grass', path: mix(P.laterite, P.ink, 0.45), verge: mix(P.tota, P.ink, 0.6) },
+    ground: { kind: 'land', plain: mix(P.tota, P.ink, 0.55), plainDetail: 'grass', path: mix(P.sindoor, P.ink, 0.12), verge: mix(P.tota, P.ink, 0.6) },
     mid: (ctx, rng, W) => {
       treeRow(ctx, rng.fork('t'), W, 230, 0.15, 0.7);
       // lamps of a distant village

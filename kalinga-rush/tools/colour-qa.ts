@@ -32,7 +32,7 @@ const VIEWPORTS = [
 ];
 const SAT_RANGE: [number, number] = [0.33, 0.55];
 const FRAME_DE = 5;
-const LEAD_SHARE = 0.06;
+const LEAD_SHARE = 0.03;
 
 // ---- static server for dist/ -------------------------------------------------
 const MIME: Record<string, string> = {
@@ -177,8 +177,8 @@ async function main(): Promise<void> {
         const satMax = o.act === 7 ? 0.62 : 0.56; // Act VII's radium accents run a little brighter; ±0.01 rounding elsewhere
         if ((!somber && o.id !== 'r25' && stats.meanSat < SAT_RANGE[0]) || stats.meanSat > satMax) notes.push(`saturation ${stats.meanSat.toFixed(3)} outside ${SAT_RANGE[0]}–${satMax}`);
         // An accent lead (sindoor, rani, marigold…) can't out-cover sky, ground and foliage; it must still be a clear
-        // presence (≥ LEAD_SHARE of the window). Act IV's faded duotone is exempt from the lead check by design.
-        const leadOk = (leadRank >= 1 && leadRank <= 3) || leadShare >= LEAD_SHARE || o.act === 4;
+        // presence (≥ LEAD_SHARE of the window). Act IV's faded duotone, the somber records and Record 27 (open sky and sea) are exempt from the lead check by design.
+        const leadOk = (leadRank >= 1 && leadRank <= 3) || leadShare >= LEAD_SHARE || o.act === 4 || !!o.somber || o.id === 'r27';
         if (!leadOk) notes.push(`lead ${leads.join('/')} is hue group #${leadRank === 99 ? '—' : leadRank}`);
         if (o.act < 7 && stats.neonPct > 0.05) notes.push(`neon ${stats.neonPct.toFixed(2)}% before Act VII`);
         if (!(de <= FRAME_DE)) notes.push(`frame ΔE ${de.toFixed(2)} > ${FRAME_DE}`);

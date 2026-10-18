@@ -517,7 +517,7 @@ export const SCENES: Record<string, () => SceneDef> = {
     id: 'r32',
     sky: { stops: DAY_SKY, sun: { x: 1060, y: 108, r: 34 }, clouds: 'cumulus' },
     far: [{ kind: 'hills', a: mix(P.peacock, P.skyCream, 0.5), b: P.neel, height: [18, 60], trees: true, haze: 0.45 }],
-    ground: { kind: 'land', plain: mix(P.tota, P.haldi, 0.25), plainDetail: 'fields', path: mix(P.khondalite, P.neel, 0.2), verge: mix(P.tota, P.haldi, 0.15) },
+    ground: { kind: 'land', plain: mix(P.tota, P.haldi, 0.25), plainDetail: 'fields', path: mix(P.rani, P.laterite, 0.2), verge: mix(P.tota, P.haldi, 0.15) },
     mid: (ctx, rng, W) => {
       treeRow(ctx, rng.fork('trees'), W, 172, 0.35, 0.35);
       scatter(rng.fork('village'), W, [110, 240], (x) => wrapped(W, x, 30, (xx) => house(ctx, rng.fork(x), xx, 188, rng.range(30, 44), rng.range(32, 44), { roof: rng.chance(0.5) ? 'tile' : 'thatch', haze: 0.3 })));
@@ -677,7 +677,7 @@ export const SCENES: Record<string, () => SceneDef> = {
       clouds: 'storm', cloudTint: mix(P.neel, P.rani, 0.3), halftone: mix(P.neel, P.limewhite, 0.4),
     },
     far: [{ kind: 'sea', a: mix(P.peacock, P.neel, 0.35), b: mix(P.peacock, P.neel, 0.6) }],
-    ground: { kind: 'land', plain: mix(P.tota, P.peacock, 0.3), plainDetail: 'grass', path: mix(P.laterite, P.khondalite, 0.35), verge: mix(P.tota, P.neel, 0.25) },
+    ground: { kind: 'land', plain: mix(P.tota, P.peacock, 0.3), plainDetail: 'grass', path: mix(P.rani, P.laterite, 0.25), verge: mix(P.tota, P.neel, 0.25) },
     rain: true,
     mid: (ctx, rng, W) => {
       // palms bent by the wind, a village with its doors shut
@@ -937,7 +937,7 @@ export const SCENES: Record<string, () => SceneDef> = {
     id: 'r35',
     sky: { stops: NIGHT_SKY, moon: { x: 210, y: 92, r: 20 }, stars: 140, clouds: 'streak', cloudTint: mix(P.rani, P.skyCream, 0.3), halftone: mix(P.neel, P.peacock, 0.5), sun: { x: 900, y: 470, r: 0, colour: P.rani } },
     far: [{ kind: 'hills', a: mix(P.neel, P.ink, 0.15), b: P.ink, height: [8, 34], haze: 0.05 }],
-    ground: { kind: 'land', plain: NIGHT_PLAIN, plainDetail: 'grass', path: mix(P.neel, P.khondalite, 0.45), verge: mix(P.tota, P.neel, 0.45) },
+    ground: { kind: 'land', plain: NIGHT_PLAIN, plainDetail: 'grass', path: mix(P.rani, P.neel, 0.3), verge: mix(P.tota, P.neel, 0.45) },
     mid: (ctx, rng, W) => {
       // the city: blocks with lit windows
       scatter(rng.fork('blocks'), W, [50, 110], (x) => {
