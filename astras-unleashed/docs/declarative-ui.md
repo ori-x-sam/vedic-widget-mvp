@@ -13,7 +13,7 @@ Homes:
 | Shared prefabs | `src/screens/shared.kdl`, styled in `src/screens/shared.css` |
 | Palette (UI and battlefield) | `:root` of `src/screens/shared.css`, read by the shell through `src/tokens.ts` |
 | Look numbers (grain, cast, halftone, haze, grade, misregister) | `--look-*` tokens in the `:root` of `src/screens/shared.css`, read by the shell through `src/view/look.ts` |
-| Behaviour words | `REWARDS` in `src/rewards.ts` |
+| Behaviour words | `STAT_WORDS`, `UNIT_WORDS` (`src/units.ts`), `EFFECT_WORDS` (`src/effects.ts`), `TRIGGERS` (`src/cards.ts`), `KSHETRA_WORDS` (`src/kshetras.ts`) |
 | Content kinds | zod schemas in `src/content.ts`, data in `content/*.kdl` |
 | Screens and their stacking | `src/runtime.ts` (import order = draw order) |
 
@@ -175,11 +175,79 @@ printed page you see. Plain numbers, the unit the name's last word (`px`, `ms`);
 
 ## Behaviour words
 
-Under a `thing` node in `content/things.kdl`, one per line.
+Under a `card` (or `token`) in `content/cards.kdl`, one per line. A bare word is Nitya (always on); wrap a word in a
+trigger (## Triggers) for when it happens. Each is a pure function in the registry of the core module that owns its
+rule: the body in `STAT_WORDS` and the field rules in `UNIT_WORDS` (`src/units.ts`), what happens to a lane in
+`EFFECT_WORDS` (`src/effects.ts`). Words with a signature read `word n opt=v flag`; the table gives each one's form.
+Areas: `width=` is tiles of lane centred on the cast point or the god, `radius=` tiles around the god; an effect with
+no area reaches what the effect before it in its block reached (same side), a buff with no area reaches the god its
+`with` matched, otherwise the whole lane.
 
 | Word | Use |
 |---|---|
+| `hp` | `hp n`: hit points. |
+| `hit` | `hit dmg every=s`: each strike deals dmg, one every s seconds. |
+| `speed` | `speed tps`: walking speed, tiles a second (slow 0.8, medium 1.1, fast 1.5, very fast 2.0). |
+| `reach` | `reach tiles`: how far its strikes land (melee is 0.8). |
+| `splash` | `splash tiles`: each strike also hits enemies within this many tiles of the target. |
+| `stationary` | `stationary`: it stays where it lands and never walks. |
+| `lifetime` | `lifetime s`: it returns to light after s seconds. |
+| `taunt` | `taunt r`: enemies within r tiles must target this god. |
+| `leap` | `leap`: may land anywhere in its lane, even past the midline, but not within LEAP_BANNER_GAP_TILES of a banner. |
+| `emerge-at-dhvaja` | `emerge-at-dhvaja`: lands at its own side's Dhvaja in the lane, wherever it was dropped. |
+| `shield-at` | `shield-at frac amount`: once, when its HP falls to frac of its maximum, it gains an amount-HP shield. |
+| `fury-below` | `fury-below frac dmg=f`: deals f more damage (0.4 = +40%) while its side's Dhvaja in its lane is below frac HP. |
+| `guard` | `guard f`: allies in its lane (itself too) take f less damage (0.25 = 25%). |
+| `first-strike` | `first-strike mult reach= units-only`: its first strike deals mult times damage, from `reach` tiles if given; `units-only` never on a banner. |
+| `grow-on-withdraw` | `grow-on-withdraw step max=m`: +step damage each time an enemy in its lane returns to light, up to +m. |
+| `gather` | `gather step max=m`: strikes step faster per other ally in its lane, up to m faster. |
+| `meditate` | `meditate s guard=f`: sits still s seconds taking f less damage; the words after it in its block wait until it opens its eyes. |
+| `ramp` | `ramp mult over=s units-only`: strikes on one target grow to mult times over s seconds; `units-only` never ramps on a banner. |
+| `pacifist` | `pacifist`: never strikes. |
+| `inspire` | `inspire f radius=r`: allies within r tiles deal f more damage. |
+| `calm` | `calm f radius=r`: enemies within r tiles strike f slower (0.2 = 20%). |
+| `dmg` | `dmg f`: deals f more damage (0.25 = +25%); usually inside `with`. |
+| `reveal-next` | `reveal-next`: while it is on the field, its player sees the opponent's next card. |
+| `damage` | `damage n width= targets= pick="nearest|highest-hp" units-only`: n to each enemy reached; `targets` caps how many (picked by `pick`); `units-only` spares banners. |
+| `heal` | `heal n dhvaja= width= seconds=`: allies in the area regain n HP a second (your banner `dhvaja` a second) for `seconds`. |
+| `stun` | `stun s radius= width=`: enemies reached can't move or strike for s seconds. |
+| `knockback` | `knockback tiles`: enemies reached are pushed back toward their own end. |
+| `pull` | `pull tiles root= range=`: the farthest enemy within `range` is pulled `tiles` closer and held `root` seconds (Yama's noose). |
+| `haste` | `haste f width= seconds=`: allies reached move and strike f faster (0.35 = 35%) for `seconds`. |
+| `prana` | `prana n`: its player gains n Prana (never above the diya row's maximum). |
+| `create` | `create "token"`: a token (content/cards.kdl `token`, never a card) appears beside the god, on its side. |
+| `discount-next` | `discount-next n`: its player's next card costs n less. |
+| `seconds` | `seconds n`: the card's timed effects last n seconds instead (inside `with`: Ganga lasts longer with Shiva). |
 | `points` | PLACEHOLDER `points n`: collecting it scores n points |
+
+## Triggers
+
+Words with a block, in `TRIGGERS` (`src/cards.ts`); a card's words are read with `CARD_WORDS`, all of the above at once.
+
+| Trigger | Use |
+|---|---|
+| `avahana` | `avahana { words }`: when it is played (a god, after it lands; an Astra, after its vision). |
+| `visarjana` | `visarjana { words }`: when it returns to light. |
+| `every` | `every s first= { words }`: every s seconds while it is on the field; the first time at `first` seconds (default s). |
+| `with` | `with "id-or-tag" { words }`: while an ally with that id or tag shares its lane. |
+
+## Kshetra words
+
+Under a `kshetra` in `content/kshetras.kdl`: the one rule it lays on its lane, for both players. `KSHETRA_WORDS` in
+`src/kshetras.ts`.
+
+| Word | Use |
+|---|---|
+| `cost-cut` | `cost-cut "tag" n`: cards with that id, class or tag cost n less played here (never below 0). |
+| `regen` | `regen f`: units here regain f of their maximum HP a second (0.015 = 1.5%). |
+| `dmg-mult` | `dmg-mult m`: all damage dealt here is multiplied by m. |
+| `speed-mult` | `speed-mult m`: units here walk m times as fast. |
+| `reach-cut` | `reach-cut tiles`: ranged units here reach that much less (never below melee); melee is untouched. |
+| `dhvaja-hp` | `dhvaja-hp m`: both banners here have m times their HP. |
+| `dhvaja-haste` | `dhvaja-haste m`: both banners here strike m times as often. |
+| `amrit` | `amrit n every=s`: every s seconds, each player with a unit here gains n Prana. |
+| `veil` | `veil s`: units placed here can't be targeted by ranged attacks for s seconds. |
+| `echo` | `echo f`: the first unit each player places here is echoed once, a copy at f of its HP and damage. |
 
 ## Content kinds
 

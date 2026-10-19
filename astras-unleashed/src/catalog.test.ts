@@ -9,6 +9,10 @@ import runtimeTs from './runtime.ts?raw';
 import contentLoadTs from './content-load.ts?raw';
 import { PROPS } from './decl/css';
 import { REWARDS } from './rewards';
+import { TRIGGERS } from './cards';
+import { EFFECT_WORDS } from './effects';
+import { KSHETRA_WORDS } from './kshetras';
+import { STAT_WORDS, UNIT_WORDS } from './units';
 import { TOKENS } from './tokens';
 import { LOOK_KEYS, lookToken } from './view/look';
 import './screens/shared'; // registers the game's properties
@@ -31,7 +35,9 @@ describe('the catalog matches the code', () => {
   it('palette', () => same('Palette', Object.keys(TOKENS).filter((k) => !k.startsWith('--look-'))));
   it('look', () => same('Look', looks));
   it('every look token is read by the shell', () => expect(LOOK_KEYS.map(lookToken).sort()).toEqual([...looks].sort()));
-  it('behaviour words', () => same('Behaviour words', Object.keys(REWARDS)));
+  it('behaviour words', () => same('Behaviour words', [STAT_WORDS, UNIT_WORDS, EFFECT_WORDS, REWARDS].flatMap(Object.keys)));
+  it('triggers', () => same('Triggers', Object.keys(TRIGGERS)));
+  it('kshetra words', () => same('Kshetra words', Object.keys(KSHETRA_WORDS)));
   it('content kinds', () => same('Content kinds', all(contentTs, /loadKdl\(\w+, \{ ([^}]+) \}/g).flatMap((kinds) => kinds.split(',').map((k) => k.split(':')[0]!.trim()))));
   it('content helpers', () => same('Content helpers', all(contentLoadTs, /^export function (\w+)/gm)));
   it('screens, in draw order', () => expect(section('Screens')).toEqual(all(runtimeTs, /^import \{ draw\w+ \} from '\.\/screens\/([\w-]+)';/gm)));
