@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import catalog from '../docs/declarative-ui.md?raw';
 import sharedTs from './screens/shared.ts?raw';
 import sharedKdl from './screens/shared.kdl?raw';
+import sharedCss from './screens/shared.css?raw';
 import contentTs from './content.ts?raw';
 import runtimeTs from './runtime.ts?raw';
 import contentLoadTs from './content-load.ts?raw';
@@ -30,6 +31,7 @@ describe('the catalog matches the code', () => {
   it('CSS properties', () => same('CSS properties', Object.keys(PROPS)));
   it('elements', () => same('Elements', ['panel', 'button', 'text', 'sprite', ...all(sharedTs, /defineElement\('([\w-]+)'/g)]));
   it('shared prefabs', () => same('Shared prefabs', all(sharedKdl, /^prefab "([\w-]+)"/gm)));
+  it('keyframes', () => same('Keyframes', all(sharedCss, /^@keyframes ([\w-]+)/gm)));
   const looks = Object.keys(TOKENS).filter((k) => k.startsWith('--look-'));
   it('palette', () => same('Palette', Object.keys(TOKENS).filter((k) => !k.startsWith('--look-'))));
   it('look', () => same('Look', looks));

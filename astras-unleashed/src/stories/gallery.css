@@ -1,0 +1,19 @@
+/* The prefab gallery (gallery.kdl): story-only scaffolding around the shared prefabs. */
+.gallery { width: 100%; height: 100%; gap: 10px; padding: 0 0 12px 0 }
+.gallery-row { flex-direction: row; gap: 6px; padding: 0 16px; align-items: flex-end; flex-wrap: wrap }
+.gallery-label { font-family: var(--title-font); font-weight: 800; font-size: 10px; letter-spacing: 2.4px; font-color: var(--peach); padding: 8px 16px 0 16px; text-wrap: wrap; width: 100% }
+/* A lane: 1280 x 300 logical at 390 wide is 390 x 91; the board hangs at the midline. */
+.gallery-lane { width: 100%; height: 91px; background-color: var(--sky-cream); align-items: center }
+.gallery-lane.revealed { background-color: var(--yuga-treta-sky) }
+.gallery-lane-board { position: absolute; left: 120px; top: 0 }
+.gallery-rule { width: 100%; height: 2px; background-color: var(--cream) }
+.gallery-box { width: 74px; height: 50px; align-items: center; justify-content: center; background-color: var(--frame-edge); border-color: var(--gold); border-width: 1px }
+.gallery-box-text { font-family: var(--title-font); font-weight: 800; font-size: 8px; letter-spacing: 1px; font-color: var(--cream) }
+.gallery-box.title-card-in { animation: title-card-in .55s ease-out infinite }
+.gallery-box.yuga-turn { animation: yuga-turn .7s var(--pop) infinite }
+.gallery-box.kshetra-unfurl { animation: kshetra-unfurl .9s var(--unfurl) infinite }
+.gallery-box.misregister { animation: misregister var(--look-misregister-ms)ms linear infinite }
+.gallery-box.avahana-descend { animation: avahana-descend .6s ease-out infinite }
+.gallery-box.visarjana-lotus { animation: visarjana-lotus 1.2s ease-in infinite }
+.gallery-box.banner-lower { animation: banner-lower .8s ease-in infinite }
+.gallery-box.gulal-puff { animation: gulal-puff .5s ease-out infinite }

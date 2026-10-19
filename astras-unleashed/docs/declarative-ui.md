@@ -98,14 +98,52 @@ Built-ins (engine) and game-defined (`defineProp` in shared.ts).
 | `text` | `bind="x"` or a literal |
 | `sprite` | atlas texture (needs an atlas: screenUi's `texture` hook throws until the game has one) |
 | `meter` | `meter value=(bind)"fill"`: a fill of `w * value` (0..1), coloured by `tint` |
+| `diya` | `diya fill=(bind)"f"`: a laterite lamp; `fill` 0..1 grows its haldi flame, 0 is unlit |
+| `sigil` | `sigil kind=(bind)"k" paint=(bind)"--token"`: a class sigil (shield sword bow flame lotus) in its colour |
+| `card-art` | `card-art god= paint= skin= trimurti=`: a card's painted face (placeholder painter): sky, halo, the god's silhouette in its skin token, Pattachitra border; gold leaf for the Trimurti |
+| `emblem` | `emblem kind=(bind)"disc|crescent" paint= trim=`: the Sun's disc or the Moon's crescent |
+| `flag` | `flag paint= trim= lowered=`: a Dhvaja on its staff, or folded at the foot when lowered |
+| `long-die` | `long-die face=(bind)"n"`: the pasaka from the side, showing 4..1 pips |
+| `patta-border` | a Pattachitra-style label border: sindoor frame, haldi dots, conch-white corners |
+| `tick` | `tick on=(bind)"x"`: the teacher's red tick, when on |
+| `dots` | a dotted fill-in line in frame colour |
 
 ## Shared prefabs
 
-Build them with the binding builders exported from `screens/shared.ts`.
+Build them with the binding builders exported from `screens/shared.ts`, which turn content into bindings.
 
 | Prefab | Use |
 |---|---|
 | `btn` | `btn(label, tap, state?)`; state `primary` / `off` |
+| `title-card` | `titleCard(label, line, headline, { score?, die? })`: the Kalinga Rush header; a new headline replays `title-card-in` |
+| `signboard` | `signboard(lane, kshetraId | null)`: a lane's hanging board; null is veiled (`KSHETRA III · ?`) |
+| `card` | `card(id, 'hand' | 'next' | 'face' | 'detail', cost?)`: a god card; a lower `cost` marks it discounted; detail lists its rules |
+| `card-rule` | one AVAHANA / NITYA / CAST / VISARJANA line in a card's detail (built by `card`) |
+| `prana-diyas` | `pranaDiyas(prana, max)`: the diya row and count |
+| `prana-diya` | one diya in the row (built by `pranaDiyas`) |
+| `banner-score` | `bannerScore(sunLowered, moonLowered)`: each side's emblem and three Dhvajas |
+| `banner-score-emblem` | a side's emblem in the score (built by `bannerScore`) |
+| `banner-score-flag` | one Dhvaja in the score, raised or lowered (built by `bannerScore`) |
+| `long-die` | `longDie(face, tap)`: the yuga's die in the header; tap pauses; a new face replays `yuga-turn` |
+| `katha-page` | `kathaPage(id, unlocked)`: a Deva Katha page on cream |
+| `report-card` | `reportCard({ kicker, rows, remark, stamp, assisted })`: the Leela Report with its rubber stamp |
+| `report-row` | one row of the report (built by `reportCard`) |
+| `emote` | `emote(id)`: one of the four blessings; any other id throws |
+
+## Keyframes
+
+`@keyframes` in `src/screens/shared.css`, for any screen's `animation:`. A screen's own keyframes stay in its sheet.
+
+| Keyframe | Use |
+|---|---|
+| `title-card-in` | a new headline rises into place |
+| `yuga-turn` | the long die turns to the next yuga's face |
+| `kshetra-unfurl` | a signboard drops and swings as its Kshetra is revealed |
+| `misregister` | entering Kali Yuga, the print slips by `--look-misregister-px` and snaps back (reduced motion: fade instead) |
+| `avahana-descend` | a god descends in a column of light |
+| `visarjana-lotus` | a god folds into a lotus and rises as light (`forwards`) |
+| `banner-lower` | a Dhvaja is gently lowered and folded (`forwards`) |
+| `gulal-puff` | a hit's puff of coloured powder in the striker's team colour |
 
 ## Palette
 

@@ -5,6 +5,9 @@ import { CanvasTextMetrics } from 'pixi.js';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { initialUi, ui } from '../store';
 import { drawTitle } from './title';
+import { bannerScore, card, cardRules, emote, kathaPage, longDie, pranaDiyas, reportCard, screenUi, signboard, titleCard } from './shared';
+import { use } from '../decl/engine';
+import { CARDS, KATHA, KSHETRAS } from '../content';
 import { layers } from '../stage';
 
 const drawAll = () => { drawTitle(); };
@@ -19,5 +22,31 @@ describe('screens render from the stores', () => {
     ui.setState(initialUi); drawAll();
     expect(texts()).toContain('Astras');
     expect(texts()).toContain('20 GODS · 12 KSHETRAS · 4 AGES');
+  });
+});
+
+describe('every shared prefab renders from real content', () => {
+  const page = screenUi('prefab "page" {\n    panel class="page" slot="items"\n}', '');
+  const show = (...items: ReturnType<typeof use>[]) => page.show(use('page', {}, { items }));
+  it('title card, signboards, diyas, score, die', () => {
+    show(titleCard('LABEL', 'TRETA YUGA', 'Hanuman leaps the ocean.', { score: [bannerScore(1, 2)], die: [longDie(3, () => {})] }), signboard(1, 'kishkindha'), signboard(3, null), pranaDiyas(6.4, 10));
+    expect(texts()).toEqual(expect.arrayContaining(['Hanuman leaps the ocean.', 'KISHKINDHA', 'KSHETRA III · ?', '6 / 10']));
+  });
+  it('every card at every size, and every Kshetra board', () => {
+    for (const id of Object.keys(CARDS)) show(card(id, 'hand'), card(id, 'next'), card(id, 'face'), card(id, 'detail'));
+    for (const [i, id] of Object.keys(KSHETRAS).entries()) show(signboard((i % 3) + 1, id));
+  });
+  it('every card has at least one rule line, and Astras say CAST', () => {
+    for (const id of Object.keys(CARDS)) {
+      const rules = cardRules(id);
+      if (!['agni'].includes(id)) expect(rules.length, id).toBeGreaterThan(0); // Agni is a plain fire-thrower: no rules
+      if (CARDS[id]!.class === 'astra') expect(rules.map((r) => r.when), id).toContain('CAST');
+    }
+  });
+  it('every Katha page, the report and the four blessings', () => {
+    for (const id of Object.keys(KATHA)) show(kathaPage(id, true));
+    show(reportCard({ kicker: 'K', rows: [['A', 'b']], remark: 'Sādhu!', stamp: 'sama', assisted: false }), ...['namaskar', 'sadhu', 'shubham', 'lotus'].map(emote));
+    expect(texts()).toContain('SAMA');
+    expect(() => emote('taunt')).toThrow();
   });
 });

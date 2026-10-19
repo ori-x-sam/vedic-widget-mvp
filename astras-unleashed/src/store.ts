@@ -11,7 +11,8 @@ export const META_KEY = 'astras-unleashed.meta';
 export type GameStore = { meta: Meta };
 
 /** Add a name here per screen; the screen's draw function shows itself when this matches. */
-export type Screen = 'title';
+/** `gallery` is Storybook's prefab gallery: no game screen shows. */
+export type Screen = 'title' | 'gallery';
 export type UiState = { screen: Screen };
 export const initialUi: UiState = { screen: 'title' };
 

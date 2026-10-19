@@ -44,7 +44,7 @@ export type Ability =
   | { hook: 'stats'; apply: (s: Stats) => Stats }
   | { hook: ModHook; scope: Scope; radiusTiles?: number; factor: (m: Moment) => number }
   | { hook: 'taunt'; radiusTiles: number }
-  | { hook: 'place'; where: (c: PlaceCtx) => number | null }
+  | { hook: 'place'; how: 'leap' | 'emerge-at-dhvaja'; where: (c: PlaceCtx) => number | null }
   | { hook: 'first-strike'; mult: number; reachTiles?: number; unitsOnly: boolean }
   | { hook: 'shield-at'; hpFrac: number; amount: number }
   | { hook: 'meditate'; seconds: number; guard: number }
@@ -81,9 +81,9 @@ export const UNIT_WORDS: Record<string, Maker<Ability>> = {
   /** `taunt r`: enemies within r tiles must target this god. */
   taunt: (radiusTiles) => ({ hook: 'taunt', radiusTiles }),
   /** `leap`: may land anywhere in its lane, even past the midline, but not within LEAP_BANNER_GAP_TILES of a banner. */
-  leap: () => ({ hook: 'place', where: (c) => (c.bannerTiles.some((b) => Math.abs(b - c.dropTile) < T.LEAP_BANNER_GAP_TILES) ? null : c.dropTile) }),
+  leap: () => ({ hook: 'place', how: 'leap', where: (c) => (c.bannerTiles.some((b) => Math.abs(b - c.dropTile) < T.LEAP_BANNER_GAP_TILES) ? null : c.dropTile) }),
   /** `emerge-at-dhvaja`: lands at its own side's Dhvaja in the lane, wherever it was dropped. */
-  'emerge-at-dhvaja': () => ({ hook: 'place', where: (c) => c.ownDhvajaTile }),
+  'emerge-at-dhvaja': () => ({ hook: 'place', how: 'emerge-at-dhvaja', where: (c) => c.ownDhvajaTile }),
   /** `shield-at frac amount`: once, when its HP falls to frac of its maximum, it gains an amount-HP shield. */
   'shield-at': (hpFrac, amount) => ({ hook: 'shield-at', hpFrac, amount }),
   /** `fury-below frac dmg=f`: deals f more damage (0.4 = +40%) while its side's Dhvaja in its lane is below frac HP. */
