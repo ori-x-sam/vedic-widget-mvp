@@ -36,13 +36,13 @@ const unit = (abilities: Ability[]) => ({ abilities, stats: statsOf(abilities) }
 export const CardSchema = z.strictObject({
   id: z.string(), name: z.string(), deva: z.string(), title: z.string(), regional: z.string().optional(),
   class: z.string(), cost: z.number().int().min(0).max(10), tags: words.default([]),
-  skin: token.default('--chandan'), line: z.string(),
+  skin: token.default('--chandan'), attribute: z.string(), line: z.string(),
   children: combinators(CARD_WORDS, 'word'),
 }).transform(({ children, ...c }) => ({ ...c, ...unit(children) }));
 export type CardDef = z.output<typeof CardSchema>;
 
 export const TokenSchema = z.strictObject({
-  id: z.string(), name: z.string(), deva: z.string(), skin: token.default('--chandan'),
+  id: z.string(), name: z.string(), deva: z.string(), skin: token.default('--chandan'), attribute: z.string(),
   children: combinators(CARD_WORDS, 'word'),
 }).transform(({ children, ...t }) => ({ ...t, ...unit(children) }));
 export type TokenDef = z.output<typeof TokenSchema>;

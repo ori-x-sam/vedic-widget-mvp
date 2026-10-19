@@ -4,14 +4,25 @@
    Sizes are design px (the short side of the screen is 390 design px), times in s or ms.
    Each `/* ── Heading ── *\/` groups the tokens below it in the Palette story. */
 :root {
-  /* ── Frame and UI ── the Kalinga Rush page: deep maroon, cream headline, tracked gold and peach. */
-  --frame: #4B211A;        /* the page background */
-  --frame-edge: #34140F;   /* vignette, the deepest edges, the pause button, modal scrims */
-  --frame-rule: #6A3328;   /* a raised maroon: pill outlines, thin rules and borders on the page */
-  --cream: #F4ECD8;        /* headlines, the title's first word, signboard titles, card names */
-  --gold: #D9BB6C;         /* the yuga and clock line, the URL, small rules, Devanagari names on cards */
-  --peach: #E0B09A;        /* the top label (ASTRAS UNLEASHED · LEELA 3 · vs GARGI) */
-  --peach-title: #D89C80;  /* the title's second word (Unleashed); large sizes only */
+  /* ── HUD ── the game's own chrome: a deep, saturated indigo like a Clash Royale panel, haldi gold accents. */
+  --hud: #22318C;          /* the strip along the top and the tray behind the hand */
+  --hud-edge: #141D5C;     /* the darkest panel edges, text outlines, the scrim behind a dialog */
+  --hud-rule: #3E58C9;     /* raised panels, borders, the empty Prana segments */
+  --cream: #FFF6E0;        /* light text on the HUD and on cards: names, the clock */
+  --gold: #FFD24A;         /* the HUD's accent: the yuga line, Devanagari names, highlights */
+  --ink: #3A1E14;          /* dark text on cream pages (Katha, the Leela Report) */
+
+  /* ── Arena ── the painted ground, as bright as the scenes inside the Kalinga Rush frames: grass, water, sky. */
+  --grass: #67BE3C;        /* the field */
+  --grass-light: #9BD957;  /* sunlit tufts, the near edge */
+  --grass-shade: #3E9131;  /* shadow under trees and towers, the grass texture's dark strokes */
+  --path: #EFC983;         /* the sandy path each lane's gods walk */
+  --path-shade: #CF9F5A;   /* the path's worn edges */
+  --river: #27AECF;        /* the river across the middle */
+  --river-deep: #157FAE;   /* the river's deep centre and banks */
+  --river-light: #A6E9EE;  /* ripples and glints */
+  --wood: #B0662F;         /* the three bridges */
+  --sky: #7ED1EA;          /* the sky beyond the opponent's end, fading to --sky-cream at the horizon */
 
   /* ── Scene ── the 1970s–80s textbook palette every lane is painted in (tints and shades of these). */
   --sindoor: #E8361F;      /* vermilion: the Sun team, flags, Yoddha frames, Hanuman's sindoor-coated skin */
@@ -26,7 +37,7 @@
   --khondalite: #776A60;   /* stone, Meru, Dhvaja plinths; every grey in the game is this or a tint of the palette */
   --limewhite: #F6EFE0;    /* snow, the milk ocean, the Moon emblem, gulal highlights */
   --chandan: #D38B55;      /* warm skin for mortals, and for gods whose tradition shows warm skin */
-  --sky-cream: #F1DDB4;    /* the warm old-paper sky at the horizon; the veiled (unrevealed) lane */
+  --sky-cream: #F1DDB4;    /* the warm textbook sky at the horizon */
 
   /* ── Deities ── skin colours as tradition shows them. Never lighten them. */
   --megh: #3F5FB4;         /* rain-cloud blue (megha-shyama): Vishnu, Rama, Krishna */
@@ -48,14 +59,14 @@
   --yuga-pralaya-sky: #1B2766;
 
   /* ── Type and motion ── */
-  --title-font: Inter Tight, Archivo, Arial, sans-serif;           /* headlines, labels, card names */
+  --title-font: Lilita One, Arial Black, sans-serif;               /* the game's display face: names, the clock, labels */
   --body-font: Baloo 2, Noto Sans Devanagari, Arial, sans-serif;   /* body, Katha text, every Devanagari string */
   --tamil-font: Baloo Thambi 2, Noto Sans Tamil, Arial, sans-serif; /* Tamil names (Murugan) */
   --pop: cubic-bezier(.3, 1.7, .5, 1);                              /* overshoot easing */
   --unfurl: cubic-bezier(.2, .8, .2, 1);                            /* a scroll or banner unrolling */
 
   /* ── Look ── how the render sees the palette (view/look.ts). Plain numbers; the unit is the name's last word
-     (px, ms); no unit is a strength or a 0..1 amount. Keep the finish subtle: it is a hint of an old printed page. */
+     (px, ms, per-s); no unit is a strength or a 0..1 amount. */
   --look-grain: 0.07;            /* fine paper grain over the battlefield */
   --look-warm-cast: 0.06;        /* a faint warm (sky-cream) cast over the battlefield */
   --look-halftone: 0.035;        /* a faint halftone in large flat areas; 0 turns it off */
@@ -65,6 +76,11 @@
   --look-vignette: 0.35;         /* the frame-edge vignette at the page's edges */
   --look-misregister-px: 5;      /* entering Kali Yuga, the colour plates slide this far apart... */
   --look-misregister-ms: 400;    /* ...and snap back over this long (reduced motion: a simple fade) */
+  --look-arena-tilt: 0.45;       /* the 3/4 camera: how much narrower and closer together the far rows are; 0 is flat */
+  --look-unit-height-px: 54;     /* a god's height at the near edge (it shrinks with depth; the far edge must stay over 28) */
+  --look-walk-bounce-px: 3;      /* how high a walking god bobs */
+  --look-walk-steps-per-s: 2.6;  /* walking steps a second */
+  --look-strike-lunge-px: 6;     /* how far a god lunges on each strike */
 }
 
 text { font-family: var(--body-font); font-color: var(--cream); font-size: 16px }
@@ -72,162 +88,147 @@ text { font-family: var(--body-font); font-color: var(--cream); font-size: 16px 
 /* A button: the consumer sets width/height when the default doesn't fit. */
 button {
   width: 180px; height: max(44px, var(--touch-size)); align-items: center; justify-content: center;
-  background-color: var(--frame-edge); border-color: var(--frame-rule); border-width: 2px;
+  background-color: var(--hud); border-color: var(--hud-rule); border-width: 2px;
   transition: scale .08s ease-out, background-color .12s;
 }
 button:hover { border-color: var(--gold) }
 button:pressed { scale: .94 }
 button.primary { border-color: var(--gold) }
 button.off { opacity: .45 }
-.shared-btn-label { font-family: var(--title-font); font-weight: 800; font-size: 15px; letter-spacing: 3px; font-color: var(--cream) }
+.shared-btn-label { font-family: var(--title-font); font-size: 16px; letter-spacing: 1px; font-color: var(--cream); text-stroke-color: var(--hud-edge); text-stroke-width: 3px }
 
-/* ── keyframes ── the shared motion vocabulary (catalog: ## Keyframes). Properties: opacity, scale, translate, rotate. */
-/* A new headline rises into place. */
-@keyframes title-card-in { from { opacity: 0; translate: 0 22 } 60% { opacity: 1 } }
+/* ── keyframes ── the shared motion vocabulary for the UI (catalog: ## Keyframes); the arena animates in code. */
+/* A pop-up (a Kshetra revealed, a yuga turning) bounces in. */
+@keyframes toast-in { from { opacity: 0; scale: .6 } 60% { opacity: 1; scale: 1.08 } }
+/* A Kshetra chip flips over as its lane is revealed. */
+@keyframes kshetra-reveal { from { scale: 0 1; } 50% { scale: 1.25 1.25 } }
 /* The long die turns to the next yuga's face. */
 @keyframes yuga-turn { from { rotate: -200; scale: .5 } 70% { scale: 1.2 } }
-/* A Kshetra's signboard drops and swings as its lane is revealed. */
-@keyframes kshetra-unfurl { from { opacity: 0; translate: 0 -46; rotate: -7 } 55% { opacity: 1; rotate: 4 } 80% { rotate: -2 } }
-/* Entering Kali Yuga the print misregisters for a beat (reduced motion: use a plain fade instead). */
+/* Entering Kali Yuga the HUD shudders for a beat (reduced motion: no shudder). */
 @keyframes misregister { 20% { translate: var(--look-misregister-px) -2 } 45% { translate: -3 1 } 70% { translate: 2 0 } }
-/* A god descends in a column of light. */
-@keyframes avahana-descend { from { opacity: 0; translate: 0 -70; scale: .8 1.4 } 70% { opacity: 1; scale: 1.05 .95 } }
-/* A god's strength is spent: it folds into a lotus and rises as light (play with fill forwards). */
-@keyframes visarjana-lotus { 30% { scale: .9 1.1 } to { opacity: 0; scale: .2; translate: 0 -40; rotate: 25 } }
-/* A Dhvaja is gently lowered and folded (fill forwards). */
-@keyframes banner-lower { to { translate: 0 18; scale: 1 .25; opacity: .55 } }
-/* A hit throws a puff of gulal in the striker's team colour. */
-@keyframes gulal-puff { from { opacity: .95; scale: .3 } to { opacity: 0; scale: 1.7 } }
+/* A Dhvaja in the score is lowered and folded (fill forwards). */
+@keyframes banner-lower { to { translate: 0 8; scale: 1 .3; opacity: .6 } }
+/* A card leaves the hand when played. */
+@keyframes card-play { to { translate: 0 -40; scale: .6; opacity: 0 } }
+/* The charging Prana segment glows. */
+@keyframes prana-glow { 50% { opacity: .7 } }
 
-/* ── title-card ── */
-.title-card { width: 100%; padding: 18px 16px 10px 16px; gap: 6px }
-.title-card-top { flex-direction: row; justify-content: space-between; align-items: center }
-.title-card-label { font-family: var(--title-font); font-weight: 800; font-size: 10px; letter-spacing: 1.5px; font-color: var(--peach) }
-.title-card-score { flex-direction: row }
-.title-card-yuga { flex-direction: row; justify-content: space-between; align-items: center; padding: 4px 0 0 0 }
-.title-card-line { font-family: var(--title-font); font-weight: 800; font-size: 13px; letter-spacing: 3.5px; font-color: var(--gold) }
-.title-card-headline { animation: title-card-in .55s ease-out }
-.title-card-headline-text {
-  font-family: var(--title-font); font-weight: 900; font-size: 42px; letter-spacing: -1.3px; line-height: 40px;
-  font-color: var(--cream); text-wrap: wrap;
-}
+/* ── hud ── */
+.hud { width: 100%; height: 56px; flex-direction: row; align-items: center; justify-content: space-between; padding: 6px 10px; background-color: var(--hud); border-color: var(--hud-edge); border-width: 2px }
+.hud-score { width: 110px; flex-direction: row }
+.hud-clock { align-items: center; gap: 0px }
+.hud-time { font-family: var(--title-font); font-size: 26px; font-color: var(--cream); text-stroke-color: var(--hud-edge); text-stroke-width: 4px }
+.hud-yuga { animation: toast-in .5s var(--pop) }
+.hud-yuga-text { font-family: var(--title-font); font-size: 12px; letter-spacing: 1px; font-color: var(--gold); text-stroke-color: var(--hud-edge); text-stroke-width: 3px }
+.hud-die { width: 110px; flex-direction: row; justify-content: flex-end }
 
-/* ── signboard ── */
-.signboard { width: 150px; align-items: center; animation: kshetra-unfurl .9s var(--unfurl) }
-.signboard-cords { width: 96px; height: 14px; flex-direction: row; justify-content: space-between }
-.signboard-cord { width: 2px; height: 14px; background-color: var(--frame-edge) }
-.signboard-board {
-  width: 150px; padding: 6px 8px 7px 8px; gap: 1px; align-items: center;
-  background-color: var(--frame); border-color: var(--frame-edge); border-width: 2px;
-}
-.signboard-kicker { font-family: var(--title-font); font-weight: 800; font-size: 8px; letter-spacing: 2.4px; font-color: var(--gold) }
-.signboard-title { font-family: var(--title-font); font-weight: 900; font-size: 15px; letter-spacing: 0.5px; font-color: var(--cream) }
-.signboard-rule { font-family: var(--body-font); font-size: 9px; line-height: 11px; font-color: var(--cream); text-align: center; text-wrap: wrap; width: 100% }
-.signboard.veiled { animation: none }
-.signboard.veiled .signboard-board { width: 116px }
+/* ── kshetra toast ── (the chips are drawn by the arena) */
+.kshetra-toast { width: 300px; padding: 10px 14px; align-items: center; gap: 1px; background-color: var(--hud); border-color: var(--gold); border-width: 3px; animation: toast-in .5s var(--pop) }
+.kshetra-toast-kicker { font-family: var(--title-font); font-size: 11px; letter-spacing: 2px; font-color: var(--gold) }
+.kshetra-toast-title { font-family: var(--title-font); font-size: 26px; font-color: var(--cream); text-stroke-color: var(--hud-edge); text-stroke-width: 4px }
+.kshetra-toast-rule { font-family: var(--body-font); font-weight: 600; font-size: 14px; font-color: var(--cream); text-align: center; text-wrap: wrap; width: 100% }
 
-/* ── card ── 5:7; sizes below. Children sit absolutely over the painted face. */
+/* ── card ── 5:7, Marvel Snap style. Children sit absolutely over the painted art. */
 .card { width: 180px; height: 252px }
 .card-art { position: absolute; left: 0; top: 0; width: 100%; height: 100% }
-.card-cost { position: absolute; left: 6px; top: 4px; width: 40px; height: 40px; align-items: center; justify-content: center }
-.card-cost-diya { position: absolute; left: 0; top: 0; width: 40px; height: 40px }
-.card-cost-n { font-family: var(--title-font); font-weight: 900; font-size: 15px; font-color: var(--cream); translate: 0 12 }
-.card-sigil { position: absolute; left: 148px; top: 8px; width: 24px; height: 24px }
-.card-plate {
-  position: absolute; left: 6px; top: 186px; width: 168px; height: 60px; padding: 5px 6px; gap: 0px;
-  background-color: var(--frame); align-items: center;
-}
-.card-name { font-family: var(--title-font); font-weight: 800; font-size: 17px; font-color: var(--cream) }
-.card-deva { font-family: var(--body-font); font-weight: 600; font-size: 13px; line-height: 15px; font-color: var(--gold) }
-.card-title { font-family: var(--title-font); font-weight: 700; font-size: 7px; letter-spacing: 0.6px; font-color: var(--peach); text-wrap: wrap; text-align: center; width: 100% }
+.card-cost { position: absolute; left: -6px; top: -6px; width: 46px; height: 46px; align-items: center; justify-content: center }
+.card-cost-gem { position: absolute; left: 0; top: 0; width: 46px; height: 46px }
+.card-cost-n { font-family: var(--title-font); font-size: 24px; font-color: var(--cream); text-stroke-color: var(--hud-edge); text-stroke-width: 5px; translate: 0 2 }
+.card-sigil { position: absolute; left: 146px; top: 8px; width: 26px; height: 26px }
+.card-names { position: absolute; left: 0; top: 196px; width: 180px; align-items: center; gap: 0px }
+.card-name { font-family: var(--title-font); font-size: 26px; letter-spacing: 0.5px; font-color: var(--cream); text-stroke-color: var(--hud-edge); text-stroke-width: 5px }
+.card-deva { font-family: var(--body-font); font-weight: 800; font-size: 13px; line-height: 15px; font-color: var(--gold); text-stroke-color: var(--hud-edge); text-stroke-width: 3px }
+.card-title { display: none }
 .card-rules { display: none }
-/* A Kshetra cut the cost: the numeral stays cream (tota on laterite fails contrast; see the Palette story). */
-.card.discounted .card-cost { scale: 1.1 }
-/* In the hand: 72 x 101 (the brief's minimum width, so four and the next card fit 358 px); just the cost, the sigil and the name. */
+/* A Kshetra cut the cost: the gem pulses bigger. */
+.card.discounted .card-cost { scale: 1.12 }
+/* In the hand: 72 x 101 (the brief's minimum width, so four and the next card fit 358 px). */
 .card.hand { width: 72px; height: 101px }
-.card.hand .card-cost { left: 2px; top: 1px; width: 26px; height: 26px }
-.card.hand .card-cost-diya { width: 26px; height: 26px }
-.card.hand .card-cost-n { font-size: 11px; translate: 0 9 }
-.card.hand .card-sigil { left: 55px; top: 4px; width: 13px; height: 13px }
-.card.hand .card-plate { left: 3px; top: 79px; width: 66px; height: 19px; padding: 2px 2px }
-.card.hand .card-name { font-size: 10px }
-.card.hand .card-deva, .card.hand .card-title { display: none }
-/* The next card, beside the hand: smaller, just the cost and the art. */
+.card.hand .card-cost { left: -4px; top: -4px; width: 26px; height: 26px }
+.card.hand .card-cost-gem { width: 26px; height: 26px }
+.card.hand .card-cost-n { font-size: 14px; text-stroke-width: 3px; translate: 0 1 }
+.card.hand .card-sigil { display: none }
+.card.hand .card-names { top: 78px; width: 72px }
+.card.hand .card-name { font-size: 13px; text-stroke-width: 3px }
+.card.hand .card-deva { display: none }
+/* The next card, beside the hand: smaller, just the art and the cost. */
 .card.next { width: 44px; height: 62px }
-.card.next .card-cost { left: 0; top: 0; width: 20px; height: 20px }
-.card.next .card-cost-diya { width: 20px; height: 20px }
-.card.next .card-cost-n { font-size: 9px; translate: 0 5 }
-.card.next .card-sigil, .card.next .card-plate { display: none }
-/* Long-press detail: the face, then the rules beneath it. */
-.card.detail { width: 300px; height: 520px; background-color: var(--frame-edge) }
+.card.next .card-cost { left: -3px; top: -3px; width: 18px; height: 18px }
+.card.next .card-cost-gem { width: 18px; height: 18px }
+.card.next .card-cost-n { font-size: 10px; text-stroke-width: 2px; translate: 0 1 }
+.card.next .card-sigil, .card.next .card-names { display: none }
+/* Long-press detail: the face, the epithet, then the rules. */
+.card.detail { width: 300px; height: 560px }
 .card.detail .card-art { width: 300px; height: 420px }
-.card.detail .card-cost { left: 10px; top: 8px; width: 60px; height: 60px }
-.card.detail .card-cost-diya { width: 60px; height: 60px }
-.card.detail .card-cost-n { font-size: 22px; translate: 0 18 }
-.card.detail .card-sigil { left: 252px; top: 14px; width: 36px; height: 36px }
-.card.detail .card-plate { left: 10px; top: 318px; width: 280px; height: 94px; padding: 8px 8px; gap: 2px }
-.card.detail .card-name { font-size: 28px }
+.card.detail .card-cost { left: -8px; top: -8px; width: 70px; height: 70px }
+.card.detail .card-cost-gem { width: 70px; height: 70px }
+.card.detail .card-cost-n { font-size: 36px; text-stroke-width: 6px }
+.card.detail .card-sigil { left: 252px; top: 12px; width: 38px; height: 38px }
+.card.detail .card-names { top: 322px; width: 300px }
+.card.detail .card-name { font-size: 42px; text-stroke-width: 7px }
 .card.detail .card-deva { font-size: 20px; line-height: 24px }
-.card.detail .card-title { font-size: 9px; letter-spacing: 1.6px }
-.card.detail .card-rules { display: flex; position: absolute; left: 10px; top: 424px; width: 280px; gap: 4px }
+.card.detail .card-title { display: flex; font-family: var(--title-font); font-size: 12px; letter-spacing: 1px; font-color: var(--gold); text-stroke-color: var(--hud-edge); text-stroke-width: 3px; padding: 4px 0 0 0 }
+.card.detail .card-rules { display: flex; position: absolute; left: 0; top: 432px; width: 300px; padding: 10px; gap: 6px; background-color: var(--hud); border-color: var(--hud-rule); border-width: 2px }
 .card-rule { flex-direction: row; gap: 8px }
-.card-rule-when { width: 70px; font-family: var(--title-font); font-weight: 800; font-size: 9px; letter-spacing: 1.8px; font-color: var(--gold); padding: 2px 0 0 0 }
-.card-rule-text { width: 202px; font-family: var(--body-font); font-size: 12px; line-height: 14px; font-color: var(--cream); text-wrap: wrap }
+.card-rule-when { width: 72px; font-family: var(--title-font); font-size: 11px; letter-spacing: 1px; font-color: var(--gold); padding: 1px 0 0 0 }
+.card-rule-text { width: 200px; font-family: var(--body-font); font-weight: 600; font-size: 12px; line-height: 14px; font-color: var(--cream); text-wrap: wrap }
 
-/* ── prana-diyas ── */
-.prana { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; padding: 0 16px }
-.prana-row { flex-direction: row; gap: 3px }
-.prana-diya { width: 26px; height: 26px }
-.prana-count { font-family: var(--title-font); font-weight: 900; font-size: 18px; font-color: var(--gold) }
+/* ── prana-bar ── */
+.prana { width: 100%; flex-direction: row; align-items: center; gap: 6px; padding: 0 12px }
+.prana-count { width: 34px; height: 34px; align-items: center; justify-content: center }
+.prana-count-gem { position: absolute; left: 0; top: 0; width: 34px; height: 34px }
+.prana-count-n { font-family: var(--title-font); font-size: 18px; font-color: var(--cream); text-stroke-color: var(--hud-edge); text-stroke-width: 4px; translate: 0 1 }
+.prana-row { flex-direction: row; gap: 2px; padding: 3px; background-color: var(--hud-edge) }
+.prana-segment { width: 29px; height: 16px }
 
 /* ── banner-score ── */
 .banner-score { flex-direction: row; gap: 8px; align-items: center }
 .banner-score-side { flex-direction: row; gap: 2px; align-items: flex-end }
-.banner-score-emblem { width: 12px; height: 12px }
-.banner-score-flag { width: 7px; height: 14px }
+.banner-score-emblem { width: 16px; height: 16px }
+.banner-score-flag { width: 8px; height: 16px }
 .banner-score-flag.lowered { animation: banner-lower .6s ease-in forwards }
 
-/* ── long-die ── */
-.long-die { width: max(44px, var(--touch-size)); height: max(44px, var(--touch-size)); background-color: var(--frame-edge); border-width: 0px }
+/* ── long-die ── the pause button. */
+.long-die { width: max(44px, var(--touch-size)); height: max(44px, var(--touch-size)); background-color: var(--hud-edge); border-color: var(--hud-rule); border-width: 2px }
 .long-die-spin { animation: yuga-turn .7s var(--pop) }
-.long-die-face { width: 34px; height: 14px }
+.long-die-face { width: 32px; height: 13px }
 
 /* ── katha-page ── the cream textbook page. */
-.katha { width: 340px; padding: 16px 18px 14px 18px; gap: 4px; background-color: var(--cream); border-color: var(--frame-rule); border-width: 1px }
-.katha text { font-color: var(--frame) }
+.katha { width: 340px; padding: 16px 18px 14px 18px; gap: 4px; background-color: var(--cream); border-color: var(--gold); border-width: 3px }
+.katha text { font-color: var(--ink) }
 .katha-top { flex-direction: row; justify-content: space-between; align-items: center }
-.katha-kicker { font-family: var(--title-font); font-weight: 800; font-size: 11px; letter-spacing: 3px }
+.katha-kicker { font-family: var(--title-font); font-size: 13px; letter-spacing: 2px }
 .katha-tick { width: 22px; height: 22px }
-.katha-name { font-family: var(--title-font); font-weight: 900; font-size: 34px; letter-spacing: -1px; line-height: 36px }
+.katha-name { font-family: var(--title-font); font-size: 36px; line-height: 38px }
 .katha-deva { font-family: var(--body-font); font-weight: 600; font-size: 20px; line-height: 24px }
 .katha-label { width: 112px; height: 24px; align-items: center; justify-content: center }
 .katha-label-border { position: absolute; left: 0; top: 0; width: 112px; height: 24px }
-.katha-label-text { font-family: var(--title-font); font-weight: 800; font-size: 10px; letter-spacing: 2.6px }
+.katha-label-text { font-family: var(--title-font); font-size: 12px; letter-spacing: 2px }
 .katha-text { font-family: var(--body-font); font-size: 15px; line-height: 20px; text-wrap: wrap; padding: 4px 0 0 0 }
 .katha-know { padding: 8px 10px; gap: 2px; background-color: var(--seafoam) }
-.katha-know-kicker { font-family: var(--title-font); font-weight: 800; font-size: 10px; letter-spacing: 2px }
+.katha-know-kicker { font-family: var(--title-font); font-size: 12px; letter-spacing: 1px }
 .katha-know-text { font-family: var(--body-font); font-size: 13px; line-height: 17px; text-wrap: wrap }
 .katha-fill { font-family: var(--body-font); font-weight: 600; font-size: 14px; line-height: 18px; text-wrap: wrap; padding: 6px 0 0 0 }
 .katha-dots { width: 100%; height: 6px }
 .katha-foot { flex-direction: row; justify-content: space-between; align-items: center; padding: 6px 0 0 0 }
-.katha-source { font-family: var(--title-font); font-weight: 700; font-size: 8px; letter-spacing: 1.4px }
+.katha-source { font-family: var(--title-font); font-size: 9px; letter-spacing: 1px }
 .katha-page-n { font-family: var(--body-font); font-weight: 600; font-size: 16px }
 
 /* ── report-card ── the cream progress report. */
-.report { width: 340px; padding: 18px; gap: 4px; background-color: var(--cream); border-color: var(--frame-rule); border-width: 1px }
-.report text { font-color: var(--frame) }
-.report-kicker { font-family: var(--title-font); font-weight: 800; font-size: 10px; letter-spacing: 2.6px }
-.report-title { font-family: var(--title-font); font-weight: 900; font-size: 30px; letter-spacing: -1px }
+.report { width: 340px; padding: 18px; gap: 4px; background-color: var(--cream); border-color: var(--gold); border-width: 3px }
+.report text { font-color: var(--ink) }
+.report-kicker { font-family: var(--title-font); font-size: 12px; letter-spacing: 2px }
+.report-title { font-family: var(--title-font); font-size: 32px }
 .report-rows { gap: 3px; padding: 6px 0 }
 .report-row { flex-direction: row; justify-content: space-between; border-color: var(--sky-cream); border-width: 1px; padding: 3px 4px }
-.report-row-label { font-family: var(--title-font); font-weight: 700; font-size: 10px; letter-spacing: 1.6px }
+.report-row-label { font-family: var(--title-font); font-size: 11px; letter-spacing: 1px }
 .report-row-value { font-family: var(--body-font); font-weight: 600; font-size: 13px }
 .report-remark { font-family: var(--body-font); font-size: 15px; line-height: 19px; text-wrap: wrap; padding: 4px 0 }
 .report-stamp { position: absolute; left: 204px; top: 46px; padding: 4px 10px; align-items: center; border-color: var(--sindoor); border-width: 3px; rotate: -12 }
-.report-stamp-text { font-family: var(--title-font); font-weight: 900; font-size: 20px; letter-spacing: 3px; font-color: var(--sindoor) }
+.report-stamp-text { font-family: var(--title-font); font-size: 22px; letter-spacing: 2px; font-color: var(--sindoor) }
 .report-stamp-deva { font-family: var(--body-font); font-weight: 800; font-size: 12px; font-color: var(--sindoor) }
-.report-assisted { font-family: var(--title-font); font-weight: 700; font-size: 9px; letter-spacing: 2px }
+.report-assisted { font-family: var(--title-font); font-size: 10px; letter-spacing: 2px }
 
 /* ── emote ── */
-.emote { padding: 6px 12px; background-color: var(--frame-edge); border-color: var(--gold); border-width: 1px; align-items: center }
-.emote-text { font-family: var(--body-font); font-weight: 600; font-size: 14px; font-color: var(--cream) }
+.emote { padding: 6px 12px; background-color: var(--hud); border-color: var(--gold); border-width: 2px; align-items: center }
+.emote-text { font-family: var(--body-font); font-weight: 800; font-size: 14px; font-color: var(--cream) }

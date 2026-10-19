@@ -1,10 +1,11 @@
-// Look numbers: how strong the paper grain, the warm cast, the halftone, the haze and the yuga grade are, and how far the
-// print misregisters entering Kali Yuga. They live as `--look-*` tokens in screens/shared.css :root beside the palette, so
+// Look numbers: the arena's camera tilt, how big the gods stand and how they move, the yuga grade's strength, and the
+// finish (grain, cast, halftone, haze, misregister). They live as `--look-*` tokens in screens/shared.css :root beside the palette, so
 // the render is tuned in the stylesheet; this is the typed view the shell reads (`--look-misregister-px` is
 // `LOOK.MISREGISTER_PX`). Catalog: ## Look.
 import { TOKENS } from '../tokens';
 
-const KEYS = ['GRAIN', 'WARM_CAST', 'HALFTONE', 'HALFTONE_DOT_PX', 'DEPTH_HAZE', 'GRADE_MIX', 'VIGNETTE', 'MISREGISTER_PX', 'MISREGISTER_MS'] as const;
+const KEYS = ['GRAIN', 'WARM_CAST', 'HALFTONE', 'HALFTONE_DOT_PX', 'DEPTH_HAZE', 'GRADE_MIX', 'VIGNETTE', 'MISREGISTER_PX', 'MISREGISTER_MS',
+  'ARENA_TILT', 'UNIT_HEIGHT_PX', 'WALK_BOUNCE_PX', 'WALK_STEPS_PER_S', 'STRIKE_LUNGE_PX'] as const;
 export type LookKey = (typeof KEYS)[number];
 
 /** The token a look key reads: `MISREGISTER_PX` is `--look-misregister-px`. */

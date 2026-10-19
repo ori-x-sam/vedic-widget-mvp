@@ -5,7 +5,7 @@ import { CanvasTextMetrics } from 'pixi.js';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { initialUi, ui } from '../store';
 import { drawTitle } from './title';
-import { bannerScore, card, cardRules, emote, kathaPage, longDie, pranaDiyas, reportCard, screenUi, signboard, titleCard } from './shared';
+import { bannerScore, card, cardRules, emote, hud, kathaPage, kshetraToast, longDie, pranaBar, reportCard, screenUi } from './shared';
 import { use } from '../decl/engine';
 import { CARDS, KATHA, KSHETRAS } from '../content';
 import { layers } from '../stage';
@@ -28,13 +28,13 @@ describe('screens render from the stores', () => {
 describe('every shared prefab renders from real content', () => {
   const page = screenUi('prefab "page" {\n    panel class="page" slot="items"\n}', '');
   const show = (...items: ReturnType<typeof use>[]) => page.show(use('page', {}, { items }));
-  it('title card, signboards, diyas, score, die', () => {
-    show(titleCard('LABEL', 'TRETA YUGA', 'Hanuman leaps the ocean.', { score: [bannerScore(1, 2)], die: [longDie(3, () => {})] }), signboard(1, 'kishkindha'), signboard(3, null), pranaDiyas(6.4, 10));
-    expect(texts()).toEqual(expect.arrayContaining(['Hanuman leaps the ocean.', 'KISHKINDHA', 'KSHETRA III · ?', '6 / 10']));
+  it('HUD, Kshetra toast, Prana bar, score, die', () => {
+    show(hud('1:42', 'TRETA YUGA · ×1.5', { score: [bannerScore(1, 2)], die: [longDie(3, () => {})] }), kshetraToast(1, 'kishkindha'), pranaBar(6.4, 10));
+    expect(texts()).toEqual(expect.arrayContaining(['1:42', 'TRETA YUGA · ×1.5', 'Kishkindha', 'Units here move 25% faster', '6']));
   });
-  it('every card at every size, and every Kshetra board', () => {
+  it('every card at every size, and every Kshetra toast', () => {
     for (const id of Object.keys(CARDS)) show(card(id, 'hand'), card(id, 'next'), card(id, 'face'), card(id, 'detail'));
-    for (const [i, id] of Object.keys(KSHETRAS).entries()) show(signboard((i % 3) + 1, id));
+    for (const [i, id] of Object.keys(KSHETRAS).entries()) show(kshetraToast((i % 3) + 1, id));
   });
   it('every card has at least one rule line, and Astras say CAST', () => {
     for (const id of Object.keys(CARDS)) {

@@ -1,9 +1,11 @@
-// Everything whose lifetime is the game's starts here and is torn down by the disposer boot() returns: the fonts, the
+// Everything whose lifetime is the game's starts here and is torn down by the disposer boot() returns: the fonts and
+// painted art, the
 // canvas, the clock, the store subscriptions that draw the screens, and resize handling.
 import { onTick, startClock } from './clock';
 import { fit, initPixi, pixi } from './stage';
 import { game, ui } from './store';
 import { loadFonts, tickScreens } from './screens/shared';
+import { preloadArt } from './view/art';
 // Screens stack in import order (each screenUi attaches to layers.ui as its module loads): later draws on top.
 import { drawTitle } from './screens/title';
 
@@ -19,7 +21,7 @@ export function renderNow() {
 
 export async function boot(el: HTMLElement): Promise<() => void> {
   const w = el.clientWidth || innerWidth, h = el.clientHeight || innerHeight;
-  await loadFonts();
+  await Promise.all([loadFonts(), preloadArt()]);
   await initPixi(el, w, h);
 
   const offTick = onTick((dt) => tickScreens(dt));

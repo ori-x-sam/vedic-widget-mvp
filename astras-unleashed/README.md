@@ -1,18 +1,20 @@
 # Astras Unleashed
 
-Twenty gods. Three worlds. Four ages. A real-time three-lane card battler in the Kalinga Rush look, built on the
+Twenty gods. Three worlds. Four ages. A real-time three-lane card battler in a Clash Royale-style arena with Marvel
+Snap-style cards, built on the
 Liora Labs game-bible starter (TypeScript, Vite, Pixi v8, KDL content, a CSS dialect for look, zustand, zod,
 Storybook, vitest). The brief is `BRIEF.md`; working rules and the tweak map are in `CLAUDE.md`; the vocabulary
 catalog is `docs/declarative-ui.md`.
 
-**Status: Phase 1 (vocabulary) done, waiting at Gate 1.** No match rules exist yet.
+**Status: Phase 1 (vocabulary) done and the look redone to the designer's direction; waiting at Gate 1.** No match
+rules exist yet. Painted art: drop files in `public/art/` (prompts in `ASSETS.md`).
 
 ## Commands
 
 ```sh
 npm install
 npm run dev              # the game (the title screen, for now), live
-npm run storybook        # stories at http://localhost:6006: Foundation/Palette, Foundation/Prefabs, Screens
+npm run storybook        # stories at http://localhost:6006: Foundation/Prefabs (Match, Kshetras, cards...), Palette
 npm test                 # unit tests: words, content, contrast, engine, guards, catalog drift
 npm run test:stories     # every story's play, headless Chromium
 npm run typecheck
@@ -35,6 +37,9 @@ existing build: `CHROMIUM_PATH=/opt/pw-browsers/chromium npm run test:stories`.
 | `src/screens/shared.*` | the palette and look (`:root`), shared prefabs, keyframes, painters, binding builders |
 | `src/decl/` | the declarative UI engine (as copied from the starter) |
 | `src/stories/` | Storybook stories and the story harness |
-| `ref/kalinga/` | Kalinga Rush screenshots: the visual bar |
+| `src/view/` | the arena, the gods' figures and animation, scenery, glyphs, painted-art loading |
+| `public/art/` | painted card art and arena figures, when they exist |
+| `ASSETS.md` | the prompt for every painted file |
+| `ref/kalinga/` | Kalinga Rush screenshots: borrow the vivid scenes inside the frames |
 | `LORE.md`, `STRINGS_TO_VERIFY.md` | sources to verify; every Indic string, for a native reader |
 | `docs/balance.md` | the budget model the starting numbers came from |

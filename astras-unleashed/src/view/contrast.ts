@@ -1,28 +1,23 @@
 // WCAG contrast for the palette's text pairs: every text colour the game sets on every background it sets it on. The
 // unit test holds each pair to AA (4.5:1, or 3:1 for large text: 24 px, or 18.7 px bold); the Palette story shows them.
+// Names on card art are outlined in --hud-edge, so they read against any art (the cream-on-hud-edge pair).
 import { token } from '../tokens';
 
 /** A text/background pair from the palette: what it's for, and whether it's only ever large text. */
 export type TextPair = { text: string; bg: string; use: string; large?: boolean };
 
 export const TEXT_PAIRS: TextPair[] = [
-  { text: '--cream', bg: '--frame', use: 'headline, card names, signboard titles' },
-  { text: '--gold', bg: '--frame', use: 'yuga line, Devanagari names on cards, signboard kicker' },
-  { text: '--peach', bg: '--frame', use: 'top label, epithets' },
-  { text: '--peach-title', bg: '--frame', use: "the title's second word", large: true },
-  { text: '--cream', bg: '--frame-edge', use: 'pause button, the scrim behind a dialog' },
-  { text: '--gold', bg: '--frame-edge', use: 'the next-card label on the darkest maroon' },
-  { text: '--cream', bg: '--frame-rule', use: 'labels inside pill buttons' },
-  { text: '--frame', bg: '--cream', use: 'Katha pages, the Leela Report' },
-  { text: '--frame', bg: '--seafoam', use: 'the Katha "Did you know?" box' },
-  { text: '--frame', bg: '--sky-cream', use: 'the veiled lane: KSHETRA III · ?' },
-  { text: '--cream', bg: '--laterite', use: 'the Prana cost numeral on its diya badge', large: true },
+  { text: '--cream', bg: '--hud', use: 'the clock, labels and names on the HUD and the tray' },
+  { text: '--gold', bg: '--hud', use: 'the yuga line, Kshetra toast kicker, rule labels' },
+  { text: '--cream', bg: '--hud-edge', use: 'the pause button, text outlines, the scrim behind a dialog' },
+  { text: '--cream', bg: '--hud-rule', use: 'labels on raised panels', large: true },
+  { text: '--ink', bg: '--cream', use: 'Katha pages, the Leela Report' },
+  { text: '--ink', bg: '--seafoam', use: 'the Katha "Did you know?" box' },
+  { text: '--sindoor', bg: '--cream', use: 'the report\'s rubber stamp', large: true },
 ];
 
-/** Pairs the brief asks for that fail AA: shown in the Palette story for a decision, never used until one is made. */
-export const FAILING_PAIRS: TextPair[] = [
-  { text: '--tota', bg: '--laterite', use: 'a discounted cost numeral (brief §4.7): 1.7:1, unreadable', large: true },
-];
+/** Pairs someone asked for that fail AA: shown in the Palette story for a decision, never used until one is made. */
+export const FAILING_PAIRS: TextPair[] = [];
 
 /** Relative luminance of 0xRRGGBB (WCAG 2). */
 function luminance(c: number): number {

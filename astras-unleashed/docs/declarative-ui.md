@@ -16,6 +16,7 @@ Homes:
 | Behaviour words | `STAT_WORDS`, `UNIT_WORDS` (`src/units.ts`), `EFFECT_WORDS` (`src/effects.ts`), `TRIGGERS` (`src/cards.ts`), `KSHETRA_WORDS` (`src/kshetras.ts`) |
 | Content kinds | zod schemas in `src/content.ts`, data in `content/*.kdl` |
 | Keyframes | `@keyframes` in `src/screens/shared.css` |
+| The arena (board, towers, gods, scenery) | `src/view/arena.ts`, `unit.ts`, `props.ts`, `glyphs.ts`, `art.ts` |
 | Screens and their stacking | `src/runtime.ts` (import order = draw order) |
 
 ## How screens work
@@ -99,9 +100,10 @@ Built-ins (engine) and game-defined (`defineProp` in shared.ts).
 | `text` | `bind="x"` or a literal |
 | `sprite` | atlas texture (needs an atlas: screenUi's `texture` hook throws until the game has one) |
 | `meter` | `meter value=(bind)"fill"`: a fill of `w * value` (0..1), coloured by `tint` |
-| `diya` | `diya fill=(bind)"f"`: a laterite lamp; `fill` 0..1 grows its haldi flame, 0 is unlit |
+| `prana-gem` | a glowing haldi Prana drop: the cost badge, the Prana count |
+| `prana-segment` | `prana-segment fill=(bind)"f"`: one segment of the Prana bar, 0..1 |
 | `sigil` | `sigil kind=(bind)"k" paint=(bind)"--token"`: a class sigil (shield sword bow flame lotus) in its colour |
-| `card-art` | `card-art god= paint= skin= trimurti=`: a card's painted face (placeholder painter): sky, halo, the god's silhouette in its skin token, Pattachitra border; gold leaf for the Trimurti |
+| `card-art` | `card-art god= paint= skin= attribute= trimurti=`: a card's art, Marvel Snap style: `public/art/cards/<god>.png` when it exists (breaking over the top edge), else a placeholder in the god's own colours with its attribute glyph; class-colour frame, gold leaf and gems for the Trimurti |
 | `emblem` | `emblem kind=(bind)"disc|crescent" paint= trim=`: the Sun's disc or the Moon's crescent |
 | `flag` | `flag paint= trim= lowered=`: a Dhvaja on its staff, or folded at the foot when lowered |
 | `long-die` | `long-die face=(bind)"n"`: the pasaka from the side, showing 4..1 pips |
@@ -116,16 +118,16 @@ Build them with the binding builders exported from `screens/shared.ts`, which tu
 | Prefab | Use |
 |---|---|
 | `btn` | `btn(label, tap, state?)`; state `primary` / `off` |
-| `title-card` | `titleCard(label, line, headline, { score?, die? })`: the Kalinga Rush header; a new headline replays `title-card-in` |
-| `signboard` | `signboard(lane, kshetraId | null)`: a lane's hanging board; null is veiled (`KSHETRA III · ?`) |
-| `card` | `card(id, 'hand' | 'next' | 'face' | 'detail', cost?)`: a god card; a lower `cost` marks it discounted; detail lists its rules |
+| `hud` | `hud(time, yuga, { score?, die? })`: the strip along the top of the arena: banner score, clock and yuga, long die |
+| `kshetra-toast` | `kshetraToast(lane, kshetraId)`: the pop-up when a lane is revealed or its arena chip is tapped |
+| `card` | `card(id, 'hand' | 'next' | 'face' | 'detail', cost?)`: a Marvel Snap-style god card; a lower `cost` marks it discounted; detail adds the epithet and rules |
 | `card-rule` | one AVAHANA / NITYA / CAST / VISARJANA line in a card's detail (built by `card`) |
-| `prana-diyas` | `pranaDiyas(prana, max)`: the diya row and count |
-| `prana-diya` | one diya in the row (built by `pranaDiyas`) |
+| `prana-bar` | `pranaBar(prana, max)`: the gem and count, then ten segments; the charging one fills |
+| `prana-segment` | one segment of the bar (built by `pranaBar`) |
 | `banner-score` | `bannerScore(sunLowered, moonLowered)`: each side's emblem and three Dhvajas |
 | `banner-score-emblem` | a side's emblem in the score (built by `bannerScore`) |
 | `banner-score-flag` | one Dhvaja in the score, raised or lowered (built by `bannerScore`) |
-| `long-die` | `longDie(face, tap)`: the yuga's die in the header; tap pauses; a new face replays `yuga-turn` |
+| `long-die` | `longDie(face, tap)`: the yuga's die, the pause button; a new face replays `yuga-turn` |
 | `katha-page` | `kathaPage(id, unlocked)`: a Deva Katha page on cream |
 | `report-card` | `reportCard({ kicker, rows, remark, stamp, assisted })`: the Leela Report with its rubber stamp |
 | `report-row` | one row of the report (built by `reportCard`) |
@@ -133,35 +135,60 @@ Build them with the binding builders exported from `screens/shared.ts`, which tu
 
 ## Keyframes
 
-`@keyframes` in `src/screens/shared.css`, for any screen's `animation:`. A screen's own keyframes stay in its sheet.
+`@keyframes` in `src/screens/shared.css`, for any screen's `animation:`. The arena animates in code (## Arena).
 
 | Keyframe | Use |
 |---|---|
-| `title-card-in` | a new headline rises into place |
+| `toast-in` | a pop-up (a Kshetra revealed, the yuga line turning) bounces in |
+| `kshetra-reveal` | something flips over as it is revealed |
 | `yuga-turn` | the long die turns to the next yuga's face |
-| `kshetra-unfurl` | a signboard drops and swings as its Kshetra is revealed |
-| `misregister` | entering Kali Yuga, the print slips by `--look-misregister-px` and snaps back (reduced motion: fade instead) |
-| `avahana-descend` | a god descends in a column of light |
-| `visarjana-lotus` | a god folds into a lotus and rises as light (`forwards`) |
-| `banner-lower` | a Dhvaja is gently lowered and folded (`forwards`) |
-| `gulal-puff` | a hit's puff of coloured powder in the striker's team colour |
+| `misregister` | entering Kali Yuga the HUD shudders by `--look-misregister-px` (reduced motion: none) |
+| `banner-lower` | a Dhvaja in the score is lowered and folded (`forwards`) |
+| `card-play` | a card leaves the hand when played |
+| `prana-glow` | the charging Prana segment glows |
+
+## Arena
+
+The battlefield is drawn by the shell, not by prefabs: `src/view/arena.ts` (the board, the towers, the Kshetra
+chips), `src/view/unit.ts` (a god's figure and its animation), `src/view/props.ts` (scenery), `src/view/glyphs.ts`
+(attribute glyphs), `src/view/art.ts` (painted files). Painted art goes in `public/art/cards/<id>.png` and
+`public/art/units/<id>.png`; until a file exists the placeholder draws. Hues are palette tokens, sizes and motion are
+`--look-*` tokens.
+
+| Piece | Use |
+|---|---|
+| `createArena(onChip)` | the board: `setBox(box)`, `sync({ lanes, units, towers, grade })`, `tick(dt)`; `onChip(lane)` hears a Kshetra chip tapped |
+| `project(box, x, tile)` | the tilted 3/4 camera: a lane point to screen px and its depth scale |
+| `createUnit(god, side, h)` | a god's figure on its team ring; `set(act, t, facing)` poses it: `idle` `walk` `strike` `avahana` `visarjana` |
+| `GLYPHS` | each god's attribute glyph (content `attribute=`); a test checks every god has one and no two share |
+| `preloadArt()` / `art(kind, id)` | try every god's painted card and unit file once at boot; answer from what loaded |
 
 ## Palette
 
-The Kalinga Rush palette, carried over unchanged, plus the deity and yuga tokens. Content names these tokens (a class's
-`paint=`, a Kshetra's `lead=`, a god's `skin=`); a guard test checks every such name is here. The Palette story shows
-them all, grouped as in the `:root`, with every text/background contrast pair.
+Every hue in the game, in the one `:root` of `src/screens/shared.css`: the HUD chrome, the arena's painted ground
+(grass, path, river, wood, sky), the textbook scene palette, deity skins and yuga grades. Content names these tokens
+(a class's `paint=`, a Kshetra's `lead=`, a god's `skin=`); a guard test checks every such name is here. The Palette
+story shows them all, grouped as in the `:root`, with every text/background contrast pair.
 
 | Token | Use |
 |---|---|
-| `--frame` | the page background |
-| `--frame-edge` | vignette, the deepest edges, the pause button, modal scrims |
-| `--frame-rule` | a raised maroon: pill outlines, thin rules and borders on the page |
-| `--cream` | headlines, the title's first word, signboard titles, card names |
-| `--gold` | the yuga and clock line, the URL, small rules, Devanagari names on cards |
-| `--peach` | the top label |
-| `--peach-title` | the title's second word; large sizes only |
-| `--sindoor` | vermilion: the Sun team, flags, Yoddha frames, Hanuman's skin |
+| `--hud` | the strip along the top and the tray behind the hand |
+| `--hud-edge` | the darkest panel edges, text outlines, the scrim behind a dialog |
+| `--hud-rule` | raised panels, borders, the empty Prana segments |
+| `--cream` | light text on the HUD and on cards: names, the clock |
+| `--gold` | the HUD's accent: the yuga line, Devanagari names, highlights |
+| `--ink` | dark text on cream pages (Katha, the Leela Report) |
+| `--grass` | the field |
+| `--grass-light` | sunlit tufts, the near edge |
+| `--grass-shade` | shadow under trees and towers, the grass texture's dark strokes |
+| `--path` | the sandy path each lane's gods walk |
+| `--path-shade` | the path's worn edges |
+| `--river` | the river across the middle |
+| `--river-deep` | the river's deep centre and banks |
+| `--river-light` | ripples and glints |
+| `--wood` | the three bridges |
+| `--sky` | the sky beyond the opponent's end, fading to --sky-cream at the horizon |
+| `--sindoor` | vermilion: the Sun team, flags, Yoddha frames, Hanuman's sindoor-coated skin |
 | `--haldi` | turmeric: diya flames, Prana, Astra frames, Surya, the sun emblem |
 | `--marigold` | flames, garlands, Agni, festivals |
 | `--rani` | rani pink: Sahayak frames, Satyaloka, Amaravati |
@@ -170,47 +197,52 @@ them all, grouped as in the `:root`, with every text/background contrast pair.
 | `--neel` | indigo: night, the Moon team, Kali Yuga, Pralaya, Patala |
 | `--seafoam` | surf, Ksheer Sagar, pale skies |
 | `--laterite` | earth, plinths, diya bodies, Kurukshetra |
-| `--khondalite` | stone, Meru, Dhvaja plinths; the source of every grey |
+| `--khondalite` | stone, Meru, Dhvaja plinths; every grey in the game is this or a tint of the palette |
 | `--limewhite` | snow, the milk ocean, the Moon emblem, gulal highlights |
-| `--chandan` | warm skin for mortals and for gods whose tradition shows warm skin |
-| `--sky-cream` | the old-paper sky at the horizon; the veiled lane |
-| `--megh` | rain-cloud blue skin: Vishnu, Rama, Krishna |
-| `--karpur` | camphor-white skin with an ash cast: Shiva |
-| `--kalika` | deep indigo-black skin: Kali; never lightened |
-| `--gold-leaf` | Tanjore gold leaf: Trimurti card frames only |
-| `--yuga-satya` | Satya's grade: dawn light |
+| `--chandan` | warm skin for mortals, and for gods whose tradition shows warm skin |
+| `--sky-cream` | the warm textbook sky at the horizon |
+| `--megh` | rain-cloud blue (megha-shyama): Vishnu, Rama, Krishna |
+| `--karpur` | camphor-white with an ash cast (karpura-gaura): Shiva, with a megh-blue throat |
+| `--kalika` | deep indigo-black: Kali's skin |
+| `--gold-leaf` | Tanjore-style gold leaf: Trimurti card frames only |
+| `--yuga-satya` | dawn: the clearest, brightest light |
 | `--yuga-satya-sky` | Satya's sky above the horizon |
-| `--yuga-treta` | Treta's grade: midday light |
-| `--yuga-treta-sky` | Treta's sky |
-| `--yuga-dvapara` | Dvapara's grade: dusk light |
-| `--yuga-dvapara-sky` | Dvapara's sky |
-| `--yuga-kali` | Kali's grade: night |
-| `--yuga-kali-sky` | Kali's sky |
-| `--yuga-pralaya` | Pralaya's grade: the cosmic ocean |
-| `--yuga-pralaya-sky` | Pralaya's sky |
-| `--title-font` | Inter Tight: headlines, labels, card names (weight via `font-weight`) |
-| `--body-font` | Baloo 2: body, Katha text, every Devanagari string |
-| `--tamil-font` | Baloo Thambi 2: Tamil names |
+| `--yuga-treta` | midday: marigold warmth |
+| `--yuga-treta-sky` | Treta's sky above the horizon |
+| `--yuga-dvapara` | dusk: sindoor and rani, long shadows |
+| `--yuga-dvapara-sky` | Dvapara's sky above the horizon |
+| `--yuga-kali` | night: neel, lit by haldi lamps and stars |
+| `--yuga-kali-sky` | Kali's sky above the horizon |
+| `--yuga-pralaya` | the cosmic ocean: deep neel and seafoam; only the banners' lamps glow |
+| `--yuga-pralaya-sky` | Pralaya's sky above the horizon |
+| `--title-font` | the game's display face: names, the clock, labels |
+| `--body-font` | body, Katha text, every Devanagari string |
+| `--tamil-font` | Tamil names (Murugan) |
 | `--pop` | overshoot easing |
-| `--unfurl` | easing for a scroll or banner unrolling |
+| `--unfurl` | a scroll or banner unrolling |
 
 ## Look
 
 `--look-*` tokens in the `:root` of `src/screens/shared.css`, beside the palette; `src/view/look.ts` reads them as `LOOK`
-(`--look-misregister-px` is `LOOK.MISREGISTER_PX`). Hues come from the palette; these numbers say how much of the old
-printed page you see. Plain numbers, the unit the name's last word (`px`, `ms`); no unit is a strength or 0..1 amount.
+(`--look-arena-tilt` is `LOOK.ARENA_TILT`). Plain numbers, the unit the name's last word (`px`, `ms`, `per-s`); no unit
+is a strength or 0..1 amount.
 
 | Name | Use |
 |---|---|
 | `--look-grain` | fine paper grain over the battlefield |
 | `--look-warm-cast` | a faint warm (sky-cream) cast over the battlefield |
-| `--look-halftone` | a faint halftone in large flat areas; 0 is off |
+| `--look-halftone` | a faint halftone in large flat areas; 0 turns it off |
 | `--look-halftone-dot-px` | the halftone's dot pitch |
-| `--look-depth-haze` | haze on a lane's far layers |
+| `--look-depth-haze` | atmospheric haze on a lane's far layers (sky-cream mixed in) |
 | `--look-grade-mix` | how strongly the yuga grade tints the lanes |
 | `--look-vignette` | the frame-edge vignette at the page's edges |
-| `--look-misregister-px` | entering Kali Yuga, how far the colour plates slide apart |
-| `--look-misregister-ms` | and how long until they snap back |
+| `--look-misregister-px` | entering Kali Yuga, the colour plates slide this far apart... |
+| `--look-misregister-ms` | ...and snap back over this long (reduced motion: a simple fade) |
+| `--look-arena-tilt` | the 3/4 camera: how much narrower and closer together the far rows are; 0 is flat |
+| `--look-unit-height-px` | a god's height at the near edge (it shrinks with depth; the far edge must stay over 28) |
+| `--look-walk-bounce-px` | how high a walking god bobs |
+| `--look-walk-steps-per-s` | walking steps a second |
+| `--look-strike-lunge-px` | how far a god lunges on each strike |
 
 ## Behaviour words
 

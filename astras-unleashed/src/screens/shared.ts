@@ -1,6 +1,8 @@
 // Game-wide declarative-UI registrations (the only module that calls defineProp/defineElement), the screenUi factory
 // every screen is made with, and binding builders for the shared prefabs so a screen's .ts stays bindings-only.
-import { Container, Graphics, type Text, type TextStyleFontWeight } from 'pixi.js';
+import { Container, Graphics, Sprite, type Text, type TextStyleFontWeight } from 'pixi.js';
+import { art } from '../view/art';
+import { drawGlyph } from '../view/glyphs';
 import { color, defineProp, lerpColor } from '../decl/css';
 import { token } from '../tokens';
 import { createUi, defineElement, use, type Use, type UiNode } from '../decl/engine';
@@ -27,8 +29,8 @@ defineProp('font-weight', {
 
 // ---------- elements ----------
 // Painted bits the shell draws itself. Hues come from the palette by token name (content says which: a class's
-// `paint`, a god's `skin`); sizes from the laid-out box, so CSS sizes them. These are the procedural placeholders the
-// painted art (ASSETS.md) replaces in the look pass.
+// `paint`, a god's `skin`); sizes from the laid-out box, so CSS sizes them. Card art loads the painted file when it
+// exists (src/view/art.ts); every other piece is drawn here.
 
 /** A bar's fill: a rect of the box's width * `value` (0..1), coloured by `tint`: `meter value=(bind)"fill"`. */
 defineElement('meter', ({ value }, { w, h }) => {
@@ -40,31 +42,32 @@ defineElement('meter', ({ value }, { w, h }) => {
 /** An element's drawing, in the Container the engine expects. */
 const wrap = (g: Graphics) => { const c = new Container(); c.addChild(g); return c; };
 
-/** Vertical bands from `top` to `bottom`: a soft gouache-like gradient (Pixi gradients band anyway at these sizes). */
-function bands(g: Graphics, x: number, y: number, w: number, h: number, top: number, bottom: number, n = 18) {
-  for (let i = 0; i < n; i++) g.rect(x, y + (h * i) / n, w, h / n + 0.5).fill(lerpColor(top, bottom, i / (n - 1)));
-  return g;
-}
 
-/** A diya: a laterite lamp and a haldi flame with a marigold heart. `fill` 0..1 grows the flame; 0 is unlit. */
-defineElement('diya', ({ fill }, { w, h }) => {
+/** A Prana gem: a glowing haldi drop with a marigold heart and a white glint (the cost badge, the Prana count). */
+defineElement('prana-gem', (_, { w, h }) => {
+  const g = new Graphics(), cx = w / 2, r = Math.min(w, h) * 0.42, ink = token('--hud-edge');
+  const drop = (rr: number, dy: number) => g.moveTo(cx, h / 2 - rr * 1.25 + dy).bezierCurveTo(cx + rr * 1.1, h / 2 - rr * 0.2 + dy, cx + rr, h / 2 + rr + dy, cx, h / 2 + rr + dy).bezierCurveTo(cx - rr, h / 2 + rr + dy, cx - rr * 1.1, h / 2 - rr * 0.2 + dy, cx, h / 2 - rr * 1.25 + dy);
+  drop(r * 1.12, 0).fill(ink);
+  drop(r, 0).fill(token('--marigold'));
+  drop(r * 0.78, -r * 0.12).fill(token('--haldi'));
+  g.ellipse(cx - r * 0.35, h / 2 - r * 0.25, r * 0.16, r * 0.3).fill({ color: token('--limewhite'), alpha: 0.85 });
+  return wrap(g);
+});
+
+/** One segment of the Prana bar: `fill` 0..1; full ones glow haldi, the charging one fills from the left. */
+defineElement('prana-segment', ({ fill }, { w, h }) => {
   const f = Math.min(1, Math.max(0, Number(fill))), g = new Graphics();
-  const cx = w / 2, base = h * 0.78;
+  g.roundRect(0, 0, w, h, 3).fill(token('--hud-rule'));
   if (f > 0) {
-    const fh = h * 0.5 * (0.35 + 0.65 * f), fw = w * 0.16 * (0.5 + 0.5 * f);
-    g.moveTo(cx, base - h * 0.16 - fh).bezierCurveTo(cx + fw * 1.6, base - h * 0.2 - fh * 0.35, cx + fw, base - h * 0.14, cx, base - h * 0.14)
-      .bezierCurveTo(cx - fw, base - h * 0.14, cx - fw * 1.6, base - h * 0.2 - fh * 0.35, cx, base - h * 0.16 - fh).fill({ color: token('--haldi'), alpha: f < 1 ? 0.75 : 1 });
-    g.ellipse(cx, base - h * 0.2, fw * 0.45, fh * 0.28).fill(token('--marigold'));
+    g.roundRect(0, 0, w * f, h, 3).fill(f < 1 ? lerpColor(token('--marigold'), token('--hud-rule'), 0.25) : token('--marigold'));
+    g.roundRect(1, 1, Math.max(0, w * f - 2), h * 0.45, 2).fill(f < 1 ? token('--marigold') : token('--haldi'));
   }
-  const bowl = f > 0 ? token('--laterite') : lerpColor(token('--laterite'), token('--frame'), 0.45); // unlit: the lamp sinks into the page
-  g.moveTo(w * 0.08, base - h * 0.12).quadraticCurveTo(cx, base + h * 0.26, w * 0.92, base - h * 0.12).closePath().fill(bowl);
-  g.ellipse(cx, base - h * 0.12, w * 0.42, h * 0.04).fill(lerpColor(bowl, token('--frame-edge'), 0.35));
   return wrap(g);
 });
 
 /** A class sigil in its class colour: shield, sword, bow, flame or lotus. */
 defineElement('sigil', ({ kind, paint }, { w, h }) => {
-  const g = new Graphics(), c = token(String(paint)), ink = token('--frame-edge'), s = Math.min(w, h), cx = w / 2, cy = h / 2;
+  const g = new Graphics(), c = token(String(paint)), ink = token('--hud-edge'), s = Math.min(w, h), cx = w / 2, cy = h / 2;
   g.circle(cx, cy, s / 2).fill(ink).circle(cx, cy, s / 2 - 1.5).stroke({ width: 1.2, color: c });
   const r = s * 0.3;
   if (kind === 'shield') g.circle(cx, cy, r).fill(c).circle(cx, cy, r * 0.35).fill(ink);
@@ -82,32 +85,55 @@ defineElement('sigil', ({ kind, paint }, { w, h }) => {
 });
 
 /**
- * A card's painted face (placeholder): a textbook sky banded from sky-cream into the class colour, a haldi halo, the
- * god as a simple heroic silhouette in its traditional skin colour breaking over the top edge, laterite ground, and a
- * Pattachitra-style border of cream dots in the class colour; the Trimurti get a Tanjore gold-leaf border with gems.
+ * A card's art, Marvel Snap style: the painted file (public/art/cards/<id>.png) fills the card and its top breaks
+ * over the frame. Until the file exists, a placeholder in the god's own colours: a burst of rays in its class colour,
+ * its attribute glyph huge and glowing behind it, the god's bust in its traditional skin colour rising over the top
+ * edge, and a dark fade at the foot so the name reads. The frame is the class colour; gold leaf and gems for the Trimurti.
  */
-defineElement('card-art', ({ paint, skin, trimurti }, { w, h }) => {
-  const g = new Graphics(), c = token(String(paint)), sk = token(String(skin)), b = Math.max(3, w * 0.03);
-  bands(g, 0, 0, w, h, token('--sky-cream'), lerpColor(token('--sky-cream'), c, 0.75));
-  g.rect(0, h * 0.68, w, h * 0.32).fill(lerpColor(token('--laterite'), c, 0.25));
-  const cx = w / 2, head = w * 0.11;
-  g.circle(cx, h * 0.27, w * 0.27).fill({ color: token('--haldi'), alpha: 0.55 }).circle(cx, h * 0.27, w * 0.2).fill({ color: token('--limewhite'), alpha: 0.35 });
-  // the figure: shoulders and chest, a dhoti, arms raised in a low-angle hero pose; the head breaks the top edge
-  g.moveTo(cx - w * 0.2, h * 0.36).lineTo(cx + w * 0.2, h * 0.36).lineTo(cx + w * 0.13, h * 0.56).lineTo(cx - w * 0.13, h * 0.56).closePath().fill(sk);
-  g.moveTo(cx - w * 0.15, h * 0.55).lineTo(cx + w * 0.15, h * 0.55).lineTo(cx + w * 0.22, h * 0.74).lineTo(cx - w * 0.22, h * 0.74).closePath().fill(token('--limewhite'));
-  g.rect(cx - w * 0.15, h * 0.54, w * 0.3, h * 0.025).fill(token('--marigold'));
-  g.moveTo(cx - w * 0.19, h * 0.37).lineTo(cx - w * 0.33, h * 0.14).lineTo(cx - w * 0.28, h * 0.12).lineTo(cx - w * 0.14, h * 0.36).closePath().fill(sk);
-  g.moveTo(cx + w * 0.19, h * 0.37).lineTo(cx + w * 0.36, h * 0.46).lineTo(cx + w * 0.34, h * 0.5).lineTo(cx + w * 0.15, h * 0.42).closePath().fill(sk);
-  g.circle(cx, h * 0.29, head).fill(sk).circle(cx, h * 0.29 - head * 0.9, head * 0.55).fill(token('--haldi')); // crown
-  // the border: class colour, an inner cream line with Pattachitra dots; gold leaf and gems for the Trimurti
-  const edge = trimurti ? token('--gold-leaf') : c;
-  g.rect(0, 0, w, h).stroke({ width: b * 2, color: edge, alignment: 1 });
-  g.rect(b * 1.6, b * 1.6, w - b * 3.2, h - b * 3.2).stroke({ width: 1, color: token('--cream') });
-  const step = Math.max(6, w / 16);
-  for (let x = b * 3; x < w - b * 2; x += step) g.circle(x, b, b * 0.32).circle(x, h - b, b * 0.32).fill(token('--cream'));
-  for (let y = b * 3; y < h - b * 2; y += step) g.circle(b, y, b * 0.32).circle(w - b, y, b * 0.32).fill(token('--cream'));
-  if (trimurti) for (const [x, y] of [[b, b], [w - b, b], [b, h - b], [w - b, h - b]] as const) g.circle(x, y, b * 0.9).fill(token('--sindoor')).circle(x, y, b * 0.45).fill(token('--peacock'));
-  return wrap(g);
+defineElement('card-art', ({ god, paint, skin, attribute, trimurti }, { w, h }) => {
+  const c = new Container(), g = new Graphics(), cls = token(String(paint)), sk = token(String(skin)), ink = token('--hud-edge');
+  const edge = trimurti ? token('--gold-leaf') : cls, r = w * 0.07, b = Math.max(2.5, w * 0.025), over = h * 0.1;
+  const tex = art('cards', String(god));
+  // the frame behind the art, and the art's window inside it
+  g.roundRect(-b, -b, w + 2 * b, h + 2 * b, r + b).fill(ink).roundRect(0, 0, w, h, r).fill(edge);
+  c.addChild(g);
+  const pic = new Container(), mask = new Graphics();
+  // the window: the card's inner rect, extended upward so the art breaks the top edge
+  mask.roundRect(b * 1.6, -over, w - b * 3.2, h - b * 1.6 + over, r * 0.7).fill(0xffffff);
+  pic.mask = mask;
+  c.addChild(pic, mask);
+  if (tex) {
+    const s = new Sprite(tex), k = Math.max(w / tex.width, (h + over) / tex.height);
+    s.scale.set(k); s.anchor.set(0.5, 0); s.position.set(w / 2, -over);
+    pic.addChild(s);
+  } else {
+    const a = new Graphics(), cx = w / 2, cy = h * 0.42;
+    a.rect(0, 0, w, h).fill(lerpColor(cls, ink, 0.35));
+    for (let i = 0; i < 16; i++) { const t0 = (i * Math.PI) / 8, t1 = t0 + Math.PI / 16; a.moveTo(cx, cy).lineTo(cx + Math.cos(t0) * w * 1.2, cy + Math.sin(t0) * w * 1.2).lineTo(cx + Math.cos(t1) * w * 1.2, cy + Math.sin(t1) * w * 1.2).closePath().fill({ color: lerpColor(cls, token('--limewhite'), 0.35), alpha: 0.55 }); }
+    a.circle(cx, cy, w * 0.42).fill({ color: token('--haldi'), alpha: 0.35 }).circle(cx, cy, w * 0.3).fill({ color: token('--limewhite'), alpha: 0.3 });
+    drawGlyph(a, String(attribute), cx, cy - h * 0.02, w * 0.78, lerpColor(token('--gold'), token('--limewhite'), 0.2), lerpColor(cls, ink, 0.4));
+    // the bust: shoulders from the foot, the head rising past the top edge, a crown, a serene face
+    const hy = h * 0.2, hr = w * 0.16, dark = lerpColor(sk, ink, 0.25);
+    a.moveTo(cx - w * 0.42, h).bezierCurveTo(cx - w * 0.42, h * 0.62, cx - w * 0.2, h * 0.5, cx, h * 0.5).bezierCurveTo(cx + w * 0.2, h * 0.5, cx + w * 0.42, h * 0.62, cx + w * 0.42, h).fill(sk);
+    a.moveTo(cx - w * 0.42, h).bezierCurveTo(cx - w * 0.42, h * 0.62, cx - w * 0.28, h * 0.55, cx - w * 0.2, h * 0.53).lineTo(cx - w * 0.12, h).fill(dark);
+    a.moveTo(cx - w * 0.3, h * 0.62).quadraticCurveTo(cx, h * 0.74, cx + w * 0.3, h * 0.62).stroke({ width: w * 0.04, color: token('--marigold') }); // garland
+    for (let i = -3; i <= 3; i++) a.circle(cx + i * w * 0.075, h * 0.665 + (9 - i * i) * w * 0.004, w * 0.022).fill(i % 2 ? token('--sindoor') : token('--haldi'));
+    a.rect(cx - w * 0.06, h * 0.4, w * 0.12, h * 0.12).fill(dark);
+    a.circle(cx, hy + hr * 0.4, hr * 1.25).fill({ color: token('--haldi'), alpha: 0.5 }); // halo
+    a.ellipse(cx, hy + hr * 0.5, hr, hr * 1.12).fill(sk);
+    a.moveTo(cx - hr, hy - hr * 0.2).lineTo(cx - hr * 0.6, hy - hr * 1.5).lineTo(cx - hr * 0.2, hy - hr * 0.7).lineTo(cx, hy - hr * 1.9).lineTo(cx + hr * 0.2, hy - hr * 0.7).lineTo(cx + hr * 0.6, hy - hr * 1.5).lineTo(cx + hr, hy - hr * 0.2).closePath().fill(token('--haldi'));
+    a.circle(cx, hy - hr * 0.55, hr * 0.15).fill(token('--sindoor'));
+    a.ellipse(cx - hr * 0.36, hy + hr * 0.45, hr * 0.12, hr * 0.07).ellipse(cx + hr * 0.36, hy + hr * 0.45, hr * 0.12, hr * 0.07).fill(ink);
+    a.moveTo(cx - hr * 0.3, hy + hr * 0.95).quadraticCurveTo(cx, hy + hr * 1.12, cx + hr * 0.3, hy + hr * 0.95).stroke({ width: hr * 0.08, color: ink });
+    a.position.set(0, 0);
+    pic.addChild(a);
+  }
+  // the dark fade at the foot, for the name
+  const fade = new Graphics();
+  for (let i = 0; i < 10; i++) fade.rect(b * 1.6, h * 0.62 + (h * 0.38 * i) / 10, w - b * 3.2, h * 0.04 + 1).fill({ color: ink, alpha: 0.07 * i });
+  pic.addChild(fade);
+  if (trimurti) for (const [x, y] of [[0, 0], [w, 0], [0, h], [w, h]] as const) g.circle(x, y, b * 1.6).fill(token('--sindoor')).circle(x, y, b * 0.8).fill(token('--peacock'));
+  return c;
 });
 
 /** A team emblem: the Sun's disc (haldi with a sindoor ring and rays) or the Moon's crescent (limewhite on neel). */
@@ -124,7 +150,7 @@ defineElement('emblem', ({ kind, paint, trim }, { w, h }) => {
 defineElement('flag', ({ paint, trim, lowered }, { w, h }) => {
   const g = new Graphics(), p = token(String(paint)), t = token(String(trim));
   g.rect(1, 0, 1.4, h).fill(token('--khondalite'));
-  if (lowered) g.rect(2.4, h * 0.72, w - 3, h * 0.2).fill(lerpColor(p, token('--frame'), 0.4));
+  if (lowered) g.rect(2.4, h * 0.72, w - 3, h * 0.2).fill(lerpColor(p, token('--hud-edge'), 0.4));
   else g.moveTo(2.4, 0).lineTo(w, h * 0.22).lineTo(2.4, h * 0.46).closePath().fill(p).moveTo(2.4, h * 0.14).lineTo(w * 0.62, h * 0.23).lineTo(2.4, h * 0.32).closePath().fill(t);
   return wrap(g);
 });
@@ -134,7 +160,7 @@ defineElement('long-die', ({ face }, { w, h }) => {
   const g = new Graphics(), n = Math.max(1, Math.min(4, Number(face) || 1));
   g.rect(0, 0, w, h).fill(token('--limewhite')).rect(0, 0, w, h).stroke({ width: 1, color: token('--khondalite'), alignment: 1 });
   g.rect(0, h * 0.8, w, h * 0.2).fill(token('--sky-cream'));
-  for (let i = 0; i < n; i++) g.circle(w * ((i + 1) / (n + 1)), h * 0.45, h * 0.17).fill(token('--frame'));
+  for (let i = 0; i < n; i++) g.circle(w * ((i + 1) / (n + 1)), h * 0.45, h * 0.17).fill(token('--hud-edge'));
   return wrap(g);
 });
 
@@ -157,14 +183,14 @@ defineElement('tick', ({ on }, { w, h }) => {
 /** A dotted fill-in line, in frame colour. */
 defineElement('dots', (_, { w, h }) => {
   const g = new Graphics();
-  for (let x = 1; x < w; x += 5) g.circle(x, h / 2, 0.9).fill(token('--frame'));
+  for (let x = 1; x < w; x += 5) g.circle(x, h / 2, 0.9).fill(token('--ink'));
   return wrap(g);
 });
 
 // ---------- fonts ----------
 
 /** The faces the palette's font tokens name (Google Fonts, linked in index.html and the Storybook head). */
-const FACES = ['900 40px "Inter Tight"', '800 16px "Inter Tight"', '700 16px "Inter Tight"', '400 16px "Baloo 2"', '600 16px "Baloo 2"', '400 16px "Baloo Thambi 2"'];
+const FACES = ['400 24px "Lilita One"', '400 16px "Baloo 2"', '600 16px "Baloo 2"', '800 16px "Baloo 2"', '400 16px "Baloo Thambi 2"'];
 /** How long boot waits for the fonts before drawing with the fallbacks (offline, a blocked font host). */
 const FONT_WAIT_MS = 2500;
 
@@ -213,24 +239,20 @@ export const tickScreens = (dt: number) => screens.reduce((busy, s) => { s.tick(
 /** A button: `state` is space-joined classes its CSS matches on (`primary`, `off`). */
 export const btn = (label: string, tap: () => void, state = '') => use('btn', { key: label, label, tap, state });
 
-/** Lane numerals for signboards: KSHETRA II. */
+/** Lane numerals: KSHETRA II. */
 const ROMAN = ['I', 'II', 'III'];
 /** A page number in Devanagari numerals (०–९). */
 export const devaNumber = (n: number) => String(n).replace(/\d/g, (d) => '०१२३४५६७८९'[+d]!);
 
-/**
- * The header: label (peach), yuga line (gold), headline (cream, two lines at most); `score` and `die` are the banner
- * score's and the long die's Uses (or none). The headline's text is its key, so a new headline plays title-card-in.
- */
-export const titleCard = (label: string, line: string, headline: string, { score = [], die = [] }: { score?: Use[]; die?: Use[] } = {}) =>
-  use('title-card', { label, line, headline, headlineKey: headline }, { score, die });
+/** The HUD strip: the clock (`1:42`), the yuga line (`TRETA YUGA · ×1.5`), the banner score and the long die. */
+export const hud = (time: string, yuga: string, { score = [], die = [] }: { score?: Use[]; die?: Use[] } = {}) =>
+  use('hud', { time, yuga, yugaKey: yuga }, { score, die });
 
-/** Lane `lane` (1..3)'s signboard: its Kshetra, or veiled (null) until its yuga. */
-export function signboard(lane: number, kshetra: string | null) {
-  const k = kshetra ? KSHETRAS[kshetra] : undefined;
-  if (kshetra && !k) throw new Error(`signboard: no Kshetra "${kshetra}"`);
-  const kicker = `KSHETRA ${ROMAN[lane - 1]}${k ? '' : ' · ?'}`;
-  return use('signboard', { key: `lane-${lane}`, state: k ? '' : 'veiled', kicker, title: k?.name.toUpperCase(), rule: k?.rule });
+/** The pop-up for lane `lane` (1..3)'s Kshetra, as it is revealed or its chip is tapped. */
+export function kshetraToast(lane: number, kshetra: string) {
+  const k = KSHETRAS[kshetra];
+  if (!k) throw new Error(`kshetraToast: no Kshetra "${kshetra}"`);
+  return use('kshetra-toast', { toastKey: `${lane}-${kshetra}`, kicker: `LANE ${ROMAN[lane - 1]} · KSHETRA REVEALED`, title: k.name, rule: k.rule });
 }
 
 /** What a word does, in a card's own words (the detail view). */
@@ -283,12 +305,12 @@ export function card(id: string, size: 'hand' | 'next' | 'face' | 'detail', cost
   const cls = CLASSES[c.class]!, trimurti = c.tags.includes('trimurti'), now = cost ?? c.cost;
   const variant = [size, trimurti && 'trimurti', now < c.cost && 'discounted'].filter(Boolean).join(' ');
   const rules = size === 'detail' ? cardRules(id).map((r) => use('card-rule', { key: r.when, ...r })) : [];
-  return use('card', { key: `${id}-${size}`, variant, god: id, paint: cls.paint, skin: c.skin, trimurti, sigil: cls.sigil, cost: String(now), name: c.name, deva: c.deva, title: c.title.toUpperCase() }, { rules });
+  return use('card', { key: `${id}-${size}`, variant, god: id, paint: cls.paint, skin: c.skin, attribute: c.attribute, trimurti, sigil: cls.sigil, cost: String(now), name: c.name, deva: c.deva, title: c.title.toUpperCase() }, { rules });
 }
 
-/** The Prana row: `prana` (fractional: the next diya's flame grows) of `max`. */
-export const pranaDiyas = (prana: number, max: number) => use('prana-diyas', { count: `${Math.floor(prana)} / ${max}` }, {
-  diyas: Array.from({ length: max }, (_, i) => use('prana-diya', { key: i, fill: Math.max(0, Math.min(1, prana - i)) })),
+/** The Prana bar: `prana` (fractional: the charging segment fills) of `max`. */
+export const pranaBar = (prana: number, max: number) => use('prana-bar', { count: String(Math.floor(prana)) }, {
+  segments: Array.from({ length: max }, (_, i) => use('prana-segment', { key: i, fill: Math.max(0, Math.min(1, prana - i)) })),
 });
 
 /** The banner score: how many of each side's three Dhvajas are lowered. */

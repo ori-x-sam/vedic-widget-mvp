@@ -1,4 +1,5 @@
-// The canvas and the design space. One Pixi canvas carries the battlefield and the declarative screens (layers.ui).
+// The canvas and the design space. One Pixi canvas carries the arena (layers.arena) under the declarative screens
+// (layers.ui).
 // The design space is 390 design px on the screen's short side and as long as the aspect allows on the other: a phone
 // held upright is 390 wide (the Kalinga Rush layout, header over battlefield over hand); held sideways it is 390 tall.
 import { Application, Container } from 'pixi.js';
@@ -13,7 +14,7 @@ const TOUCH_PX = 44;
 export const view = { width: SHORT, height: 844, scale: 1, touch: TOUCH_PX };
 
 // Created at import so screen modules can attach to them before the app boots (screens draw in import order).
-export const layers = { ui: new Container() };
+export const layers = { arena: new Container(), ui: new Container() };
 
 export const pixi = new Application();
 
@@ -28,12 +29,12 @@ export function fit(cssW: number, cssH: number) {
 }
 
 export async function initPixi(el: HTMLElement, cssW: number, cssH: number) {
-  await pixi.init({ background: token('--frame'), antialias: true, width: cssW, height: cssH, resolution: Math.min(2, devicePixelRatio || 1), autoDensity: true, autoStart: true });
+  await pixi.init({ background: token('--hud'), antialias: true, width: cssW, height: cssH, resolution: Math.min(2, devicePixelRatio || 1), autoDensity: true, autoStart: true });
   pixi.canvas.style.position = 'absolute';
   pixi.canvas.style.inset = '0';
   pixi.canvas.style.touchAction = 'none';
   el.appendChild(pixi.canvas);
-  pixi.stage.addChild(layers.ui);
+  pixi.stage.addChild(layers.arena, layers.ui);
   pixi.stage.eventMode = 'static';
   fit(cssW, cssH);
 }

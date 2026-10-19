@@ -6,6 +6,21 @@
 > *leela*, the three worlds and the dice on Kailash are still the framing, and त्रिलोक लीला stays as an open question
 > in `STRINGS_TO_VERIFY.md` (is there a Devanagari subtitle, and what?). Everything else below stands as written.
 
+> **Art direction, from the designer at Gate 1 (this replaces §4 wherever they disagree):**
+> - **The feel is Clash Royale.** The match screen is a full arena: three lanes running **top to bottom**, your towers
+>   at the bottom (three Dhvajas and the Mahadhvaja behind the middle lane), the opponent's at the top, a river with
+>   three bridges across the middle, sky beyond the far end, a tilted 3/4 camera. A slim HUD strip on top (banner
+>   score, clock and yuga, the long die to pause); the hand, the next card and the Prana bar in a tray at the bottom.
+> - **Borrow from the Kalinga Rush reference only what is inside its frames:** the vivid, lively painted grass, water,
+>   sky and trees, and the smooth animation of the characters. **Not** the brown page, **not** the big cream headline,
+>   **not** the hanging signboards on the lanes.
+> - **Kshetras** are shown by painting each lane's ground and scenery as the place, plus a small chip at the lane's
+>   far end (tap it for the rule); a short pop-up announces a lane when its yuga reveals it.
+> - **Cards look like Marvel Snap cards:** the painted god fills the card and breaks over its top edge; cost in a gem,
+>   bold outlined name. The designer makes the art from the prompts in `ASSETS.md`; the game loads it from
+>   `public/art/` and draws a distinct placeholder per god until then.
+> - **Characters** are one painted full-body figure per god (`public/art/units/`), animated smoothly in code.
+
 *A spiritual successor to the Kalinga Rush brief: the same look, carried into a three-lane card battler.*
 
 ---

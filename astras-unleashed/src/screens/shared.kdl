@@ -9,52 +9,43 @@ prefab "btn" {
     }
 }
 
-// The Kalinga Rush header: peach tracked label (and the banner score beside it), the gold yuga line (and the long die), the huge cream
-// headline (two lines at most), a thin edge line. A new headline gets a new key, so title-card-in plays again.
-prefab "title-card" {
-    panel class="title-card" {
-        panel class="title-card-top" {
-            text class="title-card-label" bind="label"
-            panel class="title-card-score" slot="score"
+// The HUD strip along the top of the arena, Clash Royale style: each side's banner score at the left, the clock and the
+// yuga in the middle, the long die (pause) at the right. A new yuga gets a new key, so its line pops in.
+prefab "hud" {
+    panel class="hud" {
+        panel class="hud-score" slot="score"
+        panel class="hud-clock" {
+            text class="hud-time" bind="time"
+            panel class="hud-yuga" key=(bind)"yugaKey" {
+                text class="hud-yuga-text" bind="yuga"
+            }
         }
-        panel class="title-card-yuga" {
-            text class="title-card-line" bind="line"
-            panel class="title-card-die" slot="die"
-        }
-        panel class="title-card-headline" key=(bind)"headlineKey" {
-            text class="title-card-headline-text" bind="headline"
-        }
+        panel class="hud-die" slot="die"
     }
 }
 
-// A lane's hanging signboard, at the midline: two cords, a frame-coloured board, the gold kicker (KSHETRA II), the
-// cream title and the rule beneath. Veiled until its yuga: the kicker reads KSHETRA II · ? and nothing else shows.
-prefab "signboard" {
-    panel class="signboard" bind-class="state" {
-        panel class="signboard-cords" {
-            panel class="signboard-cord"
-            panel class="signboard-cord"
-        }
-        panel class="signboard-board" {
-            text class="signboard-kicker" bind="kicker"
-            text class="signboard-title" bind="title" if="title"
-            text class="signboard-rule" bind="rule" if="rule"
-        }
+// The pop-up when a lane is revealed (and when its chip in the arena is tapped): which lane, the Kshetra, its rule.
+prefab "kshetra-toast" {
+    panel class="kshetra-toast" key=(bind)"toastKey" {
+        text class="kshetra-toast-kicker" bind="kicker"
+        text class="kshetra-toast-title" bind="title"
+        text class="kshetra-toast-rule" bind="rule"
     }
 }
 
-// A god card, 5:7. `variant` is its size (hand, next, face or detail) plus trimurti and discounted when they apply. The painted face (art,
-// Pattachitra border in the class colour, gold leaf for the Trimurti) is the card-art element; the Prana cost sits in
-// a diya badge top-left, the class sigil top-right, the names on the frame-coloured plate. Detail adds the rules.
+// A god card, Marvel Snap style: the art fills the card and breaks over its top edge; the Prana cost in a gem at the
+// top-left, the class sigil at the top-right, the name in bold outlined lettering over the art's foot. `variant` is
+// its size (hand, next, face or detail) plus trimurti and discounted when they apply. The art is the card-art element:
+// the painted file when it exists (public/art/cards/<id>.png), a placeholder in the god's own colours until then.
 prefab "card" {
     panel class="card" bind-class="variant" {
-        card-art class="card-art" god=(bind)"god" paint=(bind)"paint" skin=(bind)"skin" trimurti=(bind)"trimurti"
+        card-art class="card-art" god=(bind)"god" paint=(bind)"paint" skin=(bind)"skin" attribute=(bind)"attribute" trimurti=(bind)"trimurti"
         panel class="card-cost" {
-            diya class="card-cost-diya" fill=1
+            prana-gem class="card-cost-gem"
             text class="card-cost-n" bind="cost"
         }
         sigil class="card-sigil" kind=(bind)"sigil" paint=(bind)"paint"
-        panel class="card-plate" {
+        panel class="card-names" {
             text class="card-name" bind="name"
             text class="card-deva" bind="deva"
             text class="card-title" bind="title"
@@ -63,7 +54,7 @@ prefab "card" {
     }
 }
 
-// One line of a card's rules in detail: AVAHANA, NITYA or VISARJANA and what it does.
+// One line of a card's rules in detail: AVAHANA, NITYA, CAST or VISARJANA and what it does.
 prefab "card-rule" {
     panel class="card-rule" {
         text class="card-rule-when" bind="when"
@@ -71,16 +62,19 @@ prefab "card-rule" {
     }
 }
 
-// The Prana row under the battlefield: ten diyas (lit ones are Prana to spend; the next one's flame grows as it
-// charges) and the count.
-prefab "prana-diyas" {
+// The Prana bar under the hand, Clash Royale's elixir bar in haldi: a gem with the count, then ten segments (the
+// charging one fills as it charges).
+prefab "prana-bar" {
     panel class="prana" {
-        panel class="prana-row" slot="diyas"
-        text class="prana-count" bind="count"
+        panel class="prana-count" {
+            prana-gem class="prana-count-gem"
+            text class="prana-count-n" bind="count"
+        }
+        panel class="prana-row" slot="segments"
     }
 }
-prefab "prana-diya" {
-    diya class="prana-diya" fill=(bind)"fill"
+prefab "prana-segment" {
+    prana-segment class="prana-segment" fill=(bind)"fill"
 }
 
 // The banner score: each side's emblem and its three Dhvajas, raised or folded (lowered).

@@ -1,7 +1,9 @@
 # Astras Unleashed
 
-A real-time three-lane card battler: twenty gods from Hindu tradition, the Kalinga Rush look. The full brief is
-`BRIEF.md` (written as "Trilok Leela"; the game is now called Astras Unleashed). Read it before working here.
+A real-time three-lane card battler: twenty gods from Hindu tradition, in a Clash Royale-style arena painted in the
+vivid colours of the scenes inside the Kalinga Rush frames, with Marvel Snap-style cards. The full brief is
+`BRIEF.md` (written as "Trilok Leela"; the game is now called Astras Unleashed); the designer's art direction at its
+top replaces §4 wherever they disagree. Read it before working here.
 
 - **House rules:** the `game-bible` skill (LioraLabs). Load it before writing game code; climb its ladder (an existing
   word → content → CSS → `tuning.ts` → a pure rule → only then a new word).
@@ -18,10 +20,11 @@ A real-time three-lane card battler: twenty gods from Hindu tradition, the Kalin
 
 | Change | Home |
 |---|---|
-| A god card: cost, class, stats, words, epithet, first-play `line`, tags, skin token | `content/cards.kdl` |
+| A god card: cost, class, stats, words, epithet, first-play `line`, tags, skin token, attribute | `content/cards.kdl` |
+| A god's painted card art or arena figure | `public/art/cards/<id>.png`, `public/art/units/<id>.png` (prompts in `ASSETS.md`) |
 | A token a god creates (Brahma's hamsa) | `content/cards.kdl` (`token`) |
 | A class: name, colour token, sigil, job, counter | `content/classes.kdl` |
-| A Kshetra: name, rule word, signboard text, lead/support tokens, scene | `content/kshetras.kdl` |
+| A Kshetra: name, rule word, rule text, lead/support tokens, scene | `content/kshetras.kdl` |
 | Yugas: order, die face, seconds, Prana multiplier, reveal, grade and sky tokens, headline | `content/match.kdl` |
 | Banners, the Sun and the Moon, deck rules (8 cards, 1 Trimurti) | `content/match.kdl` |
 | Starter decks | `content/decks.kdl` |
@@ -30,8 +33,9 @@ A real-time three-lane card battler: twenty gods from Hindu tradition, the Kalin
 | The four blessings (emotes) | `content/emotes.kdl` |
 | A number a rule reads (lane tiles, deploy zone, Prana rate, spell-vs-banner) | `src/tuning.ts`, unit in the name, reason beside it |
 | Every hue: UI, scene, deity skins, yuga grades and skies | a token in `src/screens/shared.css :root` |
-| How the render looks: grain, warm cast, halftone, haze, grade mix, vignette, misregister | `--look-*` tokens in the same `:root` |
-| Shared prefabs (header, signboard, card, diyas, ...) and keyframes | `src/screens/shared.kdl` + `shared.css` |
+| How the render looks: arena tilt, god size, walk bounce and pace, strike lunge, grade mix, finish | `--look-*` tokens in the same `:root` |
+| Shared prefabs (HUD, Kshetra toast, card, Prana bar, ...) and keyframes | `src/screens/shared.kdl` + `shared.css` |
+| The arena: board, towers, scenery, how gods are drawn and animated | `src/view/arena.ts`, `unit.ts`, `props.ts`, `glyphs.ts` |
 | A screen | `src/screens/<screen>.kdl` + `.css` (+ `.ts`, bindings only) |
 | A behaviour word | its registry in the core module that owns it (`units.ts`, `effects.ts`, `cards.ts`, `kshetras.ts`), a catalog row, a test |
 | A procedural painter | a `defineElement` in `src/screens/shared.ts` |

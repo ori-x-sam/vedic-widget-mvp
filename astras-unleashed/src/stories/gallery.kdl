@@ -1,5 +1,5 @@
-// Storybook's prefab gallery (not a game screen): a page of shared prefabs, and a rough match layout to check the
-// Kalinga Rush composition (header over three lanes over the diyas and hand). Styled in gallery.css.
+// Storybook's prefab gallery (not a game screen): a page of shared prefabs, and the match layout (the HUD, a clear
+// window over the arena layer, the tray with the hand and the Prana bar). Styled in gallery.css.
 prefab "gallery" {
     panel class="gallery" slot="items"
 }
@@ -9,16 +9,14 @@ prefab "gallery-row" {
 prefab "gallery-label" {
     text class="gallery-label" bind="text"
 }
-prefab "gallery-lane" {
-    panel class="gallery-lane" bind-class="state" {
-        panel class="gallery-lane-board" slot="board"
-    }
-}
-prefab "gallery-rule" {
-    panel class="gallery-rule"
-}
 prefab "gallery-box" {
     panel class="gallery-box" bind-class="anim" {
         text class="gallery-box-text" bind="text"
     }
+}
+prefab "gallery-spacer" {
+    panel class="gallery-spacer" bind-class="size"
+}
+prefab "gallery-tray" {
+    panel class="gallery-tray" slot="items"
 }

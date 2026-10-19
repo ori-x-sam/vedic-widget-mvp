@@ -1,10 +1,13 @@
 // The twenty god cards, and the tokens gods create (never cards). Starting values; the balance sim tunes them and the
 // designer approves every change (docs/balance.md has the budget model they came from).
 //
-//   card "id" class=<rakshak|yoddha|dhanurdhara|astra|sahayak> cost=<Prana> tags="space separated" \
+//   card "id" class=<rakshak|yoddha|dhanurdhara|astra|sahayak> cost=<Prana> tags="space separated" attribute=<glyph> \
 //       name="Shown name" deva="देवनागरी" title="Epithet · Its meaning" regional="Other name · script" (optional) \
 //       skin="--token" (optional; default --chandan) line="The headline on its first play in a match." { words }
-//   token "id" name= deva= skin= { words }
+//   token "id" name= deva= skin= attribute= { words }
+//
+// `attribute` is the god's signature attribute (src/view/glyphs.ts): it marks the placeholder card and arena figure
+// until the painted art exists (public/art/cards/<id>.png, public/art/units/<id>.png; prompts in ASSETS.md).
 //
 // Words go one per line inside the braces (catalog: docs/declarative-ui.md, ## Behaviour words and ## Triggers):
 //   the body      hp <n> · hit <dmg> every=<s> · speed <tiles/s> · reach <tiles> · splash <tiles> · stationary · lifetime <s>
@@ -22,7 +25,7 @@
 // ---------- Rakshak · Guardian ----------
 
 // He guarded Parvati's door; he is honoured before every beginning.
-card "ganesha" class="rakshak" cost=4 tags="shaiva" \
+card "ganesha" class="rakshak" cost=4 tags="shaiva" attribute="elephant" \
     name="Ganesha" deva="गणेश" title="Vighnaharta · Remover of Obstacles" \
     line="Ganesha guards the door." {
     hp 1950
@@ -33,7 +36,7 @@ card "ganesha" class="rakshak" cost=4 tags="shaiva" \
 }
 
 // He leaps the ocean; at half strength he grows giant (virata-rupa).
-card "hanuman" class="rakshak" cost=5 tags="ramayana" \
+card "hanuman" class="rakshak" cost=5 tags="ramayana" attribute="mace" \
     name="Hanuman" deva="हनुमान" title="Sankat Mochan · Remover of Distress" skin="--sindoor" \
     line="Hanuman leaps the ocean." {
     hp 1790
@@ -45,7 +48,7 @@ card "hanuman" class="rakshak" cost=5 tags="ramayana" \
 }
 
 // He bursts from the pillar to protect the boy Prahlada.
-card "narasimha" class="rakshak" cost=6 tags="avatara" \
+card "narasimha" class="rakshak" cost=6 tags="avatara" attribute="pillar" \
     name="Narasimha" deva="नरसिंह" title="Man-Lion · Protector of Prahlada" \
     line="Narasimha bursts from the pillar." {
     hp 2110
@@ -59,7 +62,7 @@ card "narasimha" class="rakshak" cost=6 tags="avatara" \
 }
 
 // The Sudarshana chakra splashes; allies in his lane are preserved.
-card "vishnu" class="rakshak" cost=8 tags="trimurti" \
+card "vishnu" class="rakshak" cost=8 tags="trimurti" attribute="chakra" \
     name="Vishnu" deva="विष्णु" title="Palanhar · The Preserver" skin="--megh" \
     line="Vishnu takes the field." {
     hp 3530
@@ -74,7 +77,7 @@ card "vishnu" class="rakshak" cost=8 tags="trimurti" \
 // ---------- Yoddha · Warrior ----------
 
 // His first blow is the Vel, thrown from three tiles. He rides a peacock.
-card "kartikeya" class="yoddha" cost=3 tags="shaiva" \
+card "kartikeya" class="yoddha" cost=3 tags="shaiva" attribute="vel" \
     name="Kartikeya" deva="कार्तिकेय" title="Senapati · Commander of the Gods" regional="Murugan · முருகன்" \
     line="Kartikeya rides in on his peacock." {
     hp 640
@@ -84,7 +87,7 @@ card "kartikeya" class="yoddha" cost=3 tags="shaiva" \
 }
 
 // She is Time; she grows with every god that returns to light in her lane.
-card "kali" class="yoddha" cost=4 tags="shakti" \
+card "kali" class="yoddha" cost=4 tags="shakti" attribute="khadga" \
     name="Kali" deva="काली" title="Kalika · She Who Is Time" skin="--kalika" \
     line="Kali enters the field." {
     hp 800
@@ -94,7 +97,7 @@ card "kali" class="yoddha" cost=4 tags="shakti" \
 }
 
 // The gods gave her their weapons: allies in her lane make her faster.
-card "durga" class="yoddha" cost=6 tags="shakti" \
+card "durga" class="yoddha" cost=6 tags="shakti" attribute="lion" \
     name="Durga" deva="दुर्गा" title="The Invincible · Armed by All the Gods" \
     line="Durga rides out on her lion." {
     hp 1640
@@ -104,7 +107,7 @@ card "durga" class="yoddha" cost=6 tags="shakti" \
 }
 
 // He sits still three seconds, then opens his third eye on every enemy god in the lane.
-card "shiva" class="yoddha" cost=7 tags="shaiva trimurti" \
+card "shiva" class="yoddha" cost=7 tags="shaiva trimurti" attribute="trishul" \
     name="Shiva" deva="शिव" title="Mahadeva · The Great God" skin="--karpur" \
     line="Shiva opens his third eye." {
     hp 2080
@@ -120,7 +123,7 @@ card "shiva" class="yoddha" cost=7 tags="shaiva trimurti" \
 // ---------- Dhanurdhara · Ranged ----------
 
 // A cheap, honest fire-thrower, riding his ram.
-card "agni" class="dhanurdhara" cost=2 tags="vedic" \
+card "agni" class="dhanurdhara" cost=2 tags="vedic" attribute="flame" \
     name="Agni" deva="अग्नि" title="Havyavahana · Bearer of Offerings" \
     line="Agni carries the fire." {
     hp 230
@@ -131,7 +134,7 @@ card "agni" class="dhanurdhara" cost=2 tags="vedic" \
 }
 
 // His noose pulls the farthest enemy closer and holds it.
-card "yama" class="dhanurdhara" cost=3 tags="vedic" \
+card "yama" class="dhanurdhara" cost=3 tags="vedic" attribute="noose" \
     name="Yama" deva="यम" title="Dharmaraja · King of Dharma" \
     line="Yama casts his noose." {
     hp 460
@@ -142,7 +145,7 @@ card "yama" class="dhanurdhara" cost=3 tags="vedic" \
 }
 
 // His beam on one target grows from dawn to noon; it never ramps on a banner.
-card "surya" class="dhanurdhara" cost=4 tags="vedic" \
+card "surya" class="dhanurdhara" cost=4 tags="vedic" attribute="sun" \
     name="Surya" deva="सूर्य" title="Dinakara · Maker of Day" \
     line="Surya's chariot rises." {
     hp 640
@@ -153,7 +156,7 @@ card "surya" class="dhanurdhara" cost=4 tags="vedic" \
 }
 
 // Eka-bana, one arrow: his first arrow deals three times to a god.
-card "rama" class="dhanurdhara" cost=5 tags="avatara ramayana" \
+card "rama" class="dhanurdhara" cost=5 tags="avatara ramayana" attribute="bow" \
     name="Rama" deva="राम" title="Maryada Purushottama · The Ideal One" skin="--megh" \
     line="Rama draws his bow." {
     hp 790
@@ -166,7 +169,7 @@ card "rama" class="dhanurdhara" cost=5 tags="avatara ramayana" \
 // ---------- Astra · Divine power ----------
 
 // The wind; it speeds his son Hanuman.
-card "vayu" class="astra" cost=2 tags="vedic" \
+card "vayu" class="astra" cost=2 tags="vedic" attribute="wind" \
     name="Vayu" deva="वायु" title="Pavana · The Purifying Wind" \
     line="Vayu's wind sweeps the lane." {
     damage 150 width=4
@@ -175,7 +178,7 @@ card "vayu" class="astra" cost=2 tags="vedic" \
 }
 
 // A river flows down the lane; with Shiva there, it flows twice as long (he caught her in his hair).
-card "ganga" class="astra" cost=3 tags="shakti" \
+card "ganga" class="astra" cost=3 tags="shakti" attribute="waves" \
     name="Ganga" deva="गंगा" title="Bhagirathi · She Who Descended" \
     line="Ganga flows down the lane." {
     heal 60 dhvaja=25 width=6 seconds=5
@@ -183,7 +186,7 @@ card "ganga" class="astra" cost=3 tags="shakti" \
 }
 
 // Allies move and strike faster.
-card "parvati" class="astra" cost=3 tags="shaiva shakti" \
+card "parvati" class="astra" cost=3 tags="shaiva shakti" attribute="mountain" \
     name="Parvati" deva="पार्वती" title="Shakti · Daughter of the Mountain" \
     line="Parvati's blessing quickens the lane." {
     haste 0.35 width=5 seconds=6
@@ -191,7 +194,7 @@ card "parvati" class="astra" cost=3 tags="shaiva shakti" \
 }
 
 // The Vajra strikes the three strongest enemies.
-card "indra" class="astra" cost=5 tags="vedic" \
+card "indra" class="astra" cost=5 tags="vedic" attribute="vajra" \
     name="Indra" deva="इन्द्र" title="Devaraja · King of the Gods" \
     line="Indra hurls the Vajra." {
     damage 520 targets=3 pick="highest-hp" width=6
@@ -201,7 +204,7 @@ card "indra" class="astra" cost=5 tags="vedic" \
 // ---------- Sahayak · Support ----------
 
 // Her veena slows nearby enemy strikes; while she plays you see the opponent's next card.
-card "saraswati" class="sahayak" cost=2 tags="shakti" \
+card "saraswati" class="sahayak" cost=2 tags="shakti" attribute="veena" \
     name="Saraswati" deva="सरस्वती" title="Vagdevi · Goddess of Speech and Learning" \
     line="Saraswati plays her veena." {
     hp 450
@@ -212,7 +215,7 @@ card "saraswati" class="sahayak" cost=2 tags="shakti" \
 }
 
 // +1 Prana every 4.5 s: six in all, never above the diya row.
-card "lakshmi" class="sahayak" cost=4 tags="shakti" \
+card "lakshmi" class="sahayak" cost=4 tags="shakti" attribute="lotus" \
     name="Lakshmi" deva="लक्ष्मी" title="Shri · Fortune" \
     line="Lakshmi rises from the ocean." {
     hp 1000
@@ -222,7 +225,7 @@ card "lakshmi" class="sahayak" cost=4 tags="shakti" \
 }
 
 // He vowed not to take up arms; his flute enchants nearby enemies and his counsel inspires allies.
-card "krishna" class="sahayak" cost=5 tags="avatara" \
+card "krishna" class="sahayak" cost=5 tags="avatara" attribute="flute" \
     name="Krishna" deva="कृष्ण" title="Parthasarathi · Arjuna's Charioteer" skin="--megh" \
     line="Krishna plays his flute." {
     hp 1500
@@ -233,7 +236,7 @@ card "krishna" class="sahayak" cost=5 tags="avatara" \
 }
 
 // Four golden swans in all.
-card "brahma" class="sahayak" cost=6 tags="trimurti" \
+card "brahma" class="sahayak" cost=6 tags="trimurti" attribute="book" \
     name="Brahma" deva="ब्रह्मा" title="Srishtikarta · The Creator" \
     line="Brahma creates the golden swans." {
     hp 1400
@@ -245,7 +248,7 @@ card "brahma" class="sahayak" cost=6 tags="trimurti" \
 // ---------- tokens (created by gods; never in a deck) ----------
 
 // Brahma's golden swan.
-token "hamsa" name="Hamsa" deva="हंस" skin="--haldi" {
+token "hamsa" name="Hamsa" deva="हंस" skin="--limewhite" attribute="hamsa" {
     hp 180
     hit 50 every=1.0
     speed 2.0
