@@ -1,0 +1,88 @@
+// Deva Katha — A Picture Reader (a fictional book): one page per god, unlocked the first time you play its card.
+//   katha "id" god="<card id>" page=<n> label=<legend|tradition> source="<key in LORE.md>" verified=#true|#false \
+//       text="2–3 sentences for a 12-year-old" know="Did you know? (ties the story to the card's rule)" \
+//       fill="A sentence with ___ for the blank" answer="the blank"
+// Rules: never present mythic events as history and never date them; make no claim for or against the historicity
+// of a mythic place or event; every line is checked against its named source and cited in LORE.md. A page stays
+// verified=#false until it is, and nothing unverified ships.
+
+katha "ganesha" god="ganesha" page=1 label="legend" source="shiva-purana-ganesha" verified=#false \
+    text="In the Shiva Purana, Parvati shapes a son and sets him to guard her door. Ganesha is worshipped before any beginning." \
+    know="That is why, when Ganesha returns to light, your next card costs less: he goes before every beginning." \
+    fill="Parvati made Ganesha to guard her ___." answer="door"
+katha "hanuman" god="hanuman" page=2 label="legend" source="valmiki-sundara-kanda" verified=#false \
+    text="In the Sundara Kanda of Valmiki's Ramayana, Hanuman leaps across the ocean to Lanka to find Sita. He is the son of Vayu, the wind." \
+    know="That is why Vayu's gust speeds him up, and why he may land anywhere in his lane." \
+    fill="Hanuman leapt the ___ to find Sita." answer="ocean"
+katha "narasimha" god="narasimha" page=3 label="legend" source="bhagavata-narasimha" verified=#false \
+    text="In the Bhagavata Purana, Vishnu bursts from a pillar as the Man-Lion to protect the boy Prahlada, at twilight and on a threshold." \
+    know="That is why Narasimha appears at your banner's pillar, wherever you drop him." \
+    fill="Narasimha burst from a ___." answer="pillar"
+katha "vishnu" god="vishnu" page=4 label="tradition" source="vishnu-iconography" verified=#false \
+    text="Vishnu rests on the serpent Shesha on the cosmic ocean. He carries the Sudarshana chakra, the conch, the mace and the lotus." \
+    know="His chakra strikes everyone close to his target, and those beside him are preserved." \
+    fill="Vishnu's spinning discus is called the ___ chakra." answer="Sudarshana"
+katha "kartikeya" god="kartikeya" page=5 label="tradition" source="murugan-vel" verified=#false \
+    text="Kartikeya commands the army of the gods. In Tamil tradition, where he is Murugan, his mother Parvati gives him the Vel, his spear. He rides a peacock." \
+    know="That is why his first blow is the Vel, thrown from three tiles away." \
+    fill="Murugan's spear is called the ___." answer="Vel"
+katha "kali" god="kali" page=6 label="legend" source="devi-mahatmya-kali" verified=#false \
+    text="In the Devi Mahatmya, Kali springs from the brow of the Goddess in the middle of battle." \
+    know="Her name is linked to time; she grows stronger as gods around her return to light." \
+    fill="Kali sprang from the ___ of the Goddess." answer="brow"
+katha "durga" god="durga" page=7 label="legend" source="devi-mahatmya-durga" verified=#false \
+    text="In the Devi Mahatmya, the gods pool their powers into Durga, and each gives her a weapon." \
+    know="That is why allies in her lane make her strike faster." \
+    fill="Each god gave Durga a ___." answer="weapon"
+katha "shiva" god="shiva" page=8 label="legend" source="shiva-third-eye" verified=#false \
+    text="Shiva burned Kama with his third eye. His throat is blue because he held the poison from the churning of the ocean, and so he is called Neelakantha." \
+    know="That is why he meditates before he opens his third eye on the lane." \
+    fill="Shiva is called Neelakantha because his ___ is blue." answer="throat"
+katha "agni" god="agni" page=9 label="legend" source="rigveda-1-1" verified=#false \
+    text="The very first hymn of the Rigveda begins with Agni: agnim ile. He carries offerings to the gods." \
+    know="He is the cheapest god in the game, and the first you are likely to play." \
+    fill="The first hymn of the Rigveda praises ___." answer="Agni"
+katha "yama" god="yama" page=10 label="legend" source="rigveda-10-14-savitri" verified=#false \
+    text="In the Rigveda, Yama is the first mortal to die. In the Mahabharata, Savitri wins her husband Satyavan back from him through wit and persistence." \
+    know="His noose pulls the farthest enemy closer and holds it there." \
+    fill="___ won Satyavan back from Yama." answer="Savitri"
+katha "surya" god="surya" page=11 label="tradition" source="surya-chariot" verified=#false \
+    text="Surya drives a chariot of seven horses, with Aruna as his charioteer. Konark's great sun temple is built in the shape of that chariot." \
+    know="His beam grows from dawn to noon on whatever it shines on." \
+    fill="Surya's chariot is pulled by ___ horses." answer="seven"
+katha "rama" god="rama" page=12 label="legend" source="valmiki-bala-kanda" verified=#false \
+    text="In the Bala Kanda, Rama breaks Shiva's great bow at King Janaka's court. Kodanda is the name of his own bow in many tellings." \
+    know="That is why his first arrow, eka-bana, strikes three times as hard." \
+    fill="Rama broke Shiva's great ___ at Janaka's court." answer="bow"
+katha "vayu" god="vayu" page=13 label="tradition" source="vayu-sons" verified=#false \
+    text="Vayu is the wind. He is the father of Hanuman and of Bhima." \
+    know="That is why his gust speeds Hanuman up." \
+    fill="Vayu is the father of Hanuman and ___." answer="Bhima"
+katha "ganga" god="ganga" page=14 label="legend" source="ganga-descent" verified=#false \
+    text="Ganga came down to earth through Bhagiratha's prayers. Shiva caught her in his matted hair so the earth would not break." \
+    know="That is why her river flows twice as long when Shiva is in the lane." \
+    fill="Shiva caught Ganga in his ___." answer="hair"
+katha "parvati" god="parvati" page=15 label="legend" source="parvati-tapas" verified=#false \
+    text="Parvati is the daughter of Himavat, the Himalaya. Through tapas she won Shiva. She is the mother of Ganesha and Kartikeya." \
+    know="Her blessing lasts longer when a god of Shiva's family is in the lane." \
+    fill="Parvati is the daughter of ___, the Himalaya." answer="Himavat"
+katha "indra" god="indra" page=16 label="legend" source="dadhichi-vajra" verified=#false \
+    text="Indra's Vajra was made from the bones of the sage Dadhichi, who gave them freely. Indra rides the white elephant Airavata." \
+    know="The Vajra finds the three strongest enemies in the lane." \
+    fill="The Vajra was made from the bones of the sage ___." answer="Dadhichi"
+katha "saraswati" god="saraswati" page=17 label="tradition" source="saraswati-veena" verified=#false \
+    text="Saraswati is the goddess of learning, music and speech. She plays the veena and rides a swan. In the Rigveda she is also a river." \
+    know="While she plays, you can see the next card your opponent will draw." \
+    fill="Saraswati plays the ___." answer="veena"
+katha "lakshmi" god="lakshmi" page=18 label="legend" source="samudra-manthan-lakshmi" verified=#false \
+    text="Lakshmi rose from the churning of the ocean of milk." \
+    know="That is why she brings you Prana while she stays." \
+    fill="Lakshmi rose from the ocean of ___." answer="milk"
+katha "krishna" god="krishna" page=19 label="legend" source="mahabharata-krishna-vow" verified=#false \
+    text="Before the war, Krishna offered to join one side without taking up arms, and he became Arjuna's charioteer. The Gita is his counsel at Kurukshetra." \
+    know="That is why he never strikes, yet his flute and his counsel change the lane." \
+    fill="Krishna became Arjuna's ___." answer="charioteer"
+katha "brahma" god="brahma" page=20 label="tradition" source="brahma-lotus" verified=#false \
+    text="Brahma is the creator, born on a lotus from Vishnu's navel. His mount is the hamsa, the swan." \
+    know="That is why he creates golden swans while he stays." \
+    fill="Brahma's mount is the ___." answer="hamsa"

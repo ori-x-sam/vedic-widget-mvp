@@ -1,0 +1,11 @@
+// The opponents of the single-player demo.
+//   bot "id" name= level=<tutorial|shishya|guru> deck="<deck id>" react=<seconds late> \
+//       lanes=<lesson|random|counter> saves-for-kali=#true|#false wastes-at-max=#true|#false \
+//       lessons="one idea per match, in order" (tutorial only)
+// `counter` picks the lane and card that answer what you played by class (content/classes.kdl `weak`).
+
+// A cameo from Kalinga Rush: she teaches one idea per match. Two lanes and no Kshetras until match 3.
+bot "taapoi" name="Taapoi" level="tutorial" deck="suryavamsha" react=1.6 lanes="lesson" saves-for-kali=#false wastes-at-max=#true \
+    lessons="drag prana lanes yugas kshetras"
+bot "nachiketa" name="Nachiketa" level="shishya" deck="shakti" react=1.2 lanes="random" saves-for-kali=#false wastes-at-max=#true
+bot "gargi" name="Gargi" level="guru" deck="kailash" react=0.4 lanes="counter" saves-for-kali=#true wastes-at-max=#false

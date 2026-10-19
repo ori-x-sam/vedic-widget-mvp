@@ -1,0 +1,15 @@
+// The five classes. Each colours its cards' frames and sigils and has a job and a counter: no card is unanswerable.
+//   class "id" name="Shown name" english="Its meaning" paint="--token" sigil=<shield|sword|bow|flame|lotus> \
+//       job="What it does" weak="What answers it"
+// `paint` is a palette token in src/screens/shared.css :root (the class colour lives there once; the class names it).
+
+class "rakshak" name="Rakshak" english="Guardian" paint="--peacock" sigil="shield" \
+    job="Soak damage, protect, hold a lane" weak="Surya's ramping beam; Yama's pull"
+class "yoddha" name="Yoddha" english="Warrior" paint="--sindoor" sigil="sword" \
+    job="Burst damage up close" weak="Ganesha's taunt; Vayu's knockback; ranged gods behind a guardian"
+class "dhanurdhara" name="Dhanurdhara" english="Ranged" paint="--tota" sigil="bow" \
+    job="Damage from behind the front line" weak="Kartikeya's dive; Hanuman's leap; Indra's Vajra"
+class "astra" name="Astra" english="Divine power" paint="--haldi" sigil="flame" \
+    job="Instant answers anywhere in a lane" weak="No body to soak; spread-out boards"
+class "sahayak" name="Sahayak" english="Support" paint="--rani" sigil="lotus" \
+    job="Value over time: Prana, control, creation" weak="Pressure; Hanuman leaping onto them; Indra"

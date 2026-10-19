@@ -1,14 +1,11 @@
-// Balance sim: `npm run sim [games] [collects]`. Plays whole games headless on the pure core and prints the scores.
-// PLACEHOLDER: a bot that always collects the first thing; give your game a real bot and report what matters for balance.
-import { collect, newGame } from '../src/game';
+// Balance sim: `npm run sim`. The match core arrives in Phase 3; until then this checks the content's sums the brief
+// promises: the cost curve, the starter decks' averages and the Prana a player gets over regulation time.
+import { CARDS, DECKS, YUGAS } from '../src/content';
+import { T } from '../src/tuning';
 
-declare const process: { argv: string[] };
-const games = Number(process.argv[2] ?? 20), collects = Number(process.argv[3] ?? 50);
-const scores: number[] = [];
-for (let seed = 1; seed <= games; seed++) {
-  let s = newGame(seed);
-  for (let i = 0; i < collects; i++) s = collect(s, s.things[0]!.id);
-  scores.push(s.score);
-}
-scores.sort((a, b) => a - b);
-console.log(`${games} games, ${collects} collects each: score median ${scores[games >> 1]}, min ${scores[0]}, max ${scores[games - 1]}`);
+const costs = Object.values(CARDS).map((c) => c.cost);
+const curve = [...new Set(costs)].sort((a, b) => a - b).map((c) => `${c}:${costs.filter((x) => x === c).length}`).join(' ');
+console.log(`pool of ${costs.length}: cost curve ${curve}, average ${(costs.reduce((a, b) => a + b, 0) / costs.length).toFixed(2)}`);
+for (const d of Object.values(DECKS)) console.log(`deck ${d.name}: average ${(d.cards.reduce((a, c) => a + CARDS[c]!.cost, 0) / d.cards.length).toFixed(2)}`);
+const flow = YUGAS.filter((y) => !y.overtime).map((y) => (y.seconds / T.PRANA_EVERY_S) * y.prana);
+console.log(`Prana over regulation: ${T.PRANA_START} + ${flow.map((f) => f.toFixed(1)).join(' + ')} = ${(T.PRANA_START + flow.reduce((a, b) => a + b, 0)).toFixed(1)}`);

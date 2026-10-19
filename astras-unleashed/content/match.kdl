@@ -1,0 +1,40 @@
+// The match: the clock of yugas, the banners, the two sides and the deck rules. The base Prana rate, start and maximum
+// are numbers a rule reads, in src/tuning.ts; each yuga multiplies the flow.
+//
+//   yuga "id" name= deva= die=<face> seconds=<s> prana=<flow multiplier> reveal=<lane whose Kshetra opens> \
+//       grade="--yuga-<id>" sky="--yuga-<id>-sky" line="The headline as it begins" overtime=#true (Pralaya only)
+// Yugas run in file order; each is shorter than the last (80 : 60 : 40 : 20 = 4 : 3 : 2 : 1, the dice's throws).
+// The overtime yuga runs only if banners are level at 0:00; the first banner lowered wins it.
+// Kali Yuga (कलि) is not the goddess Kali (काली): different words. Never link them.
+
+yuga "satya" name="Satya Yuga" deva="सत्य युग" die=4 seconds=80 prana=1.0 reveal=1 \
+    grade="--yuga-satya" sky="--yuga-satya-sky" line="Satya Yuga. Let the game begin."
+yuga "treta" name="Treta Yuga" deva="त्रेता युग" die=3 seconds=60 prana=1.5 reveal=2 \
+    grade="--yuga-treta" sky="--yuga-treta-sky" line="Treta Yuga. Prana quickens."
+yuga "dvapara" name="Dvapara Yuga" deva="द्वापर युग" die=2 seconds=40 prana=2.0 reveal=3 \
+    grade="--yuga-dvapara" sky="--yuga-dvapara-sky" line="Dvapara Yuga. Prana flows twice as fast."
+yuga "kali-yuga" name="Kali Yuga" deva="कलि युग" die=1 seconds=20 prana=3.0 \
+    grade="--yuga-kali" sky="--yuga-kali-sky" line="Kali Yuga. Everything at triple speed."
+yuga "pralaya" name="Pralaya" deva="प्रलय" seconds=60 prana=3.0 overtime=#true \
+    grade="--yuga-pralaya" sky="--yuga-pralaya-sky" line="Pralaya. First banner lowered wins."
+
+// ---------- banners ----------
+//   dhvaja "id" name= deva= hp= hit=<dmg> every=<s> range=<tiles> tile=<your side's tile; the opponent's mirrors it> \
+//       all-lanes=#true (spans every lane; struck only from a lane whose Dhvaja is lowered)
+// Lowering a Dhvaja scores one banner and moves your deploy zone in that lane to `deploy-to` tiles from your end.
+
+dhvaja "dhvaja" name="Dhvaja" deva="ध्वज" hp=2000 hit=100 every=0.9 range=7 tile=3 deploy-to=16
+dhvaja "mahadhvaja" name="Mahadhvaja" deva="महाध्वज" hp=3600 hit=120 every=0.9 range=4.5 tile=0 all-lanes=#true
+
+// ---------- sides ----------
+//   team "id" name= emblem=<disc|crescent> paint="--token" trim="--token" side=<left|right>
+// Shape and warm/cool contrast tell the sides apart even when both field the same god, colour-blind players too.
+
+team "sun" name="Surya-vamsha" deva="सूर्यवंश" emblem="disc" paint="--sindoor" trim="--haldi" side="left"
+team "moon" name="Chandra-vamsha" deva="चन्द्रवंश" emblem="crescent" paint="--neel" trim="--limewhite" side="right"
+
+// ---------- decks ----------
+//   deck-rules "id" cards=<deck size> hand=<cards in hand>   ·   deck-limit "id" tag= max=
+
+deck-rules "standard" cards=8 hand=4
+deck-limit "trimurti" tag="trimurti" max=1

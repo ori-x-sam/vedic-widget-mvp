@@ -3,8 +3,7 @@
 import 'pixi.js/events';
 import { CanvasTextMetrics } from 'pixi.js';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { newGame } from '../game';
-import { initialUi, game, ui } from '../store';
+import { initialUi, ui } from '../store';
 import { drawTitle } from './title';
 import { layers } from '../stage';
 
@@ -17,8 +16,8 @@ beforeAll(() => {
 
 describe('screens render from the stores', () => {
   it('title', () => {
-    game.setState({ run: { ...newGame(1), score: 42 } }); ui.setState(initialUi); drawAll();
-    expect(texts()).toContain('MY GAME');
-    expect(texts()).toContain('SCORE 42');
+    ui.setState(initialUi); drawAll();
+    expect(texts()).toContain('Astras');
+    expect(texts()).toContain('20 GODS · 12 KSHETRAS · 4 AGES');
   });
 });

@@ -1,0 +1,72 @@
+// The twelve Kshetras, sacred places of myth. Three are drawn per match (seeded), one painted into each lane; each lane
+// stays a plain cream scroll (KSHETRA II · ?) until its yuga reveals it (content/match.kdl). Its rule applies to both
+// players alike. Kshetras are mythic realms: no present-day contested site is ever a battlefield.
+//
+//   kshetra "id" name="Shown name" deva="देवनागरी" lead="--token" support="--token --token" \
+//       rule="The signboard's one line" scene="What is painted there" { one Kshetra word }
+//
+// Kshetra words (catalog: ## Kshetra words): cost-cut "<id|class|tag>" n · regen f · dmg-mult m · speed-mult m ·
+// reach-cut tiles · dhvaja-hp m · dhvaja-haste m · amrit n every=s · veil s · echo f
+// Painted layers, when they exist, are art/<id>/{sky,far,mid,near,ground}.webp; until then a procedural painter draws
+// the lane in `lead` and `support`.
+
+kshetra "kailash" name="Kailash" deva="कैलास" lead="--limewhite" support="--neel" \
+    rule="Shaiva cards cost 1 less here" \
+    scene="The snow peak above the blue lake Manasarovar, Nandi far off" {
+    cost-cut "shaiva" 1
+}
+kshetra "ksheer-sagar" name="Ksheer Sagar" deva="क्षीरसागर" lead="--seafoam" support="--limewhite" \
+    rule="Units here regain 1.5% HP per second" \
+    scene="The milk-white ocean; Shesha's coils on the horizon (scenery only)" {
+    regen 0.015
+}
+kshetra "kurukshetra" name="Kurukshetra" deva="कुरुक्षेत्र" lead="--laterite" support="--sindoor" \
+    rule="All damage here +20%" \
+    scene="An open plain, banners and distant chariots; no bodies, ever" {
+    dmg-mult 1.2
+}
+kshetra "swarna-lanka" name="Swarna Lanka" deva="स्वर्णलंका" lead="--haldi" support="--marigold" \
+    rule="Banners here have +30% HP" \
+    scene="A golden mythic city on the sea, not any real place" {
+    dhvaja-hp 1.3
+}
+kshetra "kishkindha" name="Kishkindha" deva="किष्किन्धा" lead="--tota" support="--laterite" \
+    rule="Units here move 25% faster" \
+    scene="Boulder hills and the Pampa river; friendly vanaras in the trees" {
+    speed-mult 1.25
+}
+kshetra "dandakaranya" name="Dandakaranya" deva="दण्डकारण्य" lead="--tota" support="--peacock" \
+    rule="Ranged reach -1.5 tiles here" \
+    scene="Deep forest, hermitage huts, fireflies" {
+    reach-cut 1.5
+}
+kshetra "samudra-manthan" name="Samudra Manthan" deva="समुद्र मन्थन" lead="--peacock" support="--seafoam" \
+    rule="Every 20 s, each player with a unit here gains 1 Prana" \
+    scene="Mount Mandara turning in the ocean, Vasuki as the rope (far background)" {
+    amrit 1 every=20
+}
+kshetra "amaravati" name="Amaravati" deva="अमरावती" lead="--haldi" support="--rani" \
+    rule="Astra cards cast here cost 1 less" \
+    scene="Indra's cloud city, Airavata far off, the wish-granting tree" {
+    cost-cut "astra" 1
+}
+kshetra "meru" name="Meru" deva="मेरु" lead="--marigold" support="--khondalite" \
+    rule="Banners here strike 30% faster" \
+    scene="The golden axis mountain, terraces of light" {
+    dhvaja-haste 1.3
+}
+kshetra "patala" name="Patala" deva="पाताल" lead="--neel" support="--peacock" \
+    rule="Units placed here can't be targeted by ranged attacks for 3 s" \
+    scene="Glowing naga palaces in a vast cavern (gentle, not spooky)" {
+    veil 3
+}
+kshetra "satyaloka" name="Satyaloka" deva="सत्यलोक" lead="--rani" support="--haldi" \
+    rule="The first unit each player places here is echoed once at 50%" \
+    scene="A giant lotus, hamsas, soft dawn light" {
+    echo 0.5
+}
+kshetra "himavat" name="Himavat" deva="हिमवत्" lead="--limewhite" support="--tota" \
+    rule="Units here move 25% slower" \
+    scene="Deodar slopes, snow and streams; Parvati's father's mountains" {
+    speed-mult 0.75
+}

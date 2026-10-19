@@ -1,0 +1,12 @@
+// Starter decks: all in the deck builder, each held to content/match.kdl's deck rules (8 cards, at most one Trimurti).
+//   deck "id" name="Shown name" cards="eight card ids" blurb="One line in the deck builder"
+// Brahma is in no starter deck; players build him into their own.
+
+deck "suryavamsha" name="Suryavamsha" cards="rama hanuman surya ganesha yama agni vayu saraswati" \
+    blurb="Rama and Hanuman together, the sun behind them."
+deck "shakti" name="Shakti" cards="durga kali lakshmi parvati ganga kartikeya saraswati agni" \
+    blurb="The Goddess in all her forms."
+deck "kailash" name="Kailash" cards="shiva ganesha kartikeya parvati ganga indra vayu surya" \
+    blurb="Shiva's family, and a river in his hair."
+deck "vaikuntha" name="Vaikuntha" cards="vishnu rama krishna narasimha lakshmi agni vayu saraswati" \
+    blurb="Heavy and slow; unstoppable late."

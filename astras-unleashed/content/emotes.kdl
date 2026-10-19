@@ -1,0 +1,6 @@
+// The four emotes. They are blessings, never taunts; there are no others.
+//   emote "id" text="What is shown" deva="देवनागरी" (optional)
+emote "namaskar" text="🙏 Namaskar" deva="नमस्कार"
+emote "sadhu" text="Sādhu!" deva="साधु"
+emote "shubham" text="Shubham" deva="शुभम्"
+emote "lotus" text="🪷"

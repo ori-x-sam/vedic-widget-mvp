@@ -34,9 +34,4 @@ export const T = {
   ASTRA_VISION_S: 0.6,
   /** Astras deal this fraction of their damage to Dhvajas and the Mahadhvaja, so banners fall to gods, not spells. */
   ASTRA_VS_BANNER: 0.35,
-
-  // ---------- PLACEHOLDER: the starter's collecting game (goes with it) ----------
-  FIELD_W_U: 12,
-  FIELD_H_U: 7,
-  BATCH_SIZE: 5,
 } as const;

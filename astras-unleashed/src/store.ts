@@ -1,14 +1,14 @@
 // Two stores, plain data only, changed only through ./actions with setState (never mutated in place).
-// `game` holds the current game and the meta; only the meta is saved, under one raw key, and zod checks it on load.
-// `ui` is the view's own state and is never saved.
+// `game` holds the meta (the match joins it in Phase 3); only the meta is saved, under one raw key, and zod checks it on
+// load. `ui` is the view's own state and is never saved.
 import { createStore } from 'zustand/vanilla';
 import { persist, type PersistStorage } from 'zustand/middleware';
-import { newGame, newMeta, parseMeta, type GameState, type Meta } from './game';
+import { newMeta, parseMeta, type Meta } from './meta';
 
 /** The save's key: the game's own, so two games on one origin don't share a save. */
 export const META_KEY = 'astras-unleashed.meta';
 
-export type GameStore = { run: GameState; meta: Meta };
+export type GameStore = { meta: Meta };
 
 /** Add a name here per screen; the screen's draw function shows itself when this matches. */
 export type Screen = 'title';
@@ -28,7 +28,7 @@ const storage: PersistStorage<{ meta: unknown }> = {
   removeItem: () => { disk((ls) => ls.removeItem(META_KEY)); },
 };
 
-export const game = createStore<GameStore>()(persist((): GameStore => ({ run: newGame(1), meta: newMeta() }), {
+export const game = createStore<GameStore>()(persist((): GameStore => ({ meta: newMeta() }), {
   name: META_KEY,
   storage,
   partialize: (g) => ({ meta: g.meta }),

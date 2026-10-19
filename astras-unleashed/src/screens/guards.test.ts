@@ -1,6 +1,6 @@
 // Foundation guards: vocabulary is defined in one home, colours in one palette.
 import { describe, expect, it } from 'vitest';
-import { THINGS } from '../content';
+import { CARDS, CLASSES, KSHETRAS, TEAMS, TOKENS_ON_FIELD, YUGAS } from '../content';
 import { TOKENS } from '../tokens';
 
 const SRC = import.meta.glob<string>(['../**/*.ts', '!../**/*.test.ts', '!../stories/**'], { query: '?raw', import: 'default', eager: true });
@@ -27,7 +27,14 @@ describe('foundation guards', () => {
     }
     expect(dupes).toEqual([]);
   });
-  it('every paint in the content is a palette token', () => {
-    expect(Object.values(THINGS).filter((t) => !(t.paint in TOKENS)).map((t) => `${t.id}: ${t.paint}`)).toEqual([]);
+  it('every palette token the content names is in the palette', () => {
+    const named: [string, string][] = [
+      ...Object.values(CLASSES).map((c): [string, string] => [`class ${c.id}`, c.paint]),
+      ...[...Object.values(CARDS), ...Object.values(TOKENS_ON_FIELD)].map((c): [string, string] => [`card ${c.id} skin`, c.skin]),
+      ...Object.values(KSHETRAS).flatMap((k) => [k.lead, ...k.support].map((t): [string, string] => [`kshetra ${k.id}`, t])),
+      ...Object.values(TEAMS).flatMap((t) => [t.paint, t.trim].map((x): [string, string] => [`team ${t.id}`, x])),
+      ...YUGAS.flatMap((y) => [y.grade, y.sky].map((x): [string, string] => [`yuga ${y.id}`, x])),
+    ];
+    expect(named.filter(([, t]) => !(t in TOKENS)).map(([who, t]) => `${who}: ${t}`)).toEqual([]);
   });
 });

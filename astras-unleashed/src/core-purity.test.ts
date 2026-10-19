@@ -29,7 +29,7 @@ import { describe, expect, it } from 'vitest'
  * Rule 2: a core module may not reference browser or environment APIs.
  */
 const CORE = [
-  'game', 'rewards', 'content', 'content-load', 'tuning', 'rng', 'units', 'effects', 'kshetras', 'cards',
+  'meta', 'content', 'content-load', 'tuning', 'rng', 'units', 'effects', 'kshetras', 'cards',
 ]
 
 const FORBIDDEN_APIS = [

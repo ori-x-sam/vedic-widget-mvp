@@ -1,14 +1,9 @@
-// The one impure boundary for state: every tap lands here and reaches the core through a namespace (`Game.collect`),
+// The one impure boundary for state: every tap lands here and reaches the core through a namespace (`Meta.unlockKatha`),
 // so the layer shows at the call site. Screens call these; they never write a store themselves.
-import * as Game from './game';
+import * as Meta from './meta';
 import { game } from './store';
 
-export function collect(id: number) {
-  game.setState({ run: Game.collect(game.getState().run, id) });
-}
-
-/** Record the current game's score, then start a fresh one with a fresh seed. */
-export function newGame(seed = Date.now() % 2 ** 31) {
-  const { run, meta } = game.getState();
-  game.setState({ run: Game.newGame(seed), meta: Game.recordGame(meta, run.score) });
+/** Open a god's Katha page (the first time its card is played). */
+export function unlockKatha(god: string) {
+  game.setState({ meta: Meta.unlockKatha(game.getState().meta, god) });
 }

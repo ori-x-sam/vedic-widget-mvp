@@ -6,8 +6,7 @@ import { expect } from 'storybook/test';
 import { advance, rewind, settle } from '../clock';
 import { boot } from '../runtime';
 import { layers, pixi, view } from '../stage';
-import { game, initialUi, ui, type UiState } from '../store';
-import type { GameState } from '../game';
+import { game, initialUi, ui, type GameStore, type UiState } from '../store';
 
 export type StoryArgs = { runInteraction: boolean };
 export const storyArgs: StoryArgs = { runInteraction: true };
@@ -31,16 +30,19 @@ function host() {
 }
 
 /** The story's canvas host, with `setup` applied once the game has booted. */
-export function stage(setup: () => { run: GameState; ui?: Partial<UiState> }, warmMs = 0) {
+/** What a story sets up: the game store's slices it cares about and the UI state. */
+export type Setup = () => { game?: Partial<GameStore>; ui?: Partial<UiState> };
+
+export function stage(setup: Setup, warmMs = 0) {
   const node = host();
   void booted!.then(() => apply(setup, warmMs));
   return node;
 }
 
-function apply(setup: () => { run: GameState; ui?: Partial<UiState> }, warmMs: number) {
+function apply(setup: Setup, warmMs: number) {
   const s = setup();
   rewind();
-  game.setState({ run: s.run });
+  if (s.game) game.setState(s.game);
   ui.setState({ ...initialUi, ...s.ui });
   if (warmMs) advance(warmMs);
   settle();

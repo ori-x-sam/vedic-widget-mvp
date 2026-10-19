@@ -218,7 +218,6 @@ no area reaches what the effect before it in its block reached (same side), a bu
 | `create` | `create "token"`: a token (content/cards.kdl `token`, never a card) appears beside the god, on its side. |
 | `discount-next` | `discount-next n`: its player's next card costs n less. |
 | `seconds` | `seconds n`: the card's timed effects last n seconds instead (inside `with`: Ganga lasts longer with Shiva). |
-| `points` | PLACEHOLDER `points n`: collecting it scores n points |
 
 ## Triggers
 
@@ -251,9 +250,24 @@ Under a `kshetra` in `content/kshetras.kdl`: the one rule it lays on its lane, f
 
 ## Content kinds
 
+Zod schemas in `src/content.ts`; each file's header gives its full form. Cross-checks after loading make sure every
+name one file uses exists (a deck's cards, a `with` tag, a `create` token, a Katha page's god, a class).
+
 | Kind | Use |
 |---|---|
-| `thing` | PLACEHOLDER `thing "id" name= r= paint="--token" { reward words }`, in `content/things.kdl` |
+| `class` | `class "id" name= english= paint="--token" sigil= job= weak=`: a card class, its colour and counter (`content/classes.kdl`) |
+| `card` | `card "id" class= cost= tags= name= deva= title= regional= skin= line= { words }`: a god (`content/cards.kdl`) |
+| `token` | `token "id" name= deva= skin= { words }`: a unit a god creates, never in a deck (`content/cards.kdl`) |
+| `kshetra` | `kshetra "id" name= deva= lead= support= rule= scene= { one Kshetra word }` (`content/kshetras.kdl`) |
+| `yuga` | `yuga "id" name= deva= die= seconds= prana= reveal= grade= sky= line= overtime=`: the clock, in file order (`content/match.kdl`) |
+| `dhvaja` | `dhvaja "id" name= deva= hp= hit= every= range= tile= deploy-to= all-lanes=`: a banner (`content/match.kdl`) |
+| `team` | `team "id" name= deva= emblem= paint= trim= side=`: the Sun and the Moon (`content/match.kdl`) |
+| `deck-rules` | `deck-rules "id" cards= hand=`: deck size and hand size (`content/match.kdl`) |
+| `deck-limit` | `deck-limit "id" tag= max=`: at most `max` cards with a tag per deck (`content/match.kdl`) |
+| `deck` | `deck "id" name= cards= blurb=`: a starter deck (`content/decks.kdl`) |
+| `bot` | `bot "id" name= level= deck= react= lanes= saves-for-kali= wastes-at-max= lessons=`: an opponent (`content/bots.kdl`) |
+| `katha` | `katha "id" god= page= label= source= verified= text= know= fill= answer=`: a Deva Katha page (`content/katha.kdl`) |
+| `emote` | `emote "id" text= deva=`: one of the four blessings (`content/emotes.kdl`) |
 
 ## Content helpers
 
