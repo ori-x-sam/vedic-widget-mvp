@@ -1,6 +1,6 @@
 // Game-wide declarative-UI registrations (the only module that calls defineProp/defineElement), the screenUi factory
 // every screen is made with, and binding builders for the shared prefabs so a screen's .ts stays bindings-only.
-import { Container, Graphics } from 'pixi.js';
+import { Container, Graphics, type Text, type TextStyleFontWeight } from 'pixi.js';
 import { color, defineProp, lerpColor } from '../decl/css';
 import { createUi, defineElement, use, type Use, type UiNode } from '../decl/engine';
 import { layers, view } from '../stage';
@@ -15,6 +15,12 @@ defineProp('tint', {
   apply: (n: UiNode, v: number) => { n.el.tint = v; },
 });
 
+/** Text weight, as CSS (`400`, `800`, `900`): Inter Tight 900 for headlines. Applied to the text's own style, so the next layout measures it. */
+defineProp('font-weight', {
+  parse: (raw: string) => raw, initial: '400', inherit: true,
+  apply: (n: UiNode, v: string) => { if (n.type === 'text' && (n.el as Text).style.fontWeight !== v) (n.el as Text).style.fontWeight = v as TextStyleFontWeight; },
+});
+
 // ---------- elements ----------
 
 /** A bar's fill: a rect of the box's width * `value` (0..1), coloured by `tint`: `meter value=(bind)"fill"`. */
@@ -23,6 +29,19 @@ defineElement('meter', ({ value }, { w, h }) => {
   c.addChild(new Graphics().rect(0, 0, w * Math.min(1, Math.max(0, value as number)), h).fill(0xffffff));
   return c;
 });
+
+// ---------- fonts ----------
+
+/** The faces the palette's font tokens name (Google Fonts, linked in index.html and the Storybook head). */
+const FACES = ['900 40px "Inter Tight"', '800 16px "Inter Tight"', '700 16px "Inter Tight"', '400 16px "Baloo 2"', '600 16px "Baloo 2"', '400 16px "Baloo Thambi 2"'];
+/** How long boot waits for the fonts before drawing with the fallbacks (offline, a blocked font host). */
+const FONT_WAIT_MS = 2500;
+
+/** Wait for the fonts, or FONT_WAIT_MS, whichever is first: Pixi measures text once, with whatever face is loaded. */
+export async function loadFonts() {
+  const all = Promise.all(FACES.map((f) => document.fonts.load(f, 'Aaका').catch(() => []))); // the sample includes Devanagari so its subset loads
+  await Promise.race([all, new Promise((r) => setTimeout(r, FONT_WAIT_MS))]);
+}
 
 // ---------- the screen factory ----------
 

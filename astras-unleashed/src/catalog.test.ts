@@ -7,7 +7,6 @@ import sharedKdl from './screens/shared.kdl?raw';
 import contentTs from './content.ts?raw';
 import runtimeTs from './runtime.ts?raw';
 import contentLoadTs from './content-load.ts?raw';
-import kitPy from '../models/kit.py?raw';
 import { PROPS } from './decl/css';
 import { REWARDS } from './rewards';
 import { TOKENS } from './tokens';
@@ -35,6 +34,5 @@ describe('the catalog matches the code', () => {
   it('behaviour words', () => same('Behaviour words', Object.keys(REWARDS)));
   it('content kinds', () => same('Content kinds', all(contentTs, /loadKdl\(\w+, \{ ([^}]+) \}/g).flatMap((kinds) => kinds.split(',').map((k) => k.split(':')[0]!.trim()))));
   it('content helpers', () => same('Content helpers', all(contentLoadTs, /^export function (\w+)/gm)));
-  it('modelling kit', () => same('Modelling kit', all(kitPy, /^def ([a-z]\w*)\(/gm)));
   it('screens, in draw order', () => expect(section('Screens')).toEqual(all(runtimeTs, /^import \{ draw\w+ \} from '\.\/screens\/([\w-]+)';/gm)));
 });

@@ -15,7 +15,8 @@ export const storyControls = {
   argTypes: { runInteraction: { control: 'boolean' as const, description: 'Turn off to explore this starting state live (the play function then does nothing).' } },
 };
 
-const W = 844, H = 390;
+/** The story canvas: a 390 x 844 phone held upright (preview-head.html sizes #app to match). */
+const W = 390, H = 844;
 let el: HTMLElement | null = null;
 let booted: Promise<unknown> | null = null;
 

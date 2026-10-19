@@ -1,50 +1,82 @@
-/* The palette (the only :root), shared base styles, and the shared prefabs' styles. Every screen's sheet comes after
-   this one, so a screen styles only its deltas. Colours the 3D scene needs live here too and are read by tokens.ts.
-   Sizes are design px (the design space is 390 px tall), times in s. PLACEHOLDER values: make them your game's. */
+/* The palette (the only :root), the look numbers, shared base styles, and the shared prefabs' styles. Every screen's
+   sheet comes after this one, so a screen styles only its deltas. Colours the shell paints itself (lanes, gods, banners,
+   card frames) live here too and are read through tokens.ts; look numbers through view/look.ts.
+   Sizes are design px (the short side of the screen is 390 design px), times in s or ms.
+   Each `/* ── Heading ── *\/` groups the tokens below it in the Palette story. */
 :root {
-  /* UI */
-  --ink: #0b0d12;
-  --panel: #161a22;
-  --edge: #39414f;
-  --text: #e8ecf2;
-  --dim: #8a93a3;
-  --accent: #6cc4ff;
-  --scrim: #05060a;
-  --pop: cubic-bezier(.3, 1.7, .5, 1);
-  --title-font: Arial, sans-serif;
-  --body-font: Arial, sans-serif;
+  /* ── Frame and UI ── the Kalinga Rush page: deep maroon, cream headline, tracked gold and peach. */
+  --frame: #4B211A;        /* the page background */
+  --frame-edge: #34140F;   /* vignette, the deepest edges, the pause button, modal scrims */
+  --frame-rule: #6A3328;   /* a raised maroon: pill outlines, thin rules and borders on the page */
+  --cream: #F4ECD8;        /* headlines, the title's first word, signboard titles, card names */
+  --gold: #D9BB6C;         /* the yuga and clock line, the URL, small rules, Devanagari names on cards */
+  --peach: #E0B09A;        /* the top label (ASTRAS UNLEASHED · LEELA 3 · vs GARGI) */
+  --peach-title: #D89C80;  /* the title's second word (Unleashed); large sizes only */
 
-  /* The scene (tokens.ts): the floor, the light's hue, and one --thing-<id> per thing in content/things.kdl. */
-  --floor: #2a2f3a;
-  --light: #fff4e0;
-  --thing-orb: #6cc4ff;
-  --thing-gem: #ff6ca8;
+  /* ── Scene ── the 1970s–80s textbook palette every lane is painted in (tints and shades of these). */
+  --sindoor: #E8361F;      /* vermilion: the Sun team, flags, Yoddha frames, Hanuman's sindoor-coated skin */
+  --haldi: #FFC926;        /* turmeric: diya flames, Prana, Astra frames, Surya, the sun emblem */
+  --marigold: #FF9414;     /* flames, garlands, Agni, festivals */
+  --rani: #E62C7E;         /* rani pink: Sahayak frames, Satyaloka, Amaravati */
+  --tota: #38A845;         /* parrot green: forests, Dhanurdhara frames, Kishkindha */
+  --peacock: #00909A;      /* peacock teal: oceans, Rakshak frames, Kartikeya's peacock */
+  --neel: #26389A;         /* indigo: night, the Moon team, Kali Yuga, Pralaya, Patala */
+  --seafoam: #86D5C4;      /* surf, Ksheer Sagar, pale skies */
+  --laterite: #B4502F;     /* earth, plinths, diya bodies, Kurukshetra */
+  --khondalite: #776A60;   /* stone, Meru, Dhvaja plinths; every grey in the game is this or a tint of the palette */
+  --limewhite: #F6EFE0;    /* snow, the milk ocean, the Moon emblem, gulal highlights */
+  --chandan: #D38B55;      /* warm skin for mortals, and for gods whose tradition shows warm skin */
+  --sky-cream: #F1DDB4;    /* the warm old-paper sky at the horizon; the veiled (unrevealed) lane */
 
-  /* The look (view/look.ts): how the render sees the palette's hues. Plain numbers; the unit is the name's last word
-     (u = world units, deg, rad); no unit is a strength. */
-  /* Tone-mapping exposure: the whole frame. */
-  --look-exposure: 1.1;
-  /* The key light's strength, and where it shines from (x y z towards it). */
-  --look-key-light: 2.2;
-  --look-key-dir: 3 8 4;
-  /* Sky/ground fill, so the unlit side isn't black. */
-  --look-fill-light: 0.8;
-  /* Camera: field of view, distance from the field's centre, and tilt off straight down. */
-  --look-camera-fov-deg: 40;
-  --look-camera-dist-u: 14;
-  --look-camera-tilt-rad: 0.35;
+  /* ── Deities ── skin colours as tradition shows them. Never lighten them. */
+  --megh: #3F5FB4;         /* rain-cloud blue (megha-shyama): Vishnu, Rama, Krishna */
+  --karpur: #E9E4DA;       /* camphor-white with an ash cast (karpura-gaura): Shiva, with a megh-blue throat */
+  --kalika: #23234F;       /* deep indigo-black: Kali's skin */
+  --gold-leaf: #C9A23A;    /* Tanjore-style gold leaf: Trimurti card frames only */
+
+  /* ── Yuga grades ── the light over all three lanes (multiplied in at --look-grade-mix) and the sky it fades to
+     from --sky-cream at the horizon. content/match.kdl names these per yuga. */
+  --yuga-satya: #FFF6E2;        /* dawn: the clearest, brightest light */
+  --yuga-satya-sky: #CDEBDF;
+  --yuga-treta: #FFE7B8;        /* midday: marigold warmth */
+  --yuga-treta-sky: #9FD9CF;
+  --yuga-dvapara: #F7B79A;      /* dusk: sindoor and rani, long shadows */
+  --yuga-dvapara-sky: #EE9A8A;
+  --yuga-kali: #5867B8;         /* night: neel, lit by haldi lamps and stars */
+  --yuga-kali-sky: #22307F;
+  --yuga-pralaya: #3B4A93;      /* the cosmic ocean: deep neel and seafoam; only the banners' lamps glow */
+  --yuga-pralaya-sky: #1B2766;
+
+  /* ── Type and motion ── */
+  --title-font: Inter Tight, Archivo, Arial, sans-serif;           /* headlines, labels, card names */
+  --body-font: Baloo 2, Noto Sans Devanagari, Arial, sans-serif;   /* body, Katha text, every Devanagari string */
+  --tamil-font: Baloo Thambi 2, Noto Sans Tamil, Arial, sans-serif; /* Tamil names (Murugan) */
+  --pop: cubic-bezier(.3, 1.7, .5, 1);                              /* overshoot easing */
+  --unfurl: cubic-bezier(.2, .8, .2, 1);                            /* a scroll or banner unrolling */
+
+  /* ── Look ── how the render sees the palette (view/look.ts). Plain numbers; the unit is the name's last word
+     (px, ms); no unit is a strength or a 0..1 amount. Keep the finish subtle: it is a hint of an old printed page. */
+  --look-grain: 0.07;            /* fine paper grain over the battlefield */
+  --look-warm-cast: 0.06;        /* a faint warm (sky-cream) cast over the battlefield */
+  --look-halftone: 0.035;        /* a faint halftone in large flat areas; 0 turns it off */
+  --look-halftone-dot-px: 3;     /* the halftone's dot pitch */
+  --look-depth-haze: 0.22;       /* atmospheric haze on a lane's far layers (sky-cream mixed in) */
+  --look-grade-mix: 0.4;         /* how strongly the yuga grade tints the lanes */
+  --look-vignette: 0.35;         /* the frame-edge vignette at the page's edges */
+  --look-misregister-px: 5;      /* entering Kali Yuga, the colour plates slide this far apart... */
+  --look-misregister-ms: 400;    /* ...and snap back over this long (reduced motion: a simple fade) */
 }
 
-text { font-family: var(--body-font); font-color: var(--text); font-size: 16px }
+text { font-family: var(--body-font); font-color: var(--cream); font-size: 16px }
 
 /* A button: the consumer sets width/height when the default doesn't fit. */
 button {
   width: 180px; height: max(44px, var(--touch-size)); align-items: center; justify-content: center;
-  background-color: var(--panel); border-color: var(--edge); border-width: 2px;
+  background-color: var(--frame-edge); border-color: var(--frame-rule); border-width: 2px;
   transition: scale .08s ease-out, background-color .12s;
 }
-button:hover { border-color: var(--accent) }
+button:hover { border-color: var(--gold) }
 button:pressed { scale: .94 }
-button.primary { border-color: var(--accent) }
+button.primary { border-color: var(--gold) }
 button.off { opacity: .45 }
-.shared-btn-label { font-family: var(--title-font); font-size: 16px; letter-spacing: 3px; font-color: var(--text) }
+.shared-btn-label { font-family: var(--title-font); font-weight: 800; font-size: 15px; letter-spacing: 3px; font-color: var(--cream) }

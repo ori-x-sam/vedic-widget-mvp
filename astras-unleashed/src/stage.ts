@@ -1,16 +1,16 @@
-// The two canvases and the design space. Three draws the scene underneath; a transparent Pixi canvas on top carries
-// the declarative screens (layers.ui). The design space is landscape: 390 design px tall, as wide as the screen's
-// aspect allows (at least MIN_W), which is the viewport every screen lays out inside. A portrait game swaps the axes.
+// The canvas and the design space. One Pixi canvas carries the battlefield and the declarative screens (layers.ui).
+// The design space is 390 design px on the screen's short side and as long as the aspect allows on the other: a phone
+// held upright is 390 wide (the Kalinga Rush layout, header over battlefield over hand); held sideways it is 390 tall.
 import { Application, Container } from 'pixi.js';
+import { token } from './tokens';
 
-export const H = 390;
-/** Narrower than this (a tablet, a portrait phone) and the design scales by width instead, gaining height; the widest screen must fit. */
-export const MIN_W = 800;
-/** A finger-sized target in design px (about 9 mm on a phone held in landscape). */
-const TOUCH_PX = 48;
+/** The short side of the design space, design px: a 390 px-wide phone draws at 1:1. */
+export const SHORT = 390;
+/** A finger-sized target in design px (about 9 mm on a phone). */
+const TOUCH_PX = 44;
 
-/** The live design viewport: written only by resize(). */
-export const view = { width: 844, height: H, scale: 1, touch: TOUCH_PX };
+/** The live design viewport: written only by fit(). */
+export const view = { width: SHORT, height: 844, scale: 1, touch: TOUCH_PX };
 
 // Created at import so screen modules can attach to them before the app boots (screens draw in import order).
 export const layers = { ui: new Container() };
@@ -19,7 +19,7 @@ export const pixi = new Application();
 
 /** Fit the design space to a CSS-pixel box. */
 export function fit(cssW: number, cssH: number) {
-  const scale = cssW / cssH >= MIN_W / H ? cssH / H : cssW / MIN_W;
+  const scale = Math.min(cssW, cssH) / SHORT;
   view.scale = scale;
   view.width = cssW / scale;
   view.height = cssH / scale;
@@ -28,7 +28,7 @@ export function fit(cssW: number, cssH: number) {
 }
 
 export async function initPixi(el: HTMLElement, cssW: number, cssH: number) {
-  await pixi.init({ backgroundAlpha: 0, antialias: true, width: cssW, height: cssH, resolution: Math.min(2, devicePixelRatio || 1), autoDensity: true, autoStart: true });
+  await pixi.init({ background: token('--frame'), antialias: true, width: cssW, height: cssH, resolution: Math.min(2, devicePixelRatio || 1), autoDensity: true, autoStart: true });
   pixi.canvas.style.position = 'absolute';
   pixi.canvas.style.inset = '0';
   pixi.canvas.style.touchAction = 'none';

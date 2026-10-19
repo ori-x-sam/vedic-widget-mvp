@@ -5,11 +5,11 @@
 //   points n    collecting it scores n points
 
 // Big and cheap.
-thing "orb" name="Orb" r=0.5 paint="--thing-orb" {
+thing "orb" name="Orb" r=0.5 paint="--haldi" {
     points 1
 }
 
 // Small and worth more.
-thing "gem" name="Gem" r=0.3 paint="--thing-gem" {
+thing "gem" name="Gem" r=0.3 paint="--rani" {
     points 5
 }

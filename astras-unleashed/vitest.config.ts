@@ -8,7 +8,6 @@ import { defineConfig } from 'vitest/config';
 const chromiumPath = process.env.CHROMIUM_PATH;
 
 export default defineConfig({
-  assetsInclude: ['**/*.glb'], // models/*.glb: a rig-contract test can read them ?inline
   test: {
     projects: [
       // css.include: vitest otherwise replaces .css imports (even ?raw) with empty strings, and the screens' sheets are data here.
