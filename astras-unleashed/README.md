@@ -1,60 +1,40 @@
-# Starter
+# Astras Unleashed
 
-The game-bible foundation as a project you copy on day one: the declarative UI engine, the content loader, the game
-clock, the seeded RNG, the guard tests, the Storybook harness, the Blender model kit, and a tiny placeholder game
-that uses every layer once so the patterns are there to copy.
+Twenty gods. Three worlds. Four ages. A real-time three-lane card battler in the Kalinga Rush look, built on the
+Liora Labs game-bible starter (TypeScript, Vite, Pixi v8, KDL content, a CSS dialect for look, zustand, zod,
+Storybook, vitest). The brief is `BRIEF.md`; working rules and the tweak map are in `CLAUDE.md`; the vocabulary
+catalog is `docs/declarative-ui.md`.
 
-## Start a game
-
-```sh
-cp -r <skill dir>/starter my-game && cd my-game && npm install
-npx playwright install chromium   # once per machine, for the story tests
-git init && git add -A && git commit -m "Start from the game-bible starter"
-```
-
-Then rename `"name"` in `package.json`, `META_KEY` in `src/store.ts` and the `<title>` in `index.html`.
+**Status: Phase 1 (vocabulary) done, waiting at Gate 1.** No match rules exist yet.
 
 ## Commands
 
-| Command | What it does |
+```sh
+npm install
+npm run dev              # the game (the title screen, for now), live
+npm run storybook        # stories at http://localhost:6006: Foundation/Palette, Foundation/Prefabs, Screens
+npm test                 # unit tests: words, content, contrast, engine, guards, catalog drift
+npm run test:stories     # every story's play, headless Chromium
+npm run typecheck
+npm run build
+npm run sim              # for now: the content's sums (cost curve, deck averages, Prana over regulation)
+npm run shots -- <url> <out.png> [waitMs] [width] [height]
+```
+
+If Playwright's own Chromium isn't installed (a container with an older one), point the story tests and shots at an
+existing build: `CHROMIUM_PATH=/opt/pw-browsers/chromium npm run test:stories`.
+
+## Layout
+
+| Path | What |
 |---|---|
-| `npm run dev` | the game, live, with hot reload of screens' KDL and CSS |
-| `npm run storybook` | stories at http://localhost:6006 (MCP at `/mcp` for agents) |
-| `npm test` | unit tests: core, engine, content, guards, catalog drift |
-| `npm run test:stories` | every story's `play`, in headless Chromium |
-| `npm run typecheck` | `tsc` |
-| `npm run build` | typecheck and build to `dist/` |
-| `npm run sim` | play whole games headless on the pure core |
-| `npm run shots -- <url> <out.png>` | a headless screenshot |
-| `npm run models [-- name]` | build `models/<name>.py` to `.glb` with headless Blender (`BLENDER` overrides the binary) |
-
-## What's here
-
-Foundation (keep; change only with a catalog row and a test):
-
-- `src/decl/`: the declarative UI engine (`css.ts` pure, `engine.ts` Pixi) and its tests
-- `src/content-load.ts`: `loadKdl`, `combinators`, `tunedText`
-- `src/clock.ts`, `src/rng.ts`, `src/tokens.ts`, `src/view/look.ts`, `src/stage.ts`
-- guards: `src/core-purity.test.ts`, `src/screens/screen-imports.test.ts`, `src/screens/guards.test.ts`,
-  `src/catalog.test.ts` (keep `CORE` in the first two in step as core modules come and go)
-- `src/stories/stage.ts` (the story harness and tap driver), `.storybook/`
-- `scripts/`, `models/kit.py`, configs
-
-Placeholders (replace with your game):
-
-| File | The placeholder |
-|---|---|
-| `src/game.ts`, `src/game.test.ts` | the rules: collect a thing, score its reward words, a fresh batch when the field is empty; the saved meta |
-| `src/rewards.ts` | one behaviour word, `points n` |
-| `src/tuning.ts` | the field size and batch size |
-| `src/content.ts`, `content/things.kdl` | one content kind, `thing` |
-| `src/store.ts`, `src/actions.ts`, `src/runtime.ts` | keep the shape, change the state and the actions |
-| `src/view/scene.ts` | a Three scene with a sphere per thing, reconciled by id |
-| `src/screens/title.*` | the one screen |
-| `src/screens/shared.*` | the palette, look tokens, one prefab (`btn`), one element (`meter`), one property (`tint`) |
-| `src/stories/Screens.stories.ts` | one story with a `play` |
-| `scripts/sim.ts` | a bot that always collects the first thing |
-| `docs/declarative-ui.md` | the catalog: engine rows stay, rows marked PLACEHOLDER go when their code does |
-
-There are no model scripts yet: the first `models/<name>.py` imports `kit` and follows the rig contract in its
-header. When the game loads models, add a loader and a test that checks every committed `.glb` against that contract.
+| `content/*.kdl` | the game's content: gods, classes, Kshetras, the match, decks, bots, Katha pages, blessings |
+| `src/units.ts` `effects.ts` `cards.ts` `kshetras.ts` | behaviour words (pure core) |
+| `src/content.ts`, `src/content-load.ts` | content kinds (zod) and the KDL loader |
+| `src/meta.ts`, `src/store.ts`, `src/actions.ts` | what a save keeps; the stores; the one impure boundary |
+| `src/screens/shared.*` | the palette and look (`:root`), shared prefabs, keyframes, painters, binding builders |
+| `src/decl/` | the declarative UI engine (as copied from the starter) |
+| `src/stories/` | Storybook stories and the story harness |
+| `ref/kalinga/` | Kalinga Rush screenshots: the visual bar |
+| `LORE.md`, `STRINGS_TO_VERIFY.md` | sources to verify; every Indic string, for a native reader |
+| `docs/balance.md` | the budget model the starting numbers came from |

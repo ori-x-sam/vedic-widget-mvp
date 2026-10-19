@@ -1,8 +1,8 @@
 # Vocabulary catalog
 
 Every piece of shared vocabulary, where it lives, and one line on how to use it. `src/catalog.test.ts` fails when
-this file and the code disagree, so a new word lands here in the same commit as its code. Rows marked PLACEHOLDER
-belong to the starter's example game: replace them with your game's words.
+this file and the code disagree, so a new word lands here in the same commit as its code. Nothing here is a
+placeholder from the starter any more: every row is Astras Unleashed's own.
 
 Homes:
 
@@ -15,6 +15,7 @@ Homes:
 | Look numbers (grain, cast, halftone, haze, grade, misregister) | `--look-*` tokens in the `:root` of `src/screens/shared.css`, read by the shell through `src/view/look.ts` |
 | Behaviour words | `STAT_WORDS`, `UNIT_WORDS` (`src/units.ts`), `EFFECT_WORDS` (`src/effects.ts`), `TRIGGERS` (`src/cards.ts`), `KSHETRA_WORDS` (`src/kshetras.ts`) |
 | Content kinds | zod schemas in `src/content.ts`, data in `content/*.kdl` |
+| Keyframes | `@keyframes` in `src/screens/shared.css` |
 | Screens and their stacking | `src/runtime.ts` (import order = draw order) |
 
 ## How screens work
@@ -322,4 +323,4 @@ In draw order (later on top). Each is `screens/<name>.kdl` + `.css` + `.ts` (bin
 
 | Screen | Use |
 |---|---|
-| `title` | PLACEHOLDER: name, score, what's left of the batch, collect and new-game buttons, best score |
+| `title` | the title screen; for now "Astras" over "Unleashed" and what the content holds (the real title card comes with the screens in Phase 3) |
