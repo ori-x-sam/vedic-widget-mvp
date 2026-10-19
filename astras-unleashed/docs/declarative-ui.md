@@ -163,7 +163,8 @@ Under a `thing` node in `content/things.kdl`, one per line.
 | Helper | Use |
 |---|---|
 | `loadKdl` | `loadKdl(src, { kind: schema })`: KDL to validated records, errors name node and field |
-| `combinators` | `combinators(registry, what)`: a node's children as behaviour/effect words |
+| `combinators` | `combinators(registry, what)`: a node's children as behaviour/effect words; a word's block (`every 8 { pull 3 }`) parses with the same registry |
+| `word` | `word({ args, opts, flags, block }, make)`: a registry entry whose arguments aren't all numbers: string ids and tags, named options with defaults (`width=4`), bare flags (`units-only`), a block of words |
 | `tunedText` | `tunedText(T)`: `{A.b}` in a string quotes a tuning value  |
 
 ## Modelling kit
